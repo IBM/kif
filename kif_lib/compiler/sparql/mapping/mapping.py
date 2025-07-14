@@ -966,21 +966,17 @@ class SPARQL_Mapping(Sequence[_Entry]):
         """
         return entry
 
-    def postamble(
-            self,
-            compiler: Compiler,
-            targets: Iterable[SPARQL_Mapping.EntryPattern]
-    ) -> None:
+    def postamble(self, compiler: Compiler) -> None:
         """Called after compilation ends.
 
         Parameters:
            compiler: SPARQL compiler.
-           targets: Target patterns.
         """
 
     def build_query(
             self,
             compiler: Compiler,
+            query: Compiler.Query,
             projection: Compiler.Projection | None = None,
             distinct: bool | None = None,
             limit: int | None = None,
@@ -990,6 +986,7 @@ class SPARQL_Mapping(Sequence[_Entry]):
 
         Parameters:
            compiler: SPARQL compiler.
+           query: Query.
            projection: Projection mask.
            distinct: Whether to enable the distinct modifier.
            limit: Limit.
@@ -998,33 +995,41 @@ class SPARQL_Mapping(Sequence[_Entry]):
         Returns:
            Filter query.
         """
-        vars = self._build_query_get_target_variables(compiler, projection)
-        return compiler.q.select(  # type: ignore
+        vars = self._build_query_get_target_variables(
+            compiler, query, projection)
+        return query.select(  # type: ignore
             compiler._entry_id_qvar, *vars,
             distinct=distinct, limit=limit, offset=offset)
 
     def _build_query_get_target_variables(
             self,
             compiler: Compiler,
+            query: Compiler.Query,
             projection: Compiler.Projection | None = None
     ) -> Set[Compiler.Query.Variable]:
         return functools.reduce(
             lambda x, y: x | y,
             self._build_query_get_target_variables_tail(
-                compiler, projection), set())
+                compiler, query, projection), set())
 
     def _build_query_get_target_variables_tail(
             self,
             compiler: Compiler,
+            query: Compiler.Query,
             projection: Compiler.Projection | None = None
     ) -> Iterator[Set[Compiler.Query.Variable]]:
         get_entry_pattern_variables = functools.partial(
             self._build_query_get_entry_pattern_variables,
             compiler=compiler, projection=projection)
-        for id, targets in compiler._entry_targets.items():
+        entries = cast(
+            set[SPARQL_Mapping.Entry] | None, query.get_user_data('entries'))
+        assert entries is not None
+        for entry in entries:
             yield from map(
-                compiler._entry_subst[id].ancestor_qvars,
-                itertools.chain(*map(get_entry_pattern_variables, targets)))
+                compiler._entry_subst[entry.id].ancestor_qvars,
+                itertools.chain(*map(
+                    get_entry_pattern_variables,
+                    compiler._entry_targets[entry.id])))
 
     def _build_query_get_entry_pattern_variables(
             self,
@@ -1033,9 +1038,9 @@ class SPARQL_Mapping(Sequence[_Entry]):
             projection: Compiler.Projection | None = None
     ) -> Set[Variable]:
         assert projection is None or projection.value != 0
-        assert isinstance(pattern, (Statement, StatementTemplate))
+        assert isinstance(pattern, (Statement, StatementTemplate)), pattern
         pat = pattern.unannotate()
-        assert isinstance(pat.snak, (Snak, SnakTemplate))
+        assert isinstance(pat.snak, (Snak, SnakTemplate)), pat.snak
         if projection is None:
             return pat.variables  # no projection
         else:

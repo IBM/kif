@@ -415,52 +415,41 @@ class SPARQL_FilterCompiler(SPARQL_Compiler):
             self,
             patterns: Sequence[SPARQL_Mapping.EntryPattern]
     ) -> None:
-        # patterns = (
-        #     pat.generalize(rename=self._fresh_name_generator())
-        #     for pat in patterns)
-        # match_funcs = (
-        #     functools.partial(
-        #         entry.match_and_preprocess, self.mapping, self,
-        #         term2arg=self._term2arg) for entry in self.mapping)
-        # matches = filter(
-        #     lambda t: t and t[0], (f(p) for f, p in itertools.product(
-        #         match_funcs, patterns)))
-        # print('>>>', next(matches))
-        all_targets: list[SPARQL_Mapping.EntryPattern] = []
-        self.push_query()
-        with self.q.union():
-            for pat in patterns:
-                pat = pat.generalize(rename=self._fresh_name_generator())
-                for entry in self.mapping:
-                    matches = entry.match_and_preprocess(
-                        self.mapping, self, pat, self._term2arg)
-                    if not matches:
-                        continue  # nothing to do
-                    targets, theta, kwargs = matches
-                    if not targets:
-                        continue  # nothing to do
-                    push = functools.partial(
-                        self._push_filter_push_entry,
-                        self.filter, entry, theta=theta, kwargs=kwargs)
-                    if True:
-                        ###
-                        # TODO: Add an option to split targets.
-                        ###
-                        for target in targets:
-                            if self._skip_if_filter_property_is_full(target):
-                                ###
-                                # FIXME: Find a less ad-hoc way to do this.
-                                ###
-                                continue
-                            push((target,))
-                    else:
-                        push(targets)
-                    all_targets += targets
-        if not self._entry_subst:
-            self.pop_query()
-            self.push_query()      # empty query
+        it_match_funcs = (
+            (entry, functools.partial(
+                entry.match_and_preprocess, self.mapping, self,
+                term2arg=self._term2arg)) for entry in self.mapping)
+        it_patterns = (
+            pat.generalize(rename=self._fresh_name_generator())
+            for pat in patterns)
+        matches = filter(
+            lambda t: t[1] and t[1][0], (  # filter out empty targets
+                (e, f(p)) for (e, f), p in itertools.product(
+                    it_match_funcs, it_patterns)))
+        for batch in filter(bool, itertools.divide(self.omega, matches)):
+            query = self.push_query()
+            query_entries = cast(
+                set[SPARQL_Mapping.Entry],
+                query.set_user_data('entries', set()))
+            query_targets = cast(
+                list[SPARQL_Mapping.EntryPattern],
+                query.set_user_data('targets', []))
+            with self.q.union() as cup:
+                for entry, m in batch:
+                    assert m is not None
+                    targets, theta, kwargs = m
+                    for target in targets:
+                        if not self._skip_if_filter_property_is_full(target):
+                            status = self._push_filter_push_entry(
+                                self.filter, entry, (target,),
+                                theta, kwargs)
+                            if status:  # not skipped?
+                                query_entries.add(entry)
+                                query_targets.append(target)
+            if not cup.children:
+                self.pop_query()  # empty query, discard
         self.frame['phase'] = self.DONE
-        self.mapping.postamble(self, all_targets)
+        self.mapping.postamble(self)
 
     def _skip_if_filter_property_is_full(
             self,
@@ -513,7 +502,7 @@ class SPARQL_FilterCompiler(SPARQL_Compiler):
             targets: Sequence[SPARQL_Mapping.EntryPattern],
             theta: Theta,
             kwargs: Mapping[str, SPARQL_Mapping.EntryCallbackArg]
-    ) -> None:
+    ) -> bool:
         assert targets
         self.push_frame(
             phase=self.COMPILING_FILTER,
@@ -538,12 +527,13 @@ class SPARQL_FilterCompiler(SPARQL_Compiler):
                 entry.callback(self.mapping, self, **kwargs)
                 self._push_fps(entry, filter, targets)
         except self.mapping.Skip:
-            pass
+            return False
         else:
             self._entry_subst[entry.id] = self.theta
             if entry.id not in self._entry_targets:
                 self._entry_targets[entry.id] = []
             self._entry_targets[entry.id].extend(targets)  # type: ignore
+            return True
         finally:
             self.pop_frame()
 
@@ -859,6 +849,7 @@ class SPARQL_FilterCompiler(SPARQL_Compiler):
 
     def build_query(
             self,
+            query: SPARQL_FilterCompiler.Query,
             projection: Projection | None = None,
             distinct: bool | None = None,
             limit: int | None = None,
@@ -867,6 +858,7 @@ class SPARQL_FilterCompiler(SPARQL_Compiler):
         """Constructs a filter query.
 
         Parameters:
+           query: Query.
            projection: Projection mask.
            distinct: Whether to enable the distinct modifier.
            limit: Limit.
@@ -877,7 +869,7 @@ class SPARQL_FilterCompiler(SPARQL_Compiler):
         """
         assert self.frame['phase'] == self.DONE
         return self.mapping.build_query(
-            self, projection, distinct, limit, offset)
+            self, query, projection, distinct, limit, offset)
 
     def build_results(
             self

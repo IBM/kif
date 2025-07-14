@@ -467,30 +467,29 @@ class _SPARQL_Store(
 
     @override
     def _ask(self, filter: Filter, options: Store.Options) -> bool:
-        query = self._build_ask_query_from_filter(filter, options)
-        if query.where_is_nonempty():
-            return self._parse_ask_results(
-                self.backend.ask(str(query.ask())))
-        else:
-            return False
+        it = self._build_ask_query_stream_from_filter(filter, options)
+        return any(
+            self._parse_ask_results(self.backend.ask(str(query.ask())))
+            for query in it)
 
     @override
     async def _aask(self, filter: Filter, options: Store.Options) -> bool:
-        query = self._build_ask_query_from_filter(filter, options)
-        if query.where_is_nonempty():
-            return self._parse_ask_results(
-                await self.backend.aask(str(query.ask())))
-        else:
-            return False
+        it = list(self._build_ask_query_stream_from_filter(filter, options))
+        tasks = (
+            asyncio.ensure_future(self.backend.aask(str(query.ask())))
+            for query in it)
+        return any(
+            self._parse_ask_results(results)
+            for results in await asyncio.gather(*tasks))
 
-    def _build_ask_query_from_filter(
+    def _build_ask_query_stream_from_filter(
             self,
             filter: Filter,
             options: Store.Options
-    ) -> SPARQL_FilterCompiler.Query:
+    ) -> Iterator[SPARQL_FilterCompiler.Query]:
         compiler, _, _ = self._compile_filter(
             filter, options, SPARQL_FilterCompiler.Projection.ALL)
-        return compiler.query
+        yield from compiler.query_stack
 
     def _parse_ask_results(self, results: SPARQL_ResultsAsk) -> bool:
         assert 'boolean' in results
@@ -545,13 +544,12 @@ class _SPARQL_Store(
             options: Store.Options,
             projection: SPARQL_FilterCompiler.Projection
     ) -> int:
-        count, query = self._build_count_query_from_filter(
+        it = self._build_count_query_stream_from_filter(
             filter, options, projection)
-        if query.where_is_nonempty():
-            return self._parse_count_results(
+        return sum(
+            self._parse_count_results(
                 count, self.backend.select(str(query)))
-        else:
-            return 0
+            for count, query in it)
 
     @override
     async def _acount(self, filter: Filter, options: Store.Options) -> int:
@@ -600,37 +598,37 @@ class _SPARQL_Store(
             options: Store.Options,
             projection: SPARQL_FilterCompiler.Projection
     ) -> int:
-        count, query = self._build_count_query_from_filter(
-            filter, options, projection)
-        if query.where_is_nonempty():
-            return self._parse_count_results(
-                count, await self.backend.aselect(str(query)))
-        else:
-            return 0
+        it = list(self._build_count_query_stream_from_filter(
+            filter, options, projection))
+        tasks = (
+            asyncio.ensure_future(self.backend.aselect(str(query)))
+            for _, query in it)
+        return sum(
+            self._parse_count_results(count, results)
+            for (count, _), results in zip(
+                it, await asyncio.gather(*tasks)))
 
-    def _build_count_query_from_filter(
+    def _build_count_query_stream_from_filter(
             self,
             filter: Filter,
             options: Store.Options,
             projection: SPARQL_FilterCompiler.Projection
-    ) -> tuple[SPARQL_FilterCompiler.Query.Variable,
-               SPARQL_FilterCompiler.Query]:
+    ) -> Iterator[tuple[SPARQL_FilterCompiler.Query.Variable,
+                        SPARQL_FilterCompiler.Query]]:
         compiler, _, _ = self._compile_filter(
             filter.replace(annotated=False), options, projection)
-        try:
-            q = next(self._build_filter_query_stream(
-                compiler, projection, True, 1, 1))
-        except StopIteration:
-            q = compiler.Query()
-        q.set_limit(None)
-        q.set_offset(None)
-        count = q.fresh_var()
-        if q.where_is_nonempty():
+        for disjoint_query in compiler.query_stack:
+            try:
+                q = next(self._build_filter_query_stream(
+                    compiler, disjoint_query, projection, True, 1, 1))
+            except StopIteration as err:
+                raise self._should_not_get_here() from err
+            q.set_limit(None)
+            q.set_offset(None)
+            count = compiler.fresh_qvar()
             query = compiler.Query()
             query.subquery(q)()
-        else:
-            query = q
-        return count, query.select((q.count(), count))  # type: ignore
+            yield count, query.select((q.count(), count))  # type: ignore
 
     def _parse_count_results(
             self,
@@ -732,28 +730,37 @@ class _SPARQL_Store(
             limit = options.limit
         else:
             limit = options.max_limit
-        query_stream = self._build_filter_query_stream(
-            compiler, projection, options.distinct, limit, options.page_size)
-        count = 0
-        for query in query_stream:
-            bindings = list(self._build_filter_result_binding_stream((
-                self.backend.select(str(query)),)))
-            for binding in itertools.chain(bindings, ({},)):
-                if not bindings:
-                    return      # done
-                thetas = push(binding)
-                if thetas is None:
-                    continue    # push more results
-                for theta in thetas:
-                    stmt = variable.instantiate(theta)
-                    assert isinstance(stmt, (Statement, StatementTemplate))
-                    yield select(stmt)
-                    count += 1
-                    assert count <= limit, (count, limit)
-                    if count == limit:
-                        return  # done
-            if count < options.page_size:
-                break           # done
+        total_count = 0
+
+        def process(
+                disjoint_query: SPARQL_FilterCompiler.Query
+        ) -> Iterator[ClosedTerm]:
+            stream = self._build_filter_query_stream(
+                compiler, disjoint_query, projection,
+                options.distinct, limit, options.page_size)
+            nonlocal total_count
+            count = 0
+            for query in stream:
+                bindings = list(self._build_filter_result_binding_stream((
+                    self.backend.select(str(query)),)))
+                for binding in itertools.chain(bindings, ({},)):
+                    if not bindings:
+                        return      # done
+                    thetas = push(binding)
+                    if thetas is None:
+                        continue    # push more results
+                    for theta in thetas:
+                        stmt = variable.instantiate(theta)
+                        assert isinstance(stmt, (Statement, StatementTemplate))
+                        yield select(stmt)
+                        count += 1
+                        total_count += 1
+                        assert total_count <= limit, (count, limit)
+                        if total_count == limit:
+                            return  # done
+                if count < options.page_size:
+                    break           # done
+        return itertools.chain(*map(process, compiler.query_stack))
 
     def _filter_with_projection_select(
             self,
@@ -887,31 +894,42 @@ class _SPARQL_Store(
             limit = options.limit
         else:
             limit = options.max_limit
-        query_stream = self._build_filter_query_stream(
-            compiler, projection, options.distinct, limit, options.page_size)
-        count = 0
-        for batch in itertools.batched(query_stream, self.lookahead):
-            tasks = (
-                asyncio.ensure_future(self.backend.aselect(str(q)))
-                for q in batch)
-            bindings = list(self._build_filter_result_binding_stream(
-                await asyncio.gather(*tasks)))
-            if not bindings:
-                break           # done
-            for binding in itertools.chain(bindings, ({},)):
-                thetas = push(binding)
-                if thetas is None:
-                    continue    # push more results
-                for theta in thetas:
-                    stmt = variable.instantiate(theta)
-                    assert isinstance(stmt, (Statement, StatementTemplate))
-                    yield select(stmt)
-                    count += 1
-                    assert count <= limit, (count, limit)
-                    if count == limit:
-                        return  # done
-            if count % self.page_size != 0:
-                break           # done
+        total_count = 0
+
+        async def aprocess(
+                disjoint_query: SPARQL_FilterCompiler.Query
+        ) -> AsyncIterator[ClosedTerm]:
+            stream = self._build_filter_query_stream(
+                compiler, disjoint_query, projection,
+                options.distinct, limit, options.page_size)
+            nonlocal total_count
+            count = 0
+            for batch in itertools.batched(stream, self.lookahead):
+                tasks = (
+                    asyncio.ensure_future(self.backend.aselect(str(q)))
+                    for q in batch)
+                bindings = list(self._build_filter_result_binding_stream(
+                    await asyncio.gather(*tasks)))
+                if not bindings:
+                    break           # done
+                for binding in itertools.chain(bindings, ({},)):
+                    thetas = push(binding)
+                    if thetas is None:
+                        continue    # push more results
+                    for theta in thetas:
+                        stmt = variable.instantiate(theta)
+                        assert isinstance(stmt, (Statement, StatementTemplate))
+                        yield select(stmt)
+                        count += 1
+                        total_count += 1
+                        assert total_count <= limit, (count, limit)
+                        if total_count == limit:
+                            return  # done
+                if count % self.page_size != 0:
+                    break           # done
+        async for term in itertools.achain(*map(
+                aprocess, compiler.query_stack)):
+            yield term
 
     def _compile_filter(
             self,
@@ -936,7 +954,7 @@ class _SPARQL_Store(
             assert filter.snak_mask & Filter.VALUE_SNAK
             filter = filter.replace(snak_mask=Filter.VALUE_SNAK)
         compiler = SPARQL_FilterCompiler(
-            filter, self.mapping, options.debug)
+            filter, self.mapping, debug=options.debug, omega=options.omega)
         compiler.compile()
         assert isinstance(compiler.pattern, VariablePattern)
         assert isinstance(compiler.pattern.variable, StatementVariable)
@@ -945,21 +963,7 @@ class _SPARQL_Store(
     def _build_filter_query_stream(
             self,
             compiler: SPARQL_FilterCompiler,
-            projection: SPARQL_FilterCompiler.Projection,
-            distinct: bool,
-            limit: int,
-            page_size: int
-    ) -> Iterator[SPARQL_FilterCompiler.Query]:
-        query_stream = self._build_filter_query_stream_tail(
-            compiler, projection, distinct, limit, page_size)
-        for query in query_stream:
-            if query.where_is_empty():
-                break
-            yield query
-
-    def _build_filter_query_stream_tail(
-            self,
-            compiler: SPARQL_FilterCompiler,
+            query: SPARQL_FilterCompiler.Query,
             projection: SPARQL_FilterCompiler.Projection,
             distinct: bool,
             limit: int,
@@ -972,12 +976,14 @@ class _SPARQL_Store(
                 remaining = limit - offset
                 if remaining < page_size:
                     yield compiler.build_query(
+                        query=query,
                         projection=projection,
                         distinct=distinct,
                         limit=remaining,
                         offset=offset)
                     break
                 yield compiler.build_query(
+                    query=query,
                     projection=projection,
                     distinct=distinct,
                     limit=page_size,

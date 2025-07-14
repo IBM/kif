@@ -124,6 +124,19 @@ class Test(OptionsTestCase):
             envvars=envvars,
             lower_bound=1)
 
+    def test_omega(self) -> None:
+        self._test_omega()
+
+    def _test_omega(
+            self,
+            envvars: Sequence[str] = ('KIF_STORE_OMEGA',)
+    ) -> None:
+        self._test_option_int(
+            section=self.section,
+            name='omega',
+            envvars=envvars,
+            lower_bound=1)
+
     def test_max_page_size(self) -> None:
         self._test_max_page_size()
 

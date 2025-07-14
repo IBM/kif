@@ -79,6 +79,9 @@ class SPARQL_Store(
         _v_lookahead: ClassVar[tuple[Iterable[str], int | None]] =\
             (('KIF_SPARQL_STORE_LOOKAHEAD',), None)
 
+        _v_omega: ClassVar[tuple[Iterable[str], int | None]] =\
+            (('KIF_SPARQL_STORE_OMEGA',), None)
+
         _v_max_page_size: ClassVar[tuple[Iterable[str], int | None]] =\
             (('KIF_SPARQL_STORE_MAX_PAGE_SIZE',), None)
 

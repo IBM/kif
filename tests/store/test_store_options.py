@@ -90,6 +90,9 @@ class Test(StoreTestCase):
     def test_lookahead(self) -> None:
         self._test_option_int(self.KB(), 'lookahead', lower_bound=1)
 
+    def test_omega(self) -> None:
+        self._test_option_int(self.KB(), 'omega', lower_bound=1)
+
     def test_page_size(self) -> None:
         self._test_option_int(self.KB(), 'page_size', lower_bound=0)
 

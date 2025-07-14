@@ -142,6 +142,7 @@ class Store(Set):
             self._init_max_limit(kwargs)
             self._init_limit(kwargs)
             self._init_lookahead(kwargs)
+            self._init_omega(kwargs)
             self._init_max_page_size(kwargs)
             self._init_page_size(kwargs)
             self._init_max_timeout(kwargs)
@@ -686,6 +687,80 @@ class Store(Set):
             self._lookahead = self._check_lookahead(
                 lookahead, function, name, position)
 
+        # -- omega --
+
+        @classmethod
+        def _check_omega(
+                cls,
+                arg: Any,
+                function: Location | None = None,
+                name: str | None = None,
+                position: int | None = None
+        ) -> int:
+            return max(cls._check_int(arg, function, name, position), 1)
+
+        @classmethod
+        def _check_optional_omega(
+                cls,
+                arg: Any | None,
+                default: Any | None = None,
+                function: Location | None = None,
+                name: str | None = None,
+                position: int | None = None
+        ) -> int | None:
+            return cls._do_check_optional(
+                cls._check_omega, arg, default, function, name, position)
+
+        #: The default value for the omega option.
+        DEFAULT_OMEGA: ClassVar[int] = 2
+
+        _v_omega: ClassVar[tuple[Iterable[str], int | None]] =\
+            (('KIF_STORE_OMEGA',), DEFAULT_OMEGA)
+
+        _omega: int | None
+
+        def _init_omega(self, kwargs: dict[str, Any]) -> None:
+            self.omega = kwargs.get(
+                '_omega', self.getenv_optional_int(*self._v_omega))
+
+        @property
+        def omega(self) -> int:
+            """The omega option."""
+            return self.get_omega()
+
+        @omega.setter
+        def omega(self, omega: TQuantity) -> None:
+            self.set_omega(omega)
+
+        def get_omega(self) -> int:
+            """Gets the omega option.
+
+            Returns:
+               Omega.
+            """
+            assert self._omega is not None
+            return self._omega
+
+        def set_omega(
+                self,
+                omega: TQuantity,
+                function: Location | None = None,
+                name: str | None = None,
+                position: int | None = None
+        ) -> None:
+            """Sets the omega option.
+
+            If `omega` is zero or negative, assumes 1.
+
+            Parameters:
+               omega: Omega.
+               function: Function or function name.
+               name: Argument name.
+               position: Argument position.
+            """
+            self._omega = self._check_omega(
+                omega, function, name, position)
+
         # -- max_page_size --
 
         #: The default value for the max. page size option.
@@ -1132,6 +1207,22 @@ class Store(Set):
                 function=function, name=name, position=position))
 
         @override
+        def get_omega(self) -> int:
+            return self._do_get('_omega', super().get_omega)
+
+        @override
+        def set_omega(
+                self,
+                omega: TQuantity | None,
+                function: Location | None = None,
+                name: str | None = None,
+                position: int | None = None
+        ) -> None:
+            self._do_set(omega, '_omega', functools.partial(
+                super().set_omega,
+                function=function, name=name, position=position))
+
+        @override
         def get_max_page_size(self) -> int:
             return self._do_get('_max_page_size', super().get_max_page_size)
 
@@ -1202,6 +1293,7 @@ class Store(Set):
             extra_references: TReferenceRecordSet | None = None,
             limit: int | None = None,
             lookahead: int | None = None,
+            omega: int | None = None,
             page_size: int | None = None,
             timeout: float | None = None,
             context: Context | None = None,
@@ -1220,6 +1312,7 @@ class Store(Set):
            extra_references: Extra references to attach to statements.
            limit: Limit (maximum number) of responses.
            lookahead: Number of pages to lookahead asynchronously.
+           omega: Maximum number of disjoint subqueries.
            page_size: Page size of paginated responses.
            timeout: Timeout of responses (in seconds).
            context: Context.
@@ -1235,6 +1328,7 @@ class Store(Set):
             extra_references=extra_references,
             limit=limit,
             lookahead=lookahead,
+            omega=omega,
             page_size=page_size,
             timeout=timeout)
 
@@ -1317,6 +1411,8 @@ class Store(Set):
             self.set_limit(kwargs['limit'])
         if 'lookahead' in kwargs:
             self.set_lookahead(kwargs['lookahead'])
+        if 'omega' in kwargs:
+            self.set_omega(kwargs['omega'])
         if 'page_size' in kwargs:
             self.set_page_size(kwargs['page_size'])
         if 'timeout' in kwargs:
@@ -2082,6 +2178,61 @@ class Store(Set):
     def _set_lookahead(self, lookahead: int) -> bool:
         return True
 
+# -- Omega -----------------------------------------------------------------
+
+    @at_property
+    def default_omega(self) -> int:
+        """The default value for :attr:`Store.omega`."""
+        return self.get_default_omega()
+
+    def get_default_omega(self) -> int:
+        """Gets the default value for :attr:`Store.omega`.
+
+        Returns:
+           Default omega value.
+        """
+        return self.default_options.omega
+
+    @at_property
+    def omega(self) -> int:
+        """The omega of store."""
+        return self.get_omega()
+
+    @omega.setter
+    def omega(self, omega: int | None = None) -> None:
+        self.set_omega(omega)
+
+    def get_omega(self) -> int:
+        """Gets the omega of store.
+
+        Returns:
+           Omega.
+        """
+        return self.options.omega
+
+    def set_omega(self, omega: int | None = None) -> None:
+        """Sets the omega of store.
+
+        If `omega` is negative, assumes one.
+
+        If `omega` is ``None``, resets it to the default.
+
+        Parameters:
+           omega: Omega.
+        """
+        self._set_option_with_hooks(
+            omega,
+            self.options.get_omega,
+            functools.partial(
+                self.options.set_omega,
+                function=self.set_omega,
+                name='omega',
+                position=1),
+            self._set_omega)
+
+    def _set_omega(self, omega: int) -> bool:
+        return True
+
 # -- Page size -------------------------------------------------------------
 
     @at_property
@@ -2287,6 +2438,7 @@ class Store(Set):
             extra_references: TReferenceRecordSet | None = None,
             limit: int | None = None,
             lookahead: int | None = None,
+            omega: int | None = None,
             page_size: int | None = None,
             timeout: float | None = None,
             **kwargs: Any
@@ -2314,6 +2466,7 @@ class Store(Set):
            extra_references: Extra references to attach to statements.
            limit: Limit (maximum number) of responses.
            lookahead: Number of pages to lookahead asynchronously.
+           omega: Maximum number of disjoint subqueries.
            page_size: Page size of paginated responses.
            timeout: Timeout of responses (in seconds).
            kwargs: Other keyword arguments.
@@ -2329,7 +2482,7 @@ class Store(Set):
             rank_mask, best_ranked, language, annotated, snak, filter,
             # options
             base_filter, debug, distinct, distinct_window_size,
-            extra_references, limit, lookahead, page_size, timeout,
+            extra_references, limit, lookahead, omega, page_size, timeout,
             # function
             self.ask)
 
@@ -2366,6 +2519,7 @@ class Store(Set):
             extra_references: TReferenceRecordSet | None = None,
             limit: int | None = None,
             lookahead: int | None = None,
+            omega: int | None = None,
             page_size: int | None = None,
             timeout: float | None = None,
             **kwargs: Any
@@ -2379,7 +2533,7 @@ class Store(Set):
             rank_mask, best_ranked, language, annotated, snak, filter,
             # options
             base_filter, debug, distinct, distinct_window_size,
-            extra_references, limit, lookahead, page_size, timeout,
+            extra_references, limit, lookahead, omega, page_size, timeout,
             # function
             self.aask)
 
@@ -2471,6 +2625,7 @@ class Store(Set):
             extra_references: TReferenceRecordSet | None = None,
             limit: int | None = None,
             lookahead: int | None = None,
+            omega: int | None = None,
             page_size: int | None = None,
             timeout: float | None = None,
             **kwargs: Any
@@ -2498,6 +2653,7 @@ class Store(Set):
            extra_references: Extra references to attach to statements.
            limit: Limit (maximum number) of responses.
            lookahead: Number of pages to lookahead asynchronously.
+           omega: Maximum number of disjoint subqueries.
            page_size: Page size of paginated responses.
            timeout: Timeout of responses (in seconds).
            kwargs: Other keyword arguments.
@@ -2513,7 +2669,7 @@ class Store(Set):
             rank_mask, best_ranked, language, annotated, snak, filter,
             # options
             base_filter, debug, distinct, distinct_window_size,
-            extra_references, limit, lookahead, page_size, timeout,
+            extra_references, limit, lookahead, omega, page_size, timeout,
             # function
             self.count)
 
@@ -2557,6 +2713,7 @@ class Store(Set):
             extra_references: TReferenceRecordSet | None = None,
             limit: int | None = None,
             lookahead: int | None = None,
+            omega: int | None = None,
             page_size: int | None = None,
             timeout: float | None = None,
             **kwargs: Any
@@ -2570,7 +2727,7 @@ class Store(Set):
             rank_mask, best_ranked, language, annotated, snak, filter,
             # options
             base_filter, debug, distinct, distinct_window_size,
-            extra_references, limit, lookahead, page_size, timeout,
+            extra_references, limit, lookahead, omega, page_size, timeout,
             # function
             self.count_s)
 
@@ -2611,6 +2768,7 @@ class Store(Set):
             extra_references: TReferenceRecordSet | None = None,
             limit: int | None = None,
             lookahead: int | None = None,
+            omega: int | None = None,
             page_size: int | None = None,
             timeout: float | None = None,
             **kwargs: Any
@@ -2624,7 +2782,7 @@ class Store(Set):
             rank_mask, best_ranked, language, annotated, snak, filter,
             # options
             base_filter, debug, distinct, distinct_window_size,
-            extra_references, limit, lookahead, page_size, timeout,
+            extra_references, limit, lookahead, omega, page_size, timeout,
             # function
             self.count_p)
 
@@ -2654,6 +2812,7 @@ class Store(Set):
             extra_references: TReferenceRecordSet | None = None,
             limit: int | None = None,
             lookahead: int | None = None,
+            omega: int | None = None,
             page_size: int | None = None,
             timeout: float | None = None,
             **kwargs: Any
@@ -2667,7 +2826,7 @@ class Store(Set):
             rank_mask, best_ranked, language, annotated, snak, filter,
             # options
             base_filter, debug, distinct, distinct_window_size,
-            extra_references, limit, lookahead, page_size, timeout,
+            extra_references, limit, lookahead, omega, page_size, timeout,
             # function
             self.count_v)
 
@@ -2697,6 +2856,7 @@ class Store(Set):
             extra_references: TReferenceRecordSet | None = None,
             limit: int | None = None,
             lookahead: int | None = None,
+            omega: int | None = None,
             page_size: int | None = None,
             timeout: float | None = None,
             **kwargs: Any
@@ -2710,7 +2870,7 @@ class Store(Set):
             rank_mask, best_ranked, language, annotated, snak, filter,
             # options
             base_filter, debug, distinct, distinct_window_size,
-            extra_references, limit, lookahead, page_size, timeout,
+            extra_references, limit, lookahead, omega, page_size, timeout,
             # function
             self.count_sp)
 
@@ -2740,6 +2900,7 @@ class Store(Set):
             extra_references: TReferenceRecordSet | None = None,
             limit: int | None = None,
             lookahead: int | None = None,
+            omega: int | None = None,
             page_size: int | None = None,
             timeout: float | None = None,
             **kwargs: Any
@@ -2753,7 +2914,7 @@ class Store(Set):
             rank_mask, best_ranked, language, annotated, snak, filter,
             # options
             base_filter, debug, distinct, distinct_window_size,
-            extra_references, limit, lookahead, page_size, timeout,
+            extra_references, limit, lookahead, omega, page_size, timeout,
             # function
             self.count_sv)
 
@@ -2783,6 +2944,7 @@ class Store(Set):
             extra_references: TReferenceRecordSet | None = None,
             limit: int | None = None,
             lookahead: int | None = None,
+            omega: int | None = None,
             page_size: int | None = None,
             timeout: float | None = None,
             **kwargs: Any
@@ -2796,7 +2958,7 @@ class Store(Set):
             rank_mask, best_ranked, language, annotated, snak, filter,
             # options
             base_filter, debug, distinct, distinct_window_size,
-            extra_references, limit, lookahead, page_size, timeout,
+            extra_references, limit, lookahead, omega, page_size, timeout,
             # function
             self.count_pv)
 
@@ -2826,6 +2988,7 @@ class Store(Set):
             extra_references: TReferenceRecordSet | None = None,
             limit: int | None = None,
             lookahead: int | None = None,
+            omega: int | None = None,
             page_size: int | None = None,
             timeout: float | None = None,
             **kwargs: Any
@@ -2839,7 +3002,7 @@ class Store(Set):
             rank_mask, best_ranked, language, annotated, snak, filter,
             # options
             base_filter, debug, distinct, distinct_window_size,
-            extra_references, limit, lookahead, page_size, timeout,
+            extra_references, limit, lookahead, omega, page_size, timeout,
             # function
             self.acount)
 
@@ -2884,6 +3047,7 @@ class Store(Set):
             extra_references: TReferenceRecordSet | None = None,
             limit: int | None = None,
             lookahead: int | None = None,
+            omega: int | None = None,
             page_size: int | None = None,
             timeout: float | None = None,
             **kwargs: Any
@@ -2897,7 +3061,7 @@ class Store(Set):
             rank_mask, best_ranked, language, annotated, snak, filter,
             # options
             base_filter, debug, distinct, distinct_window_size,
-            extra_references, limit, lookahead, page_size, timeout,
+            extra_references, limit, lookahead, omega, page_size, timeout,
             # function
             self.acount_s)
 
@@ -2941,6 +3105,7 @@ class Store(Set):
             extra_references: TReferenceRecordSet | None = None,
             limit: int | None = None,
             lookahead: int | None = None,
+            omega: int | None = None,
             page_size: int | None = None,
             timeout: float | None = None,
             **kwargs: Any
@@ -2954,7 +3119,7 @@ class Store(Set):
             rank_mask, best_ranked, language, annotated, snak, filter,
             # options
             base_filter, debug, distinct, distinct_window_size,
-            extra_references, limit, lookahead, page_size, timeout,
+            extra_references, limit, lookahead, omega, page_size, timeout,
             # function
             self.acount_p)
 
@@ -2984,6 +3149,7 @@ class Store(Set):
             extra_references: TReferenceRecordSet | None = None,
             limit: int | None = None,
             lookahead: int | None = None,
+            omega: int | None = None,
             page_size: int | None = None,
             timeout: float | None = None,
             **kwargs: Any
@@ -2997,7 +3163,7 @@ class Store(Set):
             rank_mask, best_ranked, language, annotated, snak, filter,
             # options
             base_filter, debug, distinct, distinct_window_size,
-            extra_references, limit, lookahead, page_size, timeout,
+            extra_references, limit, lookahead, omega, page_size, timeout,
             # function
             self.acount_v)
 
@@ -3027,6 +3193,7 @@ class Store(Set):
             extra_references: TReferenceRecordSet | None = None,
             limit: int | None = None,
             lookahead: int | None = None,
+            omega: int | None = None,
             page_size: int | None = None,
             timeout: float | None = None,
             **kwargs: Any
@@ -3040,7 +3207,7 @@ class Store(Set):
             rank_mask, best_ranked, language, annotated, snak, filter,
             # options
             base_filter, debug, distinct, distinct_window_size,
-            extra_references, limit, lookahead, page_size, timeout,
+            extra_references, limit, lookahead, omega, page_size, timeout,
             # function
             self.acount_sp)
 
@@ -3070,6 +3237,7 @@ class Store(Set):
             extra_references: TReferenceRecordSet | None = None,
             limit: int | None = None,
             lookahead: int | None = None,
+            omega: int | None = None,
             page_size: int | None = None,
             timeout: float | None = None,
             **kwargs: Any
@@ -3083,7 +3251,7 @@ class Store(Set):
             rank_mask, best_ranked, language, annotated, snak, filter,
             # options
             base_filter, debug, distinct, distinct_window_size,
-            extra_references, limit, lookahead, page_size, timeout,
+            extra_references, limit, lookahead, omega, page_size, timeout,
             # function
             self.acount_sv)
 
@@ -3113,6 +3281,7 @@ class Store(Set):
             extra_references: TReferenceRecordSet | None = None,
             limit: int | None = None,
             lookahead: int | None = None,
+            omega: int | None = None,
             page_size: int | None = None,
             timeout: float | None = None,
             **kwargs: Any
@@ -3126,7 +3295,7 @@ class Store(Set):
             rank_mask, best_ranked, language, annotated, snak, filter,
             # options
             base_filter, debug, distinct, distinct_window_size,
-            extra_references, limit, lookahead, page_size, timeout,
+            extra_references, limit, lookahead, omega, page_size, timeout,
             # function
             self.acount_pv)
 
@@ -3158,6 +3327,7 @@ class Store(Set):
             extra_references: TReferenceRecordSet | None = None,
             limit: int | None = None,
             lookahead: int | None = None,
+            omega: int | None = None,
             page_size: int | None = None,
             timeout: float | None = None,
             **kwargs: Any
@@ -3185,6 +3355,7 @@ class Store(Set):
            extra_references: Extra references to attach to statements.
            limit: Limit (maximum number) of responses.
            lookahead: Number of pages to lookahead asynchronously.
+           omega: Maximum number of disjoint subqueries.
            page_size: Page size of paginated responses.
            timeout: Timeout of responses (in seconds).
            kwargs: Other keyword arguments.
@@ -3200,7 +3371,7 @@ class Store(Set):
             rank_mask, best_ranked, language, annotated, snak, filter,
             # options
             base_filter, debug, distinct, distinct_window_size,
-            extra_references, limit, lookahead, page_size, timeout,
+            extra_references, limit, lookahead, omega, page_size, timeout,
             # function
             self.filter)
 
@@ -3271,6 +3442,7 @@ class Store(Set):
             extra_references: TReferenceRecordSet | None = None,
             limit: int | None = None,
             lookahead: int | None = None,
+            omega: int | None = None,
             page_size: int | None = None,
             timeout: float | None = None,
             **kwargs: Any
@@ -3284,7 +3456,7 @@ class Store(Set):
             rank_mask, best_ranked, language, annotated, snak, filter,
             # options
             base_filter, debug, distinct, distinct_window_size,
-            extra_references, limit, lookahead, page_size, timeout,
+            extra_references, limit, lookahead, omega, page_size, timeout,
             # function
             self.filter_s)
 
@@ -3337,6 +3509,7 @@ class Store(Set):
             extra_references: TReferenceRecordSet | None = None,
             limit: int | None = None,
             lookahead: int | None = None,
+            omega: int | None = None,
             page_size: int | None = None,
             timeout: float | None = None,
             **kwargs: Any
@@ -3350,7 +3523,7 @@ class Store(Set):
             rank_mask, best_ranked, language, annotated, snak, filter,
             # options
             base_filter, debug, distinct, distinct_window_size,
-            extra_references, limit, lookahead, page_size, timeout,
+            extra_references, limit, lookahead, omega, page_size, timeout,
             # function
             self.filter_p)
 
@@ -3391,6 +3564,7 @@ class Store(Set):
             extra_references: TReferenceRecordSet | None = None,
             limit: int | None = None,
             lookahead: int | None = None,
+            omega: int | None = None,
             page_size: int | None = None,
             timeout: float | None = None,
             **kwargs: Any
@@ -3404,7 +3578,7 @@ class Store(Set):
             rank_mask, best_ranked, language, annotated, snak, filter,
             # options
             base_filter, debug, distinct, distinct_window_size,
-            extra_references, limit, lookahead, page_size, timeout,
+            extra_references, limit, lookahead, omega, page_size, timeout,
             # function
             self.filter_v)
 
@@ -3449,6 +3623,7 @@ class Store(Set):
             extra_references: TReferenceRecordSet | None = None,
             limit: int | None = None,
             lookahead: int | None = None,
+            omega: int | None = None,
             page_size: int | None = None,
             timeout: float | None = None,
             **kwargs: Any
@@ -3462,7 +3637,7 @@ class Store(Set):
             rank_mask, best_ranked, language, annotated, snak, filter,
             # options
             base_filter, debug, distinct, distinct_window_size,
-            extra_references, limit, lookahead, page_size, timeout,
+            extra_references, limit, lookahead, omega, page_size, timeout,
             # function
             self.filter_sp)
 
@@ -3505,6 +3680,7 @@ class Store(Set):
             extra_references: TReferenceRecordSet | None = None,
             limit: int | None = None,
             lookahead: int | None = None,
+            omega: int | None = None,
             page_size: int | None = None,
             timeout: float | None = None,
             **kwargs: Any
@@ -3518,7 +3694,7 @@ class Store(Set):
             rank_mask, best_ranked, language, annotated, snak, filter,
             # options
             base_filter, debug, distinct, distinct_window_size,
-            extra_references, limit, lookahead, page_size, timeout,
+            extra_references, limit, lookahead, omega, page_size, timeout,
             # function
             self.filter_sv)
 
@@ -3563,6 +3739,7 @@ class Store(Set):
             extra_references: TReferenceRecordSet | None = None,
             limit: int | None = None,
             lookahead: int | None = None,
+            omega: int | None = None,
             page_size: int | None = None,
             timeout: float | None = None,
             **kwargs: Any
@@ -3576,7 +3753,7 @@ class Store(Set):
             rank_mask, best_ranked, language, annotated, snak, filter,
             # options
             base_filter, debug, distinct, distinct_window_size,
-            extra_references, limit, lookahead, page_size, timeout,
+            extra_references, limit, lookahead, omega, page_size, timeout,
             # function
             self.filter_pv)
 
@@ -3621,6 +3798,7 @@ class Store(Set):
             extra_references: TReferenceRecordSet | None = None,
             limit: int | None = None,
             lookahead: int | None = None,
+            omega: int | None = None,
             page_size: int | None = None,
             timeout: float | None = None,
             **kwargs: Any
@@ -3634,7 +3812,7 @@ class Store(Set):
             rank_mask, best_ranked, language, annotated, snak, filter,
             # options
             base_filter, debug, distinct, distinct_window_size,
-            extra_references, limit, lookahead, page_size, timeout,
+            extra_references, limit, lookahead, omega, page_size, timeout,
             # function
             self.afilter)
 
@@ -3709,6 +3887,7 @@ class Store(Set):
             extra_references: TReferenceRecordSet | None = None,
             limit: int | None = None,
             lookahead: int | None = None,
+            omega: int | None = None,
             page_size: int | None = None,
             timeout: float | None = None,
             **kwargs: Any
@@ -3722,7 +3901,7 @@ class Store(Set):
             rank_mask, best_ranked, language, annotated, snak, filter,
             # options
             base_filter, debug, distinct, distinct_window_size,
-            extra_references, limit, lookahead, page_size, timeout,
+            extra_references, limit, lookahead, omega, page_size, timeout,
             # function
             self.afilter_s)
 
@@ -3776,6 +3955,7 @@ class Store(Set):
             extra_references: TReferenceRecordSet | None = None,
             limit: int | None = None,
             lookahead: int | None = None,
+            omega: int | None = None,
             page_size: int | None = None,
             timeout: float | None = None,
             **kwargs: Any
@@ -3789,7 +3969,7 @@ class Store(Set):
             rank_mask, best_ranked, language, annotated, snak, filter,
             # options
             base_filter, debug, distinct, distinct_window_size,
-            extra_references, limit, lookahead, page_size, timeout,
+            extra_references, limit, lookahead, omega, page_size, timeout,
             # function
             self.afilter_p)
 
@@ -3831,6 +4011,7 @@ class Store(Set):
             extra_references: TReferenceRecordSet | None = None,
             limit: int | None = None,
             lookahead: int | None = None,
+            omega: int | None = None,
             page_size: int | None = None,
             timeout: float | None = None,
             **kwargs: Any
@@ -3844,7 +4025,7 @@ class Store(Set):
             rank_mask, best_ranked, language, annotated, snak, filter,
             # options
             base_filter, debug, distinct, distinct_window_size,
-            extra_references, limit, lookahead, page_size, timeout,
+            extra_references, limit, lookahead, omega, page_size, timeout,
             # function
             self.afilter_v)
 
@@ -3889,6 +4070,7 @@ class Store(Set):
             extra_references: TReferenceRecordSet | None = None,
             limit: int | None = None,
             lookahead: int | None = None,
+            omega: int | None = None,
             page_size: int | None = None,
             timeout: float | None = None,
             **kwargs: Any
@@ -3902,7 +4084,7 @@ class Store(Set):
             rank_mask, best_ranked, language, annotated, snak, filter,
             # options
             base_filter, debug, distinct, distinct_window_size,
-            extra_references, limit, lookahead, page_size, timeout,
+            extra_references, limit, lookahead, omega, page_size, timeout,
             # function
             self.afilter_sp)
 
@@ -3945,6 +4127,7 @@ class Store(Set):
             extra_references: TReferenceRecordSet | None = None,
             limit: int | None = None,
             lookahead: int | None = None,
+            omega: int | None = None,
             page_size: int | None = None,
             timeout: float | None = None,
             **kwargs: Any
@@ -3958,7 +4141,7 @@ class Store(Set):
             rank_mask, best_ranked, language, annotated, snak, filter,
             # options
             base_filter, debug, distinct, distinct_window_size,
-            extra_references, limit, lookahead, page_size, timeout,
+            extra_references, limit, lookahead, omega, page_size, timeout,
             # function
             self.afilter_sv)
 
@@ -4003,6 +4186,7 @@ class Store(Set):
             extra_references: TReferenceRecordSet | None = None,
             limit: int | None = None,
             lookahead: int | None = None,
+            omega: int | None = None,
             page_size: int | None = None,
             timeout: float | None = None,
             **kwargs: Any
@@ -4016,7 +4200,7 @@ class Store(Set):
             rank_mask, best_ranked, language, annotated, snak, filter,
             # options
             base_filter, debug, distinct, distinct_window_size,
-            extra_references, limit, lookahead, page_size, timeout,
+            extra_references, limit, lookahead, omega, page_size, timeout,
             # function
             self.afilter_pv)
 
@@ -4061,6 +4245,7 @@ class Store(Set):
             extra_references: TReferenceRecordSet | None = None,
             limit: int | None = None,
             lookahead: int | None = None,
+            omega: int | None = None,
             page_size: int | None = None,
             timeout: float | None = None,
             _annotate: Callable[[Statement], AnnotatedStatement] = (
@@ -4075,7 +4260,7 @@ class Store(Set):
                 snak_mask, subject_mask, property_mask, value_mask,
                 rank_mask, best_ranked, language, True, snak, filter,
                 base_filter, debug, distinct, distinct_window_size,
-                extra_references, limit, lookahead, page_size, timeout,
+                extra_references, limit, lookahead, omega, page_size, timeout,
                 **kwargs))
 
     def afilter_annotated(
@@ -4100,6 +4285,7 @@ class Store(Set):
             extra_references: TReferenceRecordSet | None = None,
             limit: int | None = None,
             lookahead: int | None = None,
+            omega: int | None = None,
             page_size: int | None = None,
             timeout: float | None = None,
             _annotate: Callable[[Statement], AnnotatedStatement] = (
@@ -4114,7 +4300,7 @@ class Store(Set):
                 snak_mask, subject_mask, property_mask, value_mask,
                 rank_mask, best_ranked, language, True, snak, filter,
                 base_filter, debug, distinct, distinct_window_size,
-                extra_references, limit, lookahead, page_size, timeout,
+                extra_references, limit, lookahead, omega, page_size, timeout,
                 **kwargs))
 
     def _check_filter_with_options_and_run(
@@ -4140,6 +4326,7 @@ class Store(Set):
             extra_references: TReferenceRecordSet | None = None,
             limit: int | None = None,
             lookahead: int | None = None,
+            omega: int | None = None,
             page_size: int | None = None,
             timeout: float | None = None,
             function: Location | None = None,
@@ -4153,6 +4340,7 @@ class Store(Set):
                 extra_references=extra_references,
                 limit=limit,
                 lookahead=lookahead,
+                omega=omega,
                 page_size=page_size,
                 timeout=timeout,
                 **kwargs
@@ -4279,6 +4467,7 @@ class Store(Set):
             extra_references: TReferenceRecordSet | None = None,
             limit: int | None = None,
             lookahead: int | None = None,
+            omega: int | None = None,
             page_size: int | None = None,
             timeout: float | None = None,
             **kwargs: Any
@@ -4297,6 +4486,7 @@ class Store(Set):
            extra_references: Extra references to attach to statements.
            limit: Limit (maximum number) of responses.
            lookahead: Number of pages to lookahead asynchronously.
+           omega: Maximum number of disjoint subqueries.
            page_size: Page size of paginated responses.
            timeout: Timeout of responses (in seconds).
            kwargs: Other keyword arguments.
@@ -4312,6 +4502,7 @@ class Store(Set):
                 extra_references=extra_references,
                 limit=limit,
                 lookahead=lookahead,
+                omega=omega,
                 page_size=page_size,
                 timeout=timeout,
                 **kwargs
@@ -4337,6 +4528,7 @@ class Store(Set):
             extra_references: TReferenceRecordSet | None = None,
             limit: int | None = None,
             lookahead: int | None = None,
+            omega: int | None = None,
             page_size: int | None = None,
             timeout: float | None = None,
             **kwargs: Any
@@ -4350,6 +4542,7 @@ class Store(Set):
                 extra_references=extra_references,
                 limit=limit,
                 lookahead=lookahead,
+                omega=omega,
                 page_size=page_size,
                 timeout=timeout,
                 **kwargs

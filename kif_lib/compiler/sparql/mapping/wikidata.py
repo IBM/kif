@@ -320,41 +320,46 @@ class WikidataMapping(M):
         return super().frame_popped(compiler, frame)
 
     @override
-    def postamble(
-            self,
-            compiler: C,
-            targets: Iterable[M.EntryPattern]
-    ) -> None:
+    def postamble(self, compiler: C) -> None:
         c = compiler
-        if not c.q.where_is_empty():
-            annotation_of_some_target_is_open = any(map(lambda s: (
+        annotation_of_some_target_is_open = (
+            lambda targets: any(map(lambda s: (
                 isinstance(s, AnnotatedStatementTemplate)
                 and any(map(Term.is_open, (
-                    s.qualifiers, s.references, s.rank)))), targets))
-            if annotation_of_some_target_is_open:
+                    s.qualifiers, s.references, s.rank)))), targets)))
+        for i in range(len(c.query_stack)):
+            q = c.query_stack[i]
+            targets = cast(
+                list[M.EntryPattern] | None, q.get_user_data('targets'))
+            assert targets is not None
+            if annotation_of_some_target_is_open(targets):
                 ###
-                # FIXME: Monkey-patch the compiler to wrap the un-annotated
-                # query into a subquery.  It's not pretty but works.
+                # FIXME: Monkey-patch the query stack to wrap the
+                # un-annotated queries into a subquery.  It's not pretty but
+                # works.
                 ###
                 v = c.qvar
-                subquery = c.pop_query()
-                c.push_query()
+                subquery = q
+                q = c.Query()
+                q.set_user_data('entries', subquery.get_user_data('entries'))
+                q.set_user_data('targets', targets)
+                c.query_stack[i] = q  # type: ignore
                 if self.options.blazegraph:
-                    c.q.named_subquery('Q', subquery)()
+                    q.named_subquery('Q', subquery)()
                 else:
-                    c.q.subquery(subquery)()
-                with c.q.optional():
-                    with c.q.union():
-                        self._postamble_push_annotations(c)  # qualifiers
-                        self._postamble_push_annotations(    # references
-                            c, references=True)
-                        with c.q.group():  # rank
-                            c.q.triples()(
+                    q.subquery(subquery)()
+                with q.optional():
+                    with q.union():
+                        self._postamble_push_annotations(c, q)  # qualifiers
+                        self._postamble_push_annotations(c, q, references=True)
+                        with q.group():  # rank
+                            q.triples()(
                                 (self.wds, WIKIBASE.rank, v('_rank')))
 
     def _postamble_push_annotations(
             self,
             c: C,
+            q: C.Query,
             references: bool = False
     ) -> None:
         v = c.qvar
@@ -366,63 +371,63 @@ class WikidataMapping(M):
             px = WIKIBASE.qualifier
             pxv = WIKIBASE.qualifierValue
             wds = self.wds
-        with c.q.group():
-            c.q.triples()(
+        with q.group():
+            q.triples()(
                 (self.wds, WIKIBASE.rank, v('_rank')))
             if references:
-                c.q.triples()((self.wds, PROV.wasDerivedFrom, wds))
-            c.q.triples()(
+                q.triples()((self.wds, PROV.wasDerivedFrom, wds))
+            q.triples()(
                 (wds, v('_px'), v('_xvalue')),
                 (v('_xprop'), px, v('_px')),
                 (v('_xprop'), pxv, v('_pxv')),
                 (v('_xprop'), WIKIBASE.propertyType, v('_xprop_dt')))
-            with c.q.optional():  # value is a property
-                c.q.triples()(
+            with q.optional():  # value is a property
+                q.triples()(
                     (v('_xvalue'), WIKIBASE.propertyType, v('_xvalue_dt')))
-            with c.q.optional():  # value is deep
+            with q.optional():  # value is deep
                 wdv = v('_wdv')
-                with c.q.union():
-                    with c.q.group():  # quantity
-                        c.q.triples()(
+                with q.union():
+                    with q.group():  # quantity
+                        q.triples()(
                             (wds, v('_pxv'), wdv),
                             (wdv, RDF.type, WIKIBASE.QuantityValue),
                             (wdv, WIKIBASE.quantityAmount, v('_xvalue')))
-                        with c.q.optional():
-                            c.q.triples()(
+                        with q.optional():
+                            q.triples()(
                                 (wdv, WIKIBASE.quantityUnit,
                                  v('_qt_unit')))
-                        with c.q.optional():
-                            c.q.triples()(
+                        with q.optional():
+                            q.triples()(
                                 (wdv, WIKIBASE.quantityLowerBound,
                                  v('_qt_lower_bound')))
-                        with c.q.optional():
-                            c.q.triples()(
+                        with q.optional():
+                            q.triples()(
                                 (wdv, WIKIBASE.quantityUpperBound,
                                  v('_qt_upper_bound')))
-                    with c.q.group():  # time
-                        c.q.triples()(
+                    with q.group():  # time
+                        q.triples()(
                             (wds, v('_pxv'), wdv),
                             (wdv, RDF.type, WIKIBASE.TimeValue),
                             (wdv, WIKIBASE.timeValue,
                              v('_xvalue')))
-                        with c.q.optional():
-                            c.q.triples()(
+                        with q.optional():
+                            q.triples()(
                                 (wdv, WIKIBASE.timePrecision,
                                  v('_tm_precision')))
-                        with c.q.optional():
-                            c.q.triples()(
+                        with q.optional():
+                            q.triples()(
                                 (wdv, WIKIBASE.timeTimezone,
                                  v('_tm_timezone')))
-                        with c.q.optional():
-                            c.q.triples()(
+                        with q.optional():
+                            q.triples()(
                                 (wdv, WIKIBASE.timeCalendarModel,
                                  v('_tm_calendar')))
-        with c.q.group():  # no value
-            c.q.triples()(
+        with q.group():  # no value
+            q.triples()(
                 (self.wds, WIKIBASE.rank, v('_rank')))
             if references:
-                c.q.triples()((self.wds, PROV.wasDerivedFrom, wds))
-            c.q.triples()(
+                q.triples()((self.wds, PROV.wasDerivedFrom, wds))
+            q.triples()(
                 (wds, RDF.type, v('_xnovalue')),
                 (v('_xprop'), WIKIBASE.novalue, v('_xnovalue')),
                 (v('_xprop'), WIKIBASE.propertyType, v('_xprop_dt')))
@@ -437,7 +442,7 @@ class WikidataMapping(M):
             #
             #       (v('_prop'), WIKIBASE.claim, v('_claim'))
             #       (c.bnode(), v('_claim'), wds)
-            #     c.q.filter(~c.q.eq(v('_xprop'), v('_prop')))
+            #       q.filter(~q.eq(v('_xprop'), v('_prop')))
             #
             # However, we decided not to do that because it adds an overhead
             # to handle a cause that shouldn't exist in the first place.
@@ -447,22 +452,24 @@ class WikidataMapping(M):
     def build_query(
             self,
             compiler: C,
+            query: C.Query,
             projection: C.Projection | None = None,
             distinct: bool | None = None,
             limit: int | None = None,
             offset: int | None = None
     ) -> C.Query:
-        if not compiler.q.where.subselect_blocks:
+        if not query.where.subselect_blocks:
             return super().build_query(
-                compiler, projection, distinct, limit, offset)
+                compiler, query, projection, distinct, limit, offset)
         else:
-            assert len(compiler.q.where.subselect_blocks) == 1
-            sb = compiler.q.where.subselect_blocks[0]
+            assert len(query.where.subselect_blocks) == 1
+            sb = query.where.subselect_blocks[0]
             sb.query = sb.query.select(
                 compiler._entry_id_qvar, self.wds,
-                *self._build_query_get_target_variables(compiler, projection),
+                *self._build_query_get_target_variables(
+                    compiler, query, projection),
                 distinct=distinct, limit=limit, offset=offset)
-            return compiler.q.select(  # type: ignore
+            return query.select(  # type: ignore
                 distinct=distinct, limit=None, offset=None,
                 order_by=self.wds)
 

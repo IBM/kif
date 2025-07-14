@@ -50,6 +50,9 @@ class EmptyStore(
         _v_lookahead: ClassVar[tuple[Iterable[str], int | None]] =\
             (('KIF_EMPTY_STORE_LOOKAHEAD',), None)
 
+        _v_omega: ClassVar[tuple[Iterable[str], int | None]] =\
+            (('KIF_EMPTY_STORE_OMEGA',), None)
+
         _v_max_page_size: ClassVar[tuple[Iterable[str], int | None]] =\
             (('KIF_EMPTY_STORE_MAX_PAGE_SIZE',), None)
 

@@ -81,6 +81,9 @@ class MixerStore(
         #: Whether to propagate changes in lookahead option.
         LOOKAHEAD = KIF_Flags.auto()
 
+        #: Whether to propagate changes in omega option.
+        OMEGA = KIF_Flags.auto()
+
         #: Whether to propagate changes in page size option.
         PAGE_SIZE = KIF_Flags.auto()
 
@@ -95,6 +98,7 @@ class MixerStore(
             | DISTINCT_WINDOW_SIZE
             | LIMIT
             | LOOKAHEAD
+            | OMEGA
             | PAGE_SIZE
             | TIMEOUT)
 
@@ -115,6 +119,9 @@ class MixerStore(
 
     #: Whether to propagate changes in lookahead option.
     LOOKAHEAD: Final[SyncFlags] = SyncFlags.LOOKAHEAD
+
+    #: Whether to propagate changes in omega option.
+    OMEGA: Final[SyncFlags] = SyncFlags.OMEGA
 
     #: Whether to propagate changes in page size option.
     PAGE_SIZE: Final[SyncFlags] = SyncFlags.PAGE_SIZE
@@ -150,6 +157,9 @@ class MixerStore(
 
         _v_lookahead: ClassVar[tuple[Iterable[str], int | None]] =\
             (('KIF_MIXER_STORE_LOOKAHEAD',), None)
+
+        _v_omega: ClassVar[tuple[Iterable[str], int | None]] =\
+            (('KIF_MIXER_STORE_OMEGA',), None)
 
         _v_max_page_size: ClassVar[tuple[Iterable[str], int | None]] =\
             (('KIF_MIXER_STORE_MAX_PAGE_SIZE',), None)
@@ -373,6 +383,10 @@ class MixerStore(
     @override
     def _set_lookahead(self, lookahead: int) -> bool:
         return self._set_x(Store.set_lookahead, lookahead, self.LOOKAHEAD)
+
+    @override
+    def _set_omega(self, omega: int) -> bool:
+        return self._set_x(Store.set_omega, omega, self.OMEGA)
 
     @override
     def _set_page_size(self, page_size: int) -> bool:
@@ -608,6 +622,8 @@ class MixerStore(
             source_options.limit = options.limit
         if self.sync_flags & self.LOOKAHEAD:
             source_options.lookahead = options.lookahead
+        if self.sync_flags & self.OMEGA:
+            source_options.omega = options.omega
         if self.sync_flags & self.PAGE_SIZE:
             source_options.page_size = options.page_size
         if self.sync_flags & self.TIMEOUT:

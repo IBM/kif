@@ -94,12 +94,13 @@ class Cache:
             return None
         return self._cache[obj].get(key, None)
 
-    def set(self, obj, key: str, value: T) -> T:
+    def set(self, obj: Hashable, key: str, value: T) -> T:
         """Attaches `value` to `key` of `obj` in cache.
 
         Parameters:
            obj: Object.
            key: Key.
+           value: Value.
 
         Returns:
            `value`.

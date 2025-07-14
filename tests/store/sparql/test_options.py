@@ -46,6 +46,10 @@ class Test(_Test):
         self._test_lookahead(['KIF_SPARQL_STORE_LOOKAHEAD'])
 
     @override
+    def test_omega(self) -> None:
+        self._test_omega(['KIF_SPARQL_STORE_OMEGA'])
+
+    @override
     def test_max_page_size(self) -> None:
         self._test_max_page_size(['KIF_SPARQL_STORE_MAX_PAGE_SIZE'])
 

@@ -501,6 +501,14 @@ class FilterParam:
         envvar='BEST_RANKED',
     )
 
+    omega = click.option(
+        '--omega',
+        'omega',
+        type=int,
+        required=False,
+        help='Maximum number of disjoint subqueries.',
+        envvar='OMEGA')
+
     page_size = click.option(
         '--page-size',
         'page_size',
@@ -899,6 +907,7 @@ class FilterParam:
             distinct: bool | None = None,
             limit: int | None = None,
             lookahead: int | None = None,
+            omega: int | None = None,
             page_size: int | None = None,
             timeout: float | None = None
     ) -> Store:
@@ -915,6 +924,8 @@ class FilterParam:
             target.set_limit(limit)
         if lookahead is not None:
             target.set_lookahead(lookahead)
+        if omega is not None:
+            target.set_omega(omega)
         if page_size is not None:
             target.set_page_size(page_size)
         if timeout is not None:
@@ -933,6 +944,7 @@ class FilterParam:
 @FilterParam.no_distinct
 @FilterParam.no_resolve
 @FilterParam.non_best_ranked
+@FilterParam.omega
 @FilterParam.property_option
 @FilterParam.property_mask
 @FilterParam.rank_mask
@@ -1002,6 +1014,7 @@ def ask(
         distinct: bool | None = None,
         dry_run: bool | None = None,
         encoder: Encoder | None = None,
+        omega: int | None = None,
         resolve: bool | None = None,
         timeout: float | None = None
 ) -> None:
@@ -1044,6 +1057,7 @@ def ask(
         target = FilterParam.make_store(
             store,
             distinct=distinct,
+            omega=omega,
             timeout=timeout)
         status: bool
         if async_:
@@ -1071,6 +1085,7 @@ def ask(
 @FilterParam.no_distinct
 @FilterParam.no_resolve
 @FilterParam.non_best_ranked
+@FilterParam.omega
 @FilterParam.property_option
 @FilterParam.property_mask
 @FilterParam.rank_mask
@@ -1142,6 +1157,7 @@ def count(
         distinct: bool | None = None,
         dry_run: bool | None = None,
         encoder: Encoder | None = None,
+        omega: int | None = None,
         resolve: bool | None = None,
         select: str | None = None,
         timeout: float | None = None
@@ -1185,6 +1201,7 @@ def count(
         target = FilterParam.make_store(
             store,
             distinct=distinct,
+            omega=omega,
             timeout=timeout)
         n: int
         if async_:
@@ -1230,6 +1247,7 @@ def count(
 @FilterParam.no_distinct
 @FilterParam.no_resolve
 @FilterParam.non_best_ranked
+@FilterParam.omega
 @FilterParam.page_size
 @FilterParam.property_option
 @FilterParam.property_mask
@@ -1304,6 +1322,7 @@ def filter(
         encoder: Encoder | None = None,
         limit: int | None = None,
         lookahead: int | None = None,
+        omega: int | None = None,
         page_size: int | None = None,
         resolve: bool | None = None,
         select: str | None = None,
@@ -1354,6 +1373,7 @@ def filter(
             distinct=distinct,
             limit=limit,
             lookahead=lookahead,
+            omega=omega,
             page_size=page_size,
             timeout=timeout)
 

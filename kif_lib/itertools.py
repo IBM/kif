@@ -21,6 +21,8 @@ from itertools import (
 
 from more_itertools import (
     batched,
+    distribute,
+    divide,
     partition,
     roundrobin,
     take,
@@ -55,6 +57,8 @@ __all__ = [
     'chain',
     'count',
     'cycle',
+    'distribute',
+    'divide',
     'filter',
     'groupby',
     'islice',

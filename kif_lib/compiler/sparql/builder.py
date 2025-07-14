@@ -1397,6 +1397,9 @@ class Query(Encodable):
     #: Fresh variable counter.
     _fresh_var_counter: int
 
+    #: Dictionary used to store user-data.
+    _user_data: dict[str, Any]
+
     def __init__(
             self,
             limit: int | None = None,
@@ -1405,6 +1408,7 @@ class Query(Encodable):
             where: WhereClause | None = None,
             fresh_var_prefix: str | None = None,
             fresh_var_counter: int | None = None,
+            user_data: dict[str, Any] | None = None
     ) -> None:
         self.where = where if where is not None else WhereClause()
         self.clause = self.where
@@ -1416,6 +1420,7 @@ class Query(Encodable):
             else self._fresh_var_default_prefix)
         self._fresh_var_counter = (
             fresh_var_counter if fresh_var_counter is not None else 0)
+        self._user_data = user_data if user_data is not None else {}
 
     @override
     def iterencode(self) -> Iterator[str]:
@@ -1425,6 +1430,50 @@ class Query(Encodable):
                 (self._order_by, self._limit, self._offset))):
             yield s
             yield '\n'
+
+    def clear_user_data(self) -> None:
+        """Clears user-data attached to query."""
+        self._user_data = {}
+
+    def get_user_data(self, key: str) -> Any:
+        """Gets the user-data value attached to `key` in query.
+
+        Parameters:
+           key: Key.
+
+        Returns:
+           Value or ``None``.
+        """
+        return self._user_data.get(key, None)
+
+    def set_user_data(self, key: str, value: T) -> T:
+        """Attaches user-data `value` to `key` in query.
+
+        Parameters:
+           key: Key.
+           value: Value.
+
+        Returns:
+           `value`.
+        """
+        self._user_data[key] = value
+        return value
+
+    def unset_user_data(self, key: str) -> Any:
+        """Detaches user-data value from `key` in query.
+
+        Parameters:
+           key: Key.
+
+        Returns:
+           The detached value or ``None``.
+        """
+        if key in self._user_data:
+            value = self._user_data[key]
+            del self._user_data[key]
+            return value
+        else:
+            return None
 
 # -- Static analysis -------------------------------------------------------
 
