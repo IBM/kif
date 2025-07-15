@@ -1063,7 +1063,8 @@ class SPARQL_Mapping(Sequence[_Entry]):
             self._build_query_get_entry_pattern_variables,
             compiler=compiler, projection=projection)
         entries = cast(
-            set[SPARQL_Mapping.Entry] | None, query.get_user_data('entries'))
+            Optional[set[SPARQL_Mapping.Entry]],
+            query.get_user_data('entries'))
         assert entries is not None
         for entry in entries:
             yield from map(

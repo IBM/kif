@@ -55,9 +55,9 @@ T: TypeAlias = Any
 
 _logger: Final[logging.Logger] = logging.getLogger(__name__)
 
-TData: TypeAlias = bytes | str
-TFile: TypeAlias = BinaryIO | TextIO
-TLocation: TypeAlias = pathlib.PurePath | str
+TData: TypeAlias = Union[bytes, str]
+TFile: TypeAlias = Union[BinaryIO, TextIO]
+TLocation: TypeAlias = Union[pathlib.PurePath, str]
 
 
 class Reader(
@@ -291,14 +291,16 @@ class Reader(
                 t = cast(
                     Union[Item.Descriptor, Property.Descriptor], descriptor)
                 if 'labels' in t:
-                    self._register(entity, labels=t['labels'].values())
+                    self._register(
+                        entity, labels=t['labels'].values())  # type: ignore
                 if 'aliases' in t:
                     self._register(
-                        entity, aliases=itertools.chain(
+                        entity, aliases=itertools.chain(  # type: ignore
                             *t['aliases'].values()))
                 if 'description' in t:
                     self._register(
-                        entity, description=t['descriptions'].values())
+                        entity,  # type: ignore
+                        description=t['descriptions'].values())
                 if isinstance(entity, Property):
                     t = cast(Property.Descriptor, descriptor)
                     if 'range' in t:

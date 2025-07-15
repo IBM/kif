@@ -14,6 +14,7 @@ from ...model import Filter, IRI, T_IRI, TGraph
 from ...typing import (
     Any,
     BinaryIO,
+    cast,
     ClassVar,
     Iterable,
     Iterator,
@@ -109,8 +110,8 @@ class SPARQL_Store(
         _skolemize: bool | None
 
         def _init_skolemize(self, kwargs: dict[str, Any]) -> None:
-            self.skolemize = kwargs.get(
-                '_skolemize', self.getenv_optional_bool(*self._v_skolemize))
+            self.skolemize = cast(bool, kwargs.get(
+                '_skolemize', self.getenv_optional_bool(*self._v_skolemize)))
 
         @property
         def skolemize(self) -> bool:

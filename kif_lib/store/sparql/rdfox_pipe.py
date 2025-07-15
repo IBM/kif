@@ -44,7 +44,7 @@ class RDFox:
 
     def __init__(
             self,
-            path: pathlib.PurePath | str | None = None,
+            path: pathlib.PurePath | str | None = None
     ) -> None:
         import fcntl
         import shutil

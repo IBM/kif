@@ -107,6 +107,7 @@ SETUP_PY_PYTHON_REQUIRES?= '>=3.9'
 SETUP_PY_ZIP_SAFE?= False
 TESTS?= tests
 TOX?= tox
+TOX_DEBUG_COMMAND?= python
 TOX_INI?= tox.ini
 TOX_INI_ENVLIST?= mypy, py{39,310,311,312,313}
 TOX_INI_EXTRAS?=
@@ -505,7 +506,7 @@ tox:
 # debug tox environment
 .PHONY: tox-debug
 tox-debug:
-	${TOX_SETENV} ${TOX} -e $(or ${ENV},py311) -- python
+	${TOX_SETENV} ${TOX} -e $(or ${ENV},py311) -- ${TOX_DEBUG_COMMAND}
 
 # uninstall package
 .PHONY: uninstall

@@ -316,7 +316,7 @@ class WikidataMapping(M):
         for i in range(len(c.query_stack)):
             q = c.query_stack[i]
             targets = cast(
-                list[M.EntryPattern] | None, q.get_user_data('targets'))
+                Optional[list[M.EntryPattern]], q.get_user_data('targets'))
             assert targets is not None
             if annotation_of_some_target_is_open(targets):
                 ###

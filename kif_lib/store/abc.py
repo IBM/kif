@@ -206,8 +206,8 @@ class Store(Set):
         _debug: bool | None
 
         def _init_debug(self, kwargs: dict[str, Any]) -> None:
-            self.debug = kwargs.get(
-                '_debug', self.getenv_optional_bool(*self._v_debug))
+            self.debug = cast(bool, kwargs.get(
+                '_debug', self.getenv_optional_bool(*self._v_debug)))
 
         @property
         def debug(self) -> bool:
@@ -255,8 +255,8 @@ class Store(Set):
         _distinct: bool | None
 
         def _init_distinct(self, kwargs: dict[str, Any]) -> None:
-            self.distinct = kwargs.get(
-                '_distinct', self.getenv_optional_bool(*self._v_distinct))
+            self.distinct = cast(bool, kwargs.get(
+                '_distinct', self.getenv_optional_bool(*self._v_distinct)))
 
         @property
         def distinct(self) -> bool:
@@ -309,9 +309,9 @@ class Store(Set):
                 self,
                 kwargs: dict[str, Any]
         ) -> None:
-            self.max_distinct_window_size = kwargs.get(
+            self.max_distinct_window_size = cast(int, kwargs.get(
                 '_max_distinct_window_size', self.getenv_optional_int(
-                    *self._v_max_distinct_window_size))
+                    *self._v_max_distinct_window_size)))
 
         @property
         def max_distinct_window_size(self) -> int:
@@ -390,9 +390,9 @@ class Store(Set):
         _distinct_window_size: int | None
 
         def _init_distinct_window_size(self, kwargs: dict[str, Any]) -> None:
-            self.distinct_window_size = kwargs.get(
+            self.distinct_window_size = cast(int, kwargs.get(
                 '_distinct_window_size', self.getenv_optional_int(
-                    *self._v_distinct_window_size))
+                    *self._v_distinct_window_size)))
 
         @property
         def distinct_window_size(self) -> int:
@@ -444,8 +444,8 @@ class Store(Set):
         _extra_references: ReferenceRecordSet | None
 
         def _init_extra_references(self, kwargs: dict[str, Any]) -> None:
-            self.extra_references = kwargs.get(
-                '_extra_references', self.DEFAULT_EXTRA_REFERENCES)
+            self.extra_references = cast(ReferenceRecordSet, kwargs.get(
+                '_extra_references', self.DEFAULT_EXTRA_REFERENCES))
 
         @property
         def extra_references(self) -> ReferenceRecordSet:
@@ -497,8 +497,8 @@ class Store(Set):
         _max_limit: int | None
 
         def _init_max_limit(self, kwargs: dict[str, Any]) -> None:
-            self.max_limit = kwargs.get(
-                '_max_limit', self.getenv_optional_int(*self._v_max_limit))
+            self.max_limit = cast(int, kwargs.get(
+                '_max_limit', self.getenv_optional_int(*self._v_max_limit)))
 
         @property
         def max_limit(self) -> int:
@@ -571,8 +571,8 @@ class Store(Set):
         _limit: int | None
 
         def _init_limit(self, kwargs: dict[str, Any]) -> None:
-            self.limit = kwargs.get(
-                '_limit', self.getenv_optional_int(*self._v_limit))
+            self.limit = cast(int, kwargs.get(
+                '_limit', self.getenv_optional_int(*self._v_limit)))
 
         @property
         def limit(self) -> int | None:
@@ -646,8 +646,8 @@ class Store(Set):
         _lookahead: int | None
 
         def _init_lookahead(self, kwargs: dict[str, Any]) -> None:
-            self.lookahead = kwargs.get(
-                '_lookahead', self.getenv_optional_int(*self._v_lookahead))
+            self.lookahead = cast(int, kwargs.get(
+                '_lookahead', self.getenv_optional_int(*self._v_lookahead)))
 
         @property
         def lookahead(self) -> int:
@@ -720,8 +720,8 @@ class Store(Set):
         _omega: int | None
 
         def _init_omega(self, kwargs: dict[str, Any]) -> None:
-            self.omega = kwargs.get(
-                '_omega', self.getenv_optional_int(*self._v_omega))
+            self.omega = cast(int, kwargs.get(
+                '_omega', self.getenv_optional_int(*self._v_omega)))
 
         @property
         def omega(self) -> int:
@@ -772,9 +772,9 @@ class Store(Set):
         _max_page_size: int | None
 
         def _init_max_page_size(self, kwargs: dict[str, Any]) -> None:
-            self.max_page_size = kwargs.get(
+            self.max_page_size = cast(int, kwargs.get(
                 '_max_page_size', self.getenv_optional_int(
-                    *self._v_max_page_size))
+                    *self._v_max_page_size)))
 
         @property
         def max_page_size(self) -> int:
@@ -847,8 +847,8 @@ class Store(Set):
         _page_size: int | None
 
         def _init_page_size(self, kwargs: dict[str, Any]) -> None:
-            self.page_size = kwargs.get(
-                '_page_size', self.getenv_optional_int(*self._v_page_size))
+            self.page_size = cast(int, kwargs.get(
+                '_page_size', self.getenv_optional_int(*self._v_page_size)))
 
         @property
         def page_size(self) -> int:
@@ -899,9 +899,9 @@ class Store(Set):
         _max_timeout: float | None
 
         def _init_max_timeout(self, kwargs: dict[str, Any]) -> None:
-            self.max_timeout = kwargs.get(
+            self.max_timeout = cast(float, kwargs.get(
                 '_max_timeout', self.getenv_optional_float(
-                    *self._v_max_timeout))
+                    *self._v_max_timeout)))
 
         @property
         def max_timeout(self) -> float:
@@ -974,8 +974,8 @@ class Store(Set):
         _timeout: float | None
 
         def _init_timeout(self, kwargs: dict[str, Any]) -> None:
-            self.timeout = kwargs.get(
-                '_timeout', self.getenv_optional_float(*self._v_timeout))
+            self.timeout = cast(float, kwargs.get(
+                '_timeout', self.getenv_optional_float(*self._v_timeout)))
 
         @property
         def timeout(self) -> float | None:
