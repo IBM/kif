@@ -1977,7 +1977,7 @@ class Query(Encodable):
             order_by: TExpression | None = None,
             fresh_var_prefix: _str | None = None,
             fresh_var_counter: int | None = None,
-            deepcopy: bool = True,
+            deepcopy: bool = True
     ) -> SelectQuery:
         """Converts query to a SELECT query.
 

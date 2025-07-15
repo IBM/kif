@@ -9,6 +9,8 @@ import functools
 from ... import itertools
 from ...model import (
     AndFingerprint,
+    AnnotatedStatement,
+    AnnotatedStatementTemplate,
     CompoundFingerprint,
     ConverseSnakFingerprint,
     Datatype,
@@ -27,6 +29,7 @@ from ...model import (
     Pattern,
     Property,
     Quantity,
+    Rank,
     SequencePath,
     Snak,
     SnakFingerprint,
@@ -442,7 +445,7 @@ class SPARQL_FilterCompiler(SPARQL_Compiler):
                     assert m is not None
                     targets, theta, kwargs = m
                     for target in targets:
-                        if not self._skip_if_filter_property_is_full(target):
+                        if self._filter_match(entry, target):
                             status = self._push_filter_push_entry(
                                 self.filter, entry, (target,),
                                 theta, kwargs)
@@ -454,8 +457,34 @@ class SPARQL_FilterCompiler(SPARQL_Compiler):
         self.frame['phase'] = self.DONE
         self.mapping.postamble(self)
 
-    def _skip_if_filter_property_is_full(
+    def _filter_match(
             self,
+            entry: SPARQL_Mapping.Entry,
+            target: SPARQL_Mapping.EntryPattern
+    ) -> bool:
+        return not any(f(entry, target) for f in (
+            self._filter_property_is_full_and_target_property_is_blacklisted,
+            self._filter_rank_mask_does_not_match_target_rank))
+
+    def _filter_rank_mask_does_not_match_target_rank(
+            self,
+            entry: SPARQL_Mapping.Entry,
+            target: SPARQL_Mapping.EntryPattern
+    ) -> bool:
+        if isinstance(target, (StatementTemplate, Statement)):
+            if entry.annotations is not None:
+                rank = entry.annotations.get('rank', None)
+                if rank is not None and isinstance(rank, Rank):
+                    return not self.filter.rank_mask.match(rank)
+        elif isinstance(target, (
+                AnnotatedStatementTemplate, AnnotatedStatement)):
+            if isinstance(target.rank, Rank):
+                return not self.filter.rank_mask.match(target.rank)
+        return False
+
+    def _filter_property_is_full_and_target_property_is_blacklisted(
+            self,
+            entry: SPARQL_Mapping.Entry,
             target: SPARQL_Mapping.EntryPattern,
             blacklist: frozenset[Property] = frozenset({
                 TypeProperty(), SubtypeProperty()})

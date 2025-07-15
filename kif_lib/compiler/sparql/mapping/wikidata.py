@@ -292,16 +292,8 @@ class WikidataMapping(M):
         phase = frame['phase']
         if phase == C.READY:
             self._wds.append(compiler.fresh_qvar())
-        elif phase == C.COMPILING_FILTER:
-            if not compiler.filter.annotated:
-                ###
-                # FIXME: If we're not collecting annotations, use a blank
-                # node for wds instead of a variable.  This way statements
-                # with the same (s,p,v) will *not* be counted as distinct.
-                ###
-                self._wds.append(compiler.bnode())
         elif phase == C.COMPILING_FINGERPRINT:
-            self._wds.append(compiler.bnode())
+            self._wds.append(compiler.fresh_qvar())
         return frame
 
     @override
@@ -309,12 +301,6 @@ class WikidataMapping(M):
         phase = frame['phase']
         if phase == C.DONE:
             self._wds.pop()
-        elif phase == C.COMPILING_FILTER:
-            if not compiler.filter.annotated:
-                ###
-                # FIXME: Now we do the converse of what we did above.
-                ###
-                self._wds.pop()
         elif phase == C.COMPILING_FINGERPRINT:
             self._wds.pop()
         return super().frame_popped(compiler, frame)
@@ -726,8 +712,30 @@ class WikidataMapping(M):
         c.q.triples()(
             (e, p_, wds),
             (p, RDF.type, WIKIBASE.Property),
-            (p, WIKIBASE.propertyType, dt),
-            (wds, WIKIBASE.rank, c.bnode()))
+            (p, WIKIBASE.propertyType, dt))
+        if c.filter.rank_mask == c.filter.RankMask.ALL:
+            c.q.triples()((wds, WIKIBASE.rank, c.bnode()))
+        elif c.filter.rank_mask == c.filter.RankMask.PREFERRED:
+            c.q.triples()((wds, WIKIBASE.rank, WIKIBASE.PreferredRank))
+        elif c.filter.rank_mask == c.filter.RankMask.NORMAL:
+            c.q.triples()((wds, WIKIBASE.rank, WIKIBASE.NormalRank))
+        elif c.filter.rank_mask == c.filter.RankMask.DEPRECATED:
+            c.q.triples()((wds, WIKIBASE.rank, WIKIBASE.DeprecatedRank))
+        else:
+            assert c.filter.rank_mask != c.filter.RankMask(0)
+            with c.q.union():
+                if c.filter.rank_mask & c.filter.RankMask.PREFERRED:
+                    with c.q.group():
+                        c.q.triples()(
+                            (wds, WIKIBASE.rank, WIKIBASE.PreferredRank))
+                if c.filter.rank_mask & c.filter.RankMask.NORMAL:
+                    with c.q.group():
+                        c.q.triples()(
+                            (wds, WIKIBASE.rank, WIKIBASE.NormalRank))
+                if c.filter.rank_mask & c.filter.RankMask.DEPRECATED:
+                    with c.q.group():
+                        c.q.triples()(
+                            (wds, WIKIBASE.rank, WIKIBASE.DeprecatedRank))
         if isinstance(p_, Var):
             c.q.triples()((p, WIKIBASE.claim, p_))
         if isinstance(ps, Var):

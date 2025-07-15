@@ -101,6 +101,19 @@ class Test(StoreTestCase):
                 '1822-09-07', Time.DAY, 0,
                 wd.proleptic_Gregorian_calendar))})
 
+    def test_rank_mask(self) -> None:
+        kb = self.S('rdf', 'tests/data/adam.ttl')
+        kb.best_ranked = False
+        xf, F = self.store_xfilter_assertion(kb)
+        xf(F(property=wd.date_of_birth, rank_mask=F.NORMAL),
+           {wd.date_of_birth(
+               wd.Adam, Time(
+                   '4003-01-01', Time.YEAR, 0,
+                   wd.proleptic_Julian_calendar),
+               qualifiers=[wd.statement_supported_by(wd.Q(746069))],
+               references=[[wd.reference_URL(
+                   'https://amazingbibletimeline.com/timeline_online/')]])})
+
     def test_language(self) -> None:
         xf, F = self.store_xfilter_assertion(self.KB())
         xf(F(snak_mask=F.VALUE_SNAK, value_mask=F.TEXT, language='pt'),
