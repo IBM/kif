@@ -177,12 +177,14 @@ class PubChemMapping(M):
             pc.isotope_atom_count,
             wd.Wikidata_property_related_to_chemistry), (
                 wd.instance_of, wd.type))),
+        priority=M.VERY_LOW_PRIORITY,
         rank=Normal)
     def wd_instance_of_pc_isotope_atom_count(self, c: C) -> None:
         pass
 
     @M.register(
         [wd.label(pc.isotope_atom_count, 'isotope atom count')],
+        priority=M.VERY_LOW_PRIORITY,
         rank=Normal)
     def wd_label_pc_isotope_atom_count(self, c: C) -> None:
         pass
@@ -192,12 +194,14 @@ class PubChemMapping(M):
             pc.IUPAC_name,
             wd.Wikidata_property_related_to_chemistry), (
                 wd.instance_of, wd.type))),
+        priority=M.VERY_LOW_PRIORITY,
         rank=Normal)
     def wd_instance_of_pc_IUPAC_name(self, c: C) -> None:
         pass
 
     @M.register(
         [wd.label(pc.IUPAC_name, 'IUPAC name')],
+        priority=M.VERY_LOW_PRIORITY,
         rank=Normal)
     def wd_label_pc_IUPAC_name(self, c: C) -> None:
         pass
@@ -207,6 +211,7 @@ class PubChemMapping(M):
     @M.register(
         [wd.label(Item(s), Text(v, 'en'))],
         {s: CheckCompound()},
+        priority=M.LOW_PRIORITY,
         rank=Normal)
     def wd_label_compound(self, c: C, s: V_URI, v: VLiteral) -> None:
         chebi_ty = c.bnode()
@@ -218,6 +223,7 @@ class PubChemMapping(M):
     @M.register(
         [wd.alias(Item(s), Text(v, 'en'))],
         {s: CheckCompound()},
+        priority=M.LOW_PRIORITY,
         rank=Normal)
     def wd_alias_compound(self, c: C, s: V_URI, v: VLiteral) -> None:
         chebi_ty = c.bnode()
@@ -231,6 +237,7 @@ class PubChemMapping(M):
     @M.register(
         [wd.description(Item(s), Text(v, 'en'))],
         {s: CheckCompound()},
+        priority=M.LOW_PRIORITY,
         rank=Normal)
     def wd_description_compound(self, c: C, s: V_URI, v: VLiteral) -> None:
         chebi_ty = c.bnode()
@@ -517,6 +524,7 @@ class PubChemMapping(M):
     @M.register(
         [wd.description(Item(s), Text(v, 'en'))],
         {s: CheckPatent()},
+        priority=M.LOW_PRIORITY,
         rank=Normal)
     def wd_description_patent(self, c: C, s: V_URI, v: VLiteral) -> None:
         c.q.triples()(
@@ -591,6 +599,7 @@ class PubChemMapping(M):
     @M.register(
         [wd.label(Item(s), Text(v, 'en'))],
         {s: CheckSource()},
+        priority=M.LOW_PRIORITY,
         rank=Normal)
     def wd_label_source(self, c: C, s: V_URI, v: VLiteral) -> None:
         c.q.triples()(
@@ -600,6 +609,7 @@ class PubChemMapping(M):
     @M.register(
         [wd.alias(Item(s), Text(v, 'en'))],
         {s: CheckSource()},
+        priority=M.LOW_PRIORITY,
         rank=Normal)
     def wd_alias_source(self, c: C, s: V_URI, v: VLiteral) -> None:
         c.q.triples()(

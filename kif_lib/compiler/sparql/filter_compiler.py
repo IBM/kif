@@ -418,7 +418,10 @@ class SPARQL_FilterCompiler(SPARQL_Compiler):
         it_match_funcs = (
             (entry, functools.partial(
                 entry.match_and_preprocess, self.mapping, self,
-                term2arg=self._term2arg)) for entry in self.mapping)
+                term2arg=self._term2arg)) for entry in sorted(
+                    self.mapping,
+                    key=SPARQL_Mapping._mk_entry.get_priority,
+                    reverse=True))
         it_patterns = (
             pat.generalize(rename=self._fresh_name_generator())
             for pat in patterns)

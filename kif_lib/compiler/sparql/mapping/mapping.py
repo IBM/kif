@@ -78,6 +78,9 @@ class _Entry:
     #: The callback-arg defaults map.
     default_map: SPARQL_Mapping.EntryCallbackArgDefaultMap
 
+    #: Priority (higher number means higher priority; default is 0).
+    priority: int
+
     #: Annotations to be added to statement patterns.
     annotations: Statement.Annotation | None
 
@@ -91,6 +94,7 @@ class _Entry:
             preprocess_map: SPARQL_Mapping.EntryCallbackArgProcessorMap,
             postprocess_map: SPARQL_Mapping.EntryCallbackArgProcessorMap,
             default_map: SPARQL_Mapping.EntryCallbackArgDefaultMap,
+            priority: int | None,
             annotations: Statement.Annotation | None,
             callback: SPARQL_Mapping.EntryCallback
     ) -> None:
@@ -99,6 +103,7 @@ class _Entry:
         self.preprocess_map, self.postprocess_map, self.default_map =\
             self._init_entry_callback_arg_maps(
                 preprocess_map, postprocess_map, default_map)
+        self.priority = priority if priority is not None else 0
         self.annotations = annotations
         self.callback = callback
 
@@ -213,6 +218,28 @@ class _Entry:
            Callback-arg defaults map.
         """
         return self.default_map
+
+    def get_priority(
+            self
+    ) -> int:
+        """Gets the priority of entry.
+
+        A higher number means higher priority.
+
+        Returns:
+           Priority.
+        """
+        return self.priority
+
+    def get_annotations(
+            self
+    ) -> Statement.Annotation | None:
+        """Gets the annotations of entry.
+
+        Returns:
+           Annotations.
+        """
+        return self.annotations
 
     def get_callback(self) -> SPARQL_Mapping.EntryCallback:
         """Gets the callback of entry.
@@ -391,6 +418,7 @@ class _Entry:
         pre = {tr[k]: v for k, v in self.preprocess_map.items()}
         post = {tr[k]: v for k, v in self.postprocess_map.items()}
         defs = {tr[k]: v for k, v in self.default_map.items()}
+        priority = self.priority
         annots = copy.copy(self.annotations)
         ###
         # IMPORTANT: We need to rename the parameters of the original
@@ -401,12 +429,16 @@ class _Entry:
         def callback(*args: Any, **kwargs: Any) -> None:
             return self.callback(*args, **{
                 inv_tr_name[k]: v for k, v in kwargs.items()})
-        return type(self)(self.id, patterns, pre, post, defs, annots, cast(
-            SPARQL_Mapping.EntryCallback, callback))
+        return type(self)(
+            self.id, patterns, pre, post, defs, priority, annots, cast(
+                SPARQL_Mapping.EntryCallback, callback))
 
 
 class SPARQL_Mapping(Sequence[_Entry]):
     """SPARQL mapping."""
+
+    #: Alias for :class:`_Entry`.
+    _mk_entry: ClassVar[type[_Entry]] = _Entry
 
     #: The type of SPARQL mapping entries.
     Entry: TypeAlias = _Entry
@@ -431,6 +463,13 @@ class SPARQL_Mapping(Sequence[_Entry]):
     #: The type of entry callback-arg default map.
     EntryCallbackArgDefaultMap: TypeAlias =\
         Mapping[Variable, Optional[Term]]
+
+    #: Predefined priority values.
+    VERY_HIGH_PRIORITY: ClassVar[int] = 4
+    HIGH_PRIORITY: ClassVar[int] = 2
+    NORMAL_PRIORITY: ClassVar[int] = 0
+    LOW_PRIORITY: ClassVar[int] = -2
+    VERY_LOW_PRIORITY: ClassVar[int] = -4
 
     class EntryCallbackArgProcessor:
         """Entry callback-arg processor."""
@@ -543,6 +582,7 @@ class SPARQL_Mapping(Sequence[_Entry]):
         SPARQL_Mapping.EntryCallbackArgProcessorMap,
         SPARQL_Mapping.EntryCallbackArgProcessorMap,
         SPARQL_Mapping.EntryCallbackArgDefaultMap,
+        int | None,
         Statement.Annotation | None,
         SPARQL_Mapping.EntryCallback
     ]]] = []
@@ -550,9 +590,7 @@ class SPARQL_Mapping(Sequence[_Entry]):
     @classmethod
     def __init_subclass__(cls) -> None:
         cls._entries = [
-            cls.Entry(id, pats, pre, post, defs, annots, f)
-            for id, pats, pre, post, defs, annots, f
-            in SPARQL_Mapping._scheduled_entries]
+            cls.Entry(*t) for t in SPARQL_Mapping._scheduled_entries]
         SPARQL_Mapping._scheduled_entries = []
 
     @classmethod
@@ -565,6 +603,7 @@ class SPARQL_Mapping(Sequence[_Entry]):
             SPARQL_Mapping.EntryCallbackArgProcessorMap | None = None,
             defaults:
             SPARQL_Mapping.EntryCallbackArgDefaultMap | None = None,
+            priority: int | None = None,
             qualifiers: TQualifierRecord | None = None,
             references: TReferenceRecordSet | None = None,
             rank: TRank | None = None
@@ -576,6 +615,7 @@ class SPARQL_Mapping(Sequence[_Entry]):
            preprocess: Callback-arg pre-processor map.
            postprocess: Callback-arg post-processor map.
            defaults: Callback-arg default map.
+           priority: Priority.
            qualifiers: Qualifiers to be added to statement patterns.
            references: References to be added to statement patterns.
            rank: Rank to be added to statement patterns.
@@ -589,12 +629,12 @@ class SPARQL_Mapping(Sequence[_Entry]):
             xpat: Union[Statement, StatementTemplate, StatementVariable]
             if isinstance(pat, Template):
                 xpat = StatementTemplate.check(
-                    pat, cls.register, 'patterns', 1)
+                    pat, cls.register, 'patterns')
             elif isinstance(pat, Variable):
                 xpat = StatementVariable.check(
-                    pat, cls.register, 'patterns', 1)
+                    pat, cls.register, 'patterns')
             else:
-                xpat = Statement.check(pat, cls.register, 'patterns', 1)
+                xpat = Statement.check(pat, cls.register, 'patterns')
             pats.append(xpat)
             for var in xpat.variables:
                 if var.name not in seen:
@@ -604,20 +644,21 @@ class SPARQL_Mapping(Sequence[_Entry]):
                         f"incompatible occurrences of variable '{var.name}'",
                         cls.register, 'patterns', 1, ValueError)
         pre = KIF_Object._check_optional_arg_isinstance(
-            preprocess, Mapping, {}, cls.register, 'preprocess', 2)
+            preprocess, Mapping, {}, cls.register, 'preprocess')
         assert pre is not None
         post = KIF_Object._check_optional_arg_isinstance(
-            postprocess, Mapping, {}, cls.register, 'postprocess', 3)
+            postprocess, Mapping, {}, cls.register, 'postprocess')
         assert post is not None
         defs = KIF_Object._check_optional_arg_isinstance(
-            defaults, Mapping, {}, cls.register, 'defaults', 4)
+            defaults, Mapping, {}, cls.register, 'defaults')
         assert defs is not None
         qualifiers = QualifierRecord.check_optional(
-            qualifiers, None, cls.register, 'qualifiers', 5)
+            qualifiers, None, cls.register, 'qualifiers')
         references = ReferenceRecordSet.check_optional(
-            references, None, cls.register, 'references', 6)
-        rank = Rank.check_optional(
-            rank, None, cls.register, 'rank', 7)
+            references, None, cls.register, 'references')
+        rank = Rank.check_optional(rank, None, cls.register, 'rank')
+        priority = KIF_Object._check_optional_arg_int(
+            priority, None, cls.register, 'priority')
         if qualifiers is None and references is None and rank is None:
             annots: Optional[Statement.Annotation] = None
         else:
@@ -634,7 +675,7 @@ class SPARQL_Mapping(Sequence[_Entry]):
         def wrapper(f):
             cls._scheduled_entries.append(
                 (len(cls._scheduled_entries),
-                 pats, pre, post, defs, annots, f))
+                 pats, pre, post, defs, priority, annots, f))
             return f
         return wrapper
 

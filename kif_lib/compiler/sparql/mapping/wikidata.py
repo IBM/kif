@@ -764,6 +764,7 @@ class WikidataMapping(M):
         [Statement(Item(s), TypeProperty()(Item(v)))],
         {s: CheckItem(),
          v: CheckItem()},
+        priority=M.VERY_LOW_PRIORITY,
         rank=Normal)
     def p_item_type(self, c: C, s: V_URI, v: V_URI, **kwargs) -> None:
         self._start_Q_tail(c, s)
@@ -776,6 +777,7 @@ class WikidataMapping(M):
         {s: CheckProperty(),
          s0: CheckDatatype(),
          v: CheckItem()},
+        priority=M.VERY_LOW_PRIORITY,
         rank=Normal)
     def p_property_type(
             self,
@@ -794,6 +796,7 @@ class WikidataMapping(M):
         [Statement(Lexeme(s), TypeProperty()(Item(v)))],
         {s: CheckLexeme(),
          v: CheckItem()},
+        priority=M.VERY_LOW_PRIORITY,
         rank=Normal)
     def p_lexeme_type(self, c: C, s: V_URI, v: V_URI, **kwargs) -> None:
         self._start_L_tail(c, s)
@@ -807,6 +810,7 @@ class WikidataMapping(M):
         [Statement(Item(s), SubtypeProperty()(Item(v)))],
         {s: CheckItem(),
          v: CheckItem()},
+        priority=M.VERY_LOW_PRIORITY,
         rank=Normal)
     def p_item_subtype(self, c: C, s: V_URI, v: V_URI, **kwargs) -> None:
         self._start_Q_tail(c, s)
@@ -819,6 +823,7 @@ class WikidataMapping(M):
     @M.register(
         [Statement(Item(s), LabelProperty()(Text(v, v0)))],
         {s: CheckItem()},
+        priority=M.LOW_PRIORITY,
         rank=Normal)
     def p_item_label(
             self,
@@ -836,6 +841,7 @@ class WikidataMapping(M):
         [Statement(Property(s, s0), LabelProperty()(Text(v, v0)))],
         {s: CheckProperty(),
          s0: CheckDatatype()},
+        priority=M.LOW_PRIORITY,
         rank=Normal)
     def p_property_label(
             self,
@@ -855,6 +861,7 @@ class WikidataMapping(M):
     @M.register(
         [Statement(Item(s), AliasProperty()(Text(v, v0)))],
         {s: CheckItem()},
+        priority=M.LOW_PRIORITY,
         rank=Normal)
     def p_item_alias(
             self,
@@ -872,6 +879,7 @@ class WikidataMapping(M):
         [Statement(Property(s, s0), AliasProperty()(Text(v, v0)))],
         {s: CheckProperty(),
          s0: CheckDatatype()},
+        priority=M.LOW_PRIORITY,
         rank=Normal)
     def p_property_alias(
             self,
@@ -891,6 +899,7 @@ class WikidataMapping(M):
     @M.register(
         [Statement(Item(s), DescriptionProperty()(Text(v, v0)))],
         {s: CheckItem()},
+        priority=M.LOW_PRIORITY,
         rank=Normal)
     def p_item_description(
             self,
@@ -908,6 +917,7 @@ class WikidataMapping(M):
         [Statement(Property(s, s0), DescriptionProperty()(Text(v, v0)))],
         {s: CheckProperty(),
          s0: CheckDatatype()},
+        priority=M.LOW_PRIORITY,
         rank=Normal)
     def p_property_description(
             self,
@@ -927,6 +937,7 @@ class WikidataMapping(M):
     @M.register(
         [Statement(Lexeme(s), LemmaProperty()(Text(v, v0)))],
         {s: CheckLexeme()},
+        priority=M.VERY_LOW_PRIORITY,
         rank=Normal)
     def p_lexeme_lemma(
             self,
@@ -944,6 +955,7 @@ class WikidataMapping(M):
         [Statement(Lexeme(s), LexicalCategoryProperty()(Item(v)))],
         {s: CheckLexeme(),
          v: CheckItem()},
+        priority=M.VERY_LOW_PRIORITY,
         rank=Normal)
     def p_lexeme_lexical_category(
             self,
@@ -960,6 +972,7 @@ class WikidataMapping(M):
         [Statement(Lexeme(s), LanguageProperty()(Item(v)))],
         {s: CheckLexeme(),
          v: CheckItem()},
+        priority=M.VERY_LOW_PRIORITY,
         rank=Normal)
     def p_lexeme_langauge(
             self,
@@ -979,7 +992,8 @@ class WikidataMapping(M):
          Statement(Item(s), Property(p)(Item(v))).annotate(As, Rs, r)],
         {s: CheckItem(),
          p: CheckProperty(),
-         v: CheckItem()})
+         v: CheckItem()},
+        priority=M.HIGH_PRIORITY)
     def p_item_item(
             self,
             c: C,
@@ -995,7 +1009,8 @@ class WikidataMapping(M):
          Statement(Lexeme(s), Property(p)(Item(v))).annotate(As, Rs, r)],
         {s: CheckLexeme(),
          p: CheckProperty(),
-         v: CheckItem()})
+         v: CheckItem()},
+        priority=M.VERY_LOW_PRIORITY)
     def p_lexeme_item(
             self,
             c: C,
@@ -1012,7 +1027,8 @@ class WikidataMapping(M):
         {s: CheckProperty(),
          s0: CheckDatatype(),
          p: CheckProperty(),
-         v: CheckItem()})
+         v: CheckItem()},
+        priority=M.HIGH_PRIORITY)
     def p_property_item(
             self,
             c: C,
@@ -1118,7 +1134,8 @@ class WikidataMapping(M):
          Statement(Item(s), Property(p)(Lexeme(v))).annotate(As, Rs, r)],
         {s: CheckItem(),
          p: CheckProperty(),
-         v: CheckLexeme()})
+         v: CheckLexeme()},
+        priority=M.VERY_LOW_PRIORITY)
     def p_item_lexeme(
             self,
             c: C,
@@ -1135,7 +1152,8 @@ class WikidataMapping(M):
          Statement(Lexeme(s), Property(p)(Lexeme(v))).annotate(As, Rs, r)],
         {s: CheckLexeme(),
          p: CheckProperty(),
-         v: CheckLexeme()})
+         v: CheckLexeme()},
+        priority=M.VERY_LOW_PRIORITY)
     def p_lexeme_lexeme(
             self,
             c: C,
@@ -1154,7 +1172,8 @@ class WikidataMapping(M):
         {s: CheckProperty(),
          s0: CheckDatatype(),
          p: CheckProperty(),
-         v: CheckLexeme()})
+         v: CheckLexeme()},
+        priority=M.VERY_LOW_PRIORITY)
     def p_property_lexeme(
             self,
             c: C,
@@ -1202,7 +1221,8 @@ class WikidataMapping(M):
          Statement(Lexeme(s), Property(p)(IRI(v))).annotate(As, Rs, r)],
         {s: CheckItem(),
          p: CheckProperty(),
-         v: CheckIRI()})
+         v: CheckIRI()},
+        priority=M.VERY_LOW_PRIORITY)
     def p_lexeme_iri(
             self,
             c: C,
@@ -1260,7 +1280,8 @@ class WikidataMapping(M):
         [Statement(Lexeme(s), Property(p)(Text(v, v0))),
          Statement(Lexeme(s), Property(p)(Text(v, v0))).annotate(As, Rs, r)],
         {s: CheckLexeme(),
-         p: CheckProperty()})
+         p: CheckProperty()},
+        priority=M.VERY_LOW_PRIORITY)
     def p_lexeme_text(
             self,
             c: C,
@@ -1344,7 +1365,8 @@ class WikidataMapping(M):
         [Statement(Lexeme(s), Property(p)(String(v))),
          Statement(Lexeme(s), Property(p)(String(v))).annotate(As, Rs, r)],
         {s: CheckLexeme(),
-         p: CheckProperty()})
+         p: CheckProperty()},
+        priority=M.VERY_LOW_PRIORITY)
     def p_lexeme_string(
             self,
             c: C,
@@ -1399,7 +1421,8 @@ class WikidataMapping(M):
         [Statement(Lexeme(s), Property(p)(ExternalId(v))),
          Statement(Lexeme(s), Property(p)(ExternalId(v))).annotate(As, Rs, r)],
         {s: CheckLexeme(),
-         p: CheckProperty()})
+         p: CheckProperty()},
+        priority=M.VERY_LOW_PRIORITY)
     def p_lexeme_external_id(
             self,
             c: C,
@@ -1460,7 +1483,8 @@ class WikidataMapping(M):
         {s: CheckLexeme(),
          p: CheckProperty(),
          v0: CheckItem()},
-        defaults={v0: None, v1: None, v2: None})
+        defaults={v0: None, v1: None, v2: None},
+        priority=M.VERY_LOW_PRIORITY)
     def p_lexeme_quantity(
             self,
             c: C,
@@ -1575,7 +1599,8 @@ class WikidataMapping(M):
          v0: M.CheckInt(),
          v1: M.CheckInt(),
          v2: CheckItem()},
-        defaults={v0: None, v1: None, v2: None})
+        defaults={v0: None, v1: None, v2: None},
+        priority=M.VERY_LOW_PRIORITY)
     def p_lexeme_time(
             self,
             c: C,
@@ -1663,7 +1688,8 @@ class WikidataMapping(M):
          Statement(Item(s), Property(p, p0).some_value()).annotate(As, Rs, r)],
         {s: CheckItem(),
          p: CheckProperty(),
-         p0: CheckDatatype()})
+         p0: CheckDatatype()},
+        priority=M.LOW_PRIORITY)
     def p_item_some_value(
             self,
             c: C,
@@ -1680,7 +1706,8 @@ class WikidataMapping(M):
              As, Rs, r)],
         {s: CheckLexeme(),
          p: CheckProperty(),
-         p0: CheckDatatype()})
+         p0: CheckDatatype()},
+        priority=M.VERY_LOW_PRIORITY)
     def p_lexeme_some_value(
             self,
             c: C,
@@ -1698,7 +1725,8 @@ class WikidataMapping(M):
         {s: CheckProperty(),
          s0: CheckDatatype(),
          p: CheckProperty(),
-         p0: CheckDatatype()})
+         p0: CheckDatatype()},
+        priority=M.LOW_PRIORITY)
     def p_property_some_value(
             self,
             c: C,
@@ -1732,7 +1760,8 @@ class WikidataMapping(M):
              As, Rs, r)],
         {s: CheckItem(),
          p: CheckProperty(),
-         p0: CheckDatatype()})
+         p0: CheckDatatype()},
+        priority=M.LOW_PRIORITY)
     def p_item_no_value(
             self,
             c: C,
@@ -1749,7 +1778,8 @@ class WikidataMapping(M):
              As, Rs, r)],
         {s: CheckLexeme(),
          p: CheckProperty(),
-         p0: CheckDatatype()})
+         p0: CheckDatatype()},
+        priority=M.VERY_LOW_PRIORITY)
     def p_lexeme_no_value(
             self,
             c: C,
@@ -1767,7 +1797,8 @@ class WikidataMapping(M):
         {s: CheckProperty(),
          s0: CheckDatatype(),
          p: CheckProperty(),
-         p0: CheckDatatype()})
+         p0: CheckDatatype()},
+        priority=M.LOW_PRIORITY)
     def p_property_no_value(
             self,
             c: C,

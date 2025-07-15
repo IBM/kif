@@ -89,6 +89,7 @@ class DBpediaMapping(M):
     @M.register(
         [wd.type(Item(s), Item(v))],
         {s: CheckResource()},
+        priority=M.VERY_LOW_PRIORITY,
         rank=Normal)
     def wd_type(self, c: C, s: V_URI, v: V_URI) -> None:
         self._start_r(c, s)
@@ -99,6 +100,7 @@ class DBpediaMapping(M):
         [wd.subtype(Item(s), Item(v))],
         {s: CheckOntology(),
          v: CheckOntology()},
+        priority=M.VERY_LOW_PRIORITY,
         rank=Normal)
     def wd_subtype(self, c: C, s: V_URI, v: V_URI) -> None:
         self._start_oc(c, s)
@@ -108,6 +110,7 @@ class DBpediaMapping(M):
     @M.register(
         [wd.label(Item(s), Text(v, v0))],
         {s: CheckResource()},
+        priority=M.LOW_PRIORITY,
         rank=Normal)
     def wd_label(self, c: C, s: V_URI, v: VLiteral, v0: VLiteral) -> None:
         self._start_r(c, s)
@@ -116,6 +119,7 @@ class DBpediaMapping(M):
     @M.register(
         [wd.label(Property(s), Text(v, v0))],
         {s: CheckOntology()},
+        priority=M.LOW_PRIORITY,
         rank=Normal)
     def wd_label_op(self, c: C, s: V_URI, v: VLiteral, v0: VLiteral) -> None:
         self._start_op(c, s)
@@ -124,6 +128,7 @@ class DBpediaMapping(M):
     @M.register(
         [wd.description(Item(s), Text(v, v0))],
         {s: CheckResource()},
+        priority=M.LOW_PRIORITY,
         rank=Normal)
     def wd_description(
             self,
@@ -155,6 +160,7 @@ class DBpediaMapping(M):
         {p: CheckWikidataProperty(),
          s: CheckResource(),
          v: CheckResource()},
+        priority=M.LOW_PRIORITY,
         rank=Normal)
     def p_r_r(self, c: C, p: V_URI, s: V_URI, v: V_URI) -> None:
         dbp = c.fresh_qvar()
@@ -169,6 +175,7 @@ class DBpediaMapping(M):
         [wd.said_to_be_the_same_as(Item(s), Item(v))],
         {s: CheckResource(),
          v: CheckWikidataItem()},
+        priority=M.LOW_PRIORITY,
         rank=Normal)
     def wd_said_to_be_the_same_as(self, c: C, s: V_URI, v: V_URI) -> None:
         self._start_r(c, s)
