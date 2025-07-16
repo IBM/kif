@@ -992,7 +992,7 @@ class _SPARQL_Store(
     def _build_filter_result_binding_stream(
             self,
             results: Iterable[SPARQL_Results]
-    ) -> Iterable[SPARQL_ResultsBinding]:
+    ) -> Iterator[SPARQL_ResultsBinding]:
         for result in results:
             try:
                 yield from result['results']['bindings']  # type: ignore

@@ -16,39 +16,41 @@ class RDF_EncoderOptions(Section, name='rdf'):
     """RDF encoder options."""
 
     def __init__(self, **kwargs: Any) -> None:
-        self._init_define(kwargs)
+        self._init_define_mask(kwargs)
+        self._init_describe_mask(kwargs)
         self._init_schema(kwargs)
 
-    # -- define --
+    # -- define_mask --
 
-    #: The default value for the define option.
-    DEFAULT_DEFINE: ClassVar[Filter.DatatypeMask] = Filter.ENTITY
+    #: The default value for the define mask option.
+    DEFAULT_DEFINE_MASK: ClassVar[Filter.DatatypeMask] = Filter.ENTITY
 
-    _define: Filter.DatatypeMask
+    _define_mask: Filter.DatatypeMask
 
-    def _init_define(self, kwargs: dict[str, Any]) -> None:
-        self.define = kwargs.get('_define', self.DEFAULT_DEFINE)
+    def _init_define_mask(self, kwargs: dict[str, Any]) -> None:
+        self.define_mask = kwargs.get(
+            '_define_mask', self.DEFAULT_DEFINE_MASK)
 
     @property
-    def define(self) -> Filter.DatatypeMask:
+    def define_mask(self) -> Filter.DatatypeMask:
         """The define mask (determine the entities to define)."""
-        return self.get_define()
+        return self.get_define_mask()
 
-    @define.setter
-    def define(self, define: Filter.TDatatypeMask) -> None:
-        self.set_define(define)
+    @define_mask.setter
+    def define_mask(self, define_mask: Filter.TDatatypeMask) -> None:
+        self.set_define_mask(define_mask)
 
-    def get_define(self) -> Filter.DatatypeMask:
+    def get_define_mask(self) -> Filter.DatatypeMask:
         """Gets the define mask.
 
         Returns:
            Datatype mask.
         """
-        return self._define
+        return self._define_mask
 
-    def set_define(
+    def set_define_mask(
             self,
-            define: Filter.TDatatypeMask,
+            define_mask: Filter.TDatatypeMask,
             function: Location | None = None,
             name: str | None = None,
             position: int | None = None
@@ -56,13 +58,60 @@ class RDF_EncoderOptions(Section, name='rdf'):
         """Sets the define mask.
 
         Parameters:
-           define: Datatype mask.
+           define_mask: Datatype mask.
            function: Function or function name.
            name: Argument name.
            position: Argument position.
         """
-        self._define = Filter.DatatypeMask.check(
-            define, function, name, position)
+        self._define_mask = Filter.DatatypeMask.check(
+            define_mask, function, name, position)
+
+    # -- describe_mask --
+
+    #: The default value for the describe mask option.
+    DEFAULT_DESCRIBE_MASK: ClassVar[Filter.DatatypeMask] =\
+        Filter.DatatypeMask(0)
+
+    _describe_mask: Filter.DatatypeMask
+
+    def _init_describe_mask(self, kwargs: dict[str, Any]) -> None:
+        self.describe_mask = kwargs.get(
+            '_describe_mask', self.DEFAULT_DESCRIBE_MASK)
+
+    @property
+    def describe_mask(self) -> Filter.DatatypeMask:
+        """The describe mask (determine the entities to describe)."""
+        return self.get_describe_mask()
+
+    @describe_mask.setter
+    def describe_mask(self, describe_mask: Filter.TDatatypeMask) -> None:
+        self.set_describe_mask(describe_mask)
+
+    def get_describe_mask(self) -> Filter.DatatypeMask:
+        """Gets the describe mask.
+
+        Returns:
+           Datatype mask.
+        """
+        return self._describe_mask
+
+    def set_describe_mask(
+            self,
+            describe_mask: Filter.TDatatypeMask,
+            function: Location | None = None,
+            name: str | None = None,
+            position: int | None = None
+    ) -> None:
+        """Sets the describe mask.
+
+        Parameters:
+           describe_mask: Datatype mask.
+           function: Function or function name.
+           name: Argument name.
+           position: Argument position.
+        """
+        self._describe_mask = Filter.DatatypeMask.check(
+            describe_mask, function, name, position)
 
     # -- schema --
 

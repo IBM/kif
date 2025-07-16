@@ -3,6 +3,7 @@
 
 from __future__ import annotations
 
+import functools
 from typing import TYPE_CHECKING
 
 from typing_extensions import overload
@@ -11,7 +12,7 @@ from ...context import Context
 from ...typing import (
     cast,
     ClassVar,
-    Iterable,
+    Iterator,
     Mapping,
     override,
     Self,
@@ -29,6 +30,7 @@ from .value import Datatype
 if TYPE_CHECKING:               # pragma: no cover
     from ...store import Store
     from ..snak import ValueSnak
+    from ..statement import Statement
     from .quantity import Quantity, QuantityTemplate, TQuantity
 
 TItem: TypeAlias = Union['Item', T_IRI]
@@ -100,7 +102,7 @@ class Item(
     def descriptor_to_snaks(
             cls,
             descriptor: Descriptor
-    ) -> Iterable[ValueSnak]:
+    ) -> Iterator[ValueSnak]:
         """Converts item descriptor to (value) snaks.
 
         Parameters:
@@ -183,7 +185,7 @@ class Item(
             force: bool | None = None,
             context: Context | None = None
     ) -> Item.Descriptor | None:
-        """Gets the descriptor of item in KIF context.
+        """Describes item in KIF context.
 
         If `language` is given, resolves only text in `language`.
         Otherwise, resolves text in all languages.
@@ -208,6 +210,41 @@ class Item(
         return self.get_context(context).describe(
             self, language=language, resolve=resolve, resolver=resolver,
             force=force, function=self.describe)
+
+    def describe_using_statements(
+            self,
+            language: TTextLanguage | None = None,
+            resolve: bool | None = None,
+            resolver: Store | None = None,
+            force: bool | None = None,
+            context: Context | None = None
+    ) -> Iterator[Statement]:
+        """Describes item in KIF context using statements.
+
+        If `language` is given, resolves only text in `language`.
+        Otherwise, resolves text in all languages.
+
+        If `resolve` is ``True``, resolves item data.
+
+        If `resolver` is given, uses it to resolve item data.
+        Otherwise, uses the resolver registered in context (if any).
+
+        If `force` is given, forces resolution.
+
+        Parameters:
+           language: Language.
+           resolve: Whether to resolve descriptor.
+           resolver: Resolver store.
+           force: Whether to force resolution.
+           context: Context.
+
+        Returns:
+           Statement iterator.
+        """
+        return self._describe_using_statements(
+            self, functools.partial(
+                self.describe, language, resolve, resolver, force, context),
+            self.descriptor_to_snaks)
 
     @property
     def label(self) -> Text | None:
@@ -385,7 +422,7 @@ class Item(
                 all_descriptions=all_descriptions, function=self.unregister)
 
 
-def Items(iri: VTItemContent, *iris: VTItemContent) -> Iterable[Item]:
+def Items(iri: VTItemContent, *iris: VTItemContent) -> Iterator[Item]:
     """Constructs one or more items.
 
     Parameters:

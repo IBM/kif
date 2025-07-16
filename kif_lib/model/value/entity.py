@@ -6,7 +6,18 @@ from __future__ import annotations
 from typing import TYPE_CHECKING
 
 from ...context import Context
-from ...typing import Any, ClassVar, Location, override, Self, TypeAlias, Union
+from ...typing import (
+    Any,
+    Callable,
+    ClassVar,
+    Iterator,
+    Location,
+    override,
+    Self,
+    TypeAlias,
+    TypeVar,
+    Union,
+)
 from ..term import Template, Variable
 from .iri import IRI, IRI_Template, IRI_Variable, T_IRI, V_IRI
 from .text import TTextLanguage
@@ -16,8 +27,12 @@ TEntity: TypeAlias = Union['Entity', T_IRI]
 VEntity: TypeAlias = Union['EntityTemplate', 'EntityVariable', 'Entity']
 VTEntity: TypeAlias = Union[Variable, VEntity, TEntity]
 
+T = TypeVar('T')
+
 if TYPE_CHECKING:               # pragma: no cover
     from ...store import Store
+    from ..snak import ValueSnak
+    from ..statement import Statement
 
 
 class EntityTemplate(ValueTemplate):
@@ -68,6 +83,18 @@ class Entity(
 
     template_class: ClassVar[type[EntityTemplate]]  # pyright: ignore
     variable_class: ClassVar[type[EntityVariable]]  # pyright: ignore
+
+    @classmethod
+    def _describe_using_statements(
+            cls,
+            entity: Entity,
+            describe_fn: Callable[[], T | None],
+            descriptor_to_snaks_fn: Callable[[T], Iterator[ValueSnak]]
+    ) -> Iterator[Statement]:
+        desc = describe_fn()
+        if desc is not None:
+            for snak in descriptor_to_snaks_fn(desc):
+                yield snak.property(entity, snak.value)
 
     @classmethod
     @override

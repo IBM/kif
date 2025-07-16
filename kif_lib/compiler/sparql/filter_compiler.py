@@ -1019,7 +1019,7 @@ class SPARQL_FilterCompiler(SPARQL_Compiler):
 
             def mk_pats(
                     value: VValue
-            ) -> Iterable[SPARQL_Mapping.EntryPattern]:
+            ) -> Iterator[SPARQL_Mapping.EntryPattern]:
                 yield from map(
                     lambda subject: self._filter_to_patterns_tail(
                         Statement(subject, ValueSnak(property, value))),

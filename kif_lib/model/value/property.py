@@ -13,7 +13,7 @@ from ...typing import (
     Any,
     cast,
     ClassVar,
-    Iterable,
+    Iterator,
     Literal,
     Location,
     Mapping,
@@ -544,7 +544,7 @@ class Property(
     def descriptor_to_snaks(
             cls,
             descriptor: Descriptor,
-    ) -> Iterable[ValueSnak]:
+    ) -> Iterator[ValueSnak]:
         """Converts property descriptor to (value) snaks.
 
         Parameters:
@@ -804,7 +804,7 @@ class Property(
             force: bool | None = None,
             context: Context | None = None
     ) -> Property.Descriptor | None:
-        """Gets the descriptor of property in KIF context.
+        """Describes property in KIF context.
 
         If `language` is given, resolves only text in `language`.
         Otherwise, resolves text in all languages.
@@ -829,6 +829,41 @@ class Property(
         return self.get_context(context).describe(
             self, language=language, resolve=resolve, resolver=resolver,
             force=force, function=self.describe)
+
+    def describe_using_statements(
+            self,
+            language: TTextLanguage | None = None,
+            resolve: bool | None = None,
+            resolver: Store | None = None,
+            force: bool | None = None,
+            context: Context | None = None
+    ) -> Iterator[Statement]:
+        """Describes property in KIF context using statements.
+
+        If `language` is given, resolves only text in `language`.
+        Otherwise, resolves text in all languages.
+
+        If `resolve` is ``True``, resolves property data.
+
+        If `resolver` is given, uses it to resolve property data.
+        Otherwise, uses the resolver registered in context (if any).
+
+        If `force` is given, forces resolution.
+
+        Parameters:
+           language: Language.
+           resolve: Whether to resolve descriptor.
+           resolver: Resolver store.
+           force: Whether to force resolution.
+           context: Context.
+
+        Returns:
+           Statement iterator.
+        """
+        return self._describe_using_statements(
+            self, functools.partial(
+                self.describe, language, resolve, resolver, force, context),
+            self.descriptor_to_snaks)
 
     @property
     def label(self) -> Text | None:
@@ -1004,12 +1039,15 @@ class Property(
             schema = default
         if schema is not None:
             if resolve:
-                from ... import rdflib
-                _, name = rdflib.split_uri(self.iri.content)
-                schema = cast(
-                    Property.Schema,
-                    {k: IRI(cast(IRI, v).content + name)
-                     for k, v in schema.items()})
+                try:
+                    from ... import rdflib
+                    _, name = rdflib.split_uri(self.iri.content)
+                    schema = cast(
+                        Property.Schema,
+                        {k: IRI(cast(IRI, v).content + name)
+                         for k, v in schema.items()})
+                except ValueError:
+                    pass
         return schema
 
     def register(
@@ -1115,7 +1153,7 @@ class Property(
 def Properties(
         iri: VTPropertyContent,
         *iris: VTPropertyContent
-) -> Iterable[Property]:
+) -> Iterator[Property]:
     """Constructs one or more properties.
 
     Parameters:

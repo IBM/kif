@@ -25,7 +25,7 @@ from kif_lib import (
     Theta,
     Variable,
 )
-from kif_lib.typing import Any, assert_type, Iterable, Optional, Set
+from kif_lib.typing import Any, assert_type, Iterator, Optional, Set
 
 from ...tests import EntityTestCase
 
@@ -305,7 +305,7 @@ class Test(EntityTestCase):
         self.assertIsNone(Item('x').describe())
 
     def test_Items(self) -> None:
-        assert_type(Items('a', 'b', 'c'), Iterable[Item])
+        assert_type(Items('a', 'b', 'c'), Iterator[Item])
         self._test_Entities(
             Items,
             self.assert_item,

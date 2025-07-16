@@ -3,13 +3,14 @@
 
 from __future__ import annotations
 
+import functools
 from typing import TYPE_CHECKING
 
 from ...context import Context
 from ...typing import (
     cast,
     ClassVar,
-    Iterable,
+    Iterator,
     override,
     Self,
     TypeAlias,
@@ -26,6 +27,7 @@ from .value import Datatype
 if TYPE_CHECKING:               # pragma: no cover
     from ...store import Store
     from ..snak import ValueSnak
+    from ..statement import Statement
 
 TLexeme: TypeAlias = Union['Lexeme', T_IRI]
 VLexeme: TypeAlias = Union['LexemeTemplate', 'LexemeVariable', 'Lexeme']
@@ -96,7 +98,7 @@ class Lexeme(
     def descriptor_to_snaks(
             cls,
             descriptor: Descriptor,
-    ) -> Iterable[ValueSnak]:
+    ) -> Iterator[ValueSnak]:
         """Converts lexeme descriptor to (value) snaks.
 
         Parameters:
@@ -144,9 +146,9 @@ class Lexeme(
             force: bool | None = None,
             context: Context | None = None
     ) -> Lexeme.Descriptor | None:
-        """Gets the descriptor of lexeme in KIF context.
+        """Describes lexeme in KIF context.
 
-        If `resolve` is ``True``, resolves property data.
+        If `resolve` is ``True``, resolves lexeme data.
 
         If `resolver` is given, uses it to resolve lexeme data.
         Otherwise, uses the resolver registered in context (if any).
@@ -166,6 +168,37 @@ class Lexeme(
         return self.get_context(context).describe(
             self, resolve=resolve, resolver=resolver,
             force=force, function=self.describe)
+
+    def describe_using_statements(
+            self,
+            resolve: bool | None = None,
+            resolver: Store | None = None,
+            force: bool | None = None,
+            context: Context | None = None
+    ) -> Iterator[Statement]:
+        """Describes lexeme in KIF context using statements.
+
+        If `resolve` is ``True``, resolves lexeme data.
+
+        If `resolver` is given, uses it to resolve lexeme data.
+        Otherwise, uses the resolver registered in context (if any).
+
+        If `force` is given, forces resolution.
+
+        Parameters:
+           language: Language.
+           resolve: Whether to resolve descriptor.
+           resolver: Resolver store.
+           force: Whether to force resolution.
+           context: Context.
+
+        Returns:
+           Statement iterator.
+        """
+        return self._describe_using_statements(
+            self, functools.partial(
+                self.describe, resolve, resolver, force, context),
+            self.descriptor_to_snaks)
 
     @property
     def lemma(self) -> Text | None:
@@ -299,7 +332,7 @@ class Lexeme(
                 function=self.unregister)
 
 
-def Lexemes(iri: VTLexemeContent, *iris: VTLexemeContent) -> Iterable[Lexeme]:
+def Lexemes(iri: VTLexemeContent, *iris: VTLexemeContent) -> Iterator[Lexeme]:
     """Constructs one or more lexemes.
 
     Parameters:

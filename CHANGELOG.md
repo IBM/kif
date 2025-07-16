@@ -4,6 +4,14 @@ All notable changes to this project will be documented in this file.
 
 The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.0.0/).
 
+## 0.11.1 (?)
+
+- Added `describe_mask` option to RDF encoder.  This determines whether
+  statements corresponding to entity descriptors should be included in the
+  serialization automatically.  The boolean aliases `describe_aliases`,
+  `describe_items`, `describe_lexemes` can also be used to control this in
+  the `KIF_Object.to_rdf()` call.
+
 ## 0.11.0 (2025-07-15)
 
 - Added support for the pseudo-properties `TypeProperty()` and

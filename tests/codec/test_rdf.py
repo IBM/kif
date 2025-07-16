@@ -5,7 +5,7 @@ from __future__ import annotations
 
 import copy
 
-from kif_lib import Context, Filter, Graph, Item
+from kif_lib import Context, Filter, Graph, Item, Lexeme
 from kif_lib import namespace as NS
 from kif_lib import Normal, Preferred, Property, Store
 from kif_lib.model import EncoderError
@@ -38,7 +38,48 @@ class Test(TestCase):
                 f'ASK {{_:b <{p}> ?wds. ?wds <{NS.WIKIBASE.rank}> _:b2}}')
             self.assertTrue(status['boolean'])
 
-    def test_to_rdf(self) -> None:
+    def test_item_to_rdf(self) -> None:
+        self.assertEqual(
+            Item('x').to_rdf(), '''\
+<x> <http://wikiba.se/ontology#sitelinks> \
+"0"^^<http://www.w3.org/2001/XMLSchema#integer> .
+''')
+
+    def test_property_to_rdf(self) -> None:
+        self.assertEqual(
+            Property('x', Item).to_rdf(), '''\
+<x> <http://www.w3.org/1999/02/22-rdf-syntax-ns#type> \
+<http://wikiba.se/ontology#Property> .
+<x> <http://wikiba.se/ontology#propertyType> \
+<http://wikiba.se/ontology#WikibaseItem> .
+<x> <http://wikiba.se/ontology#claim> \
+<http://www.wikidata.org/prop/> .
+<x> <http://wikiba.se/ontology#qualifier> \
+<http://www.wikidata.org/prop/qualifier/> .
+<x> <http://wikiba.se/ontology#qualifierValue> \
+<http://www.wikidata.org/prop/qualifier/value/> .
+<x> <http://wikiba.se/ontology#reference> \
+<http://www.wikidata.org/prop/reference/> .
+<x> <http://wikiba.se/ontology#referenceValue> \
+<http://www.wikidata.org/prop/reference/value/> .
+<x> <http://wikiba.se/ontology#statementProperty> \
+<http://www.wikidata.org/prop/statement/> .
+<x> <http://wikiba.se/ontology#statementValue> \
+<http://www.wikidata.org/prop/statement/value/> .
+<x> <http://wikiba.se/ontology#novalue> \
+<http://www.wikidata.org/prop/novalue/> .
+<x> <http://wikiba.se/ontology#directClaim> \
+<http://www.wikidata.org/prop/direct/> .
+''')
+
+    def test_lexeme_to_rdf(self) -> None:
+        self.assertEqual(
+            Lexeme('x').to_rdf(), '''\
+<x> <http://www.w3.org/1999/02/22-rdf-syntax-ns#type> \
+<http://www.w3.org/ns/lemon/ontolex#LexicalEntry> .
+''')
+
+    def test_graph_to_rdf(self) -> None:
         # TODO: Check some-value and no-value in qualifiers & references.
         # TODO: Check lexeme and related pseudo-properties.
         self.assert_to_rdf(
@@ -58,14 +99,26 @@ class Test(TestCase):
                 )
             ))
 
-    def test_define(self) -> None:
+    def test_define_mask(self) -> None:
         lines = list(wd.mass(wd.benzene, 0).to_rdf().splitlines())
         with Context() as ctx:
-            ctx.options.codec.rdf.encoder.set_define(
+            ctx.options.codec.rdf.encoder.set_define_mask(
                 Filter.ENTITY & ~Filter.PROPERTY)
             self.assertEqual(
                 list(wd.mass(wd.benzene, 0).to_rdf().splitlines()),
                 [s for s in lines if not s.startswith(wd.mass.n3())])
+
+    def test_describe_mask(self) -> None:
+        with Context() as ctx:
+            ctx.options.codec.rdf.encoder.set_describe_mask(
+                Filter.ENTITY & ~Filter.PROPERTY)
+            wd.benzene.register(label='benzene')
+            assert wd.benzene.label is not None
+            self.assertIn(
+                f'{wd.benzene.n3()} '
+                f'<{NS.RDFS.label}> '
+                f'{wd.benzene.label.n3()} .',
+                list(wd.mass(wd.benzene, 0).to_rdf().splitlines()))
 
     def test_schema(self) -> None:
         stmt = pc.isotope_atom_count(pc.CID(241), 0)

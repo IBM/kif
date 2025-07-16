@@ -122,7 +122,7 @@ class _Entry:
             self,
             patterns: Iterable[SPARQL_Mapping.EntryPattern],
             annotations: Statement.Annotation
-    ) -> Iterable[SPARQL_Mapping.EntryPattern]:
+    ) -> Iterator[SPARQL_Mapping.EntryPattern]:
         for pat in patterns:
             yield pat
             if isinstance(pat, (Statement, StatementTemplate)):

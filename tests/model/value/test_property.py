@@ -48,7 +48,7 @@ from kif_lib.typing import (
     assert_type,
     cast,
     ClassVar,
-    Iterable,
+    Iterator,
     Optional,
     Set,
 )
@@ -417,7 +417,7 @@ class Test(EntityTestCase):
             self.assertIsNone(Property('http://x#p1').get_schema())
             self.assertIsNone(Property('http://x#p2').schema)
 
-            def mk_sc(*names: str) -> Iterable[Property.Schema]:
+            def mk_sc(*names: str) -> Iterator[Property.Schema]:
                 for name in names:
                     yield cast(Property.Schema, {
                         'p': IRI('http://sc/p/' + name),
@@ -565,7 +565,7 @@ class Test(EntityTestCase):
         self.assertIsNone(Item('x').describe())
 
     def test_Properties(self) -> None:
-        assert_type(Properties('a', 'b', 'c'), Iterable[Property])
+        assert_type(Properties('a', 'b', 'c'), Iterator[Property])
         self._test_Entities(
             Properties,
             self.assert_property,

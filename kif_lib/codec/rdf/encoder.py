@@ -129,11 +129,16 @@ class RDF_Encoder(
     def __init__(
             self,
             schema: Property.TSchema | None = None,
-            define: Filter.TDatatypeMask | None = None,
+            define_mask: Filter.TDatatypeMask | None = None,
             define_entities: bool | None = None,
             define_items: bool | None = None,
             define_properties: bool | None = None,
             define_lexemes: bool | None = None,
+            describe_mask: Filter.TDatatypeMask | None = None,
+            describe_entities: bool | None = None,
+            describe_items: bool | None = None,
+            describe_properties: bool | None = None,
+            describe_lexemes: bool | None = None,
             gen_wdref: Callable[[ReferenceRecord], str] | None = None,
             gen_wds: Callable[[Statement], str] | None = None,
             gen_wdv: Callable[[Value], str] | None = None,
@@ -152,28 +157,52 @@ class RDF_Encoder(
         else:
             self._gen_wdv = self._default_gen_wdv
         self._options = self._get_context_options(context).copy()
-        if define is not None:
-            self._options.set_define(define, type(self), 'define')
+        if define_mask is not None:
+            self._options.set_define_mask(
+                define_mask, type(self), 'define_mask')
         if define_entities is not None:
             if define_entities:
-                self._options.define |= Filter.ENTITY
+                self._options.define_mask |= Filter.ENTITY
             else:
-                self._options.define |= ~Filter.ENTITY
+                self._options.define_mask &= ~Filter.ENTITY
         if define_items is not None:
             if define_items:
-                self._options.define |= Filter.ITEM
+                self._options.define_mask |= Filter.ITEM
             else:
-                self._options.define &= ~Filter.ITEM
+                self._options.define_mask &= ~Filter.ITEM
         if define_properties is not None:
             if define_properties:
-                self._options.define |= Filter.PROPERTY
+                self._options.define_mask |= Filter.PROPERTY
             else:
-                self._options.define &= ~Filter.PROPERTY
+                self._options.define_mask &= ~Filter.PROPERTY
         if define_lexemes is not None:
             if define_lexemes:
-                self._options.define |= Filter.LEXEME
+                self._options.define_mask |= Filter.LEXEME
             else:
-                self._options.define &= ~Filter.LEXEME
+                self._options.define_mask &= ~Filter.LEXEME
+        if describe_mask is not None:
+            self._options.set_describe_mask(
+                describe_mask, type(self), 'describe_mask')
+        if describe_entities is not None:
+            if describe_entities:
+                self._options.describe_mask |= Filter.ENTITY
+            else:
+                self._options.describe_mask &= ~Filter.ENTITY
+        if describe_items is not None:
+            if describe_items:
+                self._options.describe_mask |= Filter.ITEM
+            else:
+                self._options.describe_mask &= ~Filter.ITEM
+        if describe_properties is not None:
+            if describe_properties:
+                self._options.describe_mask |= Filter.PROPERTY
+            else:
+                self._options.describe_mask &= ~Filter.PROPERTY
+        if describe_lexemes is not None:
+            if describe_lexemes:
+                self._options.describe_mask |= Filter.LEXEME
+            else:
+                self._options.describe_mask &= ~Filter.LEXEME
         if schema is not None:
             self._options.set_schema(schema, type(self), 'schema')
         self._seen_absolute_schemas = {}
@@ -186,7 +215,7 @@ class RDF_Encoder(
             define: bool | None = None
     ) -> bool:
         if define is None:
-            return bool(self._options.define & Filter.ITEM)
+            return bool(self._options.define_mask & Filter.ITEM)
         else:
             return bool(define)
 
@@ -195,18 +224,45 @@ class RDF_Encoder(
             define: bool | None = None
     ) -> bool:
         if define is None:
-            return bool(self._options.define & Filter.PROPERTY)
+            return bool(self._options.define_mask & Filter.PROPERTY)
         else:
             return bool(define)
 
-    def _define_lexeme(
+    def _define_lexemes(
             self,
             define: bool | None = None
     ) -> bool:
         if define is None:
-            return bool(self._options.define & Filter.LEXEME)
+            return bool(self._options.define_mask & Filter.LEXEME)
         else:
             return bool(define)
+
+    def _describe_items(
+            self,
+            describe: bool | None = None
+    ) -> bool:
+        if describe is None:
+            return bool(self._options.describe_mask & Filter.ITEM)
+        else:
+            return bool(describe)
+
+    def _describe_properties(
+            self,
+            describe: bool | None = None
+    ) -> bool:
+        if describe is None:
+            return bool(self._options.describe_mask & Filter.PROPERTY)
+        else:
+            return bool(describe)
+
+    def _describe_lexemes(
+            self,
+            describe: bool | None = None
+    ) -> bool:
+        if describe is None:
+            return bool(self._options.describe_mask & Filter.LEXEME)
+        else:
+            return bool(describe)
 
     def _get_absolute_schema(
             self,
@@ -234,13 +290,14 @@ class RDF_Encoder(
             for s in input:
                 yield from self.iterencode(s)
         elif isinstance(input, Statement):
-            if isinstance(input, AnnotatedStatement):
-                stmt: AnnotatedStatement = input
-            else:
-                stmt = input.annotate()
-            yield from self._iterencode_annotated_statement(stmt)
+            yield from self._iterencode_statement(input)
+        elif isinstance(input, Entity):
+            yield from self._iterencode_entity(input)
         else:
             raise self._error(f'cannot encode to RDF: {input}')
+
+    def _iterencode_statement(self, stmt: Statement) -> Iterator[str]:
+        yield from self._iterencode_annotated_statement(stmt.annotate())
 
     def _iterencode_annotated_statement(
             self,
@@ -249,11 +306,11 @@ class RDF_Encoder(
         if isinstance(stmt.snak.property, PseudoProperty):
             if not isinstance(stmt.snak, ValueSnak):
                 return          # nothing to do
-            yield from self._do_iterencode_entity(stmt.subject)
+            yield from self._iterencode_entity(stmt.subject)
             subject = self._seen_entity[stmt.subject]
             value = stmt.snak.value
             if isinstance(value, Entity):
-                self._do_iterencode_entity(value)
+                self._iterencode_entity(value)
             yield from self._tr(
                 (subject, cast(URIRef, stmt.snak.property._to_rdflib()),
                  stmt.snak.value._to_rdflib()))
@@ -263,7 +320,7 @@ class RDF_Encoder(
             # property definition
             yield from self._do_iterencode_property(stmt.snak.property)
             # subject
-            yield from self._do_iterencode_entity(stmt.subject)
+            yield from self._iterencode_entity(stmt.subject)
             subject = self._seen_entity[stmt.subject]
             assert subject
             yield from self._tr((subject, schema['p'], wds))
@@ -312,7 +369,7 @@ class RDF_Encoder(
         else:
             raise KIF_Object._should_not_get_here()
 
-    def _do_iterencode_entity(self, entity: Entity) -> Iterator[str]:
+    def _iterencode_entity(self, entity: Entity) -> Iterator[str]:
         if isinstance(entity, Item):
             yield from self._do_iterencode_item(entity)
         elif isinstance(entity, Property):
@@ -325,7 +382,8 @@ class RDF_Encoder(
     def _do_iterencode_item(
             self,
             item: Item,
-            define: bool | None = None
+            define: bool | None = None,
+            describe: bool | None = None
     ) -> Iterator[str]:
         if item in self._seen_entity:
             return              # nothing do do
@@ -333,11 +391,16 @@ class RDF_Encoder(
         self._seen_entity[item] = uri
         if self._define_items(define):
             yield from self._tr((uri, WIKIBASE.sitelinks, Literal(0)))
+        if self._describe_items(describe):
+            yield from itertools.chain(*map(
+                self._iterencode_statement,
+                item.describe_using_statements()))
 
     def _do_iterencode_property(
             self,
             property: Property,
-            define: bool | None = None
+            define: bool | None = None,
+            describe: bool | None = None
     ) -> Iterator[str]:
         if property in self._seen_entity:
             return              # nothing to do
@@ -360,18 +423,27 @@ class RDF_Encoder(
                 (uri, WIKIBASE.statementValue, schema['psv']),
                 (uri, WIKIBASE.novalue, schema['wdno']),
                 (uri, WIKIBASE.directClaim, schema['wdt']))
+        if self._describe_properties(describe):
+            yield from itertools.chain(*map(
+                self._iterencode_statement,
+                property.describe_using_statements()))
 
     def _do_iterencode_lexeme(
             self,
             lexeme: Lexeme,
-            define: bool | None = None
+            define: bool | None = None,
+            describe: bool | None = None
     ) -> Iterator[str]:
         if lexeme in self._seen_entity:
             return              # nothing to do
         uri = cast(URIRef, lexeme._to_rdflib())
         self._seen_entity[lexeme] = uri
-        if self._define_lexeme(define):
+        if self._define_lexemes(define):
             yield from self._tr((uri, RDF.type, ONTOLEX.LexicalEntry))
+        if self._describe_lexemes(describe):
+            yield from itertools.chain(*map(
+                self._iterencode_statement,
+                lexeme.describe_using_statements()))
 
     def _do_iterencode_value(
             self,
@@ -381,7 +453,7 @@ class RDF_Encoder(
             psv: URIRef
     ) -> Iterator[str]:
         if isinstance(value, Entity):
-            yield from self._do_iterencode_entity(value)
+            yield from self._iterencode_entity(value)
             yield from self._tr((wds, ps, self._seen_entity[value]))
         elif isinstance(value, ShallowDataValue):
             yield from self._tr((wds, ps, value._to_rdflib()))

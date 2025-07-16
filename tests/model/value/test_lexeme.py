@@ -20,7 +20,7 @@ from kif_lib import (
     Theta,
     Variable,
 )
-from kif_lib.typing import Any, assert_type, Iterable, Optional, Set
+from kif_lib.typing import Any, assert_type, Iterator, Optional, Set
 
 from ...tests import EntityTestCase
 
@@ -207,7 +207,7 @@ class Test(EntityTestCase):
         self.assertIsNone(Lexeme('x').describe())
 
     def test_Lexemes(self) -> None:
-        assert_type(Lexemes('a', 'b', 'c'), Iterable[Lexeme])
+        assert_type(Lexemes('a', 'b', 'c'), Iterator[Lexeme])
         self._test_Entities(
             Lexemes,
             self.assert_lexeme,
