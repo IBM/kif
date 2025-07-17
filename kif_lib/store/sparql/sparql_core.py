@@ -205,7 +205,7 @@ class _SPARQL_Store(
         ) -> None:
             super().__init__(store)
             self._lock = threading.RLock()
-            self._init(store, **kwargs)
+            self._pre_init(store, **kwargs)
 
             def load(name: str | None, f: Callable[[T], None], x: T) -> None:
                 try:
@@ -240,10 +240,14 @@ class _SPARQL_Store(
             skolemize = skolemize if skolemize is not None else True
             if skolemize:
                 self._skolemize()
+            self._post_init(store)
 
         @abc.abstractmethod
-        def _init(self, store: _SPARQL_Store, **kwargs: Any) -> None:
+        def _pre_init(self, store: _SPARQL_Store, **kwargs: Any) -> None:
             raise NotImplementedError
+
+        def _post_init(self, store: _SPARQL_Store) -> None:
+            pass
 
         def _load_arg(self, arg: Args, format: str | None = None) -> None:
             if isinstance(arg, (pathlib.PurePath, str)):

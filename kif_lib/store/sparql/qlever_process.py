@@ -9,14 +9,15 @@
 
 from __future__ import annotations
 
-import io
 import logging
 import os
 import pathlib
+import queue
 import re
 import subprocess
+import threading
 
-from typing_extensions import Final, Iterator, Optional, TypeAlias
+from typing_extensions import Final, Iterator, Optional, TextIO, TypeAlias
 
 TPath: TypeAlias = pathlib.PurePath | str
 
@@ -24,7 +25,7 @@ _logger: Final[logging.Logger] = logging.getLogger(__name__)
 
 
 class QLever:
-    """Python bindings QLever.
+    """Python bindings for QLever.
 
     Parameters:
        index_builder_path: Path to the QLever index builder executable.
@@ -50,9 +51,9 @@ class QLever:
             return server.server_address[1]
 
     @classmethod
-    def _parse_log(
-            cls,
-            buf: str,
+    def _parse_log_line(
+            self,
+            line: str,
             _level_map: dict[str, int] = {
                 'ERROR': logging.ERROR,
                 'INFO': logging.DEBUG,
@@ -60,15 +61,26 @@ class QLever:
             },
             _re: re.Pattern[str] = re.compile(
                 r'^.*[ ](ERROR|INFO|WARN):[ ]*(.*)$')
-    ) -> str | None:
-        for line in buf.splitlines():
-            m = _re.match(line)
-            if m:
-                level, msg = m.groups()
-                _logger.log(_level_map[level], msg)
-                if level == 'ERROR':
-                    return msg
-        return None
+    ) -> tuple[int, str]:
+        m = _re.match(line)
+        if m:
+            _level, message = m.groups()
+            try:
+                level = _level_map[_level]
+                _logger.log(level, message)
+                return level, message
+            except KeyError:
+                pass
+        raise SyntaxError
+
+    @classmethod
+    def _which_exec(cls, path: TPath, errmsg: str) -> pathlib.Path:
+        import shutil
+        ret = shutil.which(path, os.R_OK | os.X_OK)
+        if ret is None:
+            raise cls.Error(f'{errmsg}: {path}')
+        else:
+            return pathlib.Path(ret)
 
     #: The path to the IndexBuilderMain executable.
     _index_builder_path: pathlib.Path
@@ -82,8 +94,16 @@ class QLever:
     #: The underlying QLever server process.
     _server_process: subprocess.Popen | None
 
+    #: The sever logger queue.
+    _server_logger_queue: queue.Queue[str]
+
+    #: the server logger thread.
+    _server_logger_thread: threading.Thread
+
     __slots__ = (
         '_index_builder_path',
+        '_server_logger_queue',
+        '_server_logger_thread',
         '_server_path',
         '_server_port',
         '_server_process',
@@ -103,19 +123,24 @@ class QLever:
         self._server_port = 0
         self._server_process = None
 
-    def _which_exec(self, path: TPath, errmsg: str) -> pathlib.Path:
-        import shutil
-        ret = shutil.which(path, os.R_OK | os.X_OK)
-        if ret is None:
-            raise self.Error(f'{errmsg}: {path}')
-        else:
-            return pathlib.Path(ret)
+    def __del__(self):
+        self.stop()
 
     @property
     def server_process(self) -> subprocess.Popen:
         """The underlying QLever server process."""
         assert self._server_process is not None
         return self._server_process
+
+    @property
+    def server_process_is_running(self) -> bool:
+        """Whether QLever server process is running."""
+        return not self.server_process.poll()
+
+    @property
+    def server_port(self) -> int:
+        """The port on which QLever server is listening."""
+        return self._server_port
 
     def build_index(
             self,
@@ -126,6 +151,19 @@ class QLever:
             index_dir: TPath | None = None,
             parse_parallel: bool | None = None
     ) -> str:
+        """Builds QLever index.
+
+        Parameters:
+           basename: Index basename.
+           args: Input files process.
+           data: Input data to process.
+           format: Input format.
+           index_dir: Index directory (output dir).
+           parse_parallel: Whether to enable parallel parsing.
+
+        Returns:
+           Index basename.
+        """
         cwd: Optional[pathlib.Path]
         if index_dir is not None:
             cwd = pathlib.Path(index_dir)
@@ -138,11 +176,8 @@ class QLever:
             yield '-i'
             yield basename
             for arg in args:
-                path = pathlib.Path(arg)
-                if not path.exists():
-                    raise FileNotFoundError(path)
                 yield '-f'
-                yield str(path.absolute())
+                yield str(pathlib.Path(arg).absolute())
             if data:
                 yield '-f'
                 yield '-'
@@ -155,58 +190,131 @@ class QLever:
             if parse_parallel:
                 yield '-p'
                 yield '1'
+        run_args = list(it())
+        if _logger.isEnabledFor(logging.DEBUG):
+            _logger.debug(' '.join(run_args))
         ret = subprocess.run(
-            list(it()), capture_output=True, check=False,
+            run_args, capture_output=True, check=False,
             cwd=cwd, input=data, text=True)
-        errmsg = self._parse_log(ret.stdout)
+        errmsg = None
+        for line in map(str.strip, ret.stdout.splitlines()):
+            try:
+                level, msg = self._parse_log_line(line)
+                if level == logging.ERROR:
+                    errmsg = msg
+                    break
+            except SyntaxError:
+                pass            # ignore
         if ret.returncode != 0:
-            assert errmsg is not None
-            raise self.Error(errmsg)
+            raise self.Error(errmsg or 'unknown error')
         return basename
 
     def start(
             self,
             basename: str,
             port: int | None = None,
-            index_dir: TPath | None = None
+            index_dir: TPath | None = None,
+            memory_max_size: float | None = None,
+            default_query_timeout: int | None = None,
+            throw_on_onbound_variables: bool | None = None
     ) -> int:
-        import fcntl
+        """Starts QLever server.
+
+        Parameters:
+           basename: Index basename.
+           port: Server port.
+           index_dir: Index directory (input dir).
+           memory_max_size: Memory limit for query processing (in GBs).
+           default_query_timeout: Timeout in seconds.
+           throw_on_onbound_variables: Whether check for unbound variables.
+
+        Returns:
+           Server port.
+        """
         port = port or self._get_free_port()
         cwd: Optional[pathlib.Path]
         if index_dir is not None:
             cwd = pathlib.Path(index_dir)
         else:
             cwd = None
+        if memory_max_size is not None:
+            mem: int = max(int(memory_max_size), 2)
+        else:
+            mem = 16
+
+        def it() -> Iterator[str]:
+            yield str(self._server_path)
+            yield '-i'
+            yield basename
+            yield '-p'
+            yield str(port)
+            yield '--memory-max-size'
+            yield f'{mem}GB'
+            if default_query_timeout is not None:
+                yield '--default-query-timeout'
+                yield f'{max(default_query_timeout, 0)}s'
+            if throw_on_onbound_variables:
+                yield '--throw-on-unbound-variables'
+                yield '1'
+        args = list(it())
+        if _logger.isEnabledFor(logging.DEBUG):
+            _logger.debug(' '.join(args))
         self._server_process = subprocess.Popen(
-            [self._server_path, '-i', basename, '-p', str(port)],
-            cwd=cwd, stdout=subprocess.PIPE, stderr=subprocess.PIPE, text=True)
+            args, cwd=cwd, text=True,
+            stdout=subprocess.PIPE, stderr=subprocess.STDOUT)
         assert self._server_process.stdout is not None
-        flags = fcntl.fcntl(
-            self._server_process.stdout,  # type: ignore
-            fcntl.F_GETFL)
-        fcntl.fcntl(
-            self._server_process.stdout,  # type: ignore
-            fcntl.F_SETFL, flags | os.O_NONBLOCK)
-        buf, success = '', False
-        while not self.server_process.poll():
-            buf += self._read()
-            if self.server_process.poll():
+        self._server_logger_queue = queue.Queue()
+        self._server_logger_thread = threading.Thread(
+            target=self._server_logger_enqueue,
+            args=(self._server_process.stdout, self._server_logger_queue),
+            daemon=True)
+        self._server_logger_thread.start()
+        while True:
+            level, message = self._server_logger_read_line()
+            if level == logging.ERROR:
+                raise self.Error(message)
+            if message == (
+                    'The server is ready, '
+                    f'listening for requests on port {port} ...'):
                 break
-            if buf.endswith(f'listening for requests on port {port} ...\n'):
-                success = True
-                break
-        errmsg = self._parse_log(buf)
-        if not success:
-            raise self.Error(
-                f"Failed to start QLever server: {errmsg or 'unknown error'}")
         self._server_port = port
         assert self._server_port
         return self._server_port
 
-    def _read(self) -> str:
-        assert self.server_process.stdout is not None
-        while not self.server_process.poll():
-            buf = self.server_process.stdout.read(io.DEFAULT_BUFFER_SIZE)
-            if buf:
-                return buf
-        return ''
+    @classmethod
+    def _server_logger_enqueue(
+            cls,
+            output: TextIO,
+            queue_: queue.Queue[str]
+    ) -> None:
+        try:
+            while True:
+                queue_.put(output.readline().strip())
+        except queue.ShutDown:
+            pass
+        finally:
+            output.close()
+
+    def _server_logger_read_line(self) -> tuple[int, str]:
+        while self.server_process_is_running:
+            try:
+                return self._parse_log_line(
+                    self._server_logger_queue.get(False, 0.01))
+            except SyntaxError:
+                continue
+            except queue.Empty:
+                continue
+            except queue.ShutDown:
+                break
+        return 0, ''
+
+    def stop(self) -> None:
+        """Stops QLever server."""
+        if self._server_process is not None:
+            _logger.debug(
+                'stopping server listening on port %d',
+                self._server_port)
+            self._server_logger_queue.shutdown(immediate=True)
+            self._server_process.kill()
+            self._server_process.wait()
+            self._server_process = None

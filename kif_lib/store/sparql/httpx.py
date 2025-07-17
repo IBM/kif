@@ -3,6 +3,8 @@
 
 from __future__ import annotations
 
+import logging
+
 import httpx
 
 from ...__version__ import __version__
@@ -11,6 +13,8 @@ from ...compiler.sparql.results import SPARQL_Results
 from ...model import IRI, KIF_Object, T_IRI
 from ...typing import Any, cast, Final, Mapping, override, TypeAlias
 from .sparql_core import _SPARQL_Store
+
+_logger: Final[logging.Logger] = logging.getLogger(__name__)
 
 
 class HttpxSPARQL_Store(
@@ -121,7 +125,14 @@ class HttpxSPARQL_Store(
 
         @override
         def _select(self, query: str) -> SPARQL_Results:
-            return self._http_post(query).json()
+            try:
+                return self._http_post(query).json()
+            except httpx.HTTPStatusError as err:
+                if _logger.isEnabledFor(logging.DEBUG):
+                    import json
+                    _logger.debug('%s:\n%s', err, json.dumps(
+                        err.response.json(), indent=2))
+                raise err
 
         def _http_post(self, text: str) -> httpx.Response:
             try:
@@ -136,7 +147,14 @@ class HttpxSPARQL_Store(
 
         @override
         async def _aselect(self, query: str) -> SPARQL_Results:
-            return (await self._http_apost(query)).json()
+            try:
+                return (await self._http_apost(query)).json()
+            except httpx.HTTPStatusError as err:
+                if _logger.isEnabledFor(logging.DEBUG):
+                    import json
+                    _logger.debug('%s:\n%s', err, json.dumps(
+                        err.response.json(), indent=2))
+                raise err
 
         async def _http_apost(self, text: str) -> httpx.Response:
             try:

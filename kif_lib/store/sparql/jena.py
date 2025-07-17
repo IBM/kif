@@ -59,11 +59,7 @@ class JenaSPARQL_Store(
         _jena: jena_jpype.Jena
 
         @override
-        def _init(
-                self,
-                store: _SPARQL_Store,
-                **kwargs: Any
-        ) -> None:
+        def _pre_init(self, store: _SPARQL_Store, **kwargs: Any) -> None:
             jena_home = IRI.check_optional(
                 kwargs.get('jena_home'), None, type(store), 'jena_home')
             try:

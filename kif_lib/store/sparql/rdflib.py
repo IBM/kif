@@ -58,11 +58,8 @@ class RDFLibSPARQL_Store(
         #: RDFLib graph.
         _rdflib_graph: rdflib.Graph
 
-        def _init(
-                self,
-                store: _SPARQL_Store,
-                **kwargs: Any
-        ) -> None:
+        @override
+        def _pre_init(self, store: _SPARQL_Store, **kwargs: Any) -> None:
             self._rdflib_graph = rdflib.Graph()
 
         @override

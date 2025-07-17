@@ -57,7 +57,7 @@ class RDFoxSPARQL_Store(
         #: RDFox process handle (singleton).
         _rdfox: ClassVar[rdfox_pipe.RDFox | None] = None
 
-        #: The underlyin httpx backend.
+        #: The underlying httpx backend.
         _httpx_backend: HttpxSPARQL_Store.HttpxBackend
 
         #: RDFox data store name for this backend.
@@ -75,11 +75,7 @@ class RDFoxSPARQL_Store(
             return self._rdfox
 
         @override
-        def _init(
-                self,
-                store: _SPARQL_Store,
-                **kwargs: Any
-        ) -> None:
+        def _pre_init(self, store: _SPARQL_Store, **kwargs: Any) -> None:
             if self._rdfox is None:
                 with self._lock:
                     try:

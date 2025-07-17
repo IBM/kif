@@ -5,6 +5,7 @@ from __future__ import annotations
 
 from .httpx import HttpxSPARQL_Store
 from .jena import JenaSPARQL_Store
+from .qlever import QLeverSPARQL_Store
 from .rdf import (
     DBpediaRDF_Store,
     PubChemRDF_Store,
@@ -28,6 +29,7 @@ __all__ = (
     'JenaSPARQL_Store',
     'PubChemRDF_Store',
     'PubChemSPARQL_Store',
+    'QLeverSPARQL_Store',
     'RDF_Store',
     'RDFLibSPARQL_Store',
     'RDFoxSPARQL_Store',
