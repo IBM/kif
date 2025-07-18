@@ -10,6 +10,7 @@
 from __future__ import annotations
 
 import logging
+import math
 import os
 import pathlib
 import queue
@@ -19,7 +20,7 @@ import threading
 
 from typing_extensions import Final, Iterator, Optional, TextIO, TypeAlias
 
-TPath: TypeAlias = pathlib.PurePath | str
+Path: TypeAlias = os.PathLike[str]
 
 _logger: Final[logging.Logger] = logging.getLogger(__name__)
 
@@ -36,11 +37,11 @@ class QLever:
         """Base class for QLever errors."""
 
     @classmethod
-    def _get_default_index_builder_path(cls) -> str:
+    def _get_default_index_builder_path(cls) -> Path | str:
         return os.getenv('QLEVER_INDEX_BUILDER', 'IndexBuilderMain')
 
     @classmethod
-    def _get_default_server_path(cls) -> str:
+    def _get_default_server_path(cls) -> Path | str:
         return os.getenv('QLEVER_SERVER', 'ServerMain')
 
     @classmethod
@@ -52,7 +53,7 @@ class QLever:
 
     @classmethod
     def _parse_log_line(
-            self,
+            cls,
             line: str,
             _level_map: dict[str, int] = {
                 'ERROR': logging.ERROR,
@@ -74,7 +75,7 @@ class QLever:
         raise SyntaxError
 
     @classmethod
-    def _which_exec(cls, path: TPath, errmsg: str) -> pathlib.Path:
+    def _which_exec(cls, path: Path | str, errmsg: str) -> pathlib.Path:
         import shutil
         ret = shutil.which(path, os.R_OK | os.X_OK)
         if ret is None:
@@ -111,8 +112,8 @@ class QLever:
 
     def __init__(
             self,
-            index_builder_path: TPath | None = None,
-            server_path: TPath | None = None
+            index_builder_path: Path | str | None = None,
+            server_path: Path | str | None = None
     ) -> None:
         self._index_builder_path = self._which_exec(
             index_builder_path or self._get_default_index_builder_path(),
@@ -145,10 +146,10 @@ class QLever:
     def build_index(
             self,
             basename: str,
-            *args: TPath,
+            *args: Path,
             data: str | None = None,
             format: str | None = None,
-            index_dir: TPath | None = None,
+            index_dir: Path | None = None,
             parse_parallel: bool | None = None
     ) -> str:
         """Builds QLever index.
@@ -187,11 +188,13 @@ class QLever:
             else:
                 yield '-F'
                 yield 'ttl'
-            if parse_parallel:
+            if parse_parallel is not False:
                 yield '-p'
                 yield '1'
         run_args = list(it())
         if _logger.isEnabledFor(logging.DEBUG):
+            if cwd is not None:
+                _logger.debug('cd-ing to %s', cwd)
             _logger.debug(' '.join(run_args))
         ret = subprocess.run(
             run_args, capture_output=True, check=False,
@@ -213,7 +216,7 @@ class QLever:
             self,
             basename: str,
             port: int | None = None,
-            index_dir: TPath | None = None,
+            index_dir: Path | None = None,
             memory_max_size: float | None = None,
             default_query_timeout: int | None = None,
             throw_on_onbound_variables: bool | None = None
@@ -238,7 +241,7 @@ class QLever:
         else:
             cwd = None
         if memory_max_size is not None:
-            mem: int = max(int(memory_max_size), 2)
+            mem: int = math.ceil(max(float(memory_max_size), 2.))
         else:
             mem = 16
 
@@ -258,6 +261,8 @@ class QLever:
                 yield '1'
         args = list(it())
         if _logger.isEnabledFor(logging.DEBUG):
+            if cwd is not None:
+                _logger.debug('cd-ing to %s', cwd)
             _logger.debug(' '.join(args))
         self._server_process = subprocess.Popen(
             args, cwd=cwd, text=True,

@@ -67,7 +67,8 @@ class RDF_Store(
         ###
         child: Optional[Store] = None
         backend = backend or os.getenv(
-            'KIF_STORE_RDF_BACKEND', 'sparql-rdfox;sparql-jena;sparql-rdflib')
+            'KIF_STORE_RDF_BACKEND',
+            'sparql-rdfox;sparql-qlever;sparql-jena;sparql-rdflib')
         assert backend is not None
         backends = backend.split(';')
         for i, name in enumerate(backends):

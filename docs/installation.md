@@ -72,3 +72,20 @@ Set the `JENA_HOME` environment variable:
 ```
 $ export JENA_HOME=$PWD/apache-jena-5.3.0/
 ```
+
+## (Optional) QLever support
+
+Make sure you have both the QLever index builder `IndexBuilderMain` and the
+server `ServerMain` executables in your path.
+
+To check whether the `sparql-qlever` store is available and working, run the
+following:
+
+```
+$ python -c 'import kif_lib; print(kif_lib.Store("sparql-qlever"))'
+<kif_lib.store.sparql.qlever.QLeverSPARQL_Store object at ...>
+```
+
+### Obtaining and installing QLever
+
+#### MacOS

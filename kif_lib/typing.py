@@ -3,6 +3,7 @@
 
 from __future__ import annotations
 
+import os
 from collections.abc import (
     AsyncIterable,
     AsyncIterator,
@@ -50,8 +51,11 @@ from typing_extensions import (
     TypeVar,
 )
 
+PathLike = os.PathLike
+
 # Common aliases.
 Location: TypeAlias = Union[Callable[..., Any], str]
+Path: TypeAlias = os.PathLike[str]
 
 __all__ = (
     'Any',
@@ -85,6 +89,8 @@ __all__ = (
     'Optional',
     'overload',
     'override',
+    'Path',
+    'PathLike',
     'Protocol',
     'Self',
     'Sequence',

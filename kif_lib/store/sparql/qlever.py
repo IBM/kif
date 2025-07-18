@@ -3,23 +3,36 @@
 
 from __future__ import annotations
 
+import functools
+import pathlib
+import tempfile
+
 from ... import rdflib
 from ...compiler.sparql import SPARQL_Mapping
 from ...compiler.sparql.results import SPARQL_Results, SPARQL_ResultsAsk
 from ...model import TGraph
-from ...typing import Any, BinaryIO, override, TextIO, TypeAlias, TypedDict
+from ...typing import (
+    Any,
+    BinaryIO,
+    override,
+    Path,
+    TextIO,
+    TypeAlias,
+    TypedDict,
+)
 from . import qlever_process
 from .httpx import HttpxSPARQL_Store
 from .sparql_core import _SPARQL_Store
-
-TPath: TypeAlias = qlever_process.TPath
 
 
 class PostInitIndexBuilderArgs(TypedDict):
     """Index builder arguments to be used in post-init step."""
 
     rebuild_index: bool
+    args: list[Path]
+    data: str | None
     format: str | None
+    parse_parallel: bool | None
 
 
 class PostInitServerArgs(TypedDict):
@@ -35,7 +48,7 @@ class PostInitArgs(TypedDict):
     """Arguments to be used in post-init step."""
 
     basename: str | None
-    index_dir: TPath | None
+    index_dir: Path | None
     index_builder_args: PostInitIndexBuilderArgs
     server_args: PostInitServerArgs
     other_args: dict[str, Any]
@@ -87,10 +100,18 @@ class QLeverSPARQL_Store(
         #: The underlying httpx backend.
         _httpx_backend: HttpxSPARQL_Store.HttpxBackend
 
+        #: Temporary directory used to hold transient index files.
+        _temp_dir: Any | None
+
+        #: Temporary file used to hold transient RDF data.
+        _temp_skolem_graph: Any | None
+
         __slots__ = (
             '_httpx_backend',
             '_post_init_args',
             '_qlever',
+            '_temp_dir',
+            '_temp_skolem_graph',
         )
 
         @override
@@ -98,15 +119,15 @@ class QLeverSPARQL_Store(
                 self,
                 store: _SPARQL_Store,
                 basename: str | None = None,
-                index_dir: TPath | None = None,
+                index_dir: Path | None = None,
                 rebuild_index: bool | None = None,
-                format: str | None = None,
+                parse_parallel: bool | None = None,
                 port: int | None = None,
                 memory_max_size: float | None = None,
                 default_query_timeout: int | None = None,
                 throw_on_onbound_variables: bool | None = None,
-                index_builder_path: TPath | None = None,
-                server_path: TPath | None = None,
+                index_builder_path: Path | None = None,
+                server_path: Path | None = None,
                 **kwargs: Any
         ) -> None:
             with self._lock:
@@ -120,7 +141,10 @@ class QLeverSPARQL_Store(
                     'index_dir': index_dir,
                     'index_builder_args': {
                         'rebuild_index': bool(rebuild_index),
-                        'format': format,
+                        'args': [],
+                        'data': None,
+                        'format': None,
+                        'parse_parallel': parse_parallel,
                     },
                     'server_args': {
                         'port': port,
@@ -131,6 +155,8 @@ class QLeverSPARQL_Store(
                     },
                     'other_args': kwargs,
                 }
+                self._temp_dir = None
+                self._temp_skolem_graph = None
 
         @override
         def _post_init(self, store: _SPARQL_Store, **kwargs) -> None:
@@ -140,7 +166,21 @@ class QLeverSPARQL_Store(
             server_args = self._post_init_args['server_args']
             other_args = self._post_init_args['other_args']
             if index_builder_args['rebuild_index']:
-                raise NotImplementedError
+                if index_dir is None:
+                    self._temp_dir = tempfile.TemporaryDirectory()
+                    index_dir = pathlib.Path(self._temp_dir.name)
+                if basename is None:
+                    basename = pathlib.Path(index_dir).stem
+                self._post_init_args['basename'] = basename
+                self._post_init_args['index_dir'] = index_dir
+                t = index_builder_args
+                self._qlever.build_index(
+                    basename, *t['args'],
+                    data=t['data'],
+                    format=t['format'],
+                    index_dir=index_dir,
+                    parse_parallel=t['parse_parallel'])
+            assert index_dir is not None
             assert basename is not None
             with self._lock:
                 port = self._qlever.start(
@@ -149,13 +189,59 @@ class QLeverSPARQL_Store(
                     self._store, f'http://localhost:{port}/', **other_args)
 
         @override
+        def _load_location(
+                self,
+                location: pathlib.PurePath | str,
+                format: str | None = None
+        ) -> None:
+            with self._lock:
+                t = self._post_init_args['index_builder_args']
+                if format is not None:
+                    t['format'] = format
+                self._post_init_args['index_builder_args']['args'].append(
+                    pathlib.Path(location))
+
+        @override
+        def _load_data(
+                self,
+                data: bytes | str,
+                format: str | None = None
+        ) -> None:
+            if isinstance(data, bytes):
+                data = data.decode('utf-8')
+            with self._lock:
+                t = self._post_init_args['index_builder_args']
+                if format is not None:
+                    t['format'] = format
+                if t['data'] is None:
+                    t['data'] = data
+                else:
+                    t['data'] += data
+
+        @override
         def _skolemize(self) -> None:
-            pass
+            from ...rdflib import Graph
+            t = self._post_init_args['index_builder_args']
+            g = Graph()
+            parse = functools.partial(g.parse, format=t['format'])
+            for arg in t['args']:
+                parse(pathlib.Path(arg))
+            if t['data'] is not None:
+                parse(data=t['data'])
+            self._temp_skolem_graph = tempfile.NamedTemporaryFile()
+            g.skolemize().serialize(self._temp_skolem_graph.name, format='n3')
+            t['args'] = [pathlib.Path(self._temp_skolem_graph.name)]
+            t['data'] = None
+            t['format'] = 'nt'
 
         @override
         def _close(self) -> None:
             self._httpx_backend.close()
             with self._lock:
+                if self._temp_dir is not None:
+                    self._temp_dir.cleanup()
+                if self._temp_skolem_graph is not None:
+                    self._temp_skolem_graph.close()
                 self._qlever.stop()
 
         @override
