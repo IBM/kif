@@ -188,7 +188,7 @@ def list_stores() -> None:
     def _list_stores() -> None:
         _list_name_description_pairs(
             ((k, v.store_description) for k, v in Store.registry.items()))
-    _run(list_stores)
+    _run(_list_stores)
 
 
 def _list_name_description_pairs(pairs: Iterable[tuple[str, str]]) -> None:
