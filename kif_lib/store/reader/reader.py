@@ -93,7 +93,7 @@ class Reader(
     class Location(Source):
         """Location source."""
 
-        location: pathlib.PurePath | str
+        location: TLocation
 
     @dataclasses.dataclass
     class File(Source):

@@ -3,15 +3,13 @@
 
 from __future__ import annotations
 
-import pathlib
-
 from ... import rdflib
 from ...compiler.sparql import SPARQL_Mapping
 from ...compiler.sparql.results import SPARQL_Results, SPARQL_ResultsAsk
 from ...model import IRI, TGraph
 from ...typing import Any, BinaryIO, cast, override, TextIO, TypeAlias
 from . import jena_jpype
-from .sparql_core import _SPARQL_Store
+from .sparql_core import _SPARQL_Store, TLocation
 
 
 class JenaSPARQL_Store(
@@ -72,7 +70,7 @@ class JenaSPARQL_Store(
         @override
         def _load_location(
                 self,
-                location: pathlib.PurePath | str,
+                location: TLocation,
                 format: str | None = None
         ) -> None:
             with self._lock:

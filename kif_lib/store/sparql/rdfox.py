@@ -3,7 +3,6 @@
 
 from __future__ import annotations
 
-import pathlib
 import re
 import tempfile
 
@@ -14,7 +13,7 @@ from ...model import TGraph
 from ...typing import Any, BinaryIO, ClassVar, override, TextIO, TypeAlias
 from . import rdfox_pipe
 from .httpx import HttpxSPARQL_Store
-from .sparql_core import _SPARQL_Store
+from .sparql_core import _SPARQL_Store, TLocation
 
 
 class RDFoxSPARQL_Store(
@@ -98,7 +97,7 @@ class RDFoxSPARQL_Store(
         @override
         def _load_location(
                 self,
-                location: pathlib.PurePath | str,
+                location: TLocation,
                 format: str | None = None
         ) -> None:
             with self._lock:

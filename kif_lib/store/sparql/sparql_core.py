@@ -59,6 +59,7 @@ from ...typing import (
 from ..abc import Store
 
 T = TypeVar('T')
+TLocation: TypeAlias = pathlib.PurePath | str
 
 _logger: Final[logging.Logger] = logging.getLogger(__name__)
 _py_filter = filter
@@ -274,7 +275,7 @@ class _SPARQL_Store(
 
         def _load_location(
                 self,
-                location: pathlib.PurePath | str,
+                location: TLocation,
                 format: str | None = None
         ) -> None:
             self._load_arg_unknown(location, format)

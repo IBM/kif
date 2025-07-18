@@ -14,7 +14,9 @@ import json
 import os
 import pathlib
 
-from typing_extensions import Any, ClassVar, Protocol
+from typing_extensions import Any, ClassVar, Protocol, TypeAlias
+
+TLocation: TypeAlias = pathlib.PurePath | str
 
 
 class Jena:
@@ -56,7 +58,7 @@ class Jena:
     @classmethod
     def init(
             cls,
-            jena_home: pathlib.PurePath | str | None = None
+            jena_home: TLocation | None = None
     ) -> None:
         """Initializes Python-Java and loads Jena JARs.
 
@@ -116,7 +118,7 @@ class Jena:
     @classmethod
     def _find_jena_home(
             cls,
-            jena_home: pathlib.PurePath | str | None
+            jena_home: TLocation | None
     ) -> pathlib.Path:
         if jena_home is not None:
             return pathlib.Path(jena_home)
@@ -210,7 +212,7 @@ class Jena:
 
     def __init__(
             self,
-            jena_home: pathlib.PurePath | str | None = None
+            jena_home: TLocation | None = None
     ) -> None:
         if not self._init:
             self.init(jena_home)
@@ -219,7 +221,7 @@ class Jena:
 
     def dump(
             self,
-            location: pathlib.PurePath | str,
+            location: TLocation,
             format: str | None = None
     ) -> None:
         """Dumps model to location.
@@ -258,7 +260,7 @@ class Jena:
 
     def load(
             self,
-            location: pathlib.PurePath | str,
+            location: TLocation,
             format: str | None = None
     ) -> None:
         """Loads RDF data from location into model.

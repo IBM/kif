@@ -16,7 +16,9 @@ import pathlib
 import re
 import subprocess
 
-from typing_extensions import Final
+from typing_extensions import Final, TypeAlias
+
+TLocation: TypeAlias = pathlib.PurePath | str
 
 _logger: Final[logging.Logger] = logging.getLogger(__name__)
 
@@ -44,7 +46,7 @@ class RDFox:
 
     def __init__(
             self,
-            path: pathlib.PurePath | str | None = None
+            path: TLocation | None = None
     ) -> None:
         import fcntl
         import shutil
@@ -178,7 +180,7 @@ class RDFox:
         if not status.endswith('has been cleared as specified.'):
             raise self.Error(status)
 
-    def import_file(self, path: pathlib.PurePath | str) -> None:
+    def import_file(self, path: TLocation) -> None:
         """Imports RDF data from file.
 
         Parameters:

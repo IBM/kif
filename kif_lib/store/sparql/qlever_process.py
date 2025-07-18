@@ -20,7 +20,7 @@ import threading
 
 from typing_extensions import Final, Iterator, Optional, TextIO, TypeAlias
 
-Path: TypeAlias = os.PathLike[str]
+TLocation: TypeAlias = pathlib.PurePath | str
 
 _logger: Final[logging.Logger] = logging.getLogger(__name__)
 
@@ -37,11 +37,11 @@ class QLever:
         """Base class for QLever errors."""
 
     @classmethod
-    def _get_default_index_builder_path(cls) -> Path | str:
+    def _get_default_index_builder_path(cls) -> TLocation:
         return os.getenv('QLEVER_INDEX_BUILDER', 'IndexBuilderMain')
 
     @classmethod
-    def _get_default_server_path(cls) -> Path | str:
+    def _get_default_server_path(cls) -> TLocation:
         return os.getenv('QLEVER_SERVER', 'ServerMain')
 
     @classmethod
@@ -75,7 +75,11 @@ class QLever:
         raise SyntaxError
 
     @classmethod
-    def _which_exec(cls, path: Path | str, errmsg: str) -> pathlib.Path:
+    def _which_exec(
+            cls,
+            path: TLocation | str,
+            errmsg: str
+    ) -> pathlib.Path:
         import shutil
         ret = shutil.which(path, os.R_OK | os.X_OK)
         if ret is None:
@@ -112,8 +116,8 @@ class QLever:
 
     def __init__(
             self,
-            index_builder_path: Path | str | None = None,
-            server_path: Path | str | None = None
+            index_builder_path: TLocation | None = None,
+            server_path: TLocation | None = None
     ) -> None:
         self._index_builder_path = self._which_exec(
             index_builder_path or self._get_default_index_builder_path(),
@@ -146,10 +150,10 @@ class QLever:
     def build_index(
             self,
             basename: str,
-            *args: Path,
+            *args: TLocation,
             data: str | None = None,
             format: str | None = None,
-            index_dir: Path | None = None,
+            index_dir: TLocation | None = None,
             parse_parallel: bool | None = None
     ) -> str:
         """Builds QLever index.
@@ -216,7 +220,7 @@ class QLever:
             self,
             basename: str,
             port: int | None = None,
-            index_dir: Path | None = None,
+            index_dir: TLocation | None = None,
             memory_max_size: float | None = None,
             default_query_timeout: int | None = None,
             throw_on_onbound_variables: bool | None = None

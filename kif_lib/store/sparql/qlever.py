@@ -11,25 +11,17 @@ from ... import rdflib
 from ...compiler.sparql import SPARQL_Mapping
 from ...compiler.sparql.results import SPARQL_Results, SPARQL_ResultsAsk
 from ...model import TGraph
-from ...typing import (
-    Any,
-    BinaryIO,
-    override,
-    Path,
-    TextIO,
-    TypeAlias,
-    TypedDict,
-)
+from ...typing import Any, BinaryIO, override, TextIO, TypeAlias, TypedDict
 from . import qlever_process
 from .httpx import HttpxSPARQL_Store
-from .sparql_core import _SPARQL_Store
+from .sparql_core import _SPARQL_Store, TLocation
 
 
 class PostInitIndexBuilderArgs(TypedDict):
     """Index builder arguments to be used in post-init step."""
 
     rebuild_index: bool
-    args: list[Path]
+    args: list[TLocation]
     data: str | None
     format: str | None
     parse_parallel: bool | None
@@ -48,7 +40,7 @@ class PostInitArgs(TypedDict):
     """Arguments to be used in post-init step."""
 
     basename: str | None
-    index_dir: Path | None
+    index_dir: TLocation | None
     index_builder_args: PostInitIndexBuilderArgs
     server_args: PostInitServerArgs
     other_args: dict[str, Any]
@@ -119,15 +111,15 @@ class QLeverSPARQL_Store(
                 self,
                 store: _SPARQL_Store,
                 basename: str | None = None,
-                index_dir: Path | None = None,
+                index_dir: TLocation | None = None,
                 rebuild_index: bool | None = None,
                 parse_parallel: bool | None = None,
                 port: int | None = None,
                 memory_max_size: float | None = None,
                 default_query_timeout: int | None = None,
                 throw_on_onbound_variables: bool | None = None,
-                index_builder_path: Path | None = None,
-                server_path: Path | None = None,
+                index_builder_path: TLocation | None = None,
+                server_path: TLocation | None = None,
                 **kwargs: Any
         ) -> None:
             with self._lock:
@@ -191,7 +183,7 @@ class QLeverSPARQL_Store(
         @override
         def _load_location(
                 self,
-                location: pathlib.PurePath | str,
+                location: TLocation,
                 format: str | None = None
         ) -> None:
             with self._lock:
@@ -199,7 +191,7 @@ class QLeverSPARQL_Store(
                 if format is not None:
                     t['format'] = format
                 self._post_init_args['index_builder_args']['args'].append(
-                    pathlib.Path(location))
+                    location)
 
         @override
         def _load_data(
@@ -225,12 +217,12 @@ class QLeverSPARQL_Store(
             g = Graph()
             parse = functools.partial(g.parse, format=t['format'])
             for arg in t['args']:
-                parse(pathlib.Path(arg))
+                parse(arg)
             if t['data'] is not None:
                 parse(data=t['data'])
             self._temp_skolem_graph = tempfile.NamedTemporaryFile()
             g.skolemize().serialize(self._temp_skolem_graph.name, format='n3')
-            t['args'] = [pathlib.Path(self._temp_skolem_graph.name)]
+            t['args'] = [self._temp_skolem_graph.name]
             t['data'] = None
             t['format'] = 'nt'
 

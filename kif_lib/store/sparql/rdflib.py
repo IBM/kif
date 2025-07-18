@@ -4,14 +4,13 @@
 from __future__ import annotations
 
 import json
-import pathlib
 
 from ... import rdflib
 from ...compiler.sparql import SPARQL_Mapping
 from ...compiler.sparql.results import SPARQL_Results
 from ...model import TGraph
 from ...typing import Any, BinaryIO, cast, override, TextIO, TypeAlias
-from .sparql_core import _SPARQL_Store
+from .sparql_core import _SPARQL_Store, TLocation
 
 
 class RDFLibSPARQL_Store(
@@ -74,7 +73,7 @@ class RDFLibSPARQL_Store(
         @override
         def _load_location(
                 self,
-                location: pathlib.PurePath | str,
+                location: TLocation,
                 format: str | None = None
         ) -> None:
             with self._lock:
