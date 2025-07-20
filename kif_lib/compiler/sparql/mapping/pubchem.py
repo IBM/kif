@@ -226,7 +226,7 @@ class PubChemMapping(M):
         priority=M.LOW_PRIORITY,
         rank=Normal)
     def wd_alias_compound(self, c: C, s: V_URI, v: VLiteral) -> None:
-        chebi_ty = c.bnode()
+        chebi_ty = c.fresh_qvar()
         c.q.triples()((s, RDF.type, chebi_ty))
         with c.q.union():
             with c.q.group():
