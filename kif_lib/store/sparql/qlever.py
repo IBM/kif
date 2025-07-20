@@ -123,9 +123,12 @@ class QLeverSPARQL_Store(
                 **kwargs: Any
         ) -> None:
             with self._lock:
-                self._qlever = qlever_process.QLever(
-                    index_builder_path,
-                    server_path)
+                try:
+                    self._qlever = qlever_process.QLever(
+                        index_builder_path,
+                        server_path)
+                except qlever_process.QLever.Error as err:
+                    raise store.Error(err) from err
                 if basename is None or index_dir is None:
                     rebuild_index = True
                 self._post_init_args = {

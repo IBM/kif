@@ -119,14 +119,14 @@ class QLever:
             index_builder_path: TLocation | None = None,
             server_path: TLocation | None = None
     ) -> None:
+        self._server_port = 0
+        self._server_process = None
         self._index_builder_path = self._which_exec(
             index_builder_path or self._get_default_index_builder_path(),
             'QLever index builder executable not found')
         self._server_path = self._which_exec(
             server_path or self._get_default_server_path(),
             'QLever server executable not found')
-        self._server_port = 0
-        self._server_process = None
 
     def __del__(self):
         self.stop()
