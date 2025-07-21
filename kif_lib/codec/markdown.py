@@ -11,14 +11,17 @@ from ..model import (
     ClosedTermSet,
     CompoundFingerprint,
     Datatype,
+    EdgePath,
     Entity,
     Filter,
     Fingerprint,
     IRI,
     KIF_Object,
+    PathFingerprint,
     PseudoProperty,
     Quantity,
     Rank,
+    SequencePath,
     Snak,
     SnakFingerprint,
     Statement,
@@ -101,6 +104,16 @@ class MarkdownEncoder(
             yield from self._iterencode_variable(obj)
         elif isinstance(obj, Rank):
             yield self._encode_kif_object_name(obj)
+        elif isinstance(obj, EdgePath):
+            yield from self._iterencode(obj.property, indent)
+        elif isinstance(obj, SequencePath):
+            yield from self._iterencode_kif_object_start(obj, '', False)
+            sep = f'{SP}/{SP}'
+            for i, child in enumerate(obj.args, 1):
+                if i > 1:
+                    yield sep
+                yield from self._iterencode(child, indent)
+            yield from self._iterencode_kif_object_end(obj)
         elif isinstance(obj, Fingerprint):
             yield from self._iterencode_kif_object_start(obj, '')
             if isinstance(obj, ValueFingerprint):
@@ -109,7 +122,8 @@ class MarkdownEncoder(
             elif isinstance(obj, SnakFingerprint):
                 yield SP
                 yield from self._iterencode(obj.snak, indent)
-            elif isinstance(obj, CompoundFingerprint) and len(obj) > 0:
+            elif (isinstance(obj, (PathFingerprint, CompoundFingerprint))
+                  and len(obj) > 0):
                 for s in obj:
                     yield f'{NL}{2 * SP * indent}-{SP}'
                     yield from self._iterencode(s, indent + 1)
@@ -161,9 +175,10 @@ class MarkdownEncoder(
     def _iterencode_kif_object_start(
             self,
             obj: KIF_Object,
-            sep: str = SP
+            sep: str = SP,
+            name: bool = True
     ) -> Iterator[str]:
-        yield f'({self._encode_kif_object_name(obj)}{sep}'
+        yield f'({self._encode_kif_object_name(obj) if name else ""}{sep}'
 
     def _iterencode_kif_object_end(self, obj: KIF_Object) -> Iterator[str]:
         yield ')'
