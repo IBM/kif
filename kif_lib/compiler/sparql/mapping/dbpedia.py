@@ -5,8 +5,10 @@ from __future__ import annotations
 
 import functools
 import re
+from typing import TYPE_CHECKING
 
 from .... import itertools
+from ....context import Context
 from ....model import Item, Normal, Property, Text, Variables
 from ....namespace import OWL, RDF, RDFS, Wikidata
 from ....namespace.dbpedia import DBpedia
@@ -15,6 +17,9 @@ from ....vocabulary import wd
 from ..filter_compiler import SPARQL_FilterCompiler as C
 from .mapping import SPARQL_Mapping as M
 from .wikidata import WikidataMapping
+
+if TYPE_CHECKING:  # pragma: no cover
+    from .dbpedia_options import DBpediaMappingOptions
 
 __all__ = (
     'DBpediaMapping',
@@ -27,7 +32,7 @@ Var: TypeAlias = C.Query.Variable
 VLiteral: TypeAlias = C.Query.VLiteral
 
 #: Variables used in register patterns.
-s, p, v, v0 = Variables('s', 'p', 'v', 'v0')
+s, s0, p, v, v0 = Variables('s', 's0', 'p', 'v', 'v0')
 
 
 class DBpediaMapping(M):
@@ -54,6 +59,39 @@ class DBpediaMapping(M):
     #: Checks whether argument is a Wikidata property.
     CheckWikidataProperty: Final[M.EntryCallbackArgProcessorAlias] =\
         functools.partial(M.CheckURI, match=WikidataMapping._re_property_uri)
+
+    __slots__ = (
+        '_options',
+    )
+
+    #: DBpedia SPARQL mapping options.
+    _options: DBpediaMappingOptions
+
+    def __init__(
+            self,
+            wikidata_properties: bool | None = None,
+            context: Context | None = None
+    ) -> None:
+        super().__init__(context)
+        self._options = self._get_context_options().copy()
+        if wikidata_properties is not None:
+            self.options.set_wikidata_properties(wikidata_properties)
+
+    def _get_context_options(self) -> DBpediaMappingOptions:
+        return self.context.options.compiler.sparql.mapping.dbpedia
+
+    @property
+    def options(self) -> DBpediaMappingOptions:
+        """The DBpedia SPARQL mapping options."""
+        return self.get_options()
+
+    def get_options(self) -> DBpediaMappingOptions:
+        """Gets the DBpedia SPARQL mapping options.
+
+        Returns:
+           DBpedia SPARQL mapping options.
+        """
+        return self._options
 
     def _start_r(self, c: C, x: V_URI, *xs: V_URI) -> None:
         c.q.triples()(*map(
@@ -117,11 +155,17 @@ class DBpediaMapping(M):
         self._p_text(c, s, RDFS.label, v, v0)
 
     @M.register(
-        [wd.label(Property(s), Text(v, v0))],
+        [wd.label(Property(s, s0), Text(v, v0))],
         {s: CheckOntology()},
         priority=M.LOW_PRIORITY,
         rank=Normal)
-    def wd_label_op(self, c: C, s: V_URI, v: VLiteral, v0: VLiteral) -> None:
+    def wd_label_op(
+            self,
+            c: C,
+            s: V_URI,
+            s0: V_URI,
+            v: VLiteral,
+            v0: VLiteral) -> None:
         self._start_op(c, s)
         self._p_text(c, s, RDFS.label, v, v0)
 
@@ -163,6 +207,8 @@ class DBpediaMapping(M):
         priority=M.LOW_PRIORITY,
         rank=Normal)
     def p_r_r(self, c: C, p: V_URI, s: V_URI, v: V_URI) -> None:
+        if not self.options.wikidata_properties:
+            raise self.Skip     # nothing to do
         dbp = c.fresh_qvar()
         c.q.triples()((dbp, OWL.equivalentProperty, p))
         self.op_r_r(c, dbp, s, v)

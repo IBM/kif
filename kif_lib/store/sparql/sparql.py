@@ -321,6 +321,7 @@ class DBpediaSPARQL_Store(
             rdflib_graph: rdflib.Graph | None = None,
             skolemize: bool | None = None,
             mapping: SPARQL_Mapping | None = None,
+            wikidata_properties: bool | None = None,
             **kwargs: Any
     ) -> None:
         assert store_name == self.store_name
@@ -329,7 +330,8 @@ class DBpediaSPARQL_Store(
             if resolver_iri is not None:
                 args = (resolver_iri,)
         if mapping is None:
-            mapping = _SPARQL_Store._dbpedia_mapping_constructor()
+            mapping = _SPARQL_Store._dbpedia_mapping_constructor(
+                wikidata_properties=wikidata_properties)
         super().__init__(
             store_name, *args, format=format,
             location=location, file=file, data=data, graph=graph,
