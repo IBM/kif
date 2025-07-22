@@ -167,6 +167,11 @@ class DBpediaMapping(M):
             v: VLiteral,
             v0: VLiteral) -> None:
         self._start_op(c, s)
+        if isinstance(s0, Var):
+            ###
+            # FIXME: Is this right?
+            ###
+            c.q.bind(c.q.bnode(), s0)
         self._p_text(c, s, RDFS.label, v, v0)
 
     @M.register(
