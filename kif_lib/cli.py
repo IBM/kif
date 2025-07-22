@@ -214,6 +214,7 @@ class KIF_ParamType(click.ParamType):
         global _G               # noqa: F824
         return {
             '__builtins__': {},
+            'ALIAS': Filter.ALIAS,
             'DATA_VALUE': Filter.DATA_VALUE,
             'DataValue': DataValue,
             'db': db,
@@ -222,6 +223,7 @@ class KIF_ParamType(click.ParamType):
             'DeepDataValue': DeepDataValue,
             'Deprecated': Deprecated,
             'DEPRECATED': Filter.DEPRECATED,
+            'DESCRIPTION': Filter.DESCRIPTION,
             'Encoder': Encoder,
             'Entity': Entity,
             'ENTITY': Filter.ENTITY,
@@ -231,8 +233,12 @@ class KIF_ParamType(click.ParamType):
             'IRI': IRI,
             'ITEM': Filter.ITEM,
             'Item': Item,
+            'LABEL': Filter.LABEL,
+            'LANGUAGE': Filter.LANGUAGE,
+            'LEMMA': Filter.LEMMA,
             'LEXEME': Filter.LEXEME,
             'Lexeme': Lexeme,
+            'LEXICAL_CATEGORY': Filter.LEXICAL_CATEGORY,
             'NO_VALUE_SNAK': Filter.NO_VALUE_SNAK,
             'NORMAL': Filter.NORMAL,
             'Normal': Normal,
@@ -242,8 +248,10 @@ class KIF_ParamType(click.ParamType):
             'Preferred': Preferred,
             'PROPERTY': Filter.PROPERTY,
             'Property': Property,
+            'PSEUDO': Filter.PSEUDO,
             'QUANTITY': Filter.QUANTITY,
             'Quantity': Quantity,
+            'REAL': Filter.REAL,
             'SHALLOW_DATA_VALUE': Filter.SHALLOW_DATA_VALUE,
             'ShallowDataValue': ShallowDataValue,
             'SOME_VALUE_SNAK': Filter.SOME_VALUE_SNAK,
@@ -252,8 +260,10 @@ class KIF_ParamType(click.ParamType):
             'Store': Store,
             'STRING': Filter.STRING,
             'String': String,
+            'SUBTYPE': Filter.SUBTYPE,
             'TEXT': Filter.TEXT,
             'Text': Text,
+            'TYPE': Filter.TYPE,
             'VALUE': Filter.VALUE,
             'Value': Value,
             'VALUE_SNAK': Filter.VALUE_SNAK,
@@ -353,6 +363,21 @@ class DatatypeMaskParamType(KIF_ObjectParamType):
     ) -> Fingerprint:
         return self._convert(
             Filter.DatatypeMask, value, param, ctx)  # type: ignore
+
+
+class PropertyMaskParamType(KIF_ObjectParamType):
+
+    name: str = 'property_mask'
+
+    @override
+    def convert(
+            self,
+            value: Any,
+            param: click.Parameter | None,
+            ctx: click.Context | None
+    ) -> Fingerprint:
+        return self._convert(
+            Filter.PropertyMask, value, param, ctx)  # type: ignore
 
 
 class FingerprintParamType(KIF_ObjectParamType):
@@ -528,7 +553,7 @@ class FilterParam:
     property_mask = click.option(
         '--property-mask',
         'property_mask',
-        type=DatatypeMaskParamType.get_instance(),
+        type=PropertyMaskParamType.get_instance(),
         required=False,
         help='Property datatype mask.',
         envvar='PROPERTY_MASK')
@@ -791,7 +816,7 @@ class FilterParam:
             subject_is_lexeme: bool | None = None,
             subject_is_property: bool | None = None,
             subject_mask: Filter.DatatypeMask | None = None,
-            property_mask: Filter.DatatypeMask | None = None,
+            property_mask: Filter.PropertyMask | None = None,
             value_is_data_value: bool | None = None,
             value_is_deep_data_value: bool | None = None,
             value_is_entity: bool | None = None,
@@ -991,7 +1016,7 @@ def ask(
         subject_is_lexeme: bool | None = None,
         subject_is_property: bool | None = None,
         subject_mask: Filter.DatatypeMask | None = None,
-        property_mask: Filter.DatatypeMask | None = None,
+        property_mask: Filter.PropertyMask | None = None,
         value_is_data_value: bool | None = None,
         value_is_deep_data_value: bool | None = None,
         value_is_entity: bool | None = None,
@@ -1133,7 +1158,7 @@ def count(
         subject_is_lexeme: bool | None = None,
         subject_is_property: bool | None = None,
         subject_mask: Filter.DatatypeMask | None = None,
-        property_mask: Filter.DatatypeMask | None = None,
+        property_mask: Filter.PropertyMask | None = None,
         value_is_data_value: bool | None = None,
         value_is_deep_data_value: bool | None = None,
         value_is_entity: bool | None = None,
@@ -1296,7 +1321,7 @@ def filter(
         subject_is_lexeme: bool | None = None,
         subject_is_property: bool | None = None,
         subject_mask: Filter.DatatypeMask | None = None,
-        property_mask: Filter.DatatypeMask | None = None,
+        property_mask: Filter.PropertyMask | None = None,
         value_is_data_value: bool | None = None,
         value_is_deep_data_value: bool | None = None,
         value_is_entity: bool | None = None,

@@ -1188,7 +1188,7 @@ class TestCase(unittest.IsolatedAsyncioTestCase):
             value: Fingerprint | None = None,
             snak_mask: Filter.SnakMask = Filter.SnakMask.ALL,
             subject_mask: Filter.DatatypeMask = Filter.DatatypeMask.ENTITY,
-            property_mask: Filter.DatatypeMask = Filter.DatatypeMask.PROPERTY,
+            property_mask: Filter.PropertyMask = Filter.PropertyMask.ALL,
             value_mask: Filter.DatatypeMask = Filter.DatatypeMask.VALUE,
             rank_mask: Filter.RankMask = Filter.RankMask.ALL,
             best_ranked: bool | None = None,
@@ -1217,7 +1217,7 @@ class TestCase(unittest.IsolatedAsyncioTestCase):
         self.assertEqual(Filter.DatatypeMask(obj.args[4]), subject_mask)
         self.assertEqual(obj.subject_mask, subject_mask)
         self.assertEqual(obj.get_subject_mask(), subject_mask)
-        self.assertEqual(Filter.DatatypeMask(obj.args[5]), property_mask)
+        self.assertEqual(Filter.PropertyMask(obj.args[5]), property_mask)
         self.assertEqual(obj.property_mask, property_mask)
         self.assertEqual(obj.get_property_mask(), property_mask)
         self.assertEqual(Filter.DatatypeMask(obj.args[6]), value_mask)

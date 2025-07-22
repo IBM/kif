@@ -24,9 +24,11 @@ from .rank import DeprecatedRank, NormalRank, PreferredRank, Rank, TRank
 from .snak import NoValueSnak, Snak, SomeValueSnak, TSnak, ValueSnak
 from .statement import AnnotatedStatement, Statement, TStatement
 from .value import (
+    AliasProperty,
     Datatype,
     DataValue,
     DeepDataValue,
+    DescriptionProperty,
     Entity,
     ExternalId,
     ExternalIdDatatype,
@@ -34,21 +36,29 @@ from .value import (
     IRI_Datatype,
     Item,
     ItemDatatype,
+    LabelProperty,
+    LanguageProperty,
+    LemmaProperty,
     Lexeme,
     LexemeDatatype,
+    LexicalCategoryProperty,
     Property,
     PropertyDatatype,
+    PseudoProperty,
     Quantity,
     QuantityDatatype,
     ShallowDataValue,
     String,
     StringDatatype,
+    SubtypeProperty,
     TDatatype,
     Text,
     TextDatatype,
     Time,
     TimeDatatype,
+    TProperty,
     TTextLanguage,
+    TypeProperty,
     Value,
 )
 
@@ -76,7 +86,7 @@ class Filter(KObj):
        value: Value fingerprint.
        snak_mask: Snak mask.
        subject_mask: Datatype mask.
-       property_mask: Datatype mask.
+       property_mask: Property mask.
        value_mask: Datatype mask.
        rank_mask: Rank mask.
        best_ranked: Best-ranked flag.
@@ -283,6 +293,168 @@ class Filter(KObj):
 
     #: Type alias of DatatypeMask.
     TDatatypeMask: TypeAlias = Union[DatatypeMask, TDatatype, int]
+
+    class PropertyMask(Flags):
+        """Mask for concrete property classes."""
+
+        #: Mask for non :class:`PseudoProperty`.
+        REAL = Flags.auto()
+
+        #: Mask for :class:`TypeProperty`.
+        TYPE = Flags.auto()
+
+        #: Mask for :class:`SubtypeProperty`.
+        SUBTYPE = Flags.auto()
+
+        #: Mask for :class:`LabelProperty`.
+        LABEL = Flags.auto()
+
+        #: Mask for :class:`AliasProperty`.
+        ALIAS = Flags.auto()
+
+        #: Mask for :class:`DescriptionProperty`.
+        DESCRIPTION = Flags.auto()
+
+        #: Mask for :class:`LemmaProperty`.
+        LEMMA = Flags.auto()
+
+        #: Mask for :class:`LexicalCategoryProperty`.
+        LEXICAL_CATEGORY = Flags.auto()
+
+        #: Mask for :class:`LanguageProperty`.
+        LANGUAGE = Flags.auto()
+
+        #: Mask for :class:`PseudoProperty`.
+        PSEUDO = (
+            TYPE
+            | SUBTYPE
+            | LABEL
+            | ALIAS
+            | DESCRIPTION
+            | LEMMA
+            | LEXICAL_CATEGORY
+            | LANGUAGE)
+
+        #: Mask for all property classes.
+        ALL = REAL | PSEUDO
+
+        @classmethod
+        @override
+        def check(
+                cls,
+                arg: Any,
+                function: Location | None = None,
+                name: str | None = None,
+                position: int | None = None,
+        ) -> Filter.PropertyMask:
+            if isinstance(arg, (cls, int)):
+                return super().check(arg, function, name, position)
+            else:
+                if (isinstance(arg, type)
+                        and issubclass(arg, Property)):
+                    mask = cls._from_property_class(arg)
+                    if mask is not None:
+                        return mask
+                return cls._from_property(Property.check(
+                    arg, function or cls.check, name, position))
+
+        @classmethod
+        def _from_property_class(
+                cls,
+                arg: type[Property],
+                _cache: dict[type[Property], Filter.PropertyMask] = {}
+        ) -> Filter.PropertyMask:
+            ###
+            # IMPORTANT: functools.cache doesn't work with classmethods of
+            # enum.Flags subclasses.
+            ###
+            if not _cache:
+                _cache[Property] = cls.ALL
+                _cache[PseudoProperty] = cls.PSEUDO
+                _cache[TypeProperty] = cls.TYPE
+                _cache[SubtypeProperty] = cls.SUBTYPE
+                _cache[LabelProperty] = cls.LABEL
+                _cache[AliasProperty] = cls.ALIAS
+                _cache[DescriptionProperty] = cls.DESCRIPTION
+                _cache[LemmaProperty] = cls.LEMMA
+                _cache[LexicalCategoryProperty] = cls.LEXICAL_CATEGORY
+                _cache[LanguageProperty] = cls.LANGUAGE
+            return _cache[arg]
+
+        @classmethod
+        def _from_property(
+                cls,
+                property: Property
+        ) -> Filter.PropertyMask:
+            if isinstance(property, PseudoProperty):
+                return cls._from_property_class(type(property))
+            else:
+                return cls.REAL
+
+        def _to_property_class(
+                self,
+                _cache: dict[Filter.PropertyMask, Any] = {}
+        ) -> type[Property]:
+            ###
+            # IMPORTANT: functools.cache doesn't work with classmethods of
+            # enum.Flags subclasses.
+            ###
+            if not _cache:
+                _cache[Filter.REAL] = Property
+                _cache[Filter.PSEUDO] = PseudoProperty
+                _cache[Filter.TYPE] = TypeProperty
+                _cache[Filter.SUBTYPE] = TypeProperty
+                _cache[Filter.LABEL] = LabelProperty
+                _cache[Filter.ALIAS] = AliasProperty
+                _cache[Filter.DESCRIPTION] = DescriptionProperty
+                _cache[Filter.LEMMA] = LemmaProperty
+                _cache[Filter.LEXICAL_CATEGORY] = LexicalCategoryProperty
+                _cache[Filter.LANGUAGE] = LanguageProperty
+            return cast(type[Property], _cache[self])
+
+        def match(self, property: TProperty) -> bool:
+            """Tests whether property mask matches `property`.
+
+            Parameters:
+               property: Property.
+
+            Returns:
+               ``True`` if successful; ``False`` otherwise.
+            """
+            return bool(self & self.check(property))
+
+    #: Mask for real properties.
+    REAL: Final[PropertyMask] = PropertyMask.REAL
+
+    #: Mask for pseudo-properties.
+    PSEUDO: Final[PropertyMask] = PropertyMask.PSEUDO
+
+    #: Mask for :class:`TypeProperty`.
+    TYPE: Final[PropertyMask] = PropertyMask.TYPE
+
+    #: Mask for :class:`SubtypeProperty`.
+    SUBTYPE: Final[PropertyMask] = PropertyMask.SUBTYPE
+
+    #: Mask for :class:`LabelProperty`.
+    LABEL: Final[PropertyMask] = PropertyMask.LABEL
+
+    #: Mask for :class:`AliasProperty`.
+    ALIAS: Final[PropertyMask] = PropertyMask.ALIAS
+
+    #: Mask for :class:`DescriptionProperty`.
+    DESCRIPTION: Final[PropertyMask] = PropertyMask.DESCRIPTION
+
+    #: Mask for :class:`LemmaProperty`.
+    LEMMA: Final[PropertyMask] = PropertyMask.LEMMA
+
+    #: Mask for :class:`LexicalCategoryProperty`.
+    LEXICAL_CATEGORY: Final[PropertyMask] = PropertyMask.LEXICAL_CATEGORY
+
+    #: Mask for :class:`LanguageProperty`.
+    LANGUAGE: Final[PropertyMask] = PropertyMask.LANGUAGE
+
+    #: Type alias of PropertyMask.
+    TPropertyMask: TypeAlias = Union[PropertyMask, TProperty, int]
 
     class RankMask(Flags):
         """Mask for concrete rank classes."""
@@ -502,7 +674,7 @@ class Filter(KObj):
             value: TFingerprint | None = None,
             snak_mask: TSnakMask | None = None,
             subject_mask: TDatatypeMask | None = None,
-            property_mask: TDatatypeMask | None = None,
+            property_mask: TPropertyMask | None = None,
             value_mask: TDatatypeMask | None = None,
             rank_mask: TRankMask | None = None,
             best_ranked: bool | None = None,
@@ -525,8 +697,8 @@ class Filter(KObj):
             return self.DatatypeMask.check_optional(
                 arg, self.ENTITY, type(self), None, i)
         elif i == 6:            # property mask
-            return self.DatatypeMask.check_optional(
-                arg, self.PROPERTY, type(self), None, i)
+            return self.PropertyMask.check_optional(
+                arg, self.PropertyMask.ALL, type(self), None, i)
         elif i == 7:            # value mask
             return self.DatatypeMask.check_optional(
                 arg, self.VALUE, type(self), None, i)
@@ -562,7 +734,7 @@ class Filter(KObj):
             value: TFingerprint | KObj.TKEEP | None = KObj.KEEP,
             snak_mask: TSnakMask | KObj.TKEEP | None = KObj.KEEP,
             subject_mask: TDatatypeMask | KObj.TKEEP | None = KObj.KEEP,
-            property_mask: TDatatypeMask | KObj.TKEEP | None = KObj.KEEP,
+            property_mask: TPropertyMask | KObj.TKEEP | None = KObj.KEEP,
             value_mask: TDatatypeMask | KObj.TKEEP | None = KObj.KEEP,
             rank_mask: TRankMask | KObj.TKEEP | None = KObj.KEEP,
             best_ranked: bool | KObj.TKEEP | None = KObj.KEEP,
@@ -640,17 +812,17 @@ class Filter(KObj):
         return self.args[4] & self.ENTITY
 
     @at_property
-    def property_mask(self) -> DatatypeMask:
+    def property_mask(self) -> PropertyMask:
         """The property mask of filter."""
         return self.get_property_mask()
 
-    def get_property_mask(self) -> DatatypeMask:
+    def get_property_mask(self) -> PropertyMask:
         """Gets the property mask of filter.
 
         Returns:
            Property mask.
         """
-        return self.args[5] & self.PROPERTY
+        return self.args[5]
 
     @at_property
     def value_mask(self) -> DatatypeMask:
@@ -734,7 +906,7 @@ class Filter(KObj):
                 and f.subject.is_full()
                 and f.subject_mask == self.ENTITY
                 and f.property.is_full()
-                and f.property_mask == self.PROPERTY
+                and f.property_mask == self.PropertyMask.ALL
                 and f.value.is_full()
                 and f.value_mask == self.VALUE)
 
@@ -859,7 +1031,7 @@ class Filter(KObj):
             return False        # subject mask mismatch
         if not self.subject.match(stmt.subject):
             return False        # subject mismatch
-        if not self.property_mask.match(type(stmt.snak.property)):
+        if not self.property_mask.match(stmt.snak.property):
             return False        # property mask mismatch
         if not self.property.match(stmt.snak.property):
             return False        # property mismatch
@@ -888,7 +1060,10 @@ class Filter(KObj):
         subject = self.subject._normalize(Filter.ENTITY)
         subject_mask = self.subject_mask & subject.datatype_mask
         property = self.property._normalize(Filter.PROPERTY)
-        property_mask = self.property_mask & property.datatype_mask
+        if property.datatype_mask & Filter.PROPERTY:
+            property_mask = self.property_mask
+        else:
+            property_mask = Filter.PropertyMask(0)
         value = self.value._normalize(
             self.value_mask & property.range_datatype_mask)
         value_mask = self.value_mask & value.datatype_mask

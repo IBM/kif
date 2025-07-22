@@ -295,7 +295,7 @@ class Test(TestCase):
 - (**FullFingerprint**)
 - **:snak_mask** `SnakMask.ALL`
 - **:subject_mask** `DatatypeMask.ENTITY`
-- **:property_mask** `DatatypeMask.PROPERTY`
+- **:property_mask** `PropertyMask.ALL`
 - **:value_mask** `DatatypeMask.VALUE`
 - **:rank_mask** `RankMask.ALL`
 - **:best_ranked** `True`
@@ -309,7 +309,7 @@ class Test(TestCase):
 - (**FullFingerprint**)
 - **:snak_mask** `SnakMask.ALL`
 - **:subject_mask** `DatatypeMask.ENTITY`
-- **:property_mask** `DatatypeMask.PROPERTY`
+- **:property_mask** `PropertyMask.ALL`
 - **:value_mask** `DatatypeMask.VALUE`
 - **:rank_mask** `RankMask.ALL`
 - **:best_ranked** `True`
@@ -331,7 +331,7 @@ class Test(TestCase):
   - (**SnakFingerprint** (**NoValueSnak** (**Property** [date of birth](http://www.wikidata.org/entity/P569)))))
 - **:snak_mask** `SnakMask.NO_VALUE_SNAK`
 - **:subject_mask** `DatatypeMask.ENTITY`
-- **:property_mask** `DatatypeMask.PROPERTY`
+- **:property_mask** `PropertyMask.ALL`
 - **:value_mask** `DatatypeMask.VALUE`
 - **:rank_mask** `RankMask.ALL`
 - **:best_ranked** `True`

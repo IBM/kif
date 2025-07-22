@@ -132,7 +132,7 @@ class Test(KIF_ObjectTestCase):
                 value='z',
                 snak_mask=Filter.VALUE_SNAK,
                 subject_mask=Filter.ITEM,
-                property_mask=Filter.PROPERTY,
+                property_mask=Filter.REAL,
                 value_mask=Filter.STRING,
                 rank_mask=Filter.DEPRECATED,
                 language='fr',
@@ -143,7 +143,7 @@ class Test(KIF_ObjectTestCase):
             value=ValueFingerprint(String('z')),
             snak_mask=Filter.VALUE_SNAK,
             subject_mask=Filter.ITEM,
-            property_mask=Filter.PROPERTY,
+            property_mask=Filter.REAL,
             value_mask=Filter.STRING,
             rank_mask=Filter.DEPRECATED,
             language='fr',
@@ -189,7 +189,7 @@ class Test(KIF_ObjectTestCase):
         self.assertEqual(f.property, FullFingerprint())
         self.assertEqual(f.value, FullFingerprint())
         self.assertEqual(f.subject_mask, f.DatatypeMask(0))
-        self.assertEqual(f.property_mask, f.PROPERTY)
+        self.assertEqual(f.property_mask, f.PropertyMask.ALL)
         self.assertEqual(f.snak_mask, f.SnakMask.ALL)
         self.assertEqual(f.value_mask, f.DatatypeMask.ALL)
         self.assertTrue(f.is_empty())
@@ -202,7 +202,7 @@ class Test(KIF_ObjectTestCase):
         self.assertEqual(f.property, EmptyFingerprint())
         self.assertEqual(f.value, EmptyFingerprint())
         self.assertEqual(f.subject_mask, f.ENTITY)
-        self.assertEqual(f.property_mask, f.DatatypeMask(0))
+        self.assertEqual(f.property_mask, f.PropertyMask(0))
         self.assertEqual(f.value_mask, f.DatatypeMask(0))
         self.assertEqual(f.snak_mask, f.SnakMask(0))
         self.assertTrue(f.is_empty())
@@ -219,7 +219,7 @@ class Test(KIF_ObjectTestCase):
         self.assertEqual(f.property, FullFingerprint())
         self.assertEqual(f.value, EmptyFingerprint())
         self.assertEqual(f.subject_mask, f.ENTITY)
-        self.assertEqual(f.property_mask, f.PROPERTY)
+        self.assertEqual(f.property_mask, f.PropertyMask.ALL)
         self.assertEqual(f.value_mask, f.DatatypeMask(0))
         self.assertEqual(f.snak_mask, f.SOME_VALUE_SNAK | f.NO_VALUE_SNAK)
         self.assertFalse(f.is_empty())

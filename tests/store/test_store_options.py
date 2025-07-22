@@ -29,7 +29,7 @@ class Test(StoreTestCase):
             Item('x0'), Property('y'), Item('z') | Lexeme('w'),
             snak_mask=Filter.VALUE_SNAK,
             subject_mask=Filter.ITEM,
-            property_mask=Filter.PROPERTY,
+            property_mask=Filter.PropertyMask.ALL,
             value_mask=Filter.ENTITY,
             rank_mask=Filter.PREFERRED,
             language='fr',

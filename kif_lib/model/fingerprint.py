@@ -158,7 +158,7 @@ class Fingerprint(KIF_Object):
         """Reduces fingerprint to a normal form.
 
         If `datatype_mask` is given, ensures that the resulting fingerprint
-        does not match values with a datatype not in `datatype_mask`.
+        matches only values with a datatype in `datatype_mask`.
 
         Returns:
            Normal fingerprint.

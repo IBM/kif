@@ -464,6 +464,7 @@ class SPARQL_FilterCompiler(SPARQL_Compiler):
     ) -> bool:
         return not any(f(entry, target) for f in (
             self._filter_property_is_full_and_target_property_is_blacklisted,
+            self._filter_property_mask_does_not_match_target_property,
             self._filter_rank_mask_does_not_match_target_rank))
 
     def _filter_rank_mask_does_not_match_target_rank(
@@ -480,6 +481,26 @@ class SPARQL_FilterCompiler(SPARQL_Compiler):
                 AnnotatedStatementTemplate, AnnotatedStatement)):
             if isinstance(target.rank, Rank):
                 return not self.filter.rank_mask.match(target.rank)
+        return False
+
+    def _filter_property_mask_does_not_match_target_property(
+            self,
+            entry: SPARQL_Mapping.Entry,
+            target: SPARQL_Mapping.EntryPattern
+    ) -> bool:
+        if (isinstance(target, (Statement, StatementTemplate))
+                and isinstance(target.snak, (Snak, SnakTemplate))):
+            if isinstance(target.snak.property, Property):
+                return not self.filter.property_mask.match(
+                    target.snak.property)
+            else:
+                ###
+                # FIXME: We're assuming that if target property is a
+                # template or a variable, then it comes form an entry
+                # matching a real (non-pseudo) property.  This assumption is
+                # too strict.
+                ###
+                return not self.filter.property_mask & self.filter.REAL
         return False
 
     def _filter_property_is_full_and_target_property_is_blacklisted(

@@ -1633,15 +1633,15 @@ class Store(Set):
         self.base_filter = self.base_filter.replace(subject_mask=subject_mask)
 
     @at_property
-    def property_mask(self) -> Filter.DatatypeMask:
+    def property_mask(self) -> Filter.PropertyMask:
         """The property mask of the base filter of store."""
         return self.get_property_mask()
 
     @property_mask.setter
-    def property_mask(self, property_mask: Filter.DatatypeMask) -> None:
+    def property_mask(self, property_mask: Filter.PropertyMask) -> None:
         self.set_property_mask(property_mask)
 
-    def get_property_mask(self) -> Filter.DatatypeMask:
+    def get_property_mask(self) -> Filter.PropertyMask:
         """Gets the property mask of the base filter of store.
 
         Returns:
@@ -1649,11 +1649,11 @@ class Store(Set):
         """
         return self.base_filter.property_mask
 
-    def set_property_mask(self, property_mask: Filter.TDatatypeMask) -> None:
+    def set_property_mask(self, property_mask: Filter.TPropertyMask) -> None:
         """Sets the property mask of the base filter of store.
 
         Parameters:
-           property_mask: Datatype mask.
+           property_mask: Property mask.
         """
         self.base_filter = self.base_filter.replace(
             property_mask=property_mask)
@@ -2423,7 +2423,7 @@ class Store(Set):
             value: TFingerprint | None = None,
             snak_mask: Filter.TSnakMask | None = None,
             subject_mask: Filter.TDatatypeMask | None = None,
-            property_mask: Filter.TDatatypeMask | None = None,
+            property_mask: Filter.TPropertyMask | None = None,
             value_mask: Filter.TDatatypeMask | None = None,
             rank_mask: Filter.TRankMask | None = None,
             best_ranked: bool | None = None,
@@ -2504,7 +2504,7 @@ class Store(Set):
             value: TFingerprint | None = None,
             snak_mask: Filter.TSnakMask | None = None,
             subject_mask: Filter.TDatatypeMask | None = None,
-            property_mask: Filter.TDatatypeMask | None = None,
+            property_mask: Filter.TPropertyMask | None = None,
             value_mask: Filter.TDatatypeMask | None = None,
             rank_mask: Filter.TRankMask | None = None,
             best_ranked: bool | None = None,
@@ -2610,7 +2610,7 @@ class Store(Set):
             value: TFingerprint | None = None,
             snak_mask: Filter.TSnakMask | None = None,
             subject_mask: Filter.TDatatypeMask | None = None,
-            property_mask: Filter.TDatatypeMask | None = None,
+            property_mask: Filter.TPropertyMask | None = None,
             value_mask: Filter.TDatatypeMask | None = None,
             rank_mask: Filter.TRankMask | None = None,
             best_ranked: bool | None = None,
@@ -2698,7 +2698,7 @@ class Store(Set):
             value: TFingerprint | None = None,
             snak_mask: Filter.TSnakMask | None = None,
             subject_mask: Filter.TDatatypeMask | None = None,
-            property_mask: Filter.TDatatypeMask | None = None,
+            property_mask: Filter.TPropertyMask | None = None,
             value_mask: Filter.TDatatypeMask | None = None,
             rank_mask: Filter.TRankMask | None = None,
             best_ranked: bool | None = None,
@@ -2753,7 +2753,7 @@ class Store(Set):
             value: TFingerprint | None = None,
             snak_mask: Filter.TSnakMask | None = None,
             subject_mask: Filter.TDatatypeMask | None = None,
-            property_mask: Filter.TDatatypeMask | None = None,
+            property_mask: Filter.TPropertyMask | None = None,
             value_mask: Filter.TDatatypeMask | None = None,
             rank_mask: Filter.TRankMask | None = None,
             best_ranked: bool | None = None,
@@ -2797,7 +2797,7 @@ class Store(Set):
             value: TFingerprint | None = None,
             snak_mask: Filter.TSnakMask | None = None,
             subject_mask: Filter.TDatatypeMask | None = None,
-            property_mask: Filter.TDatatypeMask | None = None,
+            property_mask: Filter.TPropertyMask | None = None,
             value_mask: Filter.TDatatypeMask | None = None,
             rank_mask: Filter.TRankMask | None = None,
             best_ranked: bool | None = None,
@@ -2841,7 +2841,7 @@ class Store(Set):
             value: TFingerprint | None = None,
             snak_mask: Filter.TSnakMask | None = None,
             subject_mask: Filter.TDatatypeMask | None = None,
-            property_mask: Filter.TDatatypeMask | None = None,
+            property_mask: Filter.TPropertyMask | None = None,
             value_mask: Filter.TDatatypeMask | None = None,
             rank_mask: Filter.TRankMask | None = None,
             best_ranked: bool | None = None,
@@ -2885,7 +2885,7 @@ class Store(Set):
             value: TFingerprint | None = None,
             snak_mask: Filter.TSnakMask | None = None,
             subject_mask: Filter.TDatatypeMask | None = None,
-            property_mask: Filter.TDatatypeMask | None = None,
+            property_mask: Filter.TPropertyMask | None = None,
             value_mask: Filter.TDatatypeMask | None = None,
             rank_mask: Filter.TRankMask | None = None,
             best_ranked: bool | None = None,
@@ -2929,7 +2929,7 @@ class Store(Set):
             value: TFingerprint | None = None,
             snak_mask: Filter.TSnakMask | None = None,
             subject_mask: Filter.TDatatypeMask | None = None,
-            property_mask: Filter.TDatatypeMask | None = None,
+            property_mask: Filter.TPropertyMask | None = None,
             value_mask: Filter.TDatatypeMask | None = None,
             rank_mask: Filter.TRankMask | None = None,
             best_ranked: bool | None = None,
@@ -2973,7 +2973,7 @@ class Store(Set):
             value: TFingerprint | None = None,
             snak_mask: Filter.TSnakMask | None = None,
             subject_mask: Filter.TDatatypeMask | None = None,
-            property_mask: Filter.TDatatypeMask | None = None,
+            property_mask: Filter.TPropertyMask | None = None,
             value_mask: Filter.TDatatypeMask | None = None,
             rank_mask: Filter.TRankMask | None = None,
             best_ranked: bool | None = None,
@@ -3032,7 +3032,7 @@ class Store(Set):
             value: TFingerprint | None = None,
             snak_mask: Filter.TSnakMask | None = None,
             subject_mask: Filter.TDatatypeMask | None = None,
-            property_mask: Filter.TDatatypeMask | None = None,
+            property_mask: Filter.TPropertyMask | None = None,
             value_mask: Filter.TDatatypeMask | None = None,
             rank_mask: Filter.TRankMask | None = None,
             best_ranked: bool | None = None,
@@ -3090,7 +3090,7 @@ class Store(Set):
             value: TFingerprint | None = None,
             snak_mask: Filter.TSnakMask | None = None,
             subject_mask: Filter.TDatatypeMask | None = None,
-            property_mask: Filter.TDatatypeMask | None = None,
+            property_mask: Filter.TPropertyMask | None = None,
             value_mask: Filter.TDatatypeMask | None = None,
             rank_mask: Filter.TRankMask | None = None,
             best_ranked: bool | None = None,
@@ -3134,7 +3134,7 @@ class Store(Set):
             value: TFingerprint | None = None,
             snak_mask: Filter.TSnakMask | None = None,
             subject_mask: Filter.TDatatypeMask | None = None,
-            property_mask: Filter.TDatatypeMask | None = None,
+            property_mask: Filter.TPropertyMask | None = None,
             value_mask: Filter.TDatatypeMask | None = None,
             rank_mask: Filter.TRankMask | None = None,
             best_ranked: bool | None = None,
@@ -3178,7 +3178,7 @@ class Store(Set):
             value: TFingerprint | None = None,
             snak_mask: Filter.TSnakMask | None = None,
             subject_mask: Filter.TDatatypeMask | None = None,
-            property_mask: Filter.TDatatypeMask | None = None,
+            property_mask: Filter.TPropertyMask | None = None,
             value_mask: Filter.TDatatypeMask | None = None,
             rank_mask: Filter.TRankMask | None = None,
             best_ranked: bool | None = None,
@@ -3222,7 +3222,7 @@ class Store(Set):
             value: TFingerprint | None = None,
             snak_mask: Filter.TSnakMask | None = None,
             subject_mask: Filter.TDatatypeMask | None = None,
-            property_mask: Filter.TDatatypeMask | None = None,
+            property_mask: Filter.TPropertyMask | None = None,
             value_mask: Filter.TDatatypeMask | None = None,
             rank_mask: Filter.TRankMask | None = None,
             best_ranked: bool | None = None,
@@ -3266,7 +3266,7 @@ class Store(Set):
             value: TFingerprint | None = None,
             snak_mask: Filter.TSnakMask | None = None,
             subject_mask: Filter.TDatatypeMask | None = None,
-            property_mask: Filter.TDatatypeMask | None = None,
+            property_mask: Filter.TPropertyMask | None = None,
             value_mask: Filter.TDatatypeMask | None = None,
             rank_mask: Filter.TRankMask | None = None,
             best_ranked: bool | None = None,
@@ -3312,7 +3312,7 @@ class Store(Set):
             value: TFingerprint | None = None,
             snak_mask: Filter.TSnakMask | None = None,
             subject_mask: Filter.TDatatypeMask | None = None,
-            property_mask: Filter.TDatatypeMask | None = None,
+            property_mask: Filter.TPropertyMask | None = None,
             value_mask: Filter.TDatatypeMask | None = None,
             rank_mask: Filter.TRankMask | None = None,
             best_ranked: bool | None = None,
@@ -3427,7 +3427,7 @@ class Store(Set):
             value: TFingerprint | None = None,
             snak_mask: Filter.TSnakMask | None = None,
             subject_mask: Filter.TDatatypeMask | None = None,
-            property_mask: Filter.TDatatypeMask | None = None,
+            property_mask: Filter.TPropertyMask | None = None,
             value_mask: Filter.TDatatypeMask | None = None,
             rank_mask: Filter.TRankMask | None = None,
             best_ranked: bool | None = None,
@@ -3494,7 +3494,7 @@ class Store(Set):
             value: TFingerprint | None = None,
             snak_mask: Filter.TSnakMask | None = None,
             subject_mask: Filter.TDatatypeMask | None = None,
-            property_mask: Filter.TDatatypeMask | None = None,
+            property_mask: Filter.TPropertyMask | None = None,
             value_mask: Filter.TDatatypeMask | None = None,
             rank_mask: Filter.TRankMask | None = None,
             best_ranked: bool | None = None,
@@ -3549,7 +3549,7 @@ class Store(Set):
             value: TFingerprint | None = None,
             snak_mask: Filter.TSnakMask | None = None,
             subject_mask: Filter.TDatatypeMask | None = None,
-            property_mask: Filter.TDatatypeMask | None = None,
+            property_mask: Filter.TPropertyMask | None = None,
             value_mask: Filter.TDatatypeMask | None = None,
             rank_mask: Filter.TRankMask | None = None,
             best_ranked: bool | None = None,
@@ -3608,7 +3608,7 @@ class Store(Set):
             value: TFingerprint | None = None,
             snak_mask: Filter.TSnakMask | None = None,
             subject_mask: Filter.TDatatypeMask | None = None,
-            property_mask: Filter.TDatatypeMask | None = None,
+            property_mask: Filter.TPropertyMask | None = None,
             value_mask: Filter.TDatatypeMask | None = None,
             rank_mask: Filter.TRankMask | None = None,
             best_ranked: bool | None = None,
@@ -3665,7 +3665,7 @@ class Store(Set):
             value: TFingerprint | None = None,
             snak_mask: Filter.TSnakMask | None = None,
             subject_mask: Filter.TDatatypeMask | None = None,
-            property_mask: Filter.TDatatypeMask | None = None,
+            property_mask: Filter.TPropertyMask | None = None,
             value_mask: Filter.TDatatypeMask | None = None,
             rank_mask: Filter.TRankMask | None = None,
             best_ranked: bool | None = None,
@@ -3724,7 +3724,7 @@ class Store(Set):
             value: TFingerprint | None = None,
             snak_mask: Filter.TSnakMask | None = None,
             subject_mask: Filter.TDatatypeMask | None = None,
-            property_mask: Filter.TDatatypeMask | None = None,
+            property_mask: Filter.TPropertyMask | None = None,
             value_mask: Filter.TDatatypeMask | None = None,
             rank_mask: Filter.TRankMask | None = None,
             best_ranked: bool | None = None,
@@ -3783,7 +3783,7 @@ class Store(Set):
             value: TFingerprint | None = None,
             snak_mask: Filter.TSnakMask | None = None,
             subject_mask: Filter.TDatatypeMask | None = None,
-            property_mask: Filter.TDatatypeMask | None = None,
+            property_mask: Filter.TPropertyMask | None = None,
             value_mask: Filter.TDatatypeMask | None = None,
             rank_mask: Filter.TRankMask | None = None,
             best_ranked: bool | None = None,
@@ -3872,7 +3872,7 @@ class Store(Set):
             value: TFingerprint | None = None,
             snak_mask: Filter.TSnakMask | None = None,
             subject_mask: Filter.TDatatypeMask | None = None,
-            property_mask: Filter.TDatatypeMask | None = None,
+            property_mask: Filter.TPropertyMask | None = None,
             value_mask: Filter.TDatatypeMask | None = None,
             rank_mask: Filter.TRankMask | None = None,
             best_ranked: bool | None = None,
@@ -3940,7 +3940,7 @@ class Store(Set):
             value: TFingerprint | None = None,
             snak_mask: Filter.TSnakMask | None = None,
             subject_mask: Filter.TDatatypeMask | None = None,
-            property_mask: Filter.TDatatypeMask | None = None,
+            property_mask: Filter.TPropertyMask | None = None,
             value_mask: Filter.TDatatypeMask | None = None,
             rank_mask: Filter.TRankMask | None = None,
             best_ranked: bool | None = None,
@@ -3996,7 +3996,7 @@ class Store(Set):
             value: TFingerprint | None = None,
             snak_mask: Filter.TSnakMask | None = None,
             subject_mask: Filter.TDatatypeMask | None = None,
-            property_mask: Filter.TDatatypeMask | None = None,
+            property_mask: Filter.TPropertyMask | None = None,
             value_mask: Filter.TDatatypeMask | None = None,
             rank_mask: Filter.TRankMask | None = None,
             best_ranked: bool | None = None,
@@ -4055,7 +4055,7 @@ class Store(Set):
             value: TFingerprint | None = None,
             snak_mask: Filter.TSnakMask | None = None,
             subject_mask: Filter.TDatatypeMask | None = None,
-            property_mask: Filter.TDatatypeMask | None = None,
+            property_mask: Filter.TPropertyMask | None = None,
             value_mask: Filter.TDatatypeMask | None = None,
             rank_mask: Filter.TRankMask | None = None,
             best_ranked: bool | None = None,
@@ -4112,7 +4112,7 @@ class Store(Set):
             value: TFingerprint | None = None,
             snak_mask: Filter.TSnakMask | None = None,
             subject_mask: Filter.TDatatypeMask | None = None,
-            property_mask: Filter.TDatatypeMask | None = None,
+            property_mask: Filter.TPropertyMask | None = None,
             value_mask: Filter.TDatatypeMask | None = None,
             rank_mask: Filter.TRankMask | None = None,
             best_ranked: bool | None = None,
@@ -4171,7 +4171,7 @@ class Store(Set):
             value: TFingerprint | None = None,
             snak_mask: Filter.TSnakMask | None = None,
             subject_mask: Filter.TDatatypeMask | None = None,
-            property_mask: Filter.TDatatypeMask | None = None,
+            property_mask: Filter.TPropertyMask | None = None,
             value_mask: Filter.TDatatypeMask | None = None,
             rank_mask: Filter.TRankMask | None = None,
             best_ranked: bool | None = None,
@@ -4230,7 +4230,7 @@ class Store(Set):
             value: TFingerprint | None = None,
             snak_mask: Filter.TSnakMask | None = None,
             subject_mask: Filter.TDatatypeMask | None = None,
-            property_mask: Filter.TDatatypeMask | None = None,
+            property_mask: Filter.TPropertyMask | None = None,
             value_mask: Filter.TDatatypeMask | None = None,
             rank_mask: Filter.TRankMask | None = None,
             best_ranked: bool | None = None,
@@ -4270,7 +4270,7 @@ class Store(Set):
             value: TFingerprint | None = None,
             snak_mask: Filter.TSnakMask | None = None,
             subject_mask: Filter.TDatatypeMask | None = None,
-            property_mask: Filter.TDatatypeMask | None = None,
+            property_mask: Filter.TPropertyMask | None = None,
             value_mask: Filter.TDatatypeMask | None = None,
             rank_mask: Filter.TRankMask | None = None,
             best_ranked: bool | None = None,
@@ -4311,7 +4311,7 @@ class Store(Set):
             value: TFingerprint | None = None,
             snak_mask: Filter.TSnakMask | None = None,
             subject_mask: Filter.TDatatypeMask | None = None,
-            property_mask: Filter.TDatatypeMask | None = None,
+            property_mask: Filter.TPropertyMask | None = None,
             value_mask: Filter.TDatatypeMask | None = None,
             rank_mask: Filter.TRankMask | None = None,
             best_ranked: bool | None = None,
@@ -4368,7 +4368,7 @@ class Store(Set):
             value: TFingerprint | None = None,
             snak_mask: Filter.TSnakMask | None = None,
             subject_mask: Filter.TDatatypeMask | None = None,
-            property_mask: Filter.TDatatypeMask | None = None,
+            property_mask: Filter.TPropertyMask | None = None,
             value_mask: Filter.TDatatypeMask | None = None,
             rank_mask: Filter.TRankMask | None = None,
             best_ranked: bool | None = None,
@@ -4388,8 +4388,9 @@ class Store(Set):
             snak_mask, Filter.SnakMask.ALL, function, 'snak_mask', 4)
         subject_mask = Filter.DatatypeMask.check_optional(
             subject_mask, Filter.ENTITY, function, 'subject_mask', 5)
-        property_mask = Filter.DatatypeMask.check_optional(
-            property_mask, Filter.PROPERTY, function, 'property_mask', 6)
+        property_mask = Filter.PropertyMask.check_optional(
+            property_mask, Filter.PropertyMask.ALL,
+            function, 'property_mask', 6)
         value_mask = Filter.DatatypeMask.check_optional(
             value_mask, Filter.VALUE, function, 'value_mask', 7)
         rank_mask = Filter.RankMask.check_optional(
