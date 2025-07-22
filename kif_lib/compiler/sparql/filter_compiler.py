@@ -19,6 +19,8 @@ from ...model import (
     EntityTemplate,
     EntityVariable,
     ExternalId,
+    ExternalIdTemplate,
+    ExternalIdVariable,
     Filter,
     Fingerprint,
     FullFingerprint,
@@ -465,23 +467,22 @@ class SPARQL_FilterCompiler(SPARQL_Compiler):
         return not any(f(entry, target) for f in (
             self._filter_property_is_full_and_target_property_is_blacklisted,
             self._filter_property_mask_does_not_match_target_property,
+            self._filter_value_mask_does_not_match_target_value,
             self._filter_rank_mask_does_not_match_target_rank))
 
-    def _filter_rank_mask_does_not_match_target_rank(
+    def _filter_property_is_full_and_target_property_is_blacklisted(
             self,
             entry: SPARQL_Mapping.Entry,
-            target: SPARQL_Mapping.EntryPattern
+            target: SPARQL_Mapping.EntryPattern,
+            blacklist: frozenset[Property] = frozenset({
+                TypeProperty(), SubtypeProperty()})
     ) -> bool:
-        if isinstance(target, (StatementTemplate, Statement)):
-            if entry.annotations is not None:
-                rank = entry.annotations.get('rank', None)
-                if rank is not None and isinstance(rank, Rank):
-                    return not self.filter.rank_mask.match(rank)
-        elif isinstance(target, (
-                AnnotatedStatementTemplate, AnnotatedStatement)):
-            if isinstance(target.rank, Rank):
-                return not self.filter.rank_mask.match(target.rank)
-        return False
+        return (
+            self.filter.property.is_full()
+            and isinstance(target, (Statement, StatementTemplate))
+            and isinstance(target.snak, (Snak, SnakTemplate))
+            and isinstance(target.snak.property, Property)
+            and target.snak.property in blacklist)
 
     def _filter_property_mask_does_not_match_target_property(
             self,
@@ -503,19 +504,33 @@ class SPARQL_FilterCompiler(SPARQL_Compiler):
                 return not self.filter.property_mask & self.filter.REAL
         return False
 
-    def _filter_property_is_full_and_target_property_is_blacklisted(
+    def _filter_value_mask_does_not_match_target_value(
             self,
             entry: SPARQL_Mapping.Entry,
-            target: SPARQL_Mapping.EntryPattern,
-            blacklist: frozenset[Property] = frozenset({
-                TypeProperty(), SubtypeProperty()})
+            target: SPARQL_Mapping.EntryPattern
     ) -> bool:
-        return (
-            self.filter.property.is_full()
-            and isinstance(target, (Statement, StatementTemplate))
-            and isinstance(target.snak, (Snak, SnakTemplate))
-            and isinstance(target.snak.property, Property)
-            and target.snak.property in blacklist)
+        if (isinstance(target, (Statement, StatementTemplate))
+            and isinstance(target.snak, (ValueSnak, ValueSnakTemplate))
+            and isinstance(target.snak.value, (
+                ExternalId, ExternalIdTemplate, ExternalIdVariable))):
+            return not bool(self.filter.value_mask & self.filter.EXTERNAL_ID)
+        return False
+
+    def _filter_rank_mask_does_not_match_target_rank(
+            self,
+            entry: SPARQL_Mapping.Entry,
+            target: SPARQL_Mapping.EntryPattern
+    ) -> bool:
+        if isinstance(target, (StatementTemplate, Statement)):
+            if entry.annotations is not None:
+                rank = entry.annotations.get('rank', None)
+                if rank is not None and isinstance(rank, Rank):
+                    return not self.filter.rank_mask.match(rank)
+        elif isinstance(target, (
+                AnnotatedStatementTemplate, AnnotatedStatement)):
+            if isinstance(target.rank, Rank):
+                return not self.filter.rank_mask.match(target.rank)
+        return False
 
     def _fresh_name_generator(self) -> Callable[[str], Iterator[str]]:
         return (lambda _: map(

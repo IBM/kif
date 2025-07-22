@@ -1038,9 +1038,7 @@ class Filter(KObj):
         if isinstance(stmt.snak, ValueSnak):
             if self.value.is_empty():
                 return False    # snak mismatch
-            if ((not (self.value_mask & self.STRING
-                      and type(stmt.snak.value) is ExternalId))
-                    and not self.value_mask.match(type(stmt.snak.value))):
+            if not self.value_mask.match(type(stmt.snak.value)):
                 return False    # value mask mismatch
             if not self.value.match(stmt.snak.value):
                 return False    # value mismatch

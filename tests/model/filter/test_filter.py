@@ -389,10 +389,10 @@ class Test(KIF_ObjectTestCase):
             Property('p')(Item('x'), String('y'))))
         self.assertTrue(Filter(value_mask=Filter.EXTERNAL_ID).match(
             Property('p')(Item('x'), ExternalId('y'))))
-        # A STRING value mask should match an external id value.
-        self.assertTrue(Filter(value_mask=Filter.STRING).match(
+        # A STRING value mask should *not* match an external id value.
+        self.assertFalse(Filter(value_mask=Filter.STRING).match(
             Property('p')(Item('x'), ExternalId('y'))))
-        # But a EXTERNAL_ID value mask should not match a string.
+        # A EXTERNAL_ID value mask should *not* match a string.
         self.assertFalse(Filter(value_mask=Filter.EXTERNAL_ID).match(
             Property('p')(Item('x'), String('y'))))
 
