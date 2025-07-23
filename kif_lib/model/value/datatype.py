@@ -148,23 +148,24 @@ class Datatype(ClosedTerm, variable_class=DatatypeVariable):
         from .text import Text
         from .time import Time
         uri = str(uri)
-        if uri == str(WIKIBASE.WikibaseItem):
+        if uri == str(WIKIBASE.WikibaseItem) or uri == 'wikibase-item':
             res: Datatype = Item.datatype
-        elif uri == str(WIKIBASE.WikibaseProperty):
+        elif (uri == str(WIKIBASE.WikibaseProperty)
+              or uri == 'wikibase-property'):
             res = Property.datatype
-        elif uri == str(WIKIBASE.WikibaseLexeme):
+        elif uri == str(WIKIBASE.WikibaseLexeme) or uri == 'wikibase-lexeme':
             res = Lexeme.datatype
-        elif uri == str(WIKIBASE.Url):
+        elif uri == str(WIKIBASE.Url) or uri == 'url':
             res = IRI.datatype
-        elif uri == str(WIKIBASE.Monolingualtext):
+        elif uri == str(WIKIBASE.Monolingualtext) or uri == 'monolingualtext':
             res = Text.datatype
-        elif uri == str(WIKIBASE.String):
+        elif uri == str(WIKIBASE.String) or uri == 'string':
             res = String.datatype
-        elif uri == str(WIKIBASE.ExternalId):
+        elif uri == str(WIKIBASE.ExternalId) or uri == 'external-id':
             res = ExternalId.datatype
-        elif uri == str(WIKIBASE.Quantity):
+        elif uri == str(WIKIBASE.Quantity) or uri == 'quantity':
             res = Quantity.datatype
-        elif uri == str(WIKIBASE.Time):
+        elif uri == str(WIKIBASE.Time) or uri == 'time':
             res = Time.datatype
         else:                   # fallback
             res = String.datatype
