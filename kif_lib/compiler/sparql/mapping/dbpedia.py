@@ -157,6 +157,7 @@ class DBpediaMapping(M):
     @M.register(
         [wd.label(Property(s, s0), Text(v, v0))],
         {s: CheckOntology()},
+        defaults={s0: None},
         priority=M.LOW_PRIORITY,
         rank=Normal)
     def wd_label_op(
@@ -167,11 +168,6 @@ class DBpediaMapping(M):
             v: VLiteral,
             v0: VLiteral) -> None:
         self._start_op(c, s)
-        if isinstance(s0, Var):
-            ###
-            # FIXME: Is this right?
-            ###
-            c.q.bind(c.q.bnode(), s0)
         self._p_text(c, s, RDFS.label, v, v0)
 
     @M.register(
@@ -229,6 +225,8 @@ class DBpediaMapping(M):
         priority=M.LOW_PRIORITY,
         rank=Normal)
     def wd_said_to_be_the_same_as(self, c: C, s: V_URI, v: V_URI) -> None:
+        if not self.options.wikidata_properties:
+            raise self.Skip     # nothing to do
         self._start_r(c, s)
         c.q.triples()((s, OWL.sameAs, v))
         if isinstance(v, Var):

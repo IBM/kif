@@ -128,10 +128,13 @@ class HttpxSPARQL_Store(
             try:
                 return self._http_post(query).json()
             except httpx.HTTPStatusError as err:
+                import json
                 if _logger.isEnabledFor(logging.DEBUG):
-                    import json
-                    _logger.debug('%s:\n%s', err, json.dumps(
-                        err.response.json(), indent=2))
+                    try:
+                        _logger.debug('%s:\n%s', err, json.dumps(
+                            err.response.json(), indent=2))
+                    except json.JSONDecodeError:
+                        _logger.debug('%s\n%s', err, err.response.text)
                 raise err
 
         def _http_post(self, text: str) -> httpx.Response:
@@ -152,8 +155,11 @@ class HttpxSPARQL_Store(
             except httpx.HTTPStatusError as err:
                 if _logger.isEnabledFor(logging.DEBUG):
                     import json
-                    _logger.debug('%s:\n%s', err, json.dumps(
-                        err.response.json(), indent=2))
+                    try:
+                        _logger.debug('%s:\n%s', err, json.dumps(
+                            err.response.json(), indent=2))
+                    except json.JSONDecodeError:
+                        _logger.debug('%s\n%s', err, err.response.text)
                 raise err
 
         async def _http_apost(self, text: str) -> httpx.Response:

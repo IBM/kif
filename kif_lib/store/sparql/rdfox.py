@@ -88,6 +88,9 @@ class RDFoxSPARQL_Store(
             self._name = 'ds' + str(id(self))
             with self._lock:
                 self.rdfox.dstore_create(self._name)
+                self.rdfox.active(self._name)
+                self.rdfox.dsprop_set(  # relax query validation rules
+                    'query-validation', 'standard-compliant')
                 port = self.rdfox.set('endpoint.port')
                 self._httpx_backend = HttpxSPARQL_Store.HttpxBackend(
                     self._store,
@@ -136,7 +139,7 @@ class RDFoxSPARQL_Store(
                             temp_skolemized.write(line)
                     temp_skolemized.flush()
                     with self._lock:
-                        self.rdfox.clear()
+                        self.rdfox.clear('facts', 'axioms', 'rules')
                         self.rdfox.import_file(temp_skolemized.name)
 
         def _skolemize_n3_line(

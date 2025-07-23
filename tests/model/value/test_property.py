@@ -128,6 +128,21 @@ class Test(EntityTestCase):
         self.assert_property(
             Property('x', Item.datatype), IRI('x'), Item.datatype)
 
+    def test_replace(self) -> None:
+        self.assertEqual(Property('x').replace('y'), Property('y'))
+        self.assertEqual(Property('x').replace(iri='y'), Property('y'))
+        self.assertEqual(
+            Property('x').replace(Property.KEEP, Item), Property('x', Item))
+        self.assertEqual(
+            Property('x').replace(range=Item), Property('x', Item))
+        # property template
+        self.assertEqual(
+            Property('x').replace(Variable('x')),
+            PropertyTemplate(Variable('x')))
+        self.assertEqual(
+            Property('x').replace(range=Variable('y')),
+            PropertyTemplate('x', Variable('y')))
+
     _test__call__entities: ClassVar[list[Entity]] = [
         Item('x'),
         Lexeme('z'),

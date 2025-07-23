@@ -141,11 +141,45 @@ class RDFox:
         if status != f"The data store '{name}' was deleted.":
             raise self.Error(status)
 
+    def dsprop_set(
+            self,
+            property_name: str,
+            property_value: str | None = None
+    ) -> str:
+        """Gets or sets the properties of the current data store.
+
+        If `property_value` is given, sets `property_name` to `property_value`.
+
+        Parameters:
+           property_name: Property name.
+           property_value: Property value.
+
+        Returns:
+           The value of `property_name`.
+        """
+        name, value = property_name, property_value
+        if value is not None:
+            status = self.push(f'dsprop set {name} {value}')
+            _logger.debug('%s()\n%s', self.dsprop_set.__qualname__, status)
+            m = re.match(
+                f"Data store property '{name}' was set to '([^']+)'.",
+                status)
+        else:
+            status = self.push(f'dsprop set {name}')
+            _logger.debug('%s()\n%s', self.dsprop_set.__qualname__, status)
+            m = re.match(
+                f"The current value of data store property '{name}' "
+                f"of the current data store is '([^']+)'.",
+                status)
+        if not m:
+            raise self.Error(status)
+        return m.group(1)
+
     def active(
             self,
-            name: str | None,
+            name: str | None = None,
             _re: re.Pattern = re.compile(
-                r"^Data store connection '([^']\w+)' is active.$")
+                r"^Data store connection '([^']+)' is active.$")
     ) -> str:
         """Gets or sets the active data store connection name.
 
@@ -167,7 +201,7 @@ class RDFox:
             raise self.Error(status)
         return m.group(1)
 
-    def clear(self, target: str | None = None) -> None:
+    def clear(self, *targets: str) -> None:
         """Clears target.
 
         If `target` is not given, clears everything.
@@ -175,7 +209,7 @@ class RDFox:
         Parameters:
            target: Target.
         """
-        status = self.push(f'clear {target or ""} force')
+        status = self.push(f'clear {" ".join(targets)} force')
         _logger.debug('%s()\n%s', self.clear.__qualname__, status)
         if not status.endswith('has been cleared as specified.'):
             raise self.Error(status)

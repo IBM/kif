@@ -65,6 +65,8 @@ director = P(57)
 director_of_photography = P(344)
 discoverer_or_inventor = P(61)
 distributed_by = P(750)
+doctoral_advisor = P(184)
+doctoral_student = P(185)
 does_not_have_part = P(3113)
 download_link = P(4945)
 DSSTox_substance_ID = P(3117)
@@ -340,6 +342,8 @@ __all__ = (
     'director_of_photography',
     'discoverer_or_inventor',
     'distributed_by',
+    'doctoral_advisor',
+    'doctoral_student',
     'does_not_have_part',
     'download_link',
     'DSSTox_substance_ID',

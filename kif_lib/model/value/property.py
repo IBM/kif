@@ -24,6 +24,7 @@ from ...typing import (
     TypedDict,
     Union,
 )
+from ..kif_object import KIF_Object as KObj
 from ..term import OpenTerm, Variable
 from .datatype import (
     Datatype,
@@ -33,7 +34,7 @@ from .datatype import (
     VTDatatype,
 )
 from .entity import Entity, EntityTemplate, EntityVariable, VTEntity
-from .iri import IRI, IRI_Template, T_IRI, VT_IRI
+from .iri import IRI, T_IRI, VT_IRI
 from .text import Text, TText, TTextLanguage, TTextSet
 from .value import VTValue
 
@@ -56,7 +57,7 @@ TProperty: TypeAlias = Union['Property', T_IRI]
 VProperty: TypeAlias =\
     Union['PropertyTemplate', 'PropertyVariable', 'Property']
 VTProperty: TypeAlias = Union[Variable, VProperty, TProperty]
-VTPropertyContent: TypeAlias = Union[Variable, IRI_Template, TProperty]
+VTPropertyContent: TypeAlias = Union[Variable, VT_IRI, TProperty]
 
 
 class PropertyTemplate(EntityTemplate):
@@ -69,7 +70,11 @@ class PropertyTemplate(EntityTemplate):
 
     object_class: ClassVar[type[Property]]  # pyright: ignore
 
-    def __init__(self, iri: VT_IRI, range: VTDatatype | None = None) -> None:
+    def __init__(
+            self,
+            iri: VTPropertyContent,
+            range: VTDatatype | None = None
+    ) -> None:
         super().__init__(iri, range)
 
     @override
@@ -142,6 +147,14 @@ class PropertyTemplate(EntityTemplate):
         else:
             from ..snak import ValueSnakTemplate
             return ValueSnakTemplate(self, arg1)
+
+    @override
+    def replace(
+            self,
+            iri: VTPropertyContent | KObj.TKEEP = KObj.KEEP,
+            range: VTDatatype | KObj.TKEEP | None = KObj.KEEP
+    ) -> Self:
+        return super().replace(iri, range)
 
     @property
     def range(self) -> VDatatype | None:
@@ -665,6 +678,14 @@ class Property(
         """
         from ..path import SequencePath
         return SequencePath(path, self)
+
+    @override
+    def replace(
+            self,
+            iri: VTPropertyContent | KObj.TKEEP = KObj.KEEP,
+            range: VTDatatype | KObj.TKEEP | None = KObj.KEEP
+    ) -> Self:
+        return super().replace(iri, range)
 
     @property
     def range(self) -> Datatype | None:
