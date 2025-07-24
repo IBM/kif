@@ -483,7 +483,7 @@ class Engine(Generic[TOptions]):
         self._set_option_with_hooks(
             debug,
             self.options.get_debug,
-            functools.partial(
+            functools.partial(  # pyright: ignore
                 self.options.set_debug,
                 function=self.set_debug,
                 name='debug',
