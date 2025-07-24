@@ -47,7 +47,7 @@ from ...typing import (
     TypeVar,
     Union,
 )
-from ..abc import Store
+from ..abc import Store, TOptions
 
 E = TypeVar('E', bound=Entity)
 S = TypeVar('S')
@@ -61,9 +61,9 @@ TLocation: TypeAlias = Union[pathlib.PurePath, str]
 
 
 class Reader(
-        Store,
+        Store[TOptions],
         store_name='reader',
-        store_description='Reader'
+        store_description='Reader store'
 ):
     """Base class for readers.
 
@@ -367,7 +367,7 @@ class Reader(
     def _filter(
             self,
             filter: Filter,
-            options: Store.Options
+            options: TOptions
     ) -> Iterator[Statement]:
         parse = functools.partial(self._filter_parse_arg, filter, options)
         return itertools.mix(
@@ -379,7 +379,7 @@ class Reader(
     def _filter_parse_arg(
             self,
             filter: Filter,
-            options: Store.Options,
+            options: TOptions,
             arg: Source
     ) -> Iterator[Statement]:
         wrap = functools.partial(self._filter_parse_wrap, filter, options)
@@ -414,7 +414,7 @@ class Reader(
     def _filter_parse_unknown_arg(
             self,
             filter: Filter,
-            options: Store.Options,
+            options: TOptions,
             arg: Source
     ) -> Iterator[Statement]:
         return iter(())
@@ -422,7 +422,7 @@ class Reader(
     def _filter_parse_wrap(
             self,
             filter: Filter,
-            options: Store.Options,
+            options: TOptions,
             it: Iterator[Statement]
     ) -> Iterator[Statement]:
         if filter.annotated:
@@ -436,7 +436,7 @@ class Reader(
     def _filter_parse_location(
             self,
             filter: Filter,
-            options: Store.Options,
+            options: TOptions,
             location: TLocation
     ) -> Iterator[Statement]:
         return self._filter_parse(
@@ -445,7 +445,7 @@ class Reader(
     def _filter_parse_file(
             self,
             filter: Filter,
-            options: Store.Options,
+            options: TOptions,
             file: TFile
     ) -> Iterator[Statement]:
         return self._filter_parse(filter, options, self._load_file, file)
@@ -453,7 +453,7 @@ class Reader(
     def _filter_parse_data(
             self,
             filter: Filter,
-            options: Store.Options,
+            options: TOptions,
             data: TData
     ) -> Iterator[Statement]:
         return self._filter_parse(filter, options, self._load_data, data)
@@ -461,7 +461,7 @@ class Reader(
     def _filter_parse(
             self,
             filter: Filter,
-            options: Store.Options,
+            options: TOptions,
             load_fn: Callable[[S], ContextManager[T]],
             arg: S
     ) -> Iterator[Statement]:
@@ -472,7 +472,7 @@ class Reader(
     def _afilter(
             self,
             filter: Filter,
-            options: Store.Options
+            options: TOptions
     ) -> AsyncIterator[Statement]:
         limit =\
             options.limit if options.limit is not None else options.max_limit
@@ -512,7 +512,7 @@ class Reader(
 
 
 class JSONL_Reader(
-        Reader,
+        Reader[TOptions],
         store_name='jsonl-reader',
         store_description='JSON lines reader'
 ):

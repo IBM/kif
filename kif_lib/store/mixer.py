@@ -25,6 +25,7 @@ from ..typing import (
     AsyncIterator,
     Awaitable,
     Callable,
+    cast,
     ClassVar,
     Collection,
     Final,
@@ -37,14 +38,185 @@ from ..typing import (
     TypeVar,
     Union,
 )
-from .abc import Store
+from .abc import Store, StoreOptions
 
-T = TypeVar('T')
+_TSyncFlags: TypeAlias = Union['SyncFlags', int]
 S = TypeVar('S')
+T = TypeVar('T')
+
+
+class SyncFlags(KIF_Flags):
+    """Sync flags.
+
+    The sync flags determine which option changes are propagated to the
+    child stores.
+    """
+
+    #: Whether to propagate changes in base filter option.
+    BASE_FILTER = KIF_Flags.auto()
+
+    #: Whether to propagate changes in debug option.
+    DEBUG = KIF_Flags.auto()
+
+    #: Whether to propagate changes in distinct option.
+    DISTINCT = KIF_Flags.auto()
+
+    #: Whether to propagate changes in distinct window-size option.
+    DISTINCT_WINDOW_SIZE = KIF_Flags.auto()
+
+    #: Whether to propagate changes in limit option.
+    LIMIT = KIF_Flags.auto()
+
+    #: Whether to propagate changes in lookahead option.
+    LOOKAHEAD = KIF_Flags.auto()
+
+    #: Whether to propagate changes in omega option.
+    OMEGA = KIF_Flags.auto()
+
+    #: Whether to propagate changes in page size option.
+    PAGE_SIZE = KIF_Flags.auto()
+
+    #: Whether to propagate changes in timeout option.
+    TIMEOUT = KIF_Flags.auto()
+
+    #: All sync flags.
+    ALL = (
+        BASE_FILTER
+        | DEBUG
+        | DISTINCT
+        | DISTINCT_WINDOW_SIZE
+        | LIMIT
+        | LOOKAHEAD
+        | OMEGA
+        | PAGE_SIZE
+        | TIMEOUT)
+
+
+@dataclasses.dataclass
+class _MixerStoreOptions(StoreOptions):
+
+    _v_debug: ClassVar[tuple[Iterable[str], bool | None]] =\
+        (('KIF_MIXER_STORE_DEBUG',), None)
+
+    _v_distinct: ClassVar[tuple[Iterable[str], bool | None]] =\
+        (('KIF_MIXER_STORE_DISTINCT',), None)
+
+    _v_max_distinct_window_size: ClassVar[
+        tuple[Iterable[str], int | None]] = (
+            (('KIF_MIXER_STORE_MAX_DISTINCT_WINDOW_SIZE',), None))
+
+    _v_distinct_window_size: ClassVar[
+        tuple[Iterable[str], int | None]] = (
+            (('KIF_MIXER_STORE_DISTINCT_WINDOW_SIZE',), None))
+
+    _v_max_limit: ClassVar[tuple[Iterable[str], int | None]] =\
+        (('KIF_MIXER_STORE_MAX_LIMIT',), None)
+
+    _v_limit: ClassVar[tuple[Iterable[str], int | None]] =\
+        (('KIF_MIXER_STORE_LIMIT',), None)
+
+    _v_lookahead: ClassVar[tuple[Iterable[str], int | None]] =\
+        (('KIF_MIXER_STORE_LOOKAHEAD',), None)
+
+    _v_omega: ClassVar[tuple[Iterable[str], int | None]] =\
+        (('KIF_MIXER_STORE_OMEGA',), None)
+
+    _v_max_page_size: ClassVar[tuple[Iterable[str], int | None]] =\
+        (('KIF_MIXER_STORE_MAX_PAGE_SIZE',), None)
+
+    _v_page_size: ClassVar[tuple[Iterable[str], int | None]] =\
+        (('KIF_MIXER_STORE_PAGE_SIZE',), None)
+
+    _v_max_timeout: ClassVar[tuple[Iterable[str], float | None]] =\
+        (('KIF_MIXER_STORE_MAX_TIMEOUT',), None)
+
+    _v_timeout: ClassVar[tuple[Iterable[str], float | None]] =\
+        (('KIF_MIXER_STORE_TIMEOUT',), None)
+
+    def __init__(self, **kwargs: Any) -> None:
+        super().__init__(**kwargs)
+        self._init_sync_flags(kwargs)
+
+    # -- sync_flags --
+
+    #: The default value for the sync flags option
+    DEFAULT_SYNC_FLAGS: ClassVar[int] = -1
+
+    _sync_flags: SyncFlags | None
+
+    def _init_sync_flags(self, kwargs: dict[str, Any]) -> None:
+        self.sync_flags = kwargs.get(
+            '_sync_flags', self.DEFAULT_SYNC_FLAGS)
+
+    @property
+    def sync_flags(self) -> SyncFlags:
+        """Determines the option changes to propagate to children."""
+        return self.get_sync_flags()
+
+    @sync_flags.setter
+    def sync_flags(self, sync_flags: _TSyncFlags) -> None:
+        self.set_sync_flags(sync_flags)
+
+    def get_sync_flags(self) -> SyncFlags:
+        """Gets the sync flags option.
+
+        Returns:
+           Sync flags.
+        """
+        assert self._sync_flags is not None
+        return self._sync_flags
+
+    def set_sync_flags(
+            self,
+            sync_flags: _TSyncFlags,
+            function: Location | None = None,
+            name: str | None = None,
+            position: int | None = None
+    ) -> None:
+        """Sets the sync flags option.
+
+        Parameters:
+           sync_flags: Sync flags.
+           function: Function or function name.
+           name: Argument name.
+           position: Argument position.
+        """
+        self._sync_flags = SyncFlags.check(
+            sync_flags, function, name, position)
+
+
+@dataclasses.dataclass
+class MixerStoreOptions(_MixerStoreOptions, name='mixer'):
+    """Mixer store options."""
+
+    def __init__(self, **kwargs: Any) -> None:
+        super().__init__(**kwargs)
+
+    @override
+    def get_sync_flags(self) -> SyncFlags:
+        return self._do_get('_sync_flags', super().get_sync_flags)
+
+    @override
+    def set_sync_flags(
+            self,
+            sync_flags: _TSyncFlags | None,
+            function: Location | None = None,
+            name: str | None = None,
+            position: int | None = None
+    ) -> None:
+        self._do_set(sync_flags, '_sync_flags', functools.partial(
+            super().set_sync_flags,
+            function=function, name=name, position=position))
+
+
+# == Mixer store ===========================================================
+
+TMixerOptions = TypeVar(
+    'TMixerOptions', bound=MixerStoreOptions, default=MixerStoreOptions)
 
 
 class MixerStore(
-        Store,
+        Store[TMixerOptions],
         store_name='mixer',
         store_description='Mixer store'
 ):
@@ -56,51 +228,8 @@ class MixerStore(
        sync_flags: Sync flags.
     """
 
-    class SyncFlags(KIF_Flags):
-        """Sync flags.
-
-        The sync flags determine which option changes are propagated to the
-        child stores.
-        """
-
-        #: Whether to propagate changes in base filter option.
-        BASE_FILTER = KIF_Flags.auto()
-
-        #: Whether to propagate changes in debug option.
-        DEBUG = KIF_Flags.auto()
-
-        #: Whether to propagate changes in distinct option.
-        DISTINCT = KIF_Flags.auto()
-
-        #: Whether to propagate changes in distinct window-size option.
-        DISTINCT_WINDOW_SIZE = KIF_Flags.auto()
-
-        #: Whether to propagate changes in limit option.
-        LIMIT = KIF_Flags.auto()
-
-        #: Whether to propagate changes in lookahead option.
-        LOOKAHEAD = KIF_Flags.auto()
-
-        #: Whether to propagate changes in omega option.
-        OMEGA = KIF_Flags.auto()
-
-        #: Whether to propagate changes in page size option.
-        PAGE_SIZE = KIF_Flags.auto()
-
-        #: Whether to propagate changes in timeout option.
-        TIMEOUT = KIF_Flags.auto()
-
-        #: All sync flags.
-        ALL = (
-            BASE_FILTER
-            | DEBUG
-            | DISTINCT
-            | DISTINCT_WINDOW_SIZE
-            | LIMIT
-            | LOOKAHEAD
-            | OMEGA
-            | PAGE_SIZE
-            | TIMEOUT)
+    #: Type alias for the sync flags class.
+    _mk_sync_flags: ClassVar[type[SyncFlags]] = SyncFlags
 
     #: Whether to propagate changes in base filter option.
     BASE_FILTER: Final[SyncFlags] = SyncFlags.BASE_FILTER
@@ -130,122 +259,7 @@ class MixerStore(
     TIMEOUT: Final[SyncFlags] = SyncFlags.TIMEOUT
 
     #: Type alias for types coercible to :class:`SyncFlags`.
-    TSyncFlags: TypeAlias = Union[SyncFlags, int]
-
-    @dataclasses.dataclass
-    class _Options(Store.Options):
-
-        _v_debug: ClassVar[tuple[Iterable[str], bool | None]] =\
-            (('KIF_MIXER_STORE_DEBUG',), None)
-
-        _v_distinct: ClassVar[tuple[Iterable[str], bool | None]] =\
-            (('KIF_MIXER_STORE_DISTINCT',), None)
-
-        _v_max_distinct_window_size: ClassVar[
-            tuple[Iterable[str], int | None]] = (
-                (('KIF_MIXER_STORE_MAX_DISTINCT_WINDOW_SIZE',), None))
-
-        _v_distinct_window_size: ClassVar[
-            tuple[Iterable[str], int | None]] = (
-                (('KIF_MIXER_STORE_DISTINCT_WINDOW_SIZE',), None))
-
-        _v_max_limit: ClassVar[tuple[Iterable[str], int | None]] =\
-            (('KIF_MIXER_STORE_MAX_LIMIT',), None)
-
-        _v_limit: ClassVar[tuple[Iterable[str], int | None]] =\
-            (('KIF_MIXER_STORE_LIMIT',), None)
-
-        _v_lookahead: ClassVar[tuple[Iterable[str], int | None]] =\
-            (('KIF_MIXER_STORE_LOOKAHEAD',), None)
-
-        _v_omega: ClassVar[tuple[Iterable[str], int | None]] =\
-            (('KIF_MIXER_STORE_OMEGA',), None)
-
-        _v_max_page_size: ClassVar[tuple[Iterable[str], int | None]] =\
-            (('KIF_MIXER_STORE_MAX_PAGE_SIZE',), None)
-
-        _v_page_size: ClassVar[tuple[Iterable[str], int | None]] =\
-            (('KIF_MIXER_STORE_PAGE_SIZE',), None)
-
-        _v_max_timeout: ClassVar[tuple[Iterable[str], float | None]] =\
-            (('KIF_MIXER_STORE_MAX_TIMEOUT',), None)
-
-        _v_timeout: ClassVar[tuple[Iterable[str], float | None]] =\
-            (('KIF_MIXER_STORE_TIMEOUT',), None)
-
-        def __init__(self, **kwargs: Any) -> None:
-            super().__init__(**kwargs)
-            self._init_sync_flags(kwargs)
-
-        # -- sync_flags --
-
-        #: The default value for the sync flags option
-        DEFAULT_SYNC_FLAGS: ClassVar[int] = -1
-
-        _sync_flags: MixerStore.SyncFlags | None
-
-        def _init_sync_flags(self, kwargs: dict[str, Any]) -> None:
-            self.sync_flags = kwargs.get(
-                '_sync_flags', self.DEFAULT_SYNC_FLAGS)
-
-        @property
-        def sync_flags(self) -> MixerStore.SyncFlags:
-            """Determines the option changes to propagate to children."""
-            return self.get_sync_flags()
-
-        @sync_flags.setter
-        def sync_flags(self, sync_flags: MixerStore.TSyncFlags) -> None:
-            self.set_sync_flags(sync_flags)
-
-        def get_sync_flags(self) -> MixerStore.SyncFlags:
-            """Gets the sync flags option.
-
-            Returns:
-               Sync flags.
-            """
-            assert self._sync_flags is not None
-            return self._sync_flags
-
-        def set_sync_flags(
-                self,
-                sync_flags: MixerStore.TSyncFlags,
-                function: Location | None = None,
-                name: str | None = None,
-                position: int | None = None
-        ) -> None:
-            """Sets the sync flags option.
-
-            Parameters:
-               sync_flags: Sync flags.
-               function: Function or function name.
-               name: Argument name.
-               position: Argument position.
-            """
-            self._sync_flags = MixerStore.SyncFlags.check(
-                sync_flags, function, name, position)
-
-    @dataclasses.dataclass
-    class Options(_Options, name='mixer'):
-        """Mixer store options."""
-
-        def __init__(self, **kwargs: Any) -> None:
-            super().__init__(**kwargs)
-
-        @override
-        def get_sync_flags(self) -> MixerStore.SyncFlags:
-            return self._do_get('_sync_flags', super().get_sync_flags)
-
-        @override
-        def set_sync_flags(
-                self,
-                sync_flags: MixerStore.TSyncFlags | None,
-                function: Location | None = None,
-                name: str | None = None,
-                position: int | None = None
-        ) -> None:
-            self._do_set(sync_flags, '_sync_flags', functools.partial(
-                super().set_sync_flags,
-                function=function, name=name, position=position))
+    TSyncFlags: TypeAlias = _TSyncFlags
 
     __slots__ = (
         '_sources',
@@ -264,17 +278,14 @@ class MixerStore(
         self._init_sources(sources)
         super().__init__(**kwargs)
 
-    @property
-    def default_options(self) -> Options:
-        return super().default_options  # type: ignore
-
     @override
-    def get_default_options(self, context: Context | None = None) -> Options:
-        return self.get_context(context).options.store.mixer
-
-    @property
-    def options(self) -> Options:
-        return super().options  # type: ignore
+    @classmethod
+    def get_default_options(
+            cls,
+            context: Context | None = None
+    ) -> TMixerOptions:
+        return cast(
+            TMixerOptions, cls.get_context(context).options.store.mixer)
 
     def _update_options(self, **kwargs: Any) -> None:
         super()._update_options(**kwargs)
@@ -317,7 +328,7 @@ class MixerStore(
         Returns:
            Default sync flags.
         """
-        return self.default_options.sync_flags
+        return self.get_default_options().sync_flags
 
     @property
     def sync_flags(self) -> SyncFlags:
@@ -364,7 +375,7 @@ class MixerStore(
 
     @override
     def _set_debug(self, debug: bool) -> bool:
-        return self._set_x(Store.set_debug, debug, self.DEBUG)
+        return self._set_x(Store.set_debug, debug, self.DEBUG)  # type: ignore
 
     @override
     def _set_distinct(self, distinct: bool) -> bool:
@@ -378,7 +389,7 @@ class MixerStore(
 
     @override
     def _set_limit(self, limit: int | None) -> bool:
-        return self._set_x(Store.set_limit, limit, self.LIMIT)
+        return self._set_x(Store.set_limit, limit, self.LIMIT)  # type: ignore
 
     @override
     def _set_lookahead(self, lookahead: int) -> bool:
@@ -410,11 +421,11 @@ class MixerStore(
 # -- Ask -------------------------------------------------------------------
 
     @override
-    def _ask(self, filter: Filter, options: Store.Options) -> bool:
+    def _ask(self, filter: Filter, options: TMixerOptions) -> bool:
         return any(map(lambda src: src._ask(filter, options), self._sources))
 
     @override
-    async def _aask(self, filter: Filter, options: Store.Options) -> bool:
+    async def _aask(self, filter: Filter, options: TMixerOptions) -> bool:
         tasks = (
             asyncio.ensure_future(src._aask(filter, options))
             for src in self._sources)
@@ -423,46 +434,46 @@ class MixerStore(
 # -- Count -----------------------------------------------------------------
 
     @override
-    def _count(self, filter: Filter, options: Store.Options) -> int:
+    def _count(self, filter: Filter, options: TMixerOptions) -> int:
         return self._count_x_mix_sources(
             lambda s: s._count, filter, options)
 
     @override
-    def _count_s(self, filter: Filter, options: Store.Options) -> int:
+    def _count_s(self, filter: Filter, options: TMixerOptions) -> int:
         return self._count_x_mix_sources(
             lambda s: s._count_s, filter, options)
 
     @override
-    def _count_p(self, filter: Filter, options: Store.Options) -> int:
+    def _count_p(self, filter: Filter, options: TMixerOptions) -> int:
         return self._count_x_mix_sources(
             lambda s: s._count_p, filter, options)
 
     @override
-    def _count_v(self, filter: Filter, options: Store.Options) -> int:
+    def _count_v(self, filter: Filter, options: TMixerOptions) -> int:
         return self._count_x_mix_sources(
             lambda s: s._count_v, filter, options)
 
     @override
-    def _count_sp(self, filter: Filter, options: Store.Options) -> int:
+    def _count_sp(self, filter: Filter, options: TMixerOptions) -> int:
         return self._count_x_mix_sources(
             lambda s: s._count_sp, filter, options)
 
     @override
-    def _count_sv(self, filter: Filter, options: Store.Options) -> int:
+    def _count_sv(self, filter: Filter, options: TMixerOptions) -> int:
         return self._count_x_mix_sources(
             lambda s: s._count_sv, filter, options)
 
     @override
-    def _count_pv(self, filter: Filter, options: Store.Options) -> int:
+    def _count_pv(self, filter: Filter, options: TMixerOptions) -> int:
         return self._count_x_mix_sources(
             lambda s: s._count_pv, filter, options)
 
     def _count_x_mix_sources(
             self,
             get_count_x_fn: Callable[
-                [Store], Callable[[Filter, Store.Options], int]],
+                [Store], Callable[[Filter, StoreOptions], int]],
             filter: Filter,
-            options: Store.Options
+            options: StoreOptions
     ) -> int:
         get_synced_options = functools.partial(
             self._filter_get_synced_source_options, options)
@@ -472,46 +483,46 @@ class MixerStore(
             self.sources))
 
     @override
-    async def _acount(self, filter: Filter, options: Store.Options) -> int:
+    async def _acount(self, filter: Filter, options: TMixerOptions) -> int:
         return await self._acount_x_mix_sources(
             lambda s: s._acount, filter, options)
 
     @override
-    async def _acount_s(self, filter: Filter, options: Store.Options) -> int:
+    async def _acount_s(self, filter: Filter, options: TMixerOptions) -> int:
         return await self._acount_x_mix_sources(
             lambda s: s._acount_s, filter, options)
 
     @override
-    async def _acount_p(self, filter: Filter, options: Store.Options) -> int:
+    async def _acount_p(self, filter: Filter, options: TMixerOptions) -> int:
         return await self._acount_x_mix_sources(
             lambda s: s._acount_p, filter, options)
 
     @override
-    async def _acount_v(self, filter: Filter, options: Store.Options) -> int:
+    async def _acount_v(self, filter: Filter, options: TMixerOptions) -> int:
         return await self._acount_x_mix_sources(
             lambda s: s._acount_v, filter, options)
 
     @override
-    async def _acount_sp(self, filter: Filter, options: Store.Options) -> int:
+    async def _acount_sp(self, filter: Filter, options: TMixerOptions) -> int:
         return await self._acount_x_mix_sources(
             lambda s: s._acount_sp, filter, options)
 
     @override
-    async def _acount_sv(self, filter: Filter, options: Store.Options) -> int:
+    async def _acount_sv(self, filter: Filter, options: TMixerOptions) -> int:
         return await self._acount_x_mix_sources(
             lambda s: s._acount_sv, filter, options)
 
     @override
-    async def _acount_pv(self, filter: Filter, options: Store.Options) -> int:
+    async def _acount_pv(self, filter: Filter, options: TMixerOptions) -> int:
         return await self._acount_x_mix_sources(
             lambda s: s._acount_pv, filter, options)
 
     async def _acount_x_mix_sources(
             self,
             get_acount_x_fn: Callable[
-                [Store], Callable[[Filter, Store.Options], Awaitable[int]]],
+                [Store], Callable[[Filter, StoreOptions], Awaitable[int]]],
             filter: Filter,
-            options: Store.Options
+            options: StoreOptions
     ) -> int:
         get_synced_options = functools.partial(
             self._filter_get_synced_source_options, options)
@@ -527,7 +538,7 @@ class MixerStore(
     def _filter(
             self,
             filter: Filter,
-            options: Store.Options
+            options: TMixerOptions
     ) -> Iterator[Statement]:
         return self._filter_x_mix_sources(
             lambda s: s._filter, filter, options)
@@ -536,7 +547,7 @@ class MixerStore(
     def _filter_s(
             self,
             filter: Filter,
-            options: Store.Options
+            options: TMixerOptions
     ) -> Iterator[Entity]:
         return self._filter_x_mix_sources(
             lambda s: s._filter_s, filter, options)
@@ -545,7 +556,7 @@ class MixerStore(
     def _filter_p(
             self,
             filter: Filter,
-            options: Store.Options
+            options: TMixerOptions
     ) -> Iterator[Property]:
         return self._filter_x_mix_sources(
             lambda s: s._filter_p, filter, options)
@@ -554,7 +565,7 @@ class MixerStore(
     def _filter_v(
             self,
             filter: Filter,
-            options: Store.Options
+            options: TMixerOptions
     ) -> Iterator[Value]:
         return self._filter_x_mix_sources(
             lambda s: s._filter_v, filter, options)
@@ -563,7 +574,7 @@ class MixerStore(
     def _filter_sp(
             self,
             filter: Filter,
-            options: Store.Options
+            options: TMixerOptions
     ) -> Iterator[ValuePair[Entity, Property]]:
         return self._filter_x_mix_sources(
             lambda s: s._filter_sp, filter, options)
@@ -572,7 +583,7 @@ class MixerStore(
     def _filter_sv(
             self,
             filter: Filter,
-            options: Store.Options
+            options: TMixerOptions
     ) -> Iterator[ValuePair[Entity, Value]]:
         return self._filter_x_mix_sources(
             lambda s: s._filter_sv, filter, options)
@@ -581,7 +592,7 @@ class MixerStore(
     def _filter_pv(
             self,
             filter: Filter,
-            options: Store.Options
+            options: TMixerOptions
     ) -> Iterator[ValueSnak]:
         return self._filter_x_mix_sources(
             lambda s: s._filter_pv, filter, options)
@@ -589,9 +600,9 @@ class MixerStore(
     def _filter_x_mix_sources(
             self,
             get_filter_x_fn: Callable[
-                [Store], Callable[[Filter, Store.Options], Iterator[T]]],
+                [Store], Callable[[Filter, StoreOptions], Iterator[T]]],
             filter: Filter,
-            options: Store.Options
+            options: StoreOptions
     ) -> Iterator[T]:
         get_synced_options = functools.partial(
             self._filter_get_synced_source_options, options)
@@ -605,9 +616,9 @@ class MixerStore(
 
     def _filter_get_synced_source_options(
             self,
-            options: Store.Options,
+            options: StoreOptions,
             source: Store
-    ) -> Store.Options:
+    ) -> StoreOptions:
         source_options = source.options.copy()
         if self.sync_flags & self.BASE_FILTER:
             source_options.base_filter = options.base_filter
@@ -634,7 +645,7 @@ class MixerStore(
     def _afilter(
             self,
             filter: Filter,
-            options: Store.Options
+            options: TMixerOptions
     ) -> AsyncIterator[Statement]:
         return self._afilter_x_mix_sources(
             lambda s: s._afilter, filter, options)
@@ -643,7 +654,7 @@ class MixerStore(
     def _afilter_s(
             self,
             filter: Filter,
-            options: Store.Options
+            options: TMixerOptions
     ) -> AsyncIterator[Entity]:
         return self._afilter_x_mix_sources(
             lambda s: s._afilter_s, filter, options)
@@ -652,7 +663,7 @@ class MixerStore(
     def _afilter_p(
             self,
             filter: Filter,
-            options: Store.Options
+            options: TMixerOptions
     ) -> AsyncIterator[Property]:
         return self._afilter_x_mix_sources(
             lambda s: s._afilter_p, filter, options)
@@ -661,7 +672,7 @@ class MixerStore(
     def _afilter_v(
             self,
             filter: Filter,
-            options: Store.Options
+            options: TMixerOptions
     ) -> AsyncIterator[Value]:
         return self._afilter_x_mix_sources(
             lambda s: s._afilter_v, filter, options)
@@ -670,7 +681,7 @@ class MixerStore(
     def _afilter_sp(
             self,
             filter: Filter,
-            options: Store.Options
+            options: TMixerOptions
     ) -> AsyncIterator[ValuePair[Entity, Property]]:
         return self._afilter_x_mix_sources(
             lambda s: s._afilter_sp, filter, options)
@@ -679,7 +690,7 @@ class MixerStore(
     def _afilter_sv(
             self,
             filter: Filter,
-            options: Store.Options
+            options: TMixerOptions
     ) -> AsyncIterator[ValuePair[Entity, Value]]:
         return self._afilter_x_mix_sources(
             lambda s: s._afilter_sv, filter, options)
@@ -688,7 +699,7 @@ class MixerStore(
     def _afilter_pv(
             self,
             filter: Filter,
-            options: Store.Options
+            options: TMixerOptions
     ) -> AsyncIterator[ValueSnak]:
         return self._afilter_x_mix_sources(
             lambda s: s._afilter_pv, filter, options)
@@ -696,9 +707,9 @@ class MixerStore(
     def _afilter_x_mix_sources(
             self,
             get_afilter_x_fn: Callable[
-                [Store], Callable[[Filter, Store.Options], AsyncIterator[T]]],
+                [Store], Callable[[Filter, StoreOptions], AsyncIterator[T]]],
             filter: Filter,
-            options: Store.Options
+            options: StoreOptions
     ) -> AsyncIterator[T]:
         get_synced_options = functools.partial(
             self._filter_get_synced_source_options, options)

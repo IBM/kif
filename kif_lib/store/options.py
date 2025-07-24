@@ -6,32 +6,32 @@ from __future__ import annotations
 import dataclasses
 
 from ..typing import Any
-from .abc import Store
-from .empty import EmptyStore
-from .memory import MemoryStore
-from .mixer import MixerStore
-from .sparql import SPARQL_Store
+from . import abc
+from .empty import EmptyStoreOptions
+from .memory import MemoryStoreOptions
+from .mixer import MixerStoreOptions
+from .sparql import SPARQL_StoreOptions
 
 
 @dataclasses.dataclass
-class StoreOptions(Store._Options, name='store'):
+class StoreOptions(abc._StoreOptions, name='store'):
     """Store options."""
 
-    empty: EmptyStore.Options = dataclasses.field(
-        default_factory=EmptyStore.Options)
+    empty: EmptyStoreOptions = dataclasses.field(
+        default_factory=EmptyStoreOptions)
 
-    memory: MemoryStore.Options = dataclasses.field(
-        default_factory=MemoryStore.Options)
+    memory: MemoryStoreOptions = dataclasses.field(
+        default_factory=MemoryStoreOptions)
 
-    mixer: MixerStore.Options = dataclasses.field(
-        default_factory=MixerStore.Options)
+    mixer: MixerStoreOptions = dataclasses.field(
+        default_factory=MixerStoreOptions)
 
-    sparql: SPARQL_Store.Options = dataclasses.field(
-        default_factory=SPARQL_Store.Options)
+    sparql: SPARQL_StoreOptions = dataclasses.field(
+        default_factory=SPARQL_StoreOptions)
 
     def __init__(self, *args: Any, **kwargs: Any) -> None:
         super().__init__(*args, **kwargs)
-        self.empty = EmptyStore.Options()
-        self.memory = MemoryStore.Options()
-        self.mixer = MixerStore.Options()
-        self.sparql = SPARQL_Store.Options()
+        self.empty = EmptyStoreOptions()
+        self.memory = MemoryStoreOptions()
+        self.mixer = MixerStoreOptions()
+        self.sparql = SPARQL_StoreOptions()

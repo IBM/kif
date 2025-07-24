@@ -14,7 +14,7 @@ from ...model import TGraph
 from ...typing import Any, BinaryIO, override, TextIO, TypeAlias, TypedDict
 from . import qlever_process
 from .httpx import HttpxSPARQL_Store
-from .sparql_core import _SPARQL_Store, TLocation
+from .sparql_core import _CoreSPARQL_Store, TCoreSPARQL_Store, TLocation
 
 
 class PostInitIndexBuilderArgs(TypedDict):
@@ -47,7 +47,7 @@ class PostInitArgs(TypedDict):
 
 
 class QLeverSPARQL_Store(
-        _SPARQL_Store,
+        _CoreSPARQL_Store,
         store_name='sparql-qlever',
         store_description='SPARQL store with QLever backend'
 ):
@@ -67,7 +67,7 @@ class QLeverSPARQL_Store(
        kwargs: Other keyword arguments.
     """
 
-    class QLeverBackend(_SPARQL_Store.LocalBackend):
+    class QLeverBackend(_CoreSPARQL_Store.LocalBackend):
         """QLever backend.
 
         Parameters:
@@ -109,7 +109,7 @@ class QLeverSPARQL_Store(
         @override
         def _pre_init(
                 self,
-                store: _SPARQL_Store,
+                store: TCoreSPARQL_Store,
                 basename: str | None = None,
                 index_dir: TLocation | None = None,
                 rebuild_index: bool | None = None,
@@ -154,7 +154,7 @@ class QLeverSPARQL_Store(
                 self._temp_skolem_graph = None
 
         @override
-        def _post_init(self, store: _SPARQL_Store, **kwargs) -> None:
+        def _post_init(self, store: TCoreSPARQL_Store, **kwargs) -> None:
             basename = self._post_init_args['basename']
             index_dir = self._post_init_args['index_dir']
             index_builder_args = self._post_init_args['index_builder_args']

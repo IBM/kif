@@ -9,11 +9,11 @@ from ...compiler.sparql.results import SPARQL_Results, SPARQL_ResultsAsk
 from ...model import IRI, TGraph
 from ...typing import Any, BinaryIO, cast, override, TextIO, TypeAlias
 from . import jena_jpype
-from .sparql_core import _SPARQL_Store, TLocation
+from .sparql_core import _CoreSPARQL_Store, TCoreSPARQL_Store, TLocation
 
 
 class JenaSPARQL_Store(
-        _SPARQL_Store,
+        _CoreSPARQL_Store,
         store_name='sparql-jena',
         store_description='SPARQL store with Jena backend'
 ):
@@ -33,7 +33,7 @@ class JenaSPARQL_Store(
        kwargs: Other keyword arguments.
     """
 
-    class JenaBackend(_SPARQL_Store.LocalBackend):
+    class JenaBackend(_CoreSPARQL_Store.LocalBackend):
         """Jena backend.
 
         Parameters:
@@ -57,7 +57,7 @@ class JenaSPARQL_Store(
         _jena: jena_jpype.Jena
 
         @override
-        def _pre_init(self, store: _SPARQL_Store, **kwargs: Any) -> None:
+        def _pre_init(self, store: TCoreSPARQL_Store, **kwargs: Any) -> None:
             jena_home = IRI.check_optional(
                 kwargs.get('jena_home'), None, type(store), 'jena_home')
             try:

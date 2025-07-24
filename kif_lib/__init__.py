@@ -135,6 +135,7 @@ from .model import (
     VariablePattern,
     Variables,
 )
+from .searcher import Searcher
 from .store import Store
 
 __all__ = (
@@ -321,9 +322,11 @@ __all__ = (
     'Fingerprint',
     'Or',
 
-
     # model.filter
     'Filter',
+
+    # searcher
+    'Searcher',
 
     # store
     'Store',

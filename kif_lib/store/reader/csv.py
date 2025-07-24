@@ -16,11 +16,11 @@ from ...typing import (
     override,
     TextIO,
 )
-from .reader import Reader
+from .reader import Reader, TOptions
 
 
 class CSV_Reader(
-        Reader,
+        Reader[TOptions],
         store_name='csv-reader',
         store_description='CSV reader'
 ):
@@ -76,7 +76,7 @@ class CSV_Reader(
     def _filter_parse_unknown_arg(
             self,
             filter: Filter,
-            options: Reader.Options,
+            options: TOptions,
             arg: Reader.Source
     ) -> Iterator[Statement]:
         if isinstance(arg, self.DataFrame):

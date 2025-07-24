@@ -13,11 +13,11 @@ from ...model import TGraph
 from ...typing import Any, BinaryIO, ClassVar, override, TextIO, TypeAlias
 from . import rdfox_pipe
 from .httpx import HttpxSPARQL_Store
-from .sparql_core import _SPARQL_Store, TLocation
+from .sparql_core import _CoreSPARQL_Store, TCoreSPARQL_Store, TLocation
 
 
 class RDFoxSPARQL_Store(
-        _SPARQL_Store,
+        _CoreSPARQL_Store,
         store_name='sparql-rdfox',
         store_description='SPARQL store with RDFox backend'
 ):
@@ -37,7 +37,7 @@ class RDFoxSPARQL_Store(
        kwargs: Other keyword arguments.
     """
 
-    class RDFoxBackend(_SPARQL_Store.LocalBackend):
+    class RDFoxBackend(_CoreSPARQL_Store.LocalBackend):
         """RDFox backend.
 
         Parameters:
@@ -74,7 +74,7 @@ class RDFoxSPARQL_Store(
             return self._rdfox
 
         @override
-        def _pre_init(self, store: _SPARQL_Store, **kwargs: Any) -> None:
+        def _pre_init(self, store: TCoreSPARQL_Store, **kwargs: Any) -> None:
             if self._rdfox is None:
                 with self._lock:
                     try:

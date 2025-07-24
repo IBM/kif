@@ -11,7 +11,7 @@ from ...model import Filter, TGraph
 from ...typing import Any, BinaryIO, Optional, TextIO, TypeAlias
 from ..abc import Store
 from ..mixer import MixerStore
-from .sparql_core import _SPARQL_Store
+from .sparql_core import _CoreSPARQL_Store
 
 
 class RDF_Store(
@@ -36,7 +36,7 @@ class RDF_Store(
     """
 
     #: Type alias for RDFLib SPARQL store arguments.
-    Args: TypeAlias = _SPARQL_Store.LocalBackend.Args
+    Args: TypeAlias = _CoreSPARQL_Store.LocalBackend.Args
 
     def __init__(
             self,
@@ -106,7 +106,7 @@ class DBpediaRDF_Store(
     ) -> None:
         assert store_name == self.store_name
         if mapping is None:
-            mapping = _SPARQL_Store._dbpedia_mapping_constructor(
+            mapping = _CoreSPARQL_Store._dbpedia_mapping_constructor(
                 wikidata_properties=wikidata_properties)
         super().__init__(
             store_name, *args, format=format,
@@ -139,7 +139,7 @@ class PubChemRDF_Store(
     ) -> None:
         assert store_name == self.store_name
         if mapping is None:
-            mapping = _SPARQL_Store._pubchem_mapping_constructor(
+            mapping = _CoreSPARQL_Store._pubchem_mapping_constructor(
                 normalize_casrn=normalize_casrn)
         super().__init__(
             store_name, *args, format=format,
@@ -174,7 +174,7 @@ class WikidataRDF_Store(
     ) -> None:
         assert store_name == self.store_name
         if mapping is None:
-            mapping = _SPARQL_Store._wikidata_mapping_constructor(
+            mapping = _CoreSPARQL_Store._wikidata_mapping_constructor(
                 blazegraph=False,  # force
                 strict=strict,
                 truthy=truthy,

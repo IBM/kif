@@ -56,8 +56,9 @@ from ...typing import (
     TypeVar,
     Union,
 )
-from ..abc import Store
+from ..abc import Store, StoreOptions, TOptions
 
+_TOptions = TypeVar('_TOptions', bound=StoreOptions)
 T = TypeVar('T')
 TLocation: TypeAlias = pathlib.PurePath | str
 
@@ -65,9 +66,9 @@ _logger: Final[logging.Logger] = logging.getLogger(__name__)
 _py_filter = filter
 
 
-class _SPARQL_Store(
-        Store,
-        store_name='_sparql',
+class _CoreSPARQL_Store(
+        Store[TOptions],
+        store_name='_core_sparql',
         store_description='SPARQL store (core)'
 ):
     """SPARQL store (core).
@@ -92,10 +93,10 @@ class _SPARQL_Store(
         )
 
         #: The parent SPARQL store.
-        _store: _SPARQL_Store
+        _store: _CoreSPARQL_Store
 
-        def __init__(self, store: _SPARQL_Store) -> None:
-            self._store = store
+        def __init__(self, store: _CoreSPARQL_Store[_TOptions]) -> None:
+            self._store = store  # type: ignore
 
         def close(self) -> None:
             """Closes backend."""
@@ -105,7 +106,7 @@ class _SPARQL_Store(
             pass
 
         async def aclose(self) -> None:
-            """Async version of :meth:`_SPARQL_Store.Backend.close()`."""
+            """Async version of :meth:`_CoreSPARQL_Store.Backend.close()`."""
             await self._aclose()
 
         async def _aclose(self) -> None:
@@ -127,7 +128,7 @@ class _SPARQL_Store(
             return cast(SPARQL_ResultsAsk, self._select(query))
 
         async def aask(self, query: str) -> SPARQL_ResultsAsk:
-            """Async version of :meth:`_SPARQL_Store.Backend.ask`."""
+            """Async version of :meth:`_CoreSPARQL_Store.Backend.ask`."""
             _logger.debug('%s()\n%s', self.aask.__qualname__, query)
             return await self._aask(query)
 
@@ -152,7 +153,7 @@ class _SPARQL_Store(
             raise NotImplementedError
 
         async def aselect(self, query: str) -> SPARQL_Results:
-            """Async version of :meth:`_SPARQL_Store.Backend.select`."""
+            """Async version of :meth:`_CoreSPARQL_Store.Backend.select`."""
             _logger.debug('%s()\n%s', self.aselect.__qualname__, query)
             return await self._aselect(query)
 
@@ -193,7 +194,7 @@ class _SPARQL_Store(
 
         def __init__(
                 self,
-                store: _SPARQL_Store,
+                store: _CoreSPARQL_Store[_TOptions],
                 *args: Args,
                 format: str | None = None,
                 location: str | None = None,
@@ -244,10 +245,17 @@ class _SPARQL_Store(
             self._post_init(store)
 
         @abc.abstractmethod
-        def _pre_init(self, store: _SPARQL_Store, **kwargs: Any) -> None:
+        def _pre_init(
+                self,
+                store: _CoreSPARQL_Store[_TOptions],
+                **kwargs: Any
+        ) -> None:
             raise NotImplementedError
 
-        def _post_init(self, store: _SPARQL_Store) -> None:
+        def _post_init(
+                self,
+                store: _CoreSPARQL_Store[_TOptions]
+        ) -> None:
             pass
 
         def _load_arg(self, arg: Args, format: str | None = None) -> None:
@@ -313,7 +321,7 @@ class _SPARQL_Store(
             self,
             store_name: str,
             mapping: SPARQL_Mapping,
-            backend: type[_SPARQL_Store.Backend],
+            backend: type[_CoreSPARQL_Store.Backend],
             *args: Any,
             **kwargs: Any
     ) -> None:
@@ -342,11 +350,11 @@ class _SPARQL_Store(
 # -- Backend ---------------------------------------------------------------
 
     #: SPARQL store backend.
-    _backend: _SPARQL_Store.Backend | None
+    _backend: _CoreSPARQL_Store.Backend | None
 
     def _init_backend(
             self,
-            backend: type[_SPARQL_Store.Backend],
+            backend: type[_CoreSPARQL_Store.Backend],
             args: Sequence[Any],
             kwargs: Mapping[str, Any],
             function: Location | None = None,
@@ -355,14 +363,14 @@ class _SPARQL_Store(
     ) -> None:
         backend = KIF_Object._check_arg_issubclass(
             backend, self.Backend, function, name, position)
-        self._backend = backend(self, *args, **kwargs)
+        self._backend = backend(self, *args, **kwargs)  # type: ignore
 
     @property
-    def backend(self) -> _SPARQL_Store.Backend:
+    def backend(self) -> _CoreSPARQL_Store.Backend:
         """The backend of SPARQL store."""
         return self.get_backend()
 
-    def get_backend(self) -> _SPARQL_Store.Backend:
+    def get_backend(self) -> _CoreSPARQL_Store.Backend:
         """Gets the backend of SPARQL store.
 
         Returns:
@@ -471,14 +479,14 @@ class _SPARQL_Store(
 # -- Ask -------------------------------------------------------------------
 
     @override
-    def _ask(self, filter: Filter, options: Store.Options) -> bool:
+    def _ask(self, filter: Filter, options: TOptions) -> bool:
         it = self._build_ask_query_stream_from_filter(filter, options)
         return any(
             self._parse_ask_results(self.backend.ask(str(query.ask())))
             for query in it)
 
     @override
-    async def _aask(self, filter: Filter, options: Store.Options) -> bool:
+    async def _aask(self, filter: Filter, options: TOptions) -> bool:
         it = list(self._build_ask_query_stream_from_filter(filter, options))
         tasks = (
             asyncio.ensure_future(self.backend.aask(str(query.ask())))
@@ -490,7 +498,7 @@ class _SPARQL_Store(
     def _build_ask_query_stream_from_filter(
             self,
             filter: Filter,
-            options: Store.Options
+            options: TOptions
     ) -> Iterator[SPARQL_FilterCompiler.Query]:
         compiler, _, _ = self._compile_filter(
             filter, options, SPARQL_FilterCompiler.Projection.ALL)
@@ -503,41 +511,41 @@ class _SPARQL_Store(
 # -- Count -----------------------------------------------------------------
 
     @override
-    def _count(self, filter: Filter, options: Store.Options) -> int:
+    def _count(self, filter: Filter, options: TOptions) -> int:
         return self._count_with_projection(
             filter, options, SPARQL_FilterCompiler.Projection.ALL)
 
     @override
-    def _count_s(self, filter: Filter, options: Store.Options) -> int:
+    def _count_s(self, filter: Filter, options: TOptions) -> int:
         return self._count_with_projection(
             filter, options, SPARQL_FilterCompiler.Projection.SUBJECT)
 
     @override
-    def _count_p(self, filter: Filter, options: Store.Options) -> int:
+    def _count_p(self, filter: Filter, options: TOptions) -> int:
         return self._count_with_projection(
             filter, options, SPARQL_FilterCompiler.Projection.PROPERTY)
 
     @override
-    def _count_v(self, filter: Filter, options: Store.Options) -> int:
+    def _count_v(self, filter: Filter, options: TOptions) -> int:
         return self._count_with_projection(
             filter, options, SPARQL_FilterCompiler.Projection.VALUE)
 
     @override
-    def _count_sp(self, filter: Filter, options: Store.Options) -> int:
+    def _count_sp(self, filter: Filter, options: TOptions) -> int:
         return self._count_with_projection(
             filter, options,
             SPARQL_FilterCompiler.Projection.SUBJECT
             | SPARQL_FilterCompiler.Projection.PROPERTY)
 
     @override
-    def _count_sv(self, filter: Filter, options: Store.Options) -> int:
+    def _count_sv(self, filter: Filter, options: TOptions) -> int:
         return self._count_with_projection(
             filter, options,
             SPARQL_FilterCompiler.Projection.SUBJECT
             | SPARQL_FilterCompiler.Projection.VALUE)
 
     @override
-    def _count_pv(self, filter: Filter, options: Store.Options) -> int:
+    def _count_pv(self, filter: Filter, options: TOptions) -> int:
         return self._count_with_projection(
             filter, options,
             SPARQL_FilterCompiler.Projection.PROPERTY
@@ -546,7 +554,7 @@ class _SPARQL_Store(
     def _count_with_projection(
             self,
             filter: Filter,
-            options: Store.Options,
+            options: TOptions,
             projection: SPARQL_FilterCompiler.Projection
     ) -> int:
         it = self._build_count_query_stream_from_filter(
@@ -557,41 +565,41 @@ class _SPARQL_Store(
             for count, query in it)
 
     @override
-    async def _acount(self, filter: Filter, options: Store.Options) -> int:
+    async def _acount(self, filter: Filter, options: TOptions) -> int:
         return await self._acount_with_projection(
             filter, options, SPARQL_FilterCompiler.Projection.ALL)
 
     @override
-    async def _acount_s(self, filter: Filter, options: Store.Options) -> int:
+    async def _acount_s(self, filter: Filter, options: TOptions) -> int:
         return await self._acount_with_projection(
             filter, options, SPARQL_FilterCompiler.Projection.SUBJECT)
 
     @override
-    async def _acount_p(self, filter: Filter, options: Store.Options) -> int:
+    async def _acount_p(self, filter: Filter, options: TOptions) -> int:
         return await self._acount_with_projection(
             filter, options, SPARQL_FilterCompiler.Projection.PROPERTY)
 
     @override
-    async def _acount_v(self, filter: Filter, options: Store.Options) -> int:
+    async def _acount_v(self, filter: Filter, options: TOptions) -> int:
         return await self._acount_with_projection(
             filter, options, SPARQL_FilterCompiler.Projection.VALUE)
 
     @override
-    async def _acount_sp(self, filter: Filter, options: Store.Options) -> int:
+    async def _acount_sp(self, filter: Filter, options: TOptions) -> int:
         return await self._acount_with_projection(
             filter, options,
             SPARQL_FilterCompiler.Projection.SUBJECT
             | SPARQL_FilterCompiler.Projection.PROPERTY)
 
     @override
-    async def _acount_sv(self, filter: Filter, options: Store.Options) -> int:
+    async def _acount_sv(self, filter: Filter, options: TOptions) -> int:
         return await self._acount_with_projection(
             filter, options,
             SPARQL_FilterCompiler.Projection.SUBJECT
             | SPARQL_FilterCompiler.Projection.VALUE)
 
     @override
-    async def _acount_pv(self, filter: Filter, options: Store.Options) -> int:
+    async def _acount_pv(self, filter: Filter, options: TOptions) -> int:
         return await self._acount_with_projection(
             filter, options,
             SPARQL_FilterCompiler.Projection.PROPERTY
@@ -600,7 +608,7 @@ class _SPARQL_Store(
     async def _acount_with_projection(
             self,
             filter: Filter,
-            options: Store.Options,
+            options: TOptions,
             projection: SPARQL_FilterCompiler.Projection
     ) -> int:
         it = list(self._build_count_query_stream_from_filter(
@@ -616,7 +624,7 @@ class _SPARQL_Store(
     def _build_count_query_stream_from_filter(
             self,
             filter: Filter,
-            options: Store.Options,
+            options: TOptions,
             projection: SPARQL_FilterCompiler.Projection
     ) -> Iterator[tuple[SPARQL_FilterCompiler.Query.Variable,
                         SPARQL_FilterCompiler.Query]]:
@@ -651,7 +659,7 @@ class _SPARQL_Store(
     def _filter(
             self,
             filter: Filter,
-            options: Store.Options
+            options: TOptions
     ) -> Iterator[Statement]:
         return cast(Iterator[Statement], self._filter_with_projection(
             filter, options, SPARQL_FilterCompiler.Projection.ALL))
@@ -660,7 +668,7 @@ class _SPARQL_Store(
     def _filter_s(
             self,
             filter: Filter,
-            options: Store.Options
+            options: TOptions
     ) -> Iterator[Entity]:
         return cast(Iterator[Entity], self._filter_with_projection(
             filter, options, SPARQL_FilterCompiler.Projection.SUBJECT))
@@ -669,7 +677,7 @@ class _SPARQL_Store(
     def _filter_p(
             self,
             filter: Filter,
-            options: Store.Options
+            options: TOptions
     ) -> Iterator[Property]:
         return cast(Iterator[Property], self._filter_with_projection(
             filter, options, SPARQL_FilterCompiler.Projection.PROPERTY))
@@ -678,7 +686,7 @@ class _SPARQL_Store(
     def _filter_v(
             self,
             filter: Filter,
-            options: Store.Options
+            options: TOptions
     ) -> Iterator[Value]:
         return cast(Iterator[Value], self._filter_with_projection(
             filter, options, SPARQL_FilterCompiler.Projection.VALUE))
@@ -687,7 +695,7 @@ class _SPARQL_Store(
     def _filter_sp(
             self,
             filter: Filter,
-            options: Store.Options
+            options: TOptions
     ) -> Iterator[ValuePair[Entity, Property]]:
         return cast(
             Iterator[ValuePair[Entity, Property]],
@@ -700,7 +708,7 @@ class _SPARQL_Store(
     def _filter_sv(
             self,
             filter: Filter,
-            options: Store.Options
+            options: TOptions
     ) -> Iterator[ValuePair[Entity, Value]]:
         return cast(
             Iterator[ValuePair[Entity, Value]],
@@ -713,7 +721,7 @@ class _SPARQL_Store(
     def _filter_pv(
             self,
             filter: Filter,
-            options: Store.Options
+            options: TOptions
     ) -> Iterator[ValueSnak]:
         return cast(Iterator[ValueSnak], self._filter_with_projection(
             filter, options,
@@ -723,7 +731,7 @@ class _SPARQL_Store(
     def _filter_with_projection(
             self,
             filter: Filter,
-            options: Store.Options,
+            options: TOptions,
             projection: SPARQL_FilterCompiler.Projection
     ) -> Iterator[ClosedTerm]:
         compiler, _, variable = self._compile_filter(
@@ -813,7 +821,7 @@ class _SPARQL_Store(
     def _afilter(
             self,
             filter: Filter,
-            options: Store.Options
+            options: TOptions
     ) -> AsyncIterator[Statement]:
         return cast(AsyncIterator[Statement], self._afilter_with_projection(
             filter, options, SPARQL_FilterCompiler.Projection.ALL))
@@ -822,7 +830,7 @@ class _SPARQL_Store(
     def _afilter_s(
             self,
             filter: Filter,
-            options: Store.Options
+            options: TOptions
     ) -> AsyncIterator[Entity]:
         return cast(AsyncIterator[Entity], self._afilter_with_projection(
             filter, options, SPARQL_FilterCompiler.Projection.SUBJECT))
@@ -831,7 +839,7 @@ class _SPARQL_Store(
     def _afilter_p(
             self,
             filter: Filter,
-            options: Store.Options
+            options: TOptions
     ) -> AsyncIterator[Property]:
         return cast(AsyncIterator[Property], self._afilter_with_projection(
             filter, options, SPARQL_FilterCompiler.Projection.PROPERTY))
@@ -840,7 +848,7 @@ class _SPARQL_Store(
     def _afilter_v(
             self,
             filter: Filter,
-            options: Store.Options
+            options: TOptions
     ) -> AsyncIterator[Value]:
         return cast(AsyncIterator[Value], self._afilter_with_projection(
             filter, options, SPARQL_FilterCompiler.Projection.VALUE))
@@ -849,7 +857,7 @@ class _SPARQL_Store(
     def _afilter_sp(
             self,
             filter: Filter,
-            options: Store.Options
+            options: TOptions
     ) -> AsyncIterator[ValuePair[Entity, Property]]:
         return cast(
             AsyncIterator[ValuePair[Entity, Property]],
@@ -862,7 +870,7 @@ class _SPARQL_Store(
     def _afilter_sv(
             self,
             filter: Filter,
-            options: Store.Options
+            options: TOptions
     ) -> AsyncIterator[ValuePair[Entity, Value]]:
         return cast(
             AsyncIterator[ValuePair[Entity, Value]],
@@ -875,7 +883,7 @@ class _SPARQL_Store(
     def _afilter_pv(
             self,
             filter: Filter,
-            options: Store.Options
+            options: TOptions
     ) -> AsyncIterator[ValueSnak]:
         return cast(
             AsyncIterator[ValueSnak],
@@ -887,7 +895,7 @@ class _SPARQL_Store(
     async def _afilter_with_projection(
             self,
             filter: Filter,
-            options: Store.Options,
+            options: TOptions,
             projection: SPARQL_FilterCompiler.Projection
     ) -> AsyncIterator[ClosedTerm]:
         compiler, _, variable = self._compile_filter(
@@ -939,7 +947,7 @@ class _SPARQL_Store(
     def _compile_filter(
             self,
             filter: Filter,
-            options: Store.Options,
+            options: TOptions,
             projection: SPARQL_FilterCompiler.Projection,
             _projection_v_sv_pv: Set[SPARQL_FilterCompiler.Projection] = {
                 SPARQL_FilterCompiler.Projection.VALUE,
@@ -1003,3 +1011,6 @@ class _SPARQL_Store(
                 yield from result['results']['bindings']  # type: ignore
             except KeyError:
                 pass
+
+
+TCoreSPARQL_Store: TypeAlias = _CoreSPARQL_Store[_TOptions]

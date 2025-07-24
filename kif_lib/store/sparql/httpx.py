@@ -12,13 +12,13 @@ from ...compiler.sparql import SPARQL_Mapping
 from ...compiler.sparql.results import SPARQL_Results
 from ...model import IRI, KIF_Object, T_IRI
 from ...typing import Any, cast, Final, Mapping, override, TypeAlias
-from .sparql_core import _SPARQL_Store
+from .sparql_core import _CoreSPARQL_Store, TCoreSPARQL_Store
 
 _logger: Final[logging.Logger] = logging.getLogger(__name__)
 
 
 class HttpxSPARQL_Store(
-        _SPARQL_Store,
+        _CoreSPARQL_Store,
         store_name='sparql-httpx',
         store_description='SPARQL store with httpx backend'
 ):
@@ -32,7 +32,7 @@ class HttpxSPARQL_Store(
        kwargs: Other keyword arguments.
     """
 
-    class HttpxBackend(_SPARQL_Store.Backend):
+    class HttpxBackend(_CoreSPARQL_Store.Backend):
         """Httpx backend.
 
         Parameters:
@@ -74,7 +74,7 @@ class HttpxSPARQL_Store(
 
         def __init__(
                 self,
-                store: _SPARQL_Store,
+                store: TCoreSPARQL_Store,
                 iri: T_IRI,
                 *,
                 headers: HTTP_Headers | None = None,

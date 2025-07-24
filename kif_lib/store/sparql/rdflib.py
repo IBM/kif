@@ -10,11 +10,11 @@ from ...compiler.sparql import SPARQL_Mapping
 from ...compiler.sparql.results import SPARQL_Results
 from ...model import TGraph
 from ...typing import Any, BinaryIO, cast, override, TextIO, TypeAlias
-from .sparql_core import _SPARQL_Store, TLocation
+from .sparql_core import _CoreSPARQL_Store, TCoreSPARQL_Store, TLocation
 
 
 class RDFLibSPARQL_Store(
-        _SPARQL_Store,
+        _CoreSPARQL_Store,
         store_name='sparql-rdflib',
         store_description='SPARQL store with RDFLib backend'
 ):
@@ -34,7 +34,7 @@ class RDFLibSPARQL_Store(
        kwargs: Other keyword arguments.
     """
 
-    class RDFLibBackend(_SPARQL_Store.LocalBackend):
+    class RDFLibBackend(_CoreSPARQL_Store.LocalBackend):
         """RDFLib backend.
 
         Parameters:
@@ -58,7 +58,7 @@ class RDFLibSPARQL_Store(
         _rdflib_graph: rdflib.Graph
 
         @override
-        def _pre_init(self, store: _SPARQL_Store, **kwargs: Any) -> None:
+        def _pre_init(self, store: TCoreSPARQL_Store, **kwargs: Any) -> None:
             self._rdflib_graph = rdflib.Graph()
 
         @override

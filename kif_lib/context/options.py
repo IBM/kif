@@ -9,6 +9,7 @@ from typing import TYPE_CHECKING
 from ..codec.options import CodecOptions
 from ..compiler.options import CompilerOptions
 from ..model.options import ModelOptions
+from ..searcher.options import SearcherOptions
 from ..store.options import StoreOptions
 from ..typing import Any, ClassVar, Iterable
 from ..vocabulary.options import VocabularyOptions
@@ -82,6 +83,10 @@ class Options(Section, name='kif'):
 
     #: Model options.
     model: ModelOptions = dataclasses.field(default_factory=ModelOptions)
+
+    #: Searcher options.
+    searcher: SearcherOptions = dataclasses.field(
+        default_factory=SearcherOptions)
 
     #: Store options.
     store: StoreOptions = dataclasses.field(default_factory=StoreOptions)

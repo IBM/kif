@@ -71,9 +71,9 @@ class Test(_Test):
             section=self.section,
             name='sync_flags',
             values=[
-                (0, MixerStore.SyncFlags(0)),
-                (MixerStore.SyncFlags.DEBUG | MixerStore.SyncFlags.LIMIT,
-                 MixerStore.SyncFlags.DEBUG | MixerStore.SyncFlags.LIMIT)],
+                (0, MixerStore._mk_sync_flags(0)),
+                (MixerStore.DEBUG | MixerStore.LIMIT,
+                 MixerStore.DEBUG | MixerStore.LIMIT)],
             type_error={})
 
 

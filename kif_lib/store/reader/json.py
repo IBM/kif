@@ -5,11 +5,11 @@ from __future__ import annotations
 
 from ...model import Statement
 from ...typing import Any, Iterable, Iterator, override, TextIO
-from .reader import Reader
+from .reader import Reader, TOptions
 
 
 class JSON_Reader(
-        Reader,
+        Reader[TOptions],
         store_name='json-reader',
         store_description='JSON reader'
 ):

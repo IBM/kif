@@ -18,6 +18,7 @@ from .sparql import (
     DBpediaSPARQL_Store,
     PubChemSPARQL_Store,
     SPARQL_Store,
+    SPARQL_StoreOptions,
     WDQS_Store,
     WikidataSPARQL_Store,
 )
@@ -34,6 +35,7 @@ __all__ = (
     'RDFLibSPARQL_Store',
     'RDFoxSPARQL_Store',
     'SPARQL_Store',
+    'SPARQL_StoreOptions',
     'WDQS_Store',
     'WikidataRDF_Store',
     'WikidataSPARQL_Store',

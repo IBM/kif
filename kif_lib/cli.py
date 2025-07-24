@@ -51,6 +51,7 @@ from .model import (
     ValueSnak,
 )
 from .model.object import Decoder, Encoder
+from .searcher import Searcher
 from .store import Store
 from .typing import (
     Any,
@@ -181,6 +182,15 @@ def list_options(name: str, describe: bool | None = None) -> None:
         else:
             click.echo(ctx.get_option_by_name(name))
     _run(_list_options)
+
+
+@cli.command(help='Show the available searchers and exit.')
+def list_searchers() -> None:
+    def _list_searchers() -> None:
+        _list_name_description_pairs(
+            ((k, v.searcher_description)
+             for k, v in Searcher.registry.items()))
+    _run(_list_searchers)
 
 
 @cli.command(help='Show the available stores and exit.')
