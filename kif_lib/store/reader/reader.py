@@ -474,8 +474,10 @@ class Reader(
             filter: Filter,
             options: TOptions
     ) -> AsyncIterator[Statement]:
-        limit =\
-            options.limit if options.limit is not None else options.max_limit
+        limit = options.limit
+        if limit is None:
+            limit = options.max_limit
+        assert limit is not None
         parse = functools.partial(self._filter_parse_arg, filter, options)
 
         async def task(

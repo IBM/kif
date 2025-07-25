@@ -135,7 +135,7 @@ class Lexeme(
             dcat = cat._display(language, format, context)
             dlan = lan._display(language, format, context)
             return (self._display_as_link(self.iri.content, dlem, format)
-                    + f' ({dlan} {dcat})')
+                    + f' ({dlan}, {dcat})')
         else:
             return super()._display(language, format, context)  # fallback
 

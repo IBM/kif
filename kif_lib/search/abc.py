@@ -9,7 +9,7 @@ import functools
 from .. import itertools
 from ..context import Context
 from ..engine import _EngineOptions, Engine, EngineOptions
-from ..model import Item, KIF_Object, String, TTextLanguage
+from ..model import Item, KIF_Object, Lexeme, Property, String, TTextLanguage
 from ..typing import (
     Any,
     Callable,
@@ -26,6 +26,7 @@ from ..typing import (
 )
 
 T = TypeVar('T')
+at_property = property
 
 
 @dataclasses.dataclass
@@ -100,7 +101,7 @@ class _SearchOptions(EngineOptions):
         self.language = cast(str, kwargs.get(
             '_language', self.getenv_optional_str(*self._v_language)))
 
-    @property
+    @at_property
     def language(self) -> str | None:
         """The language option."""
         return self.get_language()
@@ -258,7 +259,7 @@ class Search(Engine[TOptions]):
 
 # -- Language --------------------------------------------------------------
 
-    @property
+    @at_property
     def default_language(self) -> str | None:
         """The default value for :attr:`Search.language`."""
         return self.get_default_language()
@@ -271,7 +272,7 @@ class Search(Engine[TOptions]):
         """
         return self.get_default_options().language
 
-    @property
+    @at_property
     def language(self) -> str | None:
         """The language of search."""
         return self.get_language()
@@ -421,6 +422,8 @@ class Search(Engine[TOptions]):
             function: Location | None = None,
             **kwargs: Any
     ) -> T:
+        if language is None:
+            language = self.get_context(context).options.language
         with self(
                 debug=debug,
                 language=language,
@@ -438,3 +441,159 @@ class Search(Engine[TOptions]):
             function: Location | None = None
     ) -> str:
         return KIF_Object._check_arg_str(search, function, 'search', 1)
+
+# -- Lexeme search -------------------------------------------------------
+
+    def lexeme(
+            self,
+            search: str,
+            debug: bool | None = None,
+            language: TTextLanguage | None = None,
+            limit: int | None = None,
+            lookahead: int | None = None,
+            page_size: int | None = None,
+            timeout: float | None = None,
+            context: Context | None = None,
+            **kwargs: Any
+    ) -> Iterator[Lexeme]:
+        """Searches for lexemes matching search string.
+
+        Parameters:
+           search: Search string.
+           debug: Whether to enable debugging mode.
+           language: Language of search.
+           limit: Limit (maximum number) of responses.
+           lookahead: Number of pages to lookahead asynchronously.
+           page_size: Page size of paginated responses.
+           timeout: Timeout of responses (in seconds).
+           context: KIF context.
+           kwargs: Other keyword arguments.
+
+        Returns:
+           An iterator of lexemes matching search string.
+        """
+        return self._check_search_with_options_and_run(
+            functools.partial(self._search_x_tail, self._lexeme),
+            search, debug, language, limit, lookahead, page_size, timeout,
+            context, self.lexeme, **kwargs)
+
+    def lexeme_metadata(
+            self,
+            search: str,
+            debug: bool | None = None,
+            language: TTextLanguage | None = None,
+            limit: int | None = None,
+            lookahead: int | None = None,
+            page_size: int | None = None,
+            timeout: float | None = None,
+            context: Context | None = None,
+            **kwargs: Any
+    ) -> Iterator[tuple[Lexeme, TMetadata]]:
+        """Searches for lexeme-metadata pairs matching search string.
+
+        Parameters:
+           search: Search string.
+           debug: Whether to enable debugging mode.
+           language: Language of search.
+           limit: Limit (maximum number) of responses.
+           lookahead: Number of pages to lookahead asynchronously.
+           page_size: Page size of paginated responses.
+           timeout: Timeout of responses (in seconds).
+           context: KIF context.
+           kwargs: Other keyword arguments.
+
+        Returns:
+           An iterator of "(lexeme, metadata)" pairs matching search string.
+        """
+        return self._check_search_with_options_and_run(
+            functools.partial(self._search_x_tail, self._lexeme_metadata),
+            search, debug, language, limit, lookahead, page_size, timeout,
+            context, self.lexeme_metadata, **kwargs)
+
+    def _lexeme(self, search: str, options: TOptions) -> Iterator[Lexeme]:
+        return (t[0] for t in self._lexeme_metadata(search, options))
+
+    def _lexeme_metadata(
+            self,
+            search: str,
+            options: TOptions
+    ) -> Iterator[tuple[Lexeme, TMetadata]]:
+        return iter(())
+
+# -- Property search -------------------------------------------------------
+
+    def property(
+            self,
+            search: str,
+            debug: bool | None = None,
+            language: TTextLanguage | None = None,
+            limit: int | None = None,
+            lookahead: int | None = None,
+            page_size: int | None = None,
+            timeout: float | None = None,
+            context: Context | None = None,
+            **kwargs: Any
+    ) -> Iterator[Property]:
+        """Searches for properties matching search string.
+
+        Parameters:
+           search: Search string.
+           debug: Whether to enable debugging mode.
+           language: Language of search.
+           limit: Limit (maximum number) of responses.
+           lookahead: Number of pages to lookahead asynchronously.
+           page_size: Page size of paginated responses.
+           timeout: Timeout of responses (in seconds).
+           context: KIF context.
+           kwargs: Other keyword arguments.
+
+        Returns:
+           An iterator of properties matching search string.
+        """
+        return self._check_search_with_options_and_run(
+            functools.partial(self._search_x_tail, self._property),
+            search, debug, language, limit, lookahead, page_size, timeout,
+            context, self.property, **kwargs)
+
+    def property_metadata(
+            self,
+            search: str,
+            debug: bool | None = None,
+            language: TTextLanguage | None = None,
+            limit: int | None = None,
+            lookahead: int | None = None,
+            page_size: int | None = None,
+            timeout: float | None = None,
+            context: Context | None = None,
+            **kwargs: Any
+    ) -> Iterator[tuple[Property, TMetadata]]:
+        """Searches for property-metadata pairs matching search string.
+
+        Parameters:
+           search: Search string.
+           debug: Whether to enable debugging mode.
+           language: Language of search.
+           limit: Limit (maximum number) of responses.
+           lookahead: Number of pages to lookahead asynchronously.
+           page_size: Page size of paginated responses.
+           timeout: Timeout of responses (in seconds).
+           context: KIF context.
+           kwargs: Other keyword arguments.
+
+        Returns:
+           An iterator of "(property, metadata)" pairs matching search string.
+        """
+        return self._check_search_with_options_and_run(
+            functools.partial(self._search_x_tail, self._property_metadata),
+            search, debug, language, limit, lookahead, page_size, timeout,
+            context, self.property_metadata, **kwargs)
+
+    def _property(self, search: str, options: TOptions) -> Iterator[Property]:
+        return (t[0] for t in self._property_metadata(search, options))
+
+    def _property_metadata(
+            self,
+            search: str,
+            options: TOptions
+    ) -> Iterator[tuple[Property, TMetadata]]:
+        return iter(())

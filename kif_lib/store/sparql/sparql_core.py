@@ -739,10 +739,10 @@ class _CoreSPARQL_Store(
         push = compiler.build_results()
         select = functools.partial(
             self._filter_with_projection_select, compiler, projection)
-        if options.limit is not None:
-            limit = options.limit
-        else:
+        limit = options.limit
+        if limit is None:
             limit = options.max_limit
+        assert limit is not None
         total_count = 0
 
         def process(
@@ -903,10 +903,10 @@ class _CoreSPARQL_Store(
         push = compiler.build_results()
         select = functools.partial(
             self._filter_with_projection_select, compiler, projection)
-        if options.limit is not None:
-            limit = options.limit
-        else:
+        limit = options.limit
+        if limit is None:
             limit = options.max_limit
+        assert limit is not None
         total_count = 0
 
         async def aprocess(

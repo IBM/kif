@@ -134,8 +134,10 @@ class MemoryStore(
             filter: Filter,
             options: TOptions
     ) -> AsyncIterator[Statement]:
-        limit =\
-            options.limit if options.limit is not None else options.max_limit
+        limit = options.limit
+        if limit is None:
+            limit = options.max_limit
+        assert limit is not None
         batches = itertools.batched(
             self._filter_it_statements(filter), options.page_size)
         return itertools.amix(
