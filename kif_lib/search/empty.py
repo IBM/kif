@@ -19,6 +19,9 @@ class EmptySearchOptions(SearchOptions, name='empty'):
     _v_max_limit: ClassVar[tuple[Iterable[str], int | None]] =\
         (('KIF_EMPTY_SEARCH_MAX_LIMIT',), None)
 
+    _v_language: ClassVar[tuple[Iterable[str], str | None]] =\
+        (('KIF_EMPTY_SEARCH_LANGUAGE',), None)
+
     _v_limit: ClassVar[tuple[Iterable[str], int | None]] =\
         (('KIF_EMPTY_SEARCH_LIMIT',), None)
 

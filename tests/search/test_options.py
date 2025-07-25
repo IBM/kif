@@ -26,6 +26,19 @@ class Test(OptionsTestCase):
             name='debug',
             envvars=envvars)
 
+    def test_language(self) -> None:
+        self._test_language()
+
+    def _test_language(
+            self,
+            envvars: Sequence[str] = ('KIF_SEARCH_LANGUAGE',)
+    ) -> None:
+        self._test_option_str(
+            section=self.section,
+            name='language',
+            envvars=envvars,
+            optional=True)
+
     def test_max_limit(self) -> None:
         self._test_max_limit()
 

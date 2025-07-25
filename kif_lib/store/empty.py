@@ -5,7 +5,7 @@ from __future__ import annotations
 
 import dataclasses
 
-from ..typing import Any, ClassVar, Iterable, TypeAlias
+from ..typing import Any, ClassVar, Iterable
 from .abc import Store, StoreOptions
 
 
@@ -56,8 +56,6 @@ class EmptyStoreOptions(StoreOptions, name='empty'):
 
 
 # == Empty store ===========================================================
-
-TOptions: TypeAlias = EmptyStoreOptions
 
 
 class EmptyStore(

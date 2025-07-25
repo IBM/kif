@@ -24,6 +24,10 @@ class Test(_Test):
         self._test_max_limit(['KIF_EMPTY_SEARCH_MAX_LIMIT'])
 
     @override
+    def test_language(self) -> None:
+        self._test_language(['KIF_EMPTY_SEARCH_LANGUAGE'])
+
+    @override
     def test_limit(self) -> None:
         self._test_limit(['KIF_EMPTY_SEARCH_LIMIT'])
 

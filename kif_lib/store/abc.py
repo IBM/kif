@@ -581,7 +581,7 @@ TOptions = TypeVar('TOptions', bound=StoreOptions, default=StoreOptions)
 
 
 class Store(Engine[TOptions]):
-    """Abstract base class for stores."""
+    """Abstract base class for store engines."""
 
     #: The store plugin registry.
     registry: ClassVar[Mapping[str, type[Store]]] = {}  # pyright: ignore
@@ -657,7 +657,20 @@ class Store(Engine[TOptions]):
            context: Context.
            kwargs: Other keyword arguments.
         """
-        super().__init__(*args, debug=debug, context=context, **kwargs)
+        super().__init__(
+            *args,
+            base_filter=base_filter,
+            debug=debug,
+            distinct=distinct,
+            distinct_window_size=distinct_window_size,
+            extra_references=extra_references,
+            limit=limit,
+            lookahead=lookahead,
+            omega=omega,
+            page_size=page_size,
+            timeout=timeout,
+            context=context,
+            **kwargs)
 
     @override
     def _update_options(self, **kwargs: Any) -> None:
@@ -684,7 +697,7 @@ class Store(Engine[TOptions]):
         """Gets the default value for :attr:`Store.base_filter`.
 
         Returns:
-           Filter.
+           Default filter.
         """
         return self.get_default_options().base_filter
 

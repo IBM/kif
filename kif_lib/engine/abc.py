@@ -807,6 +807,10 @@ class Engine(Generic[TOptions]):
             self,
             *args: Any,
             debug: bool | None = None,
+            limit: int | None = None,
+            lookahead: int | None = None,
+            page_size: int | None = None,
+            timeout: float | None = None,
             context: Context | None = None,
             **kwargs: Any
     ) -> None:
@@ -822,7 +826,13 @@ class Engine(Generic[TOptions]):
         """
         self._options = self.get_default_options(context)
         self._push_options()
-        self._update_options(debug=debug, **kwargs)
+        self._update_options(
+            debug=debug,
+            limit=limit,
+            lookahead=lookahead,
+            page_size=page_size,
+            timeout=timeout,
+            **kwargs)
 
     def __del__(self) -> None:
         self.close()
