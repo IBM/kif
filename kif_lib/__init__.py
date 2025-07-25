@@ -135,7 +135,7 @@ from .model import (
     VariablePattern,
     Variables,
 )
-from .searcher import Searcher
+from .search import Search
 from .store import Store
 
 __all__ = (
@@ -325,8 +325,8 @@ __all__ = (
     # model.filter
     'Filter',
 
-    # searcher
-    'Searcher',
+    # search
+    'Search',
 
     # store
     'Store',

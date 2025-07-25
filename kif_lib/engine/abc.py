@@ -28,8 +28,8 @@ from ..typing import (
     TypeVar,
 )
 
-T = TypeVar('T')
 S = TypeVar('S')
+T = TypeVar('T')
 
 
 @dataclasses.dataclass

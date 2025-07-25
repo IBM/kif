@@ -10,7 +10,7 @@ from ..codec.options import CodecOptions
 from ..compiler.options import CompilerOptions
 from ..engine.options import EngineOptions
 from ..model.options import ModelOptions
-from ..searcher.options import SearcherOptions
+from ..search.options import SearchOptions
 from ..store.options import StoreOptions
 from ..typing import Any, ClassVar, Iterable
 from ..vocabulary.options import VocabularyOptions
@@ -88,9 +88,8 @@ class Options(Section, name='kif'):
     #: Model options.
     model: ModelOptions = dataclasses.field(default_factory=ModelOptions)
 
-    #: Searcher options.
-    searcher: SearcherOptions = dataclasses.field(
-        default_factory=SearcherOptions)
+    #: Search options.
+    search: SearchOptions = dataclasses.field(default_factory=SearchOptions)
 
     #: Store options.
     store: StoreOptions = dataclasses.field(default_factory=StoreOptions)

@@ -3,10 +3,10 @@
 
 from __future__ import annotations
 
-from .abc import Searcher
-from .empty import EmptySearcher
+from .abc import Search
+from .empty import EmptySearch
 
 __all__ = (
-    'EmptySearcher',
-    'Searcher',
+    'EmptySearch',
+    'Search',
 )
