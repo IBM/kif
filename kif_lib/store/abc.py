@@ -9,7 +9,7 @@ import sys
 
 from .. import itertools
 from ..context import Context
-from ..engine import Engine, EngineOptions
+from ..engine import _EngineOptions, Engine, EngineOptions
 from ..model import (
     AnnotatedStatement,
     Entity,
@@ -41,13 +41,11 @@ from ..typing import (
     Iterator,
     Location,
     Mapping,
-    Optional,
     override,
     TypeVar,
 )
 
 at_property = property
-S = TypeVar('S')
 T = TypeVar('T')
 
 
@@ -56,13 +54,28 @@ class _StoreOptions(EngineOptions):
     """Base class for store options."""
 
     _v_debug: ClassVar[tuple[Iterable[str], bool | None]] =\
-        (('KIF_STORE_DEBUG',), EngineOptions.DEFAULT_DEBUG)
+        (('KIF_STORE_DEBUG',), None)
 
     _v_max_limit: ClassVar[tuple[Iterable[str], int | None]] =\
-        (('KIF_STORE_MAX_LIMIT',), EngineOptions.DEFAULT_MAX_LIMIT)
+        (('KIF_STORE_MAX_LIMIT',), None)
 
     _v_limit: ClassVar[tuple[Iterable[str], int | None]] =\
-        (('KIF_STORE_LIMIT',), EngineOptions.DEFAULT_LIMIT)
+        (('KIF_STORE_LIMIT',), None)
+
+    _v_lookahead: ClassVar[tuple[Iterable[str], int | None]] =\
+        (('KIF_STORE_LOOKAHEAD',), None)
+
+    _v_max_page_size: ClassVar[tuple[Iterable[str], int | None]] =\
+        (('KIF_STORE_MAX_PAGE_SIZE',), None)
+
+    _v_page_size: ClassVar[tuple[Iterable[str], int | None]] =\
+        (('KIF_STORE_PAGE_SIZE',), None)
+
+    _v_max_timeout: ClassVar[tuple[Iterable[str], float | None]] =\
+        (('KIF_STORE_MAX_TIMEOUT',), None)
+
+    _v_timeout: ClassVar[tuple[Iterable[str], float | None]] =\
+        (('KIF_STORE_TIMEOUT',), None)
 
     def __init__(self, **kwargs: Any) -> None:
         super().__init__(**kwargs)
@@ -71,15 +84,10 @@ class _StoreOptions(EngineOptions):
         self._init_distinct_window_size(kwargs)
         self._init_max_distinct_window_size(kwargs)
         self._init_extra_references(kwargs)
-        self._init_lookahead(kwargs)
         self._init_omega(kwargs)
-        self._init_max_page_size(kwargs)
-        self._init_page_size(kwargs)
-        self._init_max_timeout(kwargs)
-        self._init_timeout(kwargs)
 
     @override
-    def _get_parent_callback(self) -> EngineOptions:
+    def _get_parent_callback(self) -> _EngineOptions:
         return self.get_context().options.store
 
     # -- base_filter --
@@ -371,80 +379,6 @@ class _StoreOptions(EngineOptions):
         self._extra_references = ReferenceRecordSet.check(
             extra_references, function, name, position)
 
-    # -- lookahead --
-
-    @classmethod
-    def _check_lookahead(
-            cls,
-            arg: Any,
-            function: Location | None = None,
-            name: str | None = None,
-            position: int | None = None
-    ) -> int:
-        return max(cls._check_int(arg, function, name, position), 1)
-
-    @classmethod
-    def _check_optional_lookahead(
-            cls,
-            arg: Any | None,
-            default: Any | None = None,
-            function: Location | None = None,
-            name: str | None = None,
-            position: int | None = None
-    ) -> int | None:
-        return cls._do_check_optional(
-            cls._check_lookahead, arg, default, function, name, position)
-
-    #: The default value for the lookahead option.
-    DEFAULT_LOOKAHEAD: ClassVar[int] = 2
-
-    _v_lookahead: ClassVar[tuple[Iterable[str], int | None]] =\
-        (('KIF_STORE_LOOKAHEAD',), DEFAULT_LOOKAHEAD)
-
-    _lookahead: int | None
-
-    def _init_lookahead(self, kwargs: dict[str, Any]) -> None:
-        self.lookahead = cast(int, kwargs.get(
-            '_lookahead', self.getenv_optional_int(*self._v_lookahead)))
-
-    @property
-    def lookahead(self) -> int:
-        """The lookahead option."""
-        return self.get_lookahead()
-
-    @lookahead.setter
-    def lookahead(self, lookahead: TQuantity) -> None:
-        self.set_lookahead(lookahead)
-
-    def get_lookahead(self) -> int:
-        """Gets the lookahead option.
-
-        Returns:
-           Lookahead.
-        """
-        assert self._lookahead is not None
-        return self._lookahead
-
-    def set_lookahead(
-            self,
-            lookahead: TQuantity,
-            function: Location | None = None,
-            name: str | None = None,
-            position: int | None = None
-    ) -> None:
-        """Sets the lookahead option.
-
-        If `lookahead` is zero or negative, assumes 1.
-
-        Parameters:
-           lookahead: Lookahead.
-           function: Function or function name.
-           name: Argument name.
-           position: Argument position.
-        """
-        self._lookahead = self._check_lookahead(
-            lookahead, function, name, position)
-
     # -- omega --
 
     @classmethod
@@ -519,259 +453,6 @@ class _StoreOptions(EngineOptions):
         self._omega = self._check_omega(
             omega, function, name, position)
 
-    # -- max_page_size --
-
-    #: The default value for the max. page size option.
-    DEFAULT_MAX_PAGE_SIZE: ClassVar[int] = sys.maxsize
-
-    _v_max_page_size: ClassVar[tuple[Iterable[str], int | None]] =\
-        (('KIF_STORE_MAX_PAGE_SIZE',), DEFAULT_MAX_PAGE_SIZE)
-
-    _max_page_size: int | None
-
-    def _init_max_page_size(self, kwargs: dict[str, Any]) -> None:
-        self.max_page_size = cast(int, kwargs.get(
-            '_max_page_size', self.getenv_optional_int(
-                *self._v_max_page_size)))
-
-    @property
-    def max_page_size(self) -> int:
-        """The maximum page size option."""
-        return self.get_max_page_size()
-
-    @max_page_size.setter
-    def max_page_size(self, max_page_size: TQuantity) -> None:
-        self.set_max_page_size(max_page_size)
-
-    def get_max_page_size(self) -> int:
-        """Gets the maximum page size option.
-
-        Returns:
-           Page size.
-        """
-        assert self._max_page_size is not None
-        return self._max_page_size
-
-    def set_max_page_size(
-            self,
-            max_page_size: TQuantity,
-            function: Location | None = None,
-            name: str | None = None,
-            position: int | None = None
-    ) -> None:
-        """Sets the maximum page size option.
-
-        If `max_page_size` is negative, assumes zero.
-
-        Parameters:
-           max_page_size: Max. page size.
-           function: Function or function name.
-           name: Argument name.
-           position: Argument position.
-        """
-        self._max_page_size = self._check_page_size(
-            max_page_size, function, name, position)
-
-    # -- page_size --
-
-    @classmethod
-    def _check_page_size(
-            cls,
-            arg: Any,
-            function: Location | None = None,
-            name: str | None = None,
-            position: int | None = None
-    ) -> int:
-        return max(cls._check_int(arg, function, name, position), 0)
-
-    @classmethod
-    def _check_optional_page_size(
-            cls,
-            arg: Any | None,
-            default: Any | None = None,
-            function: Location | None = None,
-            name: str | None = None,
-            position: int | None = None
-    ) -> int | None:
-        return cls._do_check_optional(
-            cls._check_page_size, arg, default, function, name, position)
-
-    #: The default value for the page size option.
-    DEFAULT_PAGE_SIZE: ClassVar[int] = 100
-
-    _v_page_size: ClassVar[tuple[Iterable[str], int | None]] =\
-        (('KIF_STORE_PAGE_SIZE',), DEFAULT_PAGE_SIZE)
-
-    _page_size: int | None
-
-    def _init_page_size(self, kwargs: dict[str, Any]) -> None:
-        self.page_size = cast(int, kwargs.get(
-            '_page_size', self.getenv_optional_int(*self._v_page_size)))
-
-    @property
-    def page_size(self) -> int:
-        """The page size option."""
-        return self.get_page_size()
-
-    @page_size.setter
-    def page_size(self, page_size: TQuantity) -> None:
-        self.set_page_size(page_size)
-
-    def get_page_size(self) -> int:
-        """Gets the page size option.
-
-        Returns:
-           Page size.
-        """
-        assert self._page_size is not None
-        return self._page_size
-
-    def set_page_size(
-            self,
-            page_size: TQuantity,
-            function: Location | None = None,
-            name: str | None = None,
-            position: int | None = None
-    ) -> None:
-        """Sets the page size option.
-
-        If `page_size` is negative, assumes zero.
-
-        Parameters:
-           page_size: Page size.
-           function: Function or function name.
-           name: Argument name.
-           position: Argument position.
-        """
-        self._page_size = self._check_page_size(
-            page_size, function, name, position)
-
-    # -- max_timeout --
-
-    #: The default value for the max. timeout option.
-    DEFAULT_MAX_TIMEOUT: ClassVar[float] = float(sys.maxsize)
-
-    _v_max_timeout: ClassVar[tuple[Iterable[str], float | None]] =\
-        (('KIF_STORE_MAX_TIMEOUT',), DEFAULT_MAX_TIMEOUT)
-
-    _max_timeout: float | None
-
-    def _init_max_timeout(self, kwargs: dict[str, Any]) -> None:
-        self.max_timeout = cast(float, kwargs.get(
-            '_max_timeout', self.getenv_optional_float(
-                *self._v_max_timeout)))
-
-    @property
-    def max_timeout(self) -> float:
-        """The maximum timeout option (in seconds)."""
-        return self.get_max_timeout()
-
-    @max_timeout.setter
-    def max_timeout(self, max_timeout: TQuantity) -> None:
-        self.set_max_timeout(max_timeout)
-
-    def get_max_timeout(self) -> float:
-        """Gets the maximum timeout option (in seconds).
-
-        Returns:
-           Timeout.
-        """
-        assert self._max_timeout is not None
-        return self._max_timeout
-
-    def set_max_timeout(
-            self,
-            max_timeout: TQuantity,
-            function: Location | None = None,
-            name: str | None = None,
-            position: int | None = None
-    ) -> None:
-        """Sets the maximum timeout option (in seconds).
-
-        If `max_timeout` is negative, assumes zero.
-
-        Parameters:
-           max_timeout: Max. timeout.
-           function: Function or function name.
-           name: Argument name.
-           position: Argument position.
-        """
-        self._max_timeout = self._check_timeout(
-            max_timeout, function, name, position)
-
-    # -- timeout --
-
-    @classmethod
-    def _check_timeout(
-            cls,
-            arg: Any,
-            function: Location | None = None,
-            name: str | None = None,
-            position: int | None = None
-    ) -> float:
-        return max(cls._check_float(arg, function, name, position), 0.)
-
-    @classmethod
-    def _check_optional_timeout(
-            cls,
-            arg: Any | None,
-            default: Any | None = None,
-            function: Location | None = None,
-            name: str | None = None,
-            position: int | None = None
-    ) -> float | None:
-        return cls._do_check_optional(
-            cls._check_timeout, arg, default, function, name, position)
-
-    #: The default value for the timeout option
-    DEFAULT_TIMEOUT: ClassVar[Optional[int]] = None
-
-    _v_timeout: ClassVar[tuple[Iterable[str], float | None]] =\
-        (('KIF_STORE_TIMEOUT',), None)
-
-    _timeout: float | None
-
-    def _init_timeout(self, kwargs: dict[str, Any]) -> None:
-        self.timeout = cast(float, kwargs.get(
-            '_timeout', self.getenv_optional_float(*self._v_timeout)))
-
-    @property
-    def timeout(self) -> float | None:
-        """The timeout option (in seconds)."""
-        return self.get_timeout()
-
-    @timeout.setter
-    def timeout(self, timeout: TQuantity | None) -> None:
-        self.set_timeout(timeout)
-
-    def get_timeout(self) -> float | None:
-        """Gets the timeout option (in seconds).
-
-        Returns:
-           Timeout (in seconds) or ``None`` (no timeout).
-        """
-        return self._timeout
-
-    def set_timeout(
-            self,
-            timeout: TQuantity | None,
-            function: Location | None = None,
-            name: str | None = None,
-            position: int | None = None
-    ) -> None:
-        """Sets the timeout option.
-
-        If `timeout` is negative, assumes zero.
-
-        Parameters:
-           timeout: Timeout (in seconds) or ``None`` (no timeout).
-           function: Function or function name.
-           name: Argument name.
-           position: Argument position.
-        """
-        self._timeout = self._check_optional_timeout(
-            timeout, None, function, name, position)
-
 
 @dataclasses.dataclass
 class StoreOptions(_StoreOptions):
@@ -798,22 +479,6 @@ class StoreOptions(_StoreOptions):
     ) -> None:
         self._do_set(base_filter, '_base_filter', functools.partial(
             super().set_base_filter,
-            function=function, name=name, position=position))
-
-    @override
-    def get_debug(self) -> bool:
-        return self._do_get('_debug', super().get_debug)
-
-    @override
-    def set_debug(
-            self,
-            debug: bool | None,
-            function: Location | None = None,
-            name: str | None = None,
-            position: int | None = None
-    ) -> None:
-        self._do_set(debug, '_debug', functools.partial(
-            super().set_debug,
             function=function, name=name, position=position))
 
     @override
@@ -894,42 +559,6 @@ class StoreOptions(_StoreOptions):
                 function=function, name=name, position=position))
 
     @override
-    def get_max_limit(self) -> int:
-        return self._do_get('_max_limit', super().get_max_limit)
-
-    @override
-    def set_max_limit(
-            self,
-            max_limit: TQuantity | None,
-            function: Location | None = None,
-            name: str | None = None,
-            position: int | None = None
-    ) -> None:
-        return self._do_set(max_limit, '_max_limit', functools.partial(
-            super().set_max_limit,
-            function=function, name=name, position=position))
-
-    @override
-    def get_limit(self) -> int | None:
-        return self._do_get('_limit', super().get_limit)
-
-    @override
-    def get_lookahead(self) -> int:
-        return self._do_get('_lookahead', super().get_lookahead)
-
-    @override
-    def set_lookahead(
-            self,
-            lookahead: TQuantity | None,
-            function: Location | None = None,
-            name: str | None = None,
-            position: int | None = None
-    ) -> None:
-        self._do_set(lookahead, '_lookahead', functools.partial(
-            super().set_lookahead,
-            function=function, name=name, position=position))
-
-    @override
     def get_omega(self) -> int:
         return self._do_get('_omega', super().get_omega)
 
@@ -944,58 +573,6 @@ class StoreOptions(_StoreOptions):
         self._do_set(omega, '_omega', functools.partial(
             super().set_omega,
             function=function, name=name, position=position))
-
-    @override
-    def get_max_page_size(self) -> int:
-        return self._do_get('_max_page_size', super().get_max_page_size)
-
-    @override
-    def set_max_page_size(
-            self,
-            max_page_size: TQuantity | None,
-            function: Location | None = None,
-            name: str | None = None,
-            position: int | None = None
-    ) -> None:
-        self._do_set(max_page_size, '_max_page_size', functools.partial(
-            super().set_max_page_size,
-            function=function, name=name, position=position))
-
-    @override
-    def get_page_size(self) -> int:
-        return self._do_get('_page_size', super().get_page_size)
-
-    @override
-    def set_page_size(
-            self,
-            page_size: TQuantity | None,
-            function: Location | None = None,
-            name: str | None = None,
-            position: int | None = None
-    ) -> None:
-        self._do_set(page_size, '_page_size', functools.partial(
-            super().set_page_size,
-            function=function, name=name, position=position))
-
-    @override
-    def get_max_timeout(self) -> float:
-        return self._do_get('_max_timeout', super().get_max_timeout)
-
-    @override
-    def set_max_timeout(
-            self,
-            max_timeout: TQuantity | None,
-            function: Location | None = None,
-            name: str | None = None,
-            position: int | None = None
-    ) -> None:
-        self._do_set(max_timeout, '_max_timeout', functools.partial(
-            super().set_max_timeout,
-            function=function, name=name, position=position))
-
-    @override
-    def get_timeout(self) -> float | None:
-        return self._do_get('_timeout', super().get_timeout)
 
 
 # == Store =================================================================
@@ -1093,16 +670,8 @@ class Store(Engine[TOptions]):
             self.set_distinct_window_size(kwargs['distinct_window_size'])
         if 'extra_references' in kwargs:
             self.set_extra_references(kwargs['extra_references'])
-        if 'limit' in kwargs:
-            self.set_limit(kwargs['limit'])
-        if 'lookahead' in kwargs:
-            self.set_lookahead(kwargs['lookahead'])
         if 'omega' in kwargs:
             self.set_omega(kwargs['omega'])
-        if 'page_size' in kwargs:
-            self.set_page_size(kwargs['page_size'])
-        if 'timeout' in kwargs:
-            self.set_timeout(kwargs['timeout'])
 
 # -- Base filter -----------------------------------------------------------
 
@@ -1636,61 +1205,6 @@ class Store(Engine[TOptions]):
     ) -> bool:
         return True
 
-# -- Lookahead -------------------------------------------------------------
-
-    @at_property
-    def default_lookahead(self) -> int:
-        """The default value for :attr:`Store.lookahead`."""
-        return self.get_default_lookahead()
-
-    def get_default_lookahead(self) -> int:
-        """Gets the default value for :attr:`Store.lookahead`.
-
-        Returns:
-           Default lookahead value.
-        """
-        return self.get_default_options().lookahead
-
-    @at_property
-    def lookahead(self) -> int:
-        """The lookahead of store."""
-        return self.get_lookahead()
-
-    @lookahead.setter
-    def lookahead(self, lookahead: int | None = None) -> None:
-        self.set_lookahead(lookahead)
-
-    def get_lookahead(self) -> int:
-        """Gets the lookahead of store.
-
-        Returns:
-           Lookahead.
-        """
-        return self.options.lookahead
-
-    def set_lookahead(self, lookahead: int | None = None) -> None:
-        """Sets the lookhead of store.
-
-        If `lookahead` is negative, assumes one.
-
-        If `lookahead` is ``None``, resets it to the default.
-
-        Parameters:
-           lookahead: Lookahead.
-        """
-        self._set_option_with_hooks(
-            lookahead,
-            self.options.get_lookahead,
-            functools.partial(
-                self.options.set_lookahead,
-                function=self.set_lookahead,
-                name='lookahead',
-                position=1),
-            self._set_lookahead)
-
-    def _set_lookahead(self, lookahead: int) -> bool:
-        return True
-
 # -- Omega -----------------------------------------------------------------
 
     @at_property
@@ -1744,167 +1258,6 @@ class Store(Engine[TOptions]):
             self._set_omega)
 
     def _set_omega(self, omega: int) -> bool:
-        return True
-
-# -- Page size -------------------------------------------------------------
-
-    @at_property
-    def max_page_size(self) -> int:
-        """The maximum value for :attr:`Store.page_size`."""
-        return self.get_max_page_size()
-
-    def get_max_page_size(self) -> int:
-        """Gets the maximum value for :attr:`Store.page_size`.
-
-        Returns:
-           Maximum page size.
-        """
-        return self.get_default_options().max_page_size
-
-    @at_property
-    def default_page_size(self) -> int:
-        """The default value for :attr:`Store.page_size`."""
-        return self.get_default_page_size()
-
-    def get_default_page_size(self) -> int:
-        """Gets the default value for :attr:`Store.page_size`.
-
-        Returns:
-           Default page size.
-        """
-        return self.get_default_options().page_size
-
-    @at_property
-    def page_size(self) -> int:
-        """The page size of store (size of response pages)."""
-        return self.get_page_size()
-
-    @page_size.setter
-    def page_size(self, page_size: int | None = None) -> None:
-        self.set_page_size(page_size)
-
-    def get_page_size(self) -> int:
-        """Gets the page size of store.
-
-        Returns:
-           Page size.
-        """
-        return min(self.options.page_size, self.max_page_size)
-
-    def set_page_size(
-            self,
-            page_size: int | None = None,
-            function: Location | None = None,
-            name: str | None = None,
-            position: int | None = None
-    ) -> None:
-        """Sets the page size of store.
-
-        If `page_size` is negative, assumes zero.
-
-        If `page_size` is ``None``, resets it to the default.
-
-        Parameters:
-           page_size: Page size.
-           function: Function or function name.
-           name: Argument name.
-           position: Argument position.
-        """
-        self._set_option_with_hooks(
-            page_size,
-            self.options.get_page_size,
-            functools.partial(
-                self.options.set_page_size,
-                function=self.set_page_size,
-                name='page_size',
-                position=1),
-            self._set_page_size)
-
-    def _set_page_size(self, page_size: int) -> bool:
-        return True
-
-# -- Timeout ---------------------------------------------------------------
-
-    @at_property
-    def max_timeout(self) -> float:
-        """The maximum value for :attr:`Store.timeout`."""
-        return self.get_max_timeout()
-
-    def get_max_timeout(self) -> float:
-        """Gets the maximum value for :attr:`Store.timeout`.
-
-        Returns:
-           Maximum timeout (in seconds).
-        """
-        return self.get_default_options().max_timeout
-
-    @at_property
-    def default_timeout(self) -> float | None:
-        """The default value for :attr:`Store.timeout`."""
-        return self.get_default_timeout()
-
-    def get_default_timeout(self) -> float | None:
-        """Gets the default value for :attr:`Store.timeout`.
-
-        Returns:
-           Timeout or ``None``.
-        """
-        return self.get_default_options().timeout
-
-    @at_property
-    def timeout(self) -> float | None:
-        """The timeout of store (in seconds)."""
-        return self.get_timeout()
-
-    @timeout.setter
-    def timeout(self, timeout: float | None = None) -> None:
-        self.set_timeout(timeout)
-
-    def get_timeout(self, default: float | None = None) -> float | None:
-        """Gets the timeout of store.
-
-        If the timeout is ``None``, returns `default`.
-
-        If `default` is ``None``, assumes :attr:`Store.default_timeout`.
-
-        Parameters:
-           default: Default timeout.
-
-        Returns:
-           Timeout or ``None``.
-        """
-        timeout = self.options.timeout
-        if timeout is None:
-            timeout = default
-        if timeout is None:
-            return None
-        else:
-            return min(timeout, self.max_timeout)
-
-    def set_timeout(
-            self,
-            timeout: float | None = None
-    ) -> None:
-        """Sets the timeout of store.
-
-        If `timeout` is negative, assumes zero.
-
-        If `timeout` is ``None``, resets it to the default.
-
-        Parameters:
-           timeout: Timeout.
-        """
-        self._set_option_with_hooks(
-            timeout,
-            self.options.get_timeout,
-            functools.partial(
-                self.options.set_timeout,
-                function=self.set_timeout,
-                name='timeout',
-                position=1),
-            self._set_timeout)
-
-    def _set_timeout(self, timeout: float | None) -> bool:
         return True
 
 # -- Set interface ---------------------------------------------------------
@@ -4074,11 +3427,3 @@ class Store(Engine[TOptions]):
                     distinct_window_size=options.distinct_window_size,
                     limit=options.limit):
                 yield stmt
-
-
-# class Store(
-#         _Store[StoreOptions],
-#         store_name='_store',
-#         store_description='Store (base)'
-# ):
-#     """Abstract base class for stores."""

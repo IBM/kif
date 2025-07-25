@@ -5,13 +5,14 @@ from __future__ import annotations
 
 import dataclasses
 
-from ..typing import Any
-from . import abc
+from ..engine import _EngineOptions
+from ..typing import Any, override
+from .abc import _SearcherOptions
 from .empty import EmptySearcherOptions
 
 
 @dataclasses.dataclass
-class SearcherOptions(abc._SearcherOptions, name='searcher'):
+class SearcherOptions(_SearcherOptions, name='searcher'):
     """Searcher options."""
 
     empty: EmptySearcherOptions = dataclasses.field(
@@ -20,3 +21,7 @@ class SearcherOptions(abc._SearcherOptions, name='searcher'):
     def __init__(self, *args: Any, **kwargs: Any) -> None:
         super().__init__(*args, **kwargs)
         self.empty = EmptySearcherOptions()
+
+    @override
+    def _get_parent_callback(self) -> _EngineOptions:
+        return self.get_context().options.engine

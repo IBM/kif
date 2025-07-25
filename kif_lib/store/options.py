@@ -5,8 +5,9 @@ from __future__ import annotations
 
 import dataclasses
 
-from ..typing import Any
-from . import abc
+from ..engine import _EngineOptions
+from ..typing import Any, override
+from .abc import _StoreOptions
 from .empty import EmptyStoreOptions
 from .memory import MemoryStoreOptions
 from .mixer import MixerStoreOptions
@@ -14,7 +15,7 @@ from .sparql import SPARQL_StoreOptions
 
 
 @dataclasses.dataclass
-class StoreOptions(abc._StoreOptions, name='store'):
+class StoreOptions(_StoreOptions, name='store'):
     """Store options."""
 
     empty: EmptyStoreOptions = dataclasses.field(
@@ -35,3 +36,7 @@ class StoreOptions(abc._StoreOptions, name='store'):
         self.memory = MemoryStoreOptions()
         self.mixer = MixerStoreOptions()
         self.sparql = SPARQL_StoreOptions()
+
+    @override
+    def _get_parent_callback(self) -> _EngineOptions:
+        return self.get_context().options.engine

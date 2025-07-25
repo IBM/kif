@@ -53,6 +53,19 @@ class Test(OptionsTestCase):
             lower_bound=0,
             optional=True)
 
+    def test_lookahead(self) -> None:
+        self._test_lookahead()
+
+    def _test_lookahead(
+            self,
+            envvars: Sequence[str] = ('KIF_SEARCHER_LOOKAHEAD',)
+    ) -> None:
+        self._test_option_int(
+            section=self.section,
+            name='lookahead',
+            envvars=envvars,
+            lower_bound=1)
+
 
 if __name__ == '__main__':
     Test.main()

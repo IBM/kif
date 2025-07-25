@@ -375,7 +375,8 @@ class MixerStore(
 
     @override
     def _set_debug(self, debug: bool) -> bool:
-        return self._set_x(Store.set_debug, debug, self.DEBUG)  # type: ignore
+        return self._set_x(
+            Store.set_debug, debug, self.DEBUG)  # type: ignore
 
     @override
     def _set_distinct(self, distinct: bool) -> bool:
@@ -389,11 +390,13 @@ class MixerStore(
 
     @override
     def _set_limit(self, limit: int | None) -> bool:
-        return self._set_x(Store.set_limit, limit, self.LIMIT)  # type: ignore
+        return self._set_x(
+            Store.set_limit, limit, self.LIMIT)  # type: ignore
 
     @override
     def _set_lookahead(self, lookahead: int) -> bool:
-        return self._set_x(Store.set_lookahead, lookahead, self.LOOKAHEAD)
+        return self._set_x(
+            Store.set_lookahead, lookahead, self.LOOKAHEAD)  # type: ignore
 
     @override
     def _set_omega(self, omega: int) -> bool:
@@ -401,11 +404,13 @@ class MixerStore(
 
     @override
     def _set_page_size(self, page_size: int) -> bool:
-        return self._set_x(Store.set_page_size, page_size, self.PAGE_SIZE)
+        return self._set_x(
+            Store.set_page_size, page_size, self.PAGE_SIZE)  # type: ignore
 
     @override
     def _set_timeout(self, timeout: float | None) -> bool:
-        return self._set_x(Store.set_timeout, timeout, self.TIMEOUT)
+        return self._set_x(
+            Store.set_timeout, timeout, self.TIMEOUT)  # type: ignore
 
     def _set_x(
             self,

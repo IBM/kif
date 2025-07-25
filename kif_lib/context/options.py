@@ -8,6 +8,7 @@ from typing import TYPE_CHECKING
 
 from ..codec.options import CodecOptions
 from ..compiler.options import CompilerOptions
+from ..engine.options import EngineOptions
 from ..model.options import ModelOptions
 from ..searcher.options import SearcherOptions
 from ..store.options import StoreOptions
@@ -76,6 +77,9 @@ class Options(Section, name='kif'):
     #: Compiler options.
     compiler: CompilerOptions = dataclasses.field(
         default_factory=CompilerOptions)
+
+    #: Engine options.
+    engine: EngineOptions = dataclasses.field(default_factory=EngineOptions)
 
     #: Entity registry options.
     entities: EntityRegistryOptions = dataclasses.field(

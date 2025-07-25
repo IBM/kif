@@ -4,39 +4,46 @@
 from __future__ import annotations
 
 import dataclasses
-import functools
 
-from ..engine import Engine, EngineOptions
+from ..context import Context
+from ..engine import _EngineOptions, Engine, EngineOptions
 from ..model import KIF_Object
-from ..typing import (
-    Any,
-    ClassVar,
-    Iterable,
-    Location,
-    Mapping,
-    override,
-    TypeVar,
-)
+from ..typing import Any, cast, ClassVar, Iterable, Mapping, override, TypeVar
 
 
 @dataclasses.dataclass
 class _SearcherOptions(EngineOptions):
-    """Base class for store options."""
+    """Base class for searcher options."""
 
     _v_debug: ClassVar[tuple[Iterable[str], bool | None]] =\
-        (('KIF_SEARCHER_DEBUG',), EngineOptions.DEFAULT_DEBUG)
+        (('KIF_SEARCHER_DEBUG',), None)
 
     _v_max_limit: ClassVar[tuple[Iterable[str], int | None]] =\
-        (('KIF_SEARCHER_MAX_LIMIT',), EngineOptions.DEFAULT_MAX_LIMIT)
+        (('KIF_SEARCHER_MAX_LIMIT',), None)
 
     _v_limit: ClassVar[tuple[Iterable[str], int | None]] =\
-        (('KIF_SEARCHER_LIMIT',), EngineOptions.DEFAULT_LIMIT)
+        (('KIF_SEARCHER_LIMIT',), None)
+
+    _v_lookahead: ClassVar[tuple[Iterable[str], int | None]] =\
+        (('KIF_SEARCHER_LOOKAHEAD',), None)
+
+    _v_max_page_size: ClassVar[tuple[Iterable[str], int | None]] =\
+        (('KIF_SEARCHER_MAX_PAGE_SIZE',), None)
+
+    _v_page_size: ClassVar[tuple[Iterable[str], int | None]] =\
+        (('KIF_SEARCHER_PAGE_SIZE',), None)
+
+    _v_max_timeout: ClassVar[tuple[Iterable[str], float | None]] =\
+        (('KIF_SEARCHER_MAX_TIMEOUT',), None)
+
+    _v_timeout: ClassVar[tuple[Iterable[str], float | None]] =\
+        (('KIF_SEARCHER_TIMEOUT',), None)
 
     def __init__(self, **kwargs: Any) -> None:
         super().__init__(**kwargs)
 
     @override
-    def _get_parent_callback(self) -> EngineOptions:
+    def _get_parent_callback(self) -> _EngineOptions:
         return self.get_context().options.searcher
 
 
@@ -46,22 +53,6 @@ class SearcherOptions(_SearcherOptions):
 
     def __init__(self, **kwargs: Any) -> None:
         super().__init__(**kwargs)
-
-    @override
-    def get_debug(self) -> bool:
-        return self._do_get('_debug', super().get_debug)
-
-    @override
-    def set_debug(
-            self,
-            debug: bool | None,
-            function: Location | None = None,
-            name: str | None = None,
-            position: int | None = None
-    ) -> None:
-        self._do_set(debug, '_debug', functools.partial(
-            super().set_debug,
-            function=function, name=name, position=position))
 
 
 # == Searcher ==============================================================
@@ -100,3 +91,8 @@ class Searcher(Engine[TOptions]):
 
     class Error(Engine.Error):
         """Base class for searcher errors."""
+
+    @override
+    @classmethod
+    def get_default_options(cls, context: Context | None = None) -> TOptions:
+        return cast(TOptions, cls.get_context(context).options.searcher.empty)
