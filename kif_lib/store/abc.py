@@ -1126,10 +1126,7 @@ class Store(Engine[TOptions]):
 
     def set_distinct_window_size(
             self,
-            distinct_window_size: int | None = None,
-            function: Location | None = None,
-            name: str | None = None,
-            position: int | None = None
+            distinct_window_size: int | None = None
     ) -> None:
         """Sets the page size of store.
 
@@ -1139,9 +1136,6 @@ class Store(Engine[TOptions]):
 
         Parameters:
            distinct_window_size: Page size.
-           function: Function or function name.
-           name: Argument name.
-           position: Argument position.
         """
         self._set_option_with_hooks(
             distinct_window_size,

@@ -65,9 +65,11 @@ class _EngineOptions(Section):
 
     def _do_get(self, field: str, super_get_fn: Callable[[], T]) -> T:
         if getattr(self, field) is None:
-            return getattr(self.parent, 'get' + field)()
-        else:
-            return super_get_fn()
+            try:
+                return getattr(self.parent, 'get' + field)()
+            except AttributeError:
+                pass
+        return super_get_fn()
 
     def _do_set(
             self,
@@ -949,7 +951,7 @@ class Engine(Generic[TOptions]):
         self._set_option_with_hooks(
             debug,
             self.options.get_debug,
-            functools.partial(  # pyright: ignore
+            functools.partial(
                 self.options.set_debug,
                 function=self.set_debug,
                 name='debug',
@@ -1017,13 +1019,7 @@ class Engine(Generic[TOptions]):
         else:
             return min(limit, self.max_limit)
 
-    def set_limit(
-            self,
-            limit: int | None = None,
-            function: Location | None = None,
-            name: str | None = None,
-            position: int | None = None
-    ) -> None:
+    def set_limit(self, limit: int | None = None) -> None:
         """Sets the limit of engine.
 
         If `limit` is negative, assumes zero.
@@ -1032,9 +1028,6 @@ class Engine(Generic[TOptions]):
 
         Parameters:
            limit: Limit.
-           function: Function or function name.
-           name: Argument name.
-           position: Argument position.
         """
         self._set_option_with_hooks(
             limit,
@@ -1149,13 +1142,7 @@ class Engine(Generic[TOptions]):
         """
         return min(self.options.page_size, self.max_page_size)
 
-    def set_page_size(
-            self,
-            page_size: int | None = None,
-            function: Location | None = None,
-            name: str | None = None,
-            position: int | None = None
-    ) -> None:
+    def set_page_size(self, page_size: int | None = None) -> None:
         """Sets the page size of engine.
 
         If `page_size` is negative, assumes zero.
@@ -1164,9 +1151,6 @@ class Engine(Generic[TOptions]):
 
         Parameters:
            page_size: Page size.
-           function: Function or function name.
-           name: Argument name.
-           position: Argument position.
         """
         self._set_option_with_hooks(
             page_size,

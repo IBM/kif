@@ -138,10 +138,6 @@ class SPARQL_StoreOptions(_SPARQL_StoreOptions, name='sparql'):
         super().__init__(**kwargs)
 
     @override
-    def _init_sync_flags(self, kwargs: dict[str, Any]) -> None:
-        self.set_sync_flags(kwargs.get('_sync_flags'))
-
-    @override
     def get_skolemize(self) -> bool:
         return self._do_get('_skolemize', super().get_skolemize)
 
@@ -244,6 +240,7 @@ class SPARQL_Store(
     def get_default_options(cls, context: Context | None = None) -> TOptions:
         return cast(TOptions, cls.get_context(context).options.store.sparql)
 
+    @override
     def _update_options(self, **kwargs: Any) -> None:
         super()._update_options(**kwargs)
         if 'skolemize' in kwargs:

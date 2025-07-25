@@ -203,7 +203,6 @@ class Search(Engine[TOptions]):
     @classmethod
     def get_default_options(cls, context: Context | None = None) -> TOptions:
         return cast(TOptions, cls.get_context(context).options.search.empty)
-
 
 # -- Initialization --------------------------------------------------------
 
@@ -247,7 +246,7 @@ class Search(Engine[TOptions]):
             limit=limit,
             lookahead=lookahead,
             page_size=page_size,
-            timeoutt=timeout,
+            timeout=timeout,
             context=context,
             **kwargs)
 
@@ -297,22 +296,13 @@ class Search(Engine[TOptions]):
             language = default
         return language
 
-    def set_language(
-            self,
-            language: TTextLanguage | None = None,
-            function: Location | None = None,
-            name: str | None = None,
-            position: int | None = None
-    ) -> None:
+    def set_language(self, language: TTextLanguage | None = None) -> None:
         """Sets the language of search.
 
         If `language` is ``None``, resets it to the default.
 
         Parameters:
            language: Language.
-           function: Function or function name.
-           name: Argument name.
-           position: Argument position.
         """
         self._set_option_with_hooks(
             language,

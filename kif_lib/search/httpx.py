@@ -4,25 +4,30 @@
 from __future__ import annotations
 
 import dataclasses
+import functools
 
 import httpx
 
 from ..__version__ import __version__
-from ..model import KIF_Object
+from ..context import Context
+from ..model import IRI, KIF_Object, T_IRI
 from ..typing import (
     Any,
+    cast,
     ClassVar,
     Final,
     Iterable,
+    Location,
     Mapping,
     override,
     TypeAlias,
+    TypeVar,
 )
-from .abc import Search, SearchOptions, TOptions
+from .abc import Search, SearchOptions
 
 
 @dataclasses.dataclass
-class HttpxSearchOptions(SearchOptions, name='httpx'):
+class _HttpxSearchOptions(SearchOptions):
     """Httpx search options."""
 
     _v_debug: ClassVar[tuple[Iterable[str], bool | None]] =\
@@ -54,20 +59,97 @@ class HttpxSearchOptions(SearchOptions, name='httpx'):
 
     def __init__(self, **kwargs: Any) -> None:
         super().__init__(**kwargs)
+        self._init_iri(kwargs)
+
+    # -- iri --
+
+    #: Default value for the IRI option.
+    DEFAULT_IRI: ClassVar[str | None] = None
+
+    _v_iri: ClassVar[tuple[Iterable[str], str | None]] =\
+        (('KIF_HTTPX_SEARCH_IRI'), DEFAULT_IRI)
+
+    _iri: IRI | None
+
+    def _init_iri(self, kwargs: dict[str, Any]) -> None:
+        self.iri = kwargs.get(
+            '_iri', self.getenv_optional_str(*self._v_iri))
+
+    @property
+    def iri(self) -> IRI | None:
+        """The IRI of httpx search."""
+        return self.get_iri()
+
+    @iri.setter
+    def iri(self, iri: T_IRI | None) -> None:
+        self.set_iri(iri)
+
+    def get_iri(self) -> IRI | None:
+        """Gets the IRI of httpx search.
+
+        Returns:
+           IRI or ``None``.
+        """
+        return self._iri
+
+    def set_iri(
+            self,
+            iri: T_IRI | None = None,
+            function: Location | None = None,
+            name: str | None = None,
+            position: int | None = None
+    ) -> None:
+        """Sets the IRI of httpx search.
+
+        Parameters:
+           iri: IRI.
+           function: Function or function name.
+           name: Argument name.
+           position: Argument position.
+        """
+        self._iri = self._check_optional_iri(
+            iri, None, function, name, position)
+
+
+@dataclasses.dataclass
+class HttpxSearchOptions(_HttpxSearchOptions, name='httpx'):
+    """Httpx search options (overriden)."""
+
+    def __init__(self, **kwargs: Any) -> None:
+        super().__init__(**kwargs)
+
+    @override
+    def get_iri(self) -> IRI | None:
+        return self._do_get('_iri', super().get_iri)
+
+    @override
+    def set_iri(
+            self,
+            iri: T_IRI | None = None,
+            function: Location | None = None,
+            name: str | None = None,
+            position: int | None = None
+    ) -> None:
+        self._do_set(iri, '_iri', functools.partial(
+            super().set_iri,
+            function=function, name=name, position=position))
 
 
 # == Httpx search ==========================================================
 
+TOptions = TypeVar(
+    'TOptions', bound=HttpxSearchOptions, default=HttpxSearchOptions)
+
+
 class HttpxSearch(
         Search[TOptions],
         search_name='httpx',
-        search_description='Search with httpx'
+        search_description='Httpx search'
 ):
     """Search with httpx.
 
     Parameters:
        search_name: Name of the search plugin to instantiate.
-       iri: IRI of the target HTTP endpoint.
        headers: HTTP headers.
        kwargs: Other keyword arguments.
     """
@@ -99,6 +181,7 @@ class HttpxSearch(
     def __init__(
             self,
             search_name: str,
+            iri: T_IRI | None = None,
             headers: HTTP_Headers | None = None,
             **kwargs: Any
     ) -> None:
@@ -110,9 +193,20 @@ class HttpxSearch(
         except Exception as err:
             raise KIF_Object._arg_error(
                 str(err), type(self), 'headers', exception=self.Error)
-        super().__init__(search_name, headers, **kwargs)
         self._client = None
         self._aclient = None
+        super().__init__(search_name, iri=iri, **kwargs)
+
+    @override
+    @classmethod
+    def get_default_options(cls, context: Context | None = None) -> TOptions:
+        return cast(TOptions, cls.get_context(context).options.search.httpx)
+
+    @override
+    def _update_options(self, **kwargs: Any) -> None:
+        super()._update_options(**kwargs)
+        if 'iri' in kwargs:
+            self.set_iri(kwargs['iri'])
 
     @property
     def client(self) -> httpx.Client:
@@ -171,3 +265,64 @@ class HttpxSearch(
             return res
         except httpx.RequestError as err:
             raise err
+
+# -- IRI -------------------------------------------------------------------
+
+    @property
+    def default_iri(self) -> IRI | None:
+        """The default value for :attr:`Search.iri`."""
+        return self.get_default_iri()
+
+    def get_default_iri(self) -> IRI | None:
+        """Gets the default value for :attr:`Search.iri`.
+
+        Returns:
+           Default IRI.
+        """
+        return self.get_default_options().iri
+
+    @property
+    def iri(self) -> IRI | None:
+        """The IRI of httpx search."""
+        return self.get_iri()
+
+    @iri.setter
+    def iri(self, iri: T_IRI | None = None) -> None:
+        self.set_iri(iri)
+
+    def get_iri(self, default: IRI | None = None) -> IRI | None:
+        """Gets the iri of httpx search.
+
+        If the iri is ``None``, returns `default`.
+
+        Parameters:
+           default: Default iri.
+
+        Returns:
+           Iri or ``None``.
+        """
+        iri = self.options.iri
+        if iri is None:
+            iri = default
+        return iri
+
+    def set_iri(self, iri: T_IRI | None = None) -> None:
+        """Sets the IRI of httpx search.
+
+        If `iri` is ``None``, resets it to the default.
+
+        Parameters:
+           iri: IRI.
+        """
+        self._set_option_with_hooks(
+            iri,
+            self.options.get_iri,
+            functools.partial(
+                self.options.set_iri,
+                function=self.set_iri,
+                name='iri',
+                position=1),
+            self._set_iri)
+
+    def _set_iri(self, iri: IRI | None) -> bool:
+        return True

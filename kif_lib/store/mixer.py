@@ -41,7 +41,6 @@ from ..typing import (
 from .abc import Store, StoreOptions
 
 _TSyncFlags: TypeAlias = Union['SyncFlags', int]
-S = TypeVar('S')
 T = TypeVar('T')
 
 
@@ -211,12 +210,12 @@ class MixerStoreOptions(_MixerStoreOptions, name='mixer'):
 
 # == Mixer store ===========================================================
 
-TMixerOptions = TypeVar(
-    'TMixerOptions', bound=MixerStoreOptions, default=MixerStoreOptions)
+TOptions = TypeVar(
+    'TOptions', bound=MixerStoreOptions, default=MixerStoreOptions)
 
 
 class MixerStore(
-        Store[TMixerOptions],
+        Store[TOptions],
         store_name='mixer',
         store_description='Mixer store'
 ):
@@ -276,17 +275,14 @@ class MixerStore(
     ) -> None:
         assert store_name == self.store_name
         self._init_sources(sources)
-        super().__init__(**kwargs)
+        super().__init__(sync_flags=sync_flags, **kwargs)
 
     @override
     @classmethod
-    def get_default_options(
-            cls,
-            context: Context | None = None
-    ) -> TMixerOptions:
-        return cast(
-            TMixerOptions, cls.get_context(context).options.store.mixer)
+    def get_default_options(cls, context: Context | None = None) -> TOptions:
+        return cast(TOptions, cls.get_context(context).options.store.mixer)
 
+    @override
     def _update_options(self, **kwargs: Any) -> None:
         super()._update_options(**kwargs)
         if 'sync_flags' in kwargs:
@@ -426,11 +422,11 @@ class MixerStore(
 # -- Ask -------------------------------------------------------------------
 
     @override
-    def _ask(self, filter: Filter, options: TMixerOptions) -> bool:
+    def _ask(self, filter: Filter, options: TOptions) -> bool:
         return any(map(lambda src: src._ask(filter, options), self._sources))
 
     @override
-    async def _aask(self, filter: Filter, options: TMixerOptions) -> bool:
+    async def _aask(self, filter: Filter, options: TOptions) -> bool:
         tasks = (
             asyncio.ensure_future(src._aask(filter, options))
             for src in self._sources)
@@ -439,37 +435,37 @@ class MixerStore(
 # -- Count -----------------------------------------------------------------
 
     @override
-    def _count(self, filter: Filter, options: TMixerOptions) -> int:
+    def _count(self, filter: Filter, options: TOptions) -> int:
         return self._count_x_mix_sources(
             lambda s: s._count, filter, options)
 
     @override
-    def _count_s(self, filter: Filter, options: TMixerOptions) -> int:
+    def _count_s(self, filter: Filter, options: TOptions) -> int:
         return self._count_x_mix_sources(
             lambda s: s._count_s, filter, options)
 
     @override
-    def _count_p(self, filter: Filter, options: TMixerOptions) -> int:
+    def _count_p(self, filter: Filter, options: TOptions) -> int:
         return self._count_x_mix_sources(
             lambda s: s._count_p, filter, options)
 
     @override
-    def _count_v(self, filter: Filter, options: TMixerOptions) -> int:
+    def _count_v(self, filter: Filter, options: TOptions) -> int:
         return self._count_x_mix_sources(
             lambda s: s._count_v, filter, options)
 
     @override
-    def _count_sp(self, filter: Filter, options: TMixerOptions) -> int:
+    def _count_sp(self, filter: Filter, options: TOptions) -> int:
         return self._count_x_mix_sources(
             lambda s: s._count_sp, filter, options)
 
     @override
-    def _count_sv(self, filter: Filter, options: TMixerOptions) -> int:
+    def _count_sv(self, filter: Filter, options: TOptions) -> int:
         return self._count_x_mix_sources(
             lambda s: s._count_sv, filter, options)
 
     @override
-    def _count_pv(self, filter: Filter, options: TMixerOptions) -> int:
+    def _count_pv(self, filter: Filter, options: TOptions) -> int:
         return self._count_x_mix_sources(
             lambda s: s._count_pv, filter, options)
 
@@ -488,37 +484,37 @@ class MixerStore(
             self.sources))
 
     @override
-    async def _acount(self, filter: Filter, options: TMixerOptions) -> int:
+    async def _acount(self, filter: Filter, options: TOptions) -> int:
         return await self._acount_x_mix_sources(
             lambda s: s._acount, filter, options)
 
     @override
-    async def _acount_s(self, filter: Filter, options: TMixerOptions) -> int:
+    async def _acount_s(self, filter: Filter, options: TOptions) -> int:
         return await self._acount_x_mix_sources(
             lambda s: s._acount_s, filter, options)
 
     @override
-    async def _acount_p(self, filter: Filter, options: TMixerOptions) -> int:
+    async def _acount_p(self, filter: Filter, options: TOptions) -> int:
         return await self._acount_x_mix_sources(
             lambda s: s._acount_p, filter, options)
 
     @override
-    async def _acount_v(self, filter: Filter, options: TMixerOptions) -> int:
+    async def _acount_v(self, filter: Filter, options: TOptions) -> int:
         return await self._acount_x_mix_sources(
             lambda s: s._acount_v, filter, options)
 
     @override
-    async def _acount_sp(self, filter: Filter, options: TMixerOptions) -> int:
+    async def _acount_sp(self, filter: Filter, options: TOptions) -> int:
         return await self._acount_x_mix_sources(
             lambda s: s._acount_sp, filter, options)
 
     @override
-    async def _acount_sv(self, filter: Filter, options: TMixerOptions) -> int:
+    async def _acount_sv(self, filter: Filter, options: TOptions) -> int:
         return await self._acount_x_mix_sources(
             lambda s: s._acount_sv, filter, options)
 
     @override
-    async def _acount_pv(self, filter: Filter, options: TMixerOptions) -> int:
+    async def _acount_pv(self, filter: Filter, options: TOptions) -> int:
         return await self._acount_x_mix_sources(
             lambda s: s._acount_pv, filter, options)
 
@@ -543,7 +539,7 @@ class MixerStore(
     def _filter(
             self,
             filter: Filter,
-            options: TMixerOptions
+            options: TOptions
     ) -> Iterator[Statement]:
         return self._filter_x_mix_sources(
             lambda s: s._filter, filter, options)
@@ -552,7 +548,7 @@ class MixerStore(
     def _filter_s(
             self,
             filter: Filter,
-            options: TMixerOptions
+            options: TOptions
     ) -> Iterator[Entity]:
         return self._filter_x_mix_sources(
             lambda s: s._filter_s, filter, options)
@@ -561,7 +557,7 @@ class MixerStore(
     def _filter_p(
             self,
             filter: Filter,
-            options: TMixerOptions
+            options: TOptions
     ) -> Iterator[Property]:
         return self._filter_x_mix_sources(
             lambda s: s._filter_p, filter, options)
@@ -570,7 +566,7 @@ class MixerStore(
     def _filter_v(
             self,
             filter: Filter,
-            options: TMixerOptions
+            options: TOptions
     ) -> Iterator[Value]:
         return self._filter_x_mix_sources(
             lambda s: s._filter_v, filter, options)
@@ -579,7 +575,7 @@ class MixerStore(
     def _filter_sp(
             self,
             filter: Filter,
-            options: TMixerOptions
+            options: TOptions
     ) -> Iterator[ValuePair[Entity, Property]]:
         return self._filter_x_mix_sources(
             lambda s: s._filter_sp, filter, options)
@@ -588,7 +584,7 @@ class MixerStore(
     def _filter_sv(
             self,
             filter: Filter,
-            options: TMixerOptions
+            options: TOptions
     ) -> Iterator[ValuePair[Entity, Value]]:
         return self._filter_x_mix_sources(
             lambda s: s._filter_sv, filter, options)
@@ -597,7 +593,7 @@ class MixerStore(
     def _filter_pv(
             self,
             filter: Filter,
-            options: TMixerOptions
+            options: TOptions
     ) -> Iterator[ValueSnak]:
         return self._filter_x_mix_sources(
             lambda s: s._filter_pv, filter, options)
@@ -650,7 +646,7 @@ class MixerStore(
     def _afilter(
             self,
             filter: Filter,
-            options: TMixerOptions
+            options: TOptions
     ) -> AsyncIterator[Statement]:
         return self._afilter_x_mix_sources(
             lambda s: s._afilter, filter, options)
@@ -659,7 +655,7 @@ class MixerStore(
     def _afilter_s(
             self,
             filter: Filter,
-            options: TMixerOptions
+            options: TOptions
     ) -> AsyncIterator[Entity]:
         return self._afilter_x_mix_sources(
             lambda s: s._afilter_s, filter, options)
@@ -668,7 +664,7 @@ class MixerStore(
     def _afilter_p(
             self,
             filter: Filter,
-            options: TMixerOptions
+            options: TOptions
     ) -> AsyncIterator[Property]:
         return self._afilter_x_mix_sources(
             lambda s: s._afilter_p, filter, options)
@@ -677,7 +673,7 @@ class MixerStore(
     def _afilter_v(
             self,
             filter: Filter,
-            options: TMixerOptions
+            options: TOptions
     ) -> AsyncIterator[Value]:
         return self._afilter_x_mix_sources(
             lambda s: s._afilter_v, filter, options)
@@ -686,7 +682,7 @@ class MixerStore(
     def _afilter_sp(
             self,
             filter: Filter,
-            options: TMixerOptions
+            options: TOptions
     ) -> AsyncIterator[ValuePair[Entity, Property]]:
         return self._afilter_x_mix_sources(
             lambda s: s._afilter_sp, filter, options)
@@ -695,7 +691,7 @@ class MixerStore(
     def _afilter_sv(
             self,
             filter: Filter,
-            options: TMixerOptions
+            options: TOptions
     ) -> AsyncIterator[ValuePair[Entity, Value]]:
         return self._afilter_x_mix_sources(
             lambda s: s._afilter_sv, filter, options)
@@ -704,7 +700,7 @@ class MixerStore(
     def _afilter_pv(
             self,
             filter: Filter,
-            options: TMixerOptions
+            options: TOptions
     ) -> AsyncIterator[ValueSnak]:
         return self._afilter_x_mix_sources(
             lambda s: s._afilter_pv, filter, options)
