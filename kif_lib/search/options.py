@@ -9,6 +9,7 @@ from ..engine import _EngineOptions
 from ..typing import Any, override
 from .abc import _SearchOptions
 from .empty import EmptySearchOptions
+from .httpx import HttpxSearchOptions
 
 
 @dataclasses.dataclass
@@ -18,9 +19,13 @@ class SearchOptions(_SearchOptions, name='search'):
     empty: EmptySearchOptions = dataclasses.field(
         default_factory=EmptySearchOptions)
 
+    httpx: HttpxSearchOptions = dataclasses.field(
+        default_factory=HttpxSearchOptions)
+
     def __init__(self, *args: Any, **kwargs: Any) -> None:
         super().__init__(*args, **kwargs)
         self.empty = EmptySearchOptions()
+        self.httpx = HttpxSearchOptions()
 
     @override
     def _get_parent_callback(self) -> _EngineOptions:

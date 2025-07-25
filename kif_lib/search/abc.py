@@ -6,20 +6,26 @@ from __future__ import annotations
 import dataclasses
 import functools
 
+from .. import itertools
 from ..context import Context
 from ..engine import _EngineOptions, Engine, EngineOptions
-from ..model import KIF_Object, String, TTextLanguage
+from ..model import Item, KIF_Object, String, TTextLanguage
 from ..typing import (
     Any,
+    Callable,
     cast,
     ClassVar,
     Iterable,
+    Iterator,
     Location,
     Mapping,
     Optional,
     override,
+    TypeAlias,
     TypeVar,
 )
+
+T = TypeVar('T')
 
 
 @dataclasses.dataclass
@@ -201,6 +207,9 @@ class Search(Engine[TOptions]):
 
 # -- Initialization --------------------------------------------------------
 
+    #: Type alias for metadata.
+    TMetadata: TypeAlias = dict[str, Any]
+
     #: Search options.
     _options: TOptions
 
@@ -223,7 +232,7 @@ class Search(Engine[TOptions]):
            search_name: Name of the search plugin to instantiate.
            args: Arguments.
            debug: Whether to enable debugging mode.
-           language: Language to restrict search to.
+           language: Language of search.
            limit: Limit (maximum number) of responses.
            lookahead: Number of pages to lookahead asynchronously.
            page_size: Page size of paginated responses.
@@ -317,3 +326,125 @@ class Search(Engine[TOptions]):
 
     def _set_language(self, language: str | None) -> bool:
         return True
+
+# -- Item search -----------------------------------------------------------
+
+    def item(
+            self,
+            search: str,
+            debug: bool | None = None,
+            language: TTextLanguage | None = None,
+            limit: int | None = None,
+            lookahead: int | None = None,
+            page_size: int | None = None,
+            timeout: float | None = None,
+            context: Context | None = None,
+            **kwargs: Any
+    ) -> Iterator[Item]:
+        """Searches for items matching search string.
+
+        Parameters:
+           search: Search string.
+           debug: Whether to enable debugging mode.
+           language: Language of search.
+           limit: Limit (maximum number) of responses.
+           lookahead: Number of pages to lookahead asynchronously.
+           page_size: Page size of paginated responses.
+           timeout: Timeout of responses (in seconds).
+           context: KIF context.
+           kwargs: Other keyword arguments.
+
+        Returns:
+           An iterator of items matching search string.
+        """
+        return self._check_search_with_options_and_run(
+            functools.partial(self._search_x_tail, self._item),
+            search, debug, language, limit, lookahead, page_size, timeout,
+            context, self.item, **kwargs)
+
+    def item_metadata(
+            self,
+            search: str,
+            debug: bool | None = None,
+            language: TTextLanguage | None = None,
+            limit: int | None = None,
+            lookahead: int | None = None,
+            page_size: int | None = None,
+            timeout: float | None = None,
+            context: Context | None = None,
+            **kwargs: Any
+    ) -> Iterator[tuple[Item, TMetadata]]:
+        """Searches for item-metadata pairs matching search string.
+
+        Parameters:
+           search: Search string.
+           debug: Whether to enable debugging mode.
+           language: Language of search.
+           limit: Limit (maximum number) of responses.
+           lookahead: Number of pages to lookahead asynchronously.
+           page_size: Page size of paginated responses.
+           timeout: Timeout of responses (in seconds).
+           context: KIF context.
+           kwargs: Other keyword arguments.
+
+        Returns:
+           An iterator of "(item, metadata)" pairs matching search string.
+        """
+        return self._check_search_with_options_and_run(
+            functools.partial(self._search_x_tail, self._item_metadata),
+            search, debug, language, limit, lookahead, page_size, timeout,
+            context, self.item_metadata, **kwargs)
+
+    def _search_x_tail(
+            self,
+            search_x_fn: Callable[[str, TOptions], Iterator[T]],
+            search: str,
+            options: TOptions
+    ) -> Iterator[T]:
+        if options.limit is not None and options.limit <= 0:
+            return iter(())
+        else:
+            return itertools.mix(
+                search_x_fn(search, options), limit=options.limit)
+
+    def _item(self, search: str, options: TOptions) -> Iterator[Item]:
+        return (t[0] for t in self._item_metadata(search, options))
+
+    def _item_metadata(
+            self,
+            search: str,
+            options: TOptions
+    ) -> Iterator[tuple[Item, TMetadata]]:
+        return iter(())
+
+    def _check_search_with_options_and_run(
+            self,
+            callback: Callable[[str, TOptions], T],
+            search: str,
+            debug: bool | None = None,
+            language: TTextLanguage | None = None,
+            limit: int | None = None,
+            lookahead: int | None = None,
+            page_size: int | None = None,
+            timeout: float | None = None,
+            context: Context | None = None,
+            function: Location | None = None,
+            **kwargs: Any
+    ) -> T:
+        with self(
+                debug=debug,
+                language=language,
+                limit=limit,
+                lookahead=lookahead,
+                page_size=page_size,
+                timeout=timeout,
+                **kwargs) as options:
+            return callback(
+                self._check_search(search, function), options)
+
+    def _check_search(
+            self,
+            search: str,
+            function: Location | None = None
+    ) -> str:
+        return KIF_Object._check_arg_str(search, function, 'search', 1)

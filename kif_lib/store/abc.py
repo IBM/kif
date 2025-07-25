@@ -153,7 +153,7 @@ class _StoreOptions(EngineOptions):
 
     @property
     def distinct(self) -> bool:
-        """Whether to suppress duplicate results."""
+        """Whether to suppress duplicates."""
         return self.get_distinct()
 
     @distinct.setter

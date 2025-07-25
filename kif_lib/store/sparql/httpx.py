@@ -94,15 +94,6 @@ class HttpxSPARQL_Store(
                     str(err), type(store), 'headers', exception=store.Error)
 
         @property
-        def aclient(self) -> httpx.AsyncClient:
-            return self.get_aclient()
-
-        def get_aclient(self) -> httpx.AsyncClient:
-            if self._aclient is None:
-                self._aclient = httpx.AsyncClient(headers=self._headers)
-            return self._aclient
-
-        @property
         def client(self) -> httpx.Client:
             return self.get_client()
 
@@ -117,6 +108,15 @@ class HttpxSPARQL_Store(
                 self._client.close()
                 self._client = None
 
+        @property
+        def aclient(self) -> httpx.AsyncClient:
+            return self.get_aclient()
+
+        def get_aclient(self) -> httpx.AsyncClient:
+            if self._aclient is None:
+                self._aclient = httpx.AsyncClient(headers=self._headers)
+            return self._aclient
+
         @override
         async def _aclose(self) -> None:
             if self._aclient is not None:
@@ -129,12 +129,11 @@ class HttpxSPARQL_Store(
                 return self._http_post(query).json()
             except httpx.HTTPStatusError as err:
                 import json
-                if _logger.isEnabledFor(logging.DEBUG):
-                    try:
-                        _logger.debug('%s:\n%s', err, json.dumps(
-                            err.response.json(), indent=2))
-                    except json.JSONDecodeError:
-                        _logger.debug('%s\n%s', err, err.response.text)
+                try:
+                    _logger.error('%s:\n%s', err, json.dumps(
+                        err.response.json(), indent=2))
+                except json.JSONDecodeError:
+                    _logger.error('%s\n%s', err, err.response.text)
                 raise err
 
         def _http_post(self, text: str) -> httpx.Response:
@@ -153,13 +152,12 @@ class HttpxSPARQL_Store(
             try:
                 return (await self._http_apost(query)).json()
             except httpx.HTTPStatusError as err:
-                if _logger.isEnabledFor(logging.DEBUG):
-                    import json
-                    try:
-                        _logger.debug('%s:\n%s', err, json.dumps(
-                            err.response.json(), indent=2))
-                    except json.JSONDecodeError:
-                        _logger.debug('%s\n%s', err, err.response.text)
+                import json
+                try:
+                    _logger.error('%s:\n%s', err, json.dumps(
+                        err.response.json(), indent=2))
+                except json.JSONDecodeError:
+                    _logger.error('%s\n%s', err, err.response.text)
                 raise err
 
         async def _http_apost(self, text: str) -> httpx.Response:

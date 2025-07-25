@@ -68,7 +68,7 @@ _py_filter = filter
 
 class _CoreSPARQL_Store(
         Store[TOptions],
-        store_name='_core_sparql',
+        store_name='_sparql',
         store_description='SPARQL store (core)'
 ):
     """SPARQL store (core).

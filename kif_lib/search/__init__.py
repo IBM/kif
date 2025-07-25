@@ -5,8 +5,10 @@ from __future__ import annotations
 
 from .abc import Search
 from .empty import EmptySearch
+from .httpx import HttpxSearch
 
 __all__ = (
     'EmptySearch',
+    'HttpxSearch',
     'Search',
 )
