@@ -34,9 +34,6 @@ from .sparql_core import _CoreSPARQL_Store
 @dataclasses.dataclass
 class _SPARQL_StoreOptions(MixerStoreOptions):
 
-    _v_best_ranked: ClassVar[tuple[Iterable[str], bool | None]] =\
-        (('KIF_SPARQL_STORE_BEST_RANKED',), None)
-
     _v_debug: ClassVar[tuple[Iterable[str], bool | None]] =\
         (('KIF_SPARQL_STORE_DEBUG',), None)
 

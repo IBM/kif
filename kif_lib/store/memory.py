@@ -30,9 +30,6 @@ _logger: Final[logging.Logger] = logging.getLogger(__name__)
 class MemoryStoreOptions(StoreOptions, name='memory'):
     """Memory store options."""
 
-    _v_best_ranked: ClassVar[tuple[Iterable[str], bool | None]] =\
-        (('KIF_MEMORY_STORE_BEST_RANKED',), None)
-
     _v_debug: ClassVar[tuple[Iterable[str], bool | None]] =\
         (('KIF_MEMORY_STORE_DEBUG',), None)
 
