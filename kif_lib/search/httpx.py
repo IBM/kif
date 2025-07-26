@@ -307,11 +307,11 @@ class HttpxSearch(
 
     @property
     def default_iri(self) -> IRI | None:
-        """The default value for :attr:`Search.iri`."""
+        """The default value for :attr:`HttpxSearch.iri`."""
         return self.get_default_iri()
 
     def get_default_iri(self) -> IRI | None:
-        """Gets the default value for :attr:`Search.iri`.
+        """Gets the default value for :attr:`HttpxSearch.iri`.
 
         Returns:
            Default IRI.

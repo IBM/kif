@@ -320,7 +320,7 @@ class Search(Engine[TOptions]):
     def _set_language(self, language: str | None) -> bool:
         return True
 
-# -- Parsers ---------------------------------------------------------------
+# -- Parsing ---------------------------------------------------------------
 
     def to_item(self, data: TData) -> Item:
         """Parses item data.
