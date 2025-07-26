@@ -8,6 +8,7 @@ import dataclasses
 from ..engine import _EngineOptions
 from ..typing import Any, override
 from .abc import _SearchOptions
+from .dbpedia import DBpediaSearchOptions
 from .empty import EmptySearchOptions
 from .httpx import HttpxSearchOptions
 from .wikidata import WikidataSearchOptions
@@ -16,6 +17,9 @@ from .wikidata import WikidataSearchOptions
 @dataclasses.dataclass
 class SearchOptions(_SearchOptions, name='search'):
     """Search options."""
+
+    dbpedia: DBpediaSearchOptions = dataclasses.field(
+        default_factory=DBpediaSearchOptions)
 
     empty: EmptySearchOptions = dataclasses.field(
         default_factory=EmptySearchOptions)
@@ -28,6 +32,7 @@ class SearchOptions(_SearchOptions, name='search'):
 
     def __init__(self, *args: Any, **kwargs: Any) -> None:
         super().__init__(*args, **kwargs)
+        self.dbpedia = DBpediaSearchOptions()
         self.empty = EmptySearchOptions()
         self.httpx = HttpxSearchOptions()
         self.wikidata = WikidataSearchOptions()

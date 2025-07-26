@@ -6,7 +6,6 @@ from __future__ import annotations
 import collections
 import dataclasses
 import functools
-import logging
 
 from ..context import Context
 from ..model import IRI, Item, Lexeme, Property, T_IRI, Text
@@ -14,7 +13,6 @@ from ..typing import (
     Any,
     cast,
     ClassVar,
-    Final,
     Iterable,
     Iterator,
     Literal,
@@ -23,8 +21,6 @@ from ..typing import (
     TypeAlias,
 )
 from .httpx import HttpxSearch, HttpxSearchOptions
-
-_logger: Final[logging.Logger] = logging.getLogger(__name__)
 
 
 @dataclasses.dataclass
@@ -207,28 +203,25 @@ class WikidataSearch(
         limit = options.limit
         if limit is None:
             limit = options.max_limit
+        else:
+            limit = min(limit, options.max_limit)
         assert limit is not None
         page_size = min(options.page_size, options.max_page_size)
-        get_json = functools.partial(
-            self._http_get_json, iri.content)
+        get_json = functools.partial(self._http_get_json, iri.content)
         mk_params = functools.partial(
             self._build_search_entities_params,
             search, type, 'json', options.language, page_size)
         count, offset = 0, 0
         while count < limit:
             res = get_json(mk_params(offset))
-            try:
-                for t in res['search']:
-                    yield t
-                    count += 1
-                    if count == limit:
-                        break
-                if len(res['search']) < page_size:
-                    break
-                offset += page_size
-            except KeyError as err:
-                _logger.error('bad wbsearchentities response: %s', res)
-                raise self.Error(err) from err
+            if 'search' not in res:
+                break           # nothing to do
+            yield from res['search']
+            n = len(res['search'])
+            if n < page_size:
+                break
+            offset += page_size
+            count += n
 
     def _build_search_entities_params(
             self,
