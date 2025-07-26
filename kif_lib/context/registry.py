@@ -1093,7 +1093,7 @@ class IRI_Registry(Registry):
         iri = IRI.check(iri, function or self.curie, 'iri')
         try:
             return self._nsm.curie(iri.content, False)
-        except BaseException:
+        except Exception:
             return None
 
     def uncurie(
@@ -1112,7 +1112,7 @@ class IRI_Registry(Registry):
         curie = String.check(curie, function or self.uncurie, 'curie')
         try:
             return IRI.check(self._nsm.expand_curie(curie.content))
-        except BaseException:
+        except Exception:
             return None
 
     def lookup_resolver(

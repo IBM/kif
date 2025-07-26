@@ -87,7 +87,7 @@ class Jena:
         try:
             jpype.startJVM(classpath=list(
                 map(str, pathlib.Path(jena_home_lib).glob('*.jar'))))
-        except BaseException as err:
+        except Exception as err:
             raise RuntimeError('failed to start JPype') from err
         java = jpype.JPackage('java')
         cls._java = java

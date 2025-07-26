@@ -63,7 +63,7 @@ class JenaSPARQL_Store(
             try:
                 self._jena = jena_jpype.Jena(
                     jena_home.content if jena_home is not None else None)
-            except BaseException as err:
+            except Exception as err:
                 raise store._error(
                     f'failed to create Jena backend ({err})') from err
 

@@ -3,6 +3,7 @@
 
 from __future__ import annotations
 
+import abc
 import dataclasses
 import functools
 
@@ -207,8 +208,8 @@ class Search(Engine[TOptions]):
 
 # -- Initialization --------------------------------------------------------
 
-    #: Type alias for metadata.
-    TMetadata: TypeAlias = dict[str, Any]
+    #: Type alias for entity data.
+    TData: TypeAlias = dict[str, Any]
 
     #: Search options.
     _options: TOptions
@@ -318,6 +319,131 @@ class Search(Engine[TOptions]):
     def _set_language(self, language: str | None) -> bool:
         return True
 
+# -- Parsers ---------------------------------------------------------------
+
+    def to_item(self, data: TData) -> Item:
+        """Parses item data.
+
+        Parameters:
+           data: Item data.
+
+        Returns:
+           Item.
+        """
+        try:
+            return self._to_item(data)
+        except Exception as err:
+            raise ValueError(data) from err
+
+    @abc.abstractmethod
+    def _to_item(self, data: TData) -> Item:
+        raise NotImplementedError
+
+    def to_item_descriptor(
+            self,
+            data: TData
+    ) -> tuple[Item, Item.Descriptor]:
+        """Parses item descriptor data.
+
+        Parameters:
+           data: Item data.
+
+        Returns:
+           Item-descriptor pair.
+        """
+        try:
+            return self._to_item_descriptor(data)
+        except Exception as err:
+            raise ValueError(data) from err
+
+    def _to_item_descriptor(
+            self,
+            data: TData
+    ) -> tuple[Item, Item.Descriptor]:
+        return self._to_item(data), {}
+
+    def to_lexeme(self, data: TData) -> Lexeme:
+        """Parses lexeme data.
+
+        Parameters:
+           data: Lexeme data.
+
+        Returns:
+           Lexeme.
+        """
+        try:
+            return self._to_lexeme(data)
+        except Exception as err:
+            raise ValueError(data) from err
+
+    @abc.abstractmethod
+    def _to_lexeme(self, data: TData) -> Lexeme:
+        raise NotImplementedError
+
+    def to_lexeme_descriptor(
+            self,
+            data: TData
+    ) -> tuple[Lexeme, Lexeme.Descriptor]:
+        """Parses lexeme descriptor data.
+
+        Parameters:
+           data: Lexeme data.
+
+        Returns:
+           Lexeme-descriptor pair.
+        """
+        try:
+            return self._to_lexeme_descriptor(data)
+        except Exception as err:
+            raise ValueError(data) from err
+
+    def _to_lexeme_descriptor(
+            self,
+            data: TData
+    ) -> tuple[Lexeme, Lexeme.Descriptor]:
+        return self._to_lexeme(data), {}
+
+    def to_property(self, data: TData) -> Property:
+        """Parses property data.
+
+        Parameters:
+           data: Property data.
+
+        Returns:
+           Property.
+        """
+        try:
+            return self._to_property(data)
+        except Exception as err:
+            raise ValueError(data) from err
+
+    @abc.abstractmethod
+    def _to_property(self, data: TData) -> Property:
+        raise NotImplementedError
+
+    def to_property_descriptor(
+            self,
+            data: TData
+    ) -> tuple[Property, Property.Descriptor]:
+        """Parses property descriptor data.
+
+        Parameters:
+           data: Property data.
+
+        Returns:
+           Property-descriptor pair.
+        """
+        try:
+            return self._to_property_descriptor(data)
+        except Exception as err:
+            raise ValueError(data) from err
+
+    def _to_property_descriptor(
+            self,
+            data: TData
+    ) -> tuple[Property, Property.Descriptor]:
+        return self._to_property(data), {}
+
 # -- Item search -----------------------------------------------------------
 
     def item(
@@ -332,7 +458,7 @@ class Search(Engine[TOptions]):
             context: Context | None = None,
             **kwargs: Any
     ) -> Iterator[Item]:
-        """Searches for items matching search string.
+        """Searches for items matching search.
 
         Parameters:
            search: Search string.
@@ -346,67 +472,12 @@ class Search(Engine[TOptions]):
            kwargs: Other keyword arguments.
 
         Returns:
-           An iterator of items matching search string.
+           An iterator of items matching search.
         """
         return self._check_search_with_options_and_run(
             functools.partial(self._search_x_tail, self._item),
             search, debug, language, limit, lookahead, page_size, timeout,
             context, self.item, **kwargs)
-
-    def item_metadata(
-            self,
-            search: str,
-            debug: bool | None = None,
-            language: TTextLanguage | None = None,
-            limit: int | None = None,
-            lookahead: int | None = None,
-            page_size: int | None = None,
-            timeout: float | None = None,
-            context: Context | None = None,
-            **kwargs: Any
-    ) -> Iterator[tuple[Item, TMetadata]]:
-        """Searches for item-metadata pairs matching search string.
-
-        Parameters:
-           search: Search string.
-           debug: Whether to enable debugging mode.
-           language: Language of search.
-           limit: Limit (maximum number) of responses.
-           lookahead: Number of pages to lookahead asynchronously.
-           page_size: Page size of paginated responses.
-           timeout: Timeout of responses (in seconds).
-           context: KIF context.
-           kwargs: Other keyword arguments.
-
-        Returns:
-           An iterator of "(item, metadata)" pairs matching search string.
-        """
-        return self._check_search_with_options_and_run(
-            functools.partial(self._search_x_tail, self._item_metadata),
-            search, debug, language, limit, lookahead, page_size, timeout,
-            context, self.item_metadata, **kwargs)
-
-    def _search_x_tail(
-            self,
-            search_x_fn: Callable[[str, TOptions], Iterator[T]],
-            search: str,
-            options: TOptions
-    ) -> Iterator[T]:
-        if options.limit is not None and options.limit <= 0:
-            return iter(())
-        else:
-            return itertools.mix(
-                search_x_fn(search, options), limit=options.limit)
-
-    def _item(self, search: str, options: TOptions) -> Iterator[Item]:
-        return (t[0] for t in self._item_metadata(search, options))
-
-    def _item_metadata(
-            self,
-            search: str,
-            options: TOptions
-    ) -> Iterator[tuple[Item, TMetadata]]:
-        return iter(())
 
     def _check_search_with_options_and_run(
             self,
@@ -441,6 +512,97 @@ class Search(Engine[TOptions]):
             function: Location | None = None
     ) -> str:
         return KIF_Object._check_arg_str(search, function, 'search', 1)
+
+    def _search_x_tail(
+            self,
+            search_x_fn: Callable[[str, TOptions], Iterator[T]],
+            search: str,
+            options: TOptions
+    ) -> Iterator[T]:
+        if options.limit is not None and options.limit <= 0:
+            return iter(())
+        else:
+            return itertools.mix(
+                search_x_fn(search, options), limit=options.limit)
+
+    def _item(self, search: str, options: TOptions) -> Iterator[Item]:
+        return map(self._to_item, self._item_data(search, options))
+
+    def item_descriptor(
+            self,
+            search: str,
+            debug: bool | None = None,
+            language: TTextLanguage | None = None,
+            limit: int | None = None,
+            lookahead: int | None = None,
+            page_size: int | None = None,
+            timeout: float | None = None,
+            context: Context | None = None,
+            **kwargs: Any
+    ) -> Iterator[tuple[Item, Item.Descriptor]]:
+        """Searches for item-descriptor pairs matching search.
+
+        Parameters:
+           search: Search string.
+           debug: Whether to enable debugging mode.
+           language: Language of search.
+           limit: Limit (maximum number) of responses.
+           lookahead: Number of pages to lookahead asynchronously.
+           page_size: Page size of paginated responses.
+           timeout: Timeout of responses (in seconds).
+           context: KIF context.
+           kwargs: Other keyword arguments.
+
+        Returns:
+           An iterator of "(item, descriptor)" pairs matching search.
+        """
+        return self._check_search_with_options_and_run(
+            functools.partial(self._search_x_tail, self._item_descriptor),
+            search, debug, language, limit, lookahead, page_size, timeout,
+            context, self.item, **kwargs)
+
+    def _item_descriptor(
+            self,
+            search: str,
+            options: TOptions
+    ) -> Iterator[tuple[Item, Item.Descriptor]]:
+        return map(self.to_item_descriptor, self._item_data(search, options))
+
+    def item_data(
+            self,
+            search: str,
+            debug: bool | None = None,
+            language: TTextLanguage | None = None,
+            limit: int | None = None,
+            lookahead: int | None = None,
+            page_size: int | None = None,
+            timeout: float | None = None,
+            context: Context | None = None,
+            **kwargs: Any
+    ) -> Iterator[TData]:
+        """Searches for item data matching search.
+
+        Parameters:
+           search: Search string.
+           debug: Whether to enable debugging mode.
+           language: Language of search.
+           limit: Limit (maximum number) of responses.
+           lookahead: Number of pages to lookahead asynchronously.
+           page_size: Page size of paginated responses.
+           timeout: Timeout of responses (in seconds).
+           context: KIF context.
+           kwargs: Other keyword arguments.
+
+        Returns:
+           An iterator of item data matching search.
+        """
+        return self._check_search_with_options_and_run(
+            functools.partial(self._search_x_tail, self._item_data),
+            search, debug, language, limit, lookahead, page_size, timeout,
+            context, self.item_data, **kwargs)
+
+    def _item_data(self, search: str, options: TOptions) -> Iterator[TData]:
+        return iter(())
 
 # -- Lexeme search -------------------------------------------------------
 
@@ -456,7 +618,7 @@ class Search(Engine[TOptions]):
             context: Context | None = None,
             **kwargs: Any
     ) -> Iterator[Lexeme]:
-        """Searches for lexemes matching search string.
+        """Searches for lexemes matching search.
 
         Parameters:
            search: Search string.
@@ -470,14 +632,17 @@ class Search(Engine[TOptions]):
            kwargs: Other keyword arguments.
 
         Returns:
-           An iterator of lexemes matching search string.
+           An iterator of lexemes matching search.
         """
         return self._check_search_with_options_and_run(
             functools.partial(self._search_x_tail, self._lexeme),
             search, debug, language, limit, lookahead, page_size, timeout,
             context, self.lexeme, **kwargs)
 
-    def lexeme_metadata(
+    def _lexeme(self, search: str, options: TOptions) -> Iterator[Lexeme]:
+        return map(self.to_lexeme, self._lexeme_data(search, options))
+
+    def lexeme_descriptor(
             self,
             search: str,
             debug: bool | None = None,
@@ -488,8 +653,8 @@ class Search(Engine[TOptions]):
             timeout: float | None = None,
             context: Context | None = None,
             **kwargs: Any
-    ) -> Iterator[tuple[Lexeme, TMetadata]]:
-        """Searches for lexeme-metadata pairs matching search string.
+    ) -> Iterator[tuple[Lexeme, Lexeme.Descriptor]]:
+        """Searches for lexeme-descriptor pairs matching search.
 
         Parameters:
            search: Search string.
@@ -503,21 +668,54 @@ class Search(Engine[TOptions]):
            kwargs: Other keyword arguments.
 
         Returns:
-           An iterator of "(lexeme, metadata)" pairs matching search string.
+           An iterator of "(lexeme, descriptor)" pairs matching search.
         """
         return self._check_search_with_options_and_run(
-            functools.partial(self._search_x_tail, self._lexeme_metadata),
+            functools.partial(self._search_x_tail, self._lexeme_descriptor),
             search, debug, language, limit, lookahead, page_size, timeout,
-            context, self.lexeme_metadata, **kwargs)
+            context, self.lexeme, **kwargs)
 
-    def _lexeme(self, search: str, options: TOptions) -> Iterator[Lexeme]:
-        return (t[0] for t in self._lexeme_metadata(search, options))
+    def _lexeme_descriptor(
+            self, search: str,
+            options: TOptions
+    ) -> Iterator[tuple[Lexeme, Lexeme.Descriptor]]:
+        return map(
+            self.to_lexeme_descriptor, self._lexeme_data(search, options))
 
-    def _lexeme_metadata(
+    def lexeme_data(
             self,
             search: str,
-            options: TOptions
-    ) -> Iterator[tuple[Lexeme, TMetadata]]:
+            debug: bool | None = None,
+            language: TTextLanguage | None = None,
+            limit: int | None = None,
+            lookahead: int | None = None,
+            page_size: int | None = None,
+            timeout: float | None = None,
+            context: Context | None = None,
+            **kwargs: Any
+    ) -> Iterator[TData]:
+        """Searches for lexeme data matching search.
+
+        Parameters:
+           search: Search string.
+           debug: Whether to enable debugging mode.
+           language: Language of search.
+           limit: Limit (maximum number) of responses.
+           lookahead: Number of pages to lookahead asynchronously.
+           page_size: Page size of paginated responses.
+           timeout: Timeout of responses (in seconds).
+           context: KIF context.
+           kwargs: Other keyword arguments.
+
+        Returns:
+           An iterator of lexeme data matching search.
+        """
+        return self._check_search_with_options_and_run(
+            functools.partial(self._search_x_tail, self._lexeme_data),
+            search, debug, language, limit, lookahead, page_size, timeout,
+            context, self.lexeme_data, **kwargs)
+
+    def _lexeme_data(self, search: str, options: TOptions) -> Iterator[TData]:
         return iter(())
 
 # -- Property search -------------------------------------------------------
@@ -534,7 +732,7 @@ class Search(Engine[TOptions]):
             context: Context | None = None,
             **kwargs: Any
     ) -> Iterator[Property]:
-        """Searches for properties matching search string.
+        """Searches for properties matching search.
 
         Parameters:
            search: Search string.
@@ -548,14 +746,17 @@ class Search(Engine[TOptions]):
            kwargs: Other keyword arguments.
 
         Returns:
-           An iterator of properties matching search string.
+           An iterator of properties matching search.
         """
         return self._check_search_with_options_and_run(
             functools.partial(self._search_x_tail, self._property),
             search, debug, language, limit, lookahead, page_size, timeout,
             context, self.property, **kwargs)
 
-    def property_metadata(
+    def _property(self, search: str, options: TOptions) -> Iterator[Property]:
+        return map(self.to_property, self._property_data(search, options))
+
+    def property_descriptor(
             self,
             search: str,
             debug: bool | None = None,
@@ -566,8 +767,8 @@ class Search(Engine[TOptions]):
             timeout: float | None = None,
             context: Context | None = None,
             **kwargs: Any
-    ) -> Iterator[tuple[Property, TMetadata]]:
-        """Searches for property-metadata pairs matching search string.
+    ) -> Iterator[tuple[Property, Property.Descriptor]]:
+        """Searches for property-descriptor pairs matching search.
 
         Parameters:
            search: Search string.
@@ -581,19 +782,57 @@ class Search(Engine[TOptions]):
            kwargs: Other keyword arguments.
 
         Returns:
-           An iterator of "(property, metadata)" pairs matching search string.
+           An iterator of "(property, descriptor)" pairs matching search.
         """
         return self._check_search_with_options_and_run(
-            functools.partial(self._search_x_tail, self._property_metadata),
+            functools.partial(self._search_x_tail, self._property_descriptor),
             search, debug, language, limit, lookahead, page_size, timeout,
-            context, self.property_metadata, **kwargs)
+            context, self.property, **kwargs)
 
-    def _property(self, search: str, options: TOptions) -> Iterator[Property]:
-        return (t[0] for t in self._property_metadata(search, options))
-
-    def _property_metadata(
+    def _property_descriptor(
             self,
             search: str,
             options: TOptions
-    ) -> Iterator[tuple[Property, TMetadata]]:
+    ) -> Iterator[tuple[Property, Property.Descriptor]]:
+        return map(self.to_property_descriptor, self._property_data(
+            search, options))
+
+    def property_data(
+            self,
+            search: str,
+            debug: bool | None = None,
+            language: TTextLanguage | None = None,
+            limit: int | None = None,
+            lookahead: int | None = None,
+            page_size: int | None = None,
+            timeout: float | None = None,
+            context: Context | None = None,
+            **kwargs: Any
+    ) -> Iterator[TData]:
+        """Searches for property data matching search.
+
+        Parameters:
+           search: Search string.
+           debug: Whether to enable debugging mode.
+           language: Language of search.
+           limit: Limit (maximum number) of responses.
+           lookahead: Number of pages to lookahead asynchronously.
+           page_size: Page size of paginated responses.
+           timeout: Timeout of responses (in seconds).
+           context: KIF context.
+           kwargs: Other keyword arguments.
+
+        Returns:
+           An iterator of property data matching search.
+        """
+        return self._check_search_with_options_and_run(
+            functools.partial(self._search_x_tail, self._property_data),
+            search, debug, language, limit, lookahead, page_size, timeout,
+            context, self.property_data, **kwargs)
+
+    def _property_data(
+            self,
+            search: str,
+            options: TOptions
+    ) -> Iterator[TData]:
         return iter(())

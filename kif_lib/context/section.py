@@ -264,7 +264,7 @@ class Section:
                     return parse(value)
                 else:
                     return cast(T, value)
-            except BaseException:
+            except Exception:
                 _logger.warning(
                     'bad value (%s) for environment variable %s',
                     value, var)

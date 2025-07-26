@@ -3,14 +3,16 @@
 
 from __future__ import annotations
 
+import collections
 import dataclasses
 import functools
 import logging
 
 from ..context import Context
-from ..model import Entity, IRI, Item, KIF_Object, Lexeme, Property, T_IRI
+from ..model import IRI, Item, Lexeme, Property, T_IRI, Text
 from ..typing import (
     Any,
+    cast,
     ClassVar,
     Final,
     Iterable,
@@ -100,35 +102,102 @@ class WikidataSearch(
         return cls.get_context(context).options.search.wikidata
 
     @override
-    def _item_metadata(
-            self,
-            search: str,
-            options: TOptions
-    ) -> Iterator[tuple[Item, WikidataSearch.TMetadata]]:
-        return self._x_metadata('item', search, options)  # type: ignore
+    def _to_item(self, data: WikidataSearch.TData) -> Item:
+        return Item(data['concepturi'])
 
     @override
-    def _property_metadata(
+    def to_item_descriptor(
             self,
-            search: str,
-            options: TOptions
-    ) -> Iterator[tuple[Property, WikidataSearch.TMetadata]]:
-        return self._x_metadata('property', search, options)  # type: ignore
+            data: WikidataSearch.TData
+    ) -> tuple[Item, Item.Descriptor]:
+        return (self._to_item(data), cast(
+            Item.Descriptor, self._to_x_descriptor(data)))
 
     @override
-    def _lexeme_metadata(
+    def _to_lexeme(self, data: WikidataSearch.TData) -> Lexeme:
+        return Lexeme(data['concepturi'])
+
+    @override
+    def to_lexeme_descriptor(
+            self,
+            data: WikidataSearch.TData
+    ) -> tuple[Lexeme, Lexeme.Descriptor]:
+        lexeme = self._to_lexeme(data)
+        try:
+            m = data['match']
+            if m['type'] == 'label':
+                lang, text = m['language'], m['text']
+                return lexeme, {'lemma': Text(text, lang)}
+        except Exception:
+            pass
+        return lexeme, {}
+
+    @override
+    def _to_property(self, data: WikidataSearch.TData) -> Property:
+        return Property(data['concepturi'], data['datatype'])
+
+    @override
+    def to_property_descriptor(
+            self,
+            data: WikidataSearch.TData
+    ) -> tuple[Property, Property.Descriptor]:
+        prop = self._to_property(data)
+        desc = self._to_x_descriptor(data)
+        desc['range'] = prop.range
+        return prop, cast(Property.Descriptor, desc)
+
+    def _to_x_descriptor(
+            self,
+            data: WikidataSearch.TData,
+            empty: dict[str, Any] = {}
+    ) -> dict[str, Any]:
+        try:
+            res: dict[str, Any] = collections.defaultdict(dict)
+            if 'label' in data:
+                res['labels']['en'] = Text(data['label'], 'en')
+            if 'description' in data:
+                res['descriptions']['en'] = Text(data['description'], 'en')
+            if 'match' in data:
+                m = data['match']
+                lang, text = m['language'], m['text']
+                if m['type'] == 'label':
+                    res['labels'][lang] = Text(text, lang)
+                elif m['type'] == 'alias':
+                    res['aliases'][lang] = {Text(text, lang)}
+            return dict(res)
+        except KeyError:
+            return empty
+
+    @override
+    def _item_data(
             self,
             search: str,
             options: TOptions
-    ) -> Iterator[tuple[Lexeme, WikidataSearch.TMetadata]]:
-        return self._x_metadata('lexeme', search, options)  # type: ignore
+    ) -> Iterator[WikidataSearch.TData]:
+        return self._x_data('item', search, options)
 
-    def _x_metadata(
+    @override
+    def _lexeme_data(
+            self,
+            search: str,
+            options: TOptions
+    ) -> Iterator[WikidataSearch.TData]:
+        return self._x_data('lexeme', search, options)
+
+    @override
+    def _property_data(
+            self,
+            search: str,
+            options: TOptions
+    ) -> Iterator[WikidataSearch.TData]:
+        return self._x_data('property', search, options)
+
+    def _x_data(
             self,
             type: Literal['item', 'lexeme', 'property'],
             search: str,
             options: TOptions
-    ) -> Iterator[tuple[Entity, WikidataSearch.TMetadata]]:
+    ) -> Iterator[WikidataSearch.TData]:
         iri = options.iri
         if iri is None:
             assert self.options.DEFAULT_IRI is not None
@@ -145,14 +214,12 @@ class WikidataSearch(
         mk_params = functools.partial(
             self._build_search_entities_params,
             search, type, 'json', options.language, page_size)
-        parse = functools.partial(
-            self._parse_search_entities_results_entry, type)
         count, offset = 0, 0
         while count < limit:
             res = get_json(mk_params(offset))
             try:
                 for t in res['search']:
-                    yield parse(t)
+                    yield t
                     count += 1
                     if count == limit:
                         break
@@ -195,16 +262,3 @@ class WikidataSearch(
             yield ('limit', limit)
         if offset is not None:
             yield ('continue', offset)
-
-    def _parse_search_entities_results_entry(
-            self,
-            type: Literal['item', 'lexeme', 'property'],
-            t: dict[str, Any]
-    ) -> tuple[Entity, dict[str, Any]]:
-        if type == 'item':
-            return Item(t['concepturi']), t
-        elif type == 'lexeme':
-            return Lexeme(t['concepturi']), t
-        elif type == 'property':
-            return Property(t['concepturi'], t['datatype']), t
-        raise KIF_Object._should_not_get_here()

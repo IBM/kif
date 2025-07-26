@@ -82,7 +82,7 @@ class RDFoxSPARQL_Store(
                         self.rdfox.set(
                             'endpoint.port', kwargs.get('port', 12110))
                         self.rdfox.endpoint_start()
-                    except BaseException as err:
+                    except Exception as err:
                         raise store._error(
                             f'failed to create RDFox backend ({err})') from err
             self._name = 'ds' + str(id(self))

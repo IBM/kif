@@ -245,7 +245,7 @@ class HttpxSearch(
             iri: str,
             params: httpx._types.QueryParamTypes | None = None,
             timeout: httpx._types.TimeoutTypes | None = None
-    ) -> HttpxSearch.TMetadata:
+    ) -> HttpxSearch.TData:
         try:
             return self._http_get(iri, params, timeout).json()
         except httpx.HTTPStatusError as err:
@@ -291,7 +291,7 @@ class HttpxSearch(
             iri: str,
             params: httpx._types.QueryParamTypes | None = None,
             timeout: httpx._types.TimeoutTypes | None = None
-    ) -> HttpxSearch.TMetadata:
+    ) -> HttpxSearch.TData:
         try:
             return (await self._http_aget(iri, params, timeout)).json()
         except httpx.HTTPStatusError as err:
