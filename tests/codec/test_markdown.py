@@ -114,7 +114,7 @@ class Test(TestCase):
                 wd.L(33), self.md_sexp(
                     'Lexeme',
                     self.md_link('change', wd.L(33).iri.content) + ' ('
-                    + self.md_link('English', wd.English.iri.content) + ' '
+                    + self.md_link('English', wd.English.iri.content) + ', '
                     + self.md_link("verb", wd.verb.iri.content) + ')'))
         # known prefix: unknown lemma, category, language
         with Context():
