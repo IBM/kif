@@ -29,8 +29,8 @@ from ..typing import (
 )
 from .abc import Search, SearchOptions
 
+_DDGS_URL: Final[str] = 'https://github.com/deedy5/ddgs'
 _logger: Final[logging.Logger] = logging.getLogger(__name__)
-
 
 @dataclasses.dataclass
 class _DDGS_SearchOptions(SearchOptions):
@@ -712,8 +712,8 @@ class DDGS_Search(
                     verify=False)
             except ImportError as err:
                 raise ImportError(
-                    f'{DDGS_Search.__qualname__} requires '
-                    'https://github.com/deedy5/ddgs') from err
+                    f'{self.__class__.__qualname__} '
+                    f'requires {_DDGS_URL}') from err
         return self._ddgs
 
     @property
@@ -1353,8 +1353,13 @@ class DDGS_Search(
             match_and_sub: Callable[
                 [DDGS_Search.TData], DDGS_Search.TData | None],
     ) -> Iterator[DDGS_Search.TData]:
-        from ddgs import DDGS
-        from ddgs.exceptions import DDGSException
+        try:
+            from ddgs import DDGS                     # type: ignore
+            from ddgs.exceptions import DDGSException  # type: ignore
+        except ImportError as err:
+            raise ImportError(
+                f'{self.__class__.__qualname__} '
+                f'requires {_DDGS_URL}') from err
         assert isinstance(self.ddgs, DDGS)
         if site:
             search += f' site:{site}'
