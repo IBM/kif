@@ -13,6 +13,7 @@ from ..engine import _EngineOptions, Engine, EngineOptions
 from ..model import Item, KIF_Object, Lexeme, Property, String, TTextLanguage
 from ..typing import (
     Any,
+    AsyncIterator,
     Callable,
     cast,
     ClassVar,
@@ -603,6 +604,98 @@ class Search(Engine[TOptions]):
 
     def _item_data(self, search: str, options: TOptions) -> Iterator[TData]:
         return iter(())
+
+    def aitem(
+            self,
+            search: str,
+            debug: bool | None = None,
+            language: TTextLanguage | None = None,
+            limit: int | None = None,
+            lookahead: int | None = None,
+            page_size: int | None = None,
+            timeout: float | None = None,
+            context: Context | None = None,
+            **kwargs: Any
+    ) -> AsyncIterator[Item]:
+        """Async version of :meth:`Search.item`."""
+        return self._check_search_with_options_and_run(
+            functools.partial(self._asearch_x_tail, self._aitem),
+            search, debug, language, limit, lookahead, page_size, timeout,
+            context, self.item, **kwargs)
+
+    def _asearch_x_tail(
+            self,
+            asearch_x_fn: Callable[[str, TOptions], AsyncIterator[T]],
+            search: str,
+            options: TOptions
+    ) -> AsyncIterator[T]:
+        if options.limit is not None and options.limit <= 0:
+            return self._asearch_empty_iterator()  # nothing to do
+        else:
+            return itertools.amix(
+                asearch_x_fn(search, options), limit=options.limit)
+
+    async def _asearch_empty_iterator(self) -> AsyncIterator[Any]:
+        return
+        yield
+
+    def _aitem(
+            self,
+            search: str,
+            options: TOptions
+    ) -> AsyncIterator[Item]:
+        return itertools.amap(self.to_item, self._aitem_data(search, options))
+
+    def aitem_descriptor(
+            self,
+            search: str,
+            debug: bool | None = None,
+            language: TTextLanguage | None = None,
+            limit: int | None = None,
+            lookahead: int | None = None,
+            page_size: int | None = None,
+            timeout: float | None = None,
+            context: Context | None = None,
+            **kwargs: Any
+    ) -> AsyncIterator[tuple[Item, Item.Descriptor]]:
+        """Async version of :meth:`Search.item_descriptor`."""
+        return self._check_search_with_options_and_run(
+            functools.partial(self._asearch_x_tail, self._aitem_descriptor),
+            search, debug, language, limit, lookahead, page_size, timeout,
+            context, self.item, **kwargs)
+
+    def _aitem_descriptor(
+            self,
+            search: str,
+            options: TOptions
+    ) -> AsyncIterator[tuple[Item, Item.Descriptor]]:
+        return itertools.amap(
+            self.to_item_descriptor, self._aitem_data(search, options))
+
+    def aitem_data(
+            self,
+            search: str,
+            debug: bool | None = None,
+            language: TTextLanguage | None = None,
+            limit: int | None = None,
+            lookahead: int | None = None,
+            page_size: int | None = None,
+            timeout: float | None = None,
+            context: Context | None = None,
+            **kwargs: Any
+    ) -> AsyncIterator[TData]:
+        """Async version of :meth:`Search.item_data`."""
+        return self._check_search_with_options_and_run(
+            functools.partial(self._asearch_x_tail, self._aitem_data),
+            search, debug, language, limit, lookahead, page_size, timeout,
+            context, self.item_data, **kwargs)
+
+    def _aitem_data(
+            self,
+            search: str,
+            options: TOptions
+    ) -> AsyncIterator[TData]:
+        return self._asearch_empty_iterator()
 
 # -- Lexeme search -------------------------------------------------------
 
@@ -717,6 +810,82 @@ class Search(Engine[TOptions]):
 
     def _lexeme_data(self, search: str, options: TOptions) -> Iterator[TData]:
         return iter(())
+
+    def alexeme(
+            self,
+            search: str,
+            debug: bool | None = None,
+            language: TTextLanguage | None = None,
+            limit: int | None = None,
+            lookahead: int | None = None,
+            page_size: int | None = None,
+            timeout: float | None = None,
+            context: Context | None = None,
+            **kwargs: Any
+    ) -> AsyncIterator[Lexeme]:
+        """Async version of :meth:`Search.lexeme`."""
+        return self._check_search_with_options_and_run(
+            functools.partial(self._asearch_x_tail, self._alexeme),
+            search, debug, language, limit, lookahead, page_size, timeout,
+            context, self.lexeme, **kwargs)
+
+    def _alexeme(
+            self,
+            search: str,
+            options: TOptions
+    ) -> AsyncIterator[Lexeme]:
+        return itertools.amap(
+            self.to_lexeme, self._alexeme_data(search, options))
+
+    def alexeme_descriptor(
+            self,
+            search: str,
+            debug: bool | None = None,
+            language: TTextLanguage | None = None,
+            limit: int | None = None,
+            lookahead: int | None = None,
+            page_size: int | None = None,
+            timeout: float | None = None,
+            context: Context | None = None,
+            **kwargs: Any
+    ) -> AsyncIterator[tuple[Lexeme, Lexeme.Descriptor]]:
+        """Async version of :meth:`Search.lexeme_descriptor`."""
+        return self._check_search_with_options_and_run(
+            functools.partial(self._asearch_x_tail, self._alexeme_descriptor),
+            search, debug, language, limit, lookahead, page_size, timeout,
+            context, self.lexeme, **kwargs)
+
+    def _alexeme_descriptor(
+            self, search: str,
+            options: TOptions
+    ) -> AsyncIterator[tuple[Lexeme, Lexeme.Descriptor]]:
+        return itertools.amap(
+            self.to_lexeme_descriptor, self._alexeme_data(search, options))
+
+    def alexeme_data(
+            self,
+            search: str,
+            debug: bool | None = None,
+            language: TTextLanguage | None = None,
+            limit: int | None = None,
+            lookahead: int | None = None,
+            page_size: int | None = None,
+            timeout: float | None = None,
+            context: Context | None = None,
+            **kwargs: Any
+    ) -> AsyncIterator[TData]:
+        """Async version of :meth:`Search.lexeme_data`."""
+        return self._check_search_with_options_and_run(
+            functools.partial(self._asearch_x_tail, self._alexeme_data),
+            search, debug, language, limit, lookahead, page_size, timeout,
+            context, self.lexeme_data, **kwargs)
+
+    def _alexeme_data(
+            self,
+            search: str,
+            options: TOptions
+    ) -> AsyncIterator[TData]:
+        return self._asearch_empty_iterator()
 
 # -- Property search -------------------------------------------------------
 
@@ -836,3 +1005,82 @@ class Search(Engine[TOptions]):
             options: TOptions
     ) -> Iterator[TData]:
         return iter(())
+
+    def aproperty(
+            self,
+            search: str,
+            debug: bool | None = None,
+            language: TTextLanguage | None = None,
+            limit: int | None = None,
+            lookahead: int | None = None,
+            page_size: int | None = None,
+            timeout: float | None = None,
+            context: Context | None = None,
+            **kwargs: Any
+    ) -> AsyncIterator[Property]:
+        """Async version of :meth:`Search.property`."""
+        return self._check_search_with_options_and_run(
+            functools.partial(self._asearch_x_tail, self._aproperty),
+            search, debug, language, limit, lookahead, page_size, timeout,
+            context, self.property, **kwargs)
+
+    def _aproperty(
+            self,
+            search: str,
+            options: TOptions
+    ) -> AsyncIterator[Property]:
+        return itertools.amap(
+            self.to_property, self._aproperty_data(search, options))
+
+    def aproperty_descriptor(
+            self,
+            search: str,
+            debug: bool | None = None,
+            language: TTextLanguage | None = None,
+            limit: int | None = None,
+            lookahead: int | None = None,
+            page_size: int | None = None,
+            timeout: float | None = None,
+            context: Context | None = None,
+            **kwargs: Any
+    ) -> AsyncIterator[tuple[Property, Property.Descriptor]]:
+        """Async version of :meth:`Search.property_descriptor`."""
+        return self._check_search_with_options_and_run(
+            functools.partial(
+                self._asearch_x_tail, self._aproperty_descriptor),
+            search, debug, language, limit, lookahead, page_size, timeout,
+            context, self.property, **kwargs)
+
+    def _aproperty_descriptor(
+            self,
+            search: str,
+            options: TOptions
+    ) -> AsyncIterator[tuple[Property, Property.Descriptor]]:
+        return itertools.amap(
+            self.to_property_descriptor, self._aproperty_data(
+                search, options))
+
+    def aproperty_data(
+            self,
+            search: str,
+            debug: bool | None = None,
+            language: TTextLanguage | None = None,
+            limit: int | None = None,
+            lookahead: int | None = None,
+            page_size: int | None = None,
+            timeout: float | None = None,
+            context: Context | None = None,
+            **kwargs: Any
+    ) -> AsyncIterator[TData]:
+        """Async version of :meth:`Search.property_data`."""
+        return self._check_search_with_options_and_run(
+            functools.partial(self._asearch_x_tail, self._aproperty_data),
+            search, debug, language, limit, lookahead, page_size, timeout,
+            context, self.property_data, **kwargs)
+
+    def _aproperty_data(
+            self,
+            search: str,
+            options: TOptions
+    ) -> AsyncIterator[TData]:
+        return self._asearch_empty_iterator()

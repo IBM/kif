@@ -3,14 +3,17 @@
 
 from __future__ import annotations
 
+import asyncio
 import collections
 import dataclasses
 import functools
 
+from .. import itertools
 from ..context import Context
 from ..model import IRI, Item, Lexeme, Property, T_IRI, Text
 from ..typing import (
     Any,
+    AsyncIterator,
     cast,
     ClassVar,
     Iterable,
@@ -194,6 +197,25 @@ class WikidataSearch(
             search: str,
             options: TOptions
     ) -> Iterator[WikidataSearch.TData]:
+        iri, language, limit, page_size = self._check_options(options)
+        get_json = functools.partial(self._http_get_json, iri.content)
+        stream = self._build_search_entities_params_stream(
+            search, type, 'json', language, page_size)
+        count = 0
+        while count < limit:
+            res = get_json(next(stream))
+            if 'search' not in res:
+                break           # nothing to do
+            yield from res['search']
+            n = len(res['search'])
+            if n < page_size:
+                break
+            count += n
+
+    def _check_options(
+            self,
+            options: TOptions
+    ) -> tuple[IRI, str, int, int]:
         iri = options.iri
         if iri is None:
             assert self.options.DEFAULT_IRI is not None
@@ -205,35 +227,22 @@ class WikidataSearch(
             limit = options.max_limit
         else:
             limit = min(limit, options.max_limit)
-        assert limit is not None
-        page_size = min(options.page_size, options.max_page_size)
-        get_json = functools.partial(self._http_get_json, iri.content)
-        mk_params = functools.partial(
-            self._build_search_entities_params,
-            search, type, 'json', options.language, page_size)
-        count, offset = 0, 0
-        while count < limit:
-            res = get_json(mk_params(offset))
-            if 'search' not in res:
-                break           # nothing to do
-            yield from res['search']
-            n = len(res['search'])
-            if n < page_size:
-                break
-            offset += page_size
-            count += n
+        page_size = min(options.page_size, limit, options.max_page_size)
+        return iri, language, limit, page_size
 
-    def _build_search_entities_params(
+    def _build_search_entities_params_stream(
             self,
             search: str,
             type: Literal['item', 'lexeme', 'property'],
-            format: str | None = None,
-            language: str | None = None,
-            limit: int | None = None,
-            offset: int | None = None
-    ) -> Mapping[str, int | str]:
-        return dict(self._build_search_entities_params_tail(
-            search, type, format, language, limit, offset))
+            format: str,
+            language: str,
+            limit: int
+    ) -> Iterator[Mapping[str, int | str]]:
+        offset = 0
+        while True:
+            yield dict(self._build_search_entities_params_tail(
+                search, type, format, language, limit, offset))
+            offset += limit
 
     def _build_search_entities_params_tail(
             self,
@@ -255,3 +264,52 @@ class WikidataSearch(
             yield ('limit', limit)
         if offset is not None:
             yield ('continue', offset)
+
+    @override
+    def _aitem_data(
+            self,
+            search: str,
+            options: TOptions
+    ) -> AsyncIterator[WikidataSearch.TData]:
+        return self._ax_data('item', search, options)
+
+    @override
+    def _alexeme_data(
+            self,
+            search: str,
+            options: TOptions
+    ) -> AsyncIterator[WikidataSearch.TData]:
+        return self._ax_data('lexeme', search, options)
+
+    @override
+    def _aproperty_data(
+            self,
+            search: str,
+            options: TOptions
+    ) -> AsyncIterator[WikidataSearch.TData]:
+        return self._ax_data('property', search, options)
+
+    async def _ax_data(
+            self,
+            type: Literal['item', 'lexeme', 'property'],
+            search: str,
+            options: TOptions
+    ) -> AsyncIterator[WikidataSearch.TData]:
+        iri, language, limit, page_size = self._check_options(options)
+        get_json = functools.partial(self._http_aget_json, iri.content)
+        stream = self._build_search_entities_params_stream(
+            search, type, 'json', language, page_size)
+        count = 0
+        for batch in itertools.batched(stream, options.lookahead):
+            tasks = (asyncio.ensure_future(get_json(p)) for p in batch)
+            for res in await asyncio.gather(*tasks):
+                if 'search' not in res:
+                    return      # nothing to do
+                for t in res['search']:
+                    yield t
+                n = len(res['search'])
+                if n < page_size:
+                    return
+                count += n
+                if count == limit:
+                    return

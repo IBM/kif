@@ -11,10 +11,12 @@ from ..context import Context
 from ..model import IRI, Item, T_IRI, Text
 from ..typing import (
     Any,
+    AsyncIterator,
     ClassVar,
     Iterable,
     Iterator,
     Literal,
+    Mapping,
     override,
     TypeAlias,
 )
@@ -31,7 +33,7 @@ class DBpediaSearchOptions(HttpxSearchOptions, name='dbpedia'):
     DEFAULT_IRI = 'https://lookup.dbpedia.org/api/search'
 
     _v_iri: ClassVar[tuple[Iterable[str], str | None]] =\
-        (('KIF_DBPEDIA_SEARCH_IRI', 'DBPEDIA_WAPI'), DEFAULT_IRI)
+        (('KIF_DBPEDIA_SEARCH_IRI', 'DBPEDIA_LOOKUP'), DEFAULT_IRI)
 
     _v_max_limit: ClassVar[tuple[Iterable[str], int | None]] =\
         (('KIF_DBPEDIA_SEARCH_MAX_LIMIT',), None)
@@ -130,6 +132,16 @@ class DBpediaSearch(
             options: TOptions
     ) -> Iterator[DBpediaSearch.TData]:
         assert type == 'item', type
+        iri, limit = self._check_options(options)
+        get_json = functools.partial(self._http_get_json, iri.content)
+        data = get_json(self._build_search_params(search, limit))
+        if 'docs' in data:
+            yield from data['docs']
+
+    def _check_options(
+            self,
+            options: TOptions
+    ) -> tuple[IRI, int]:
         iri = options.iri
         if iri is None:
             assert self.options.DEFAULT_IRI is not None
@@ -139,9 +151,33 @@ class DBpediaSearch(
             limit = options.max_limit
         else:
             limit = min(limit, options.max_limit)
-        assert limit is not None
-        get_json = functools.partial(
-            self._http_get_json, iri.content)
-        data = get_json(dict(format='JSON', maxResults=limit, query=search))
+        return iri, limit
+
+    def _build_search_params(
+            self,
+            search: str,
+            limit: int
+    ) -> Mapping[str, int | str]:
+        return dict(format='JSON', maxResults=limit, query=search)
+
+    @override
+    def _aitem_data(
+            self,
+            search: str,
+            options: TOptions
+    ) -> AsyncIterator[DBpediaSearch.TData]:
+        return self._ax_data('item', search, options)
+
+    async def _ax_data(
+            self,
+            type: Literal['item', 'lexeme', 'property'],
+            search: str,
+            options: TOptions
+    ) -> AsyncIterator[DBpediaSearch.TData]:
+        assert type == 'item', type
+        iri, limit = self._check_options(options)
+        get_json = functools.partial(self._http_aget_json, iri.content)
+        data = await get_json(self._build_search_params(search, limit))
         if 'docs' in data:
-            yield from data['docs']
+            for t in data['docs']:
+                yield t
