@@ -1338,9 +1338,9 @@ class DDGS_Search(
             regex: re.Pattern[str] | None,
             repl: str | None
     ) -> Iterator[DDGS_Search.TData]:
-        backend, limit, site = self._check_options(options)
+        backend, limit, site, timeout = self._check_options(options)
         return self._x_data_tail(
-            type, search, backend, limit, site, functools.partial(
+            type, search, backend, limit, site, timeout, functools.partial(
                 self._match_and_sub_href, regex, repl))
 
     def _x_data_tail(
@@ -1350,6 +1350,7 @@ class DDGS_Search(
             backend: str,
             limit: int,
             site: str | None,
+            timeout: int | None,
             match_and_sub: Callable[
                 [DDGS_Search.TData], DDGS_Search.TData | None],
     ) -> Iterator[DDGS_Search.TData]:
@@ -1363,18 +1364,25 @@ class DDGS_Search(
         assert isinstance(self.ddgs, DDGS)
         if site:
             search += f' site:{site}'
-        try:
-            for t in map(match_and_sub, self.ddgs.text(
-                    search, backend=backend, max_results=limit)):
-                if t is not None:
-                    yield t
-        except DDGSException as err:
-            _logger.debug(err)
+        ddgs_text = functools.partial(
+            self.ddgs.text,
+            search, backend=backend, max_results=100, timelimit=timeout)
+        count, page = 0, 1
+        while count < limit:
+            try:
+                for t in map(match_and_sub, ddgs_text(page=page)):
+                    if t is not None:
+                        yield t
+                        count += 1
+                page += 1
+            except DDGSException as err:
+                _logger.debug(err)
+                break
 
     def _check_options(
             self,
             options: TOptions
-    ) -> tuple[str, int, str | None]:
+    ) -> tuple[str, int, str | None, int | None]:
         backend = options.backend
         if backend is None:
             backend = 'auto'
@@ -1384,7 +1392,9 @@ class DDGS_Search(
         else:
             limit = min(limit, options.max_limit)
         site = options.site
-        return backend, limit, site
+        timeout = (
+            int(options.timeout) if options.timeout is not None else None)
+        return backend, limit, site, timeout
 
     def _match_and_sub_href(
             self,
@@ -1401,6 +1411,8 @@ class DDGS_Search(
             if repl is not None:
                 data['href'] = regex.sub(repl, href)
             return data
+        else:
+            _logger.debug('skipping %s', href)
         return None
 
     @override
@@ -1435,10 +1447,10 @@ class DDGS_Search(
             regex: re.Pattern[str] | None,
             repl: str | None
     ) -> AsyncIterator[DDGS_Search.TData]:
-        backend, limit, site = self._check_options(options)
+        backend, limit, site, timeout = self._check_options(options)
         match_and_sub = functools.partial(
             self._match_and_sub_href, regex, repl)
         for t in await asyncio.create_task(asyncio.to_thread(
             lambda: self._x_data_tail(
-                type, search, backend, limit, site, match_and_sub))):
+                type, search, backend, limit, site, timeout, match_and_sub))):
             yield t
