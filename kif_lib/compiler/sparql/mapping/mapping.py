@@ -5,13 +5,12 @@ from __future__ import annotations
 
 import copy
 import dataclasses
-import functools
 import re
 from typing import TYPE_CHECKING
 
 from typing_extensions import overload
 
-from .... import itertools
+from .... import functools, itertools
 from ....context import Context
 from ....model import (
     KIF_Object,

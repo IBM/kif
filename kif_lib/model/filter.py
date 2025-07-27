@@ -3,8 +3,7 @@
 
 from __future__ import annotations
 
-import functools
-
+from .. import functools
 from ..typing import (
     Any,
     cast,

@@ -6,10 +6,9 @@ from __future__ import annotations
 import abc
 import contextlib
 import dataclasses
-import functools
 import sys
 
-from .. import error
+from .. import error, functools
 from ..context import Context, Section
 from ..model import KIF_Object, TQuantity
 from ..typing import (

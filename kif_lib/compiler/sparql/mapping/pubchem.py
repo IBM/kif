@@ -3,10 +3,10 @@
 
 from __future__ import annotations
 
-import functools
 import re
 from typing import TYPE_CHECKING
 
+from .... import functools
 from ....context import Context
 from ....model import (
     ExternalId,

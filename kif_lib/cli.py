@@ -4,7 +4,6 @@
 from __future__ import annotations
 
 import asyncio
-import functools
 import os
 import pprint
 import re
@@ -23,7 +22,13 @@ except ImportError as err:
     raise ImportError(
         f'{__name__} requires https://github.com/Textualize/rich/') from err
 
-from . import __description__, __version__, _reset_logging, itertools
+from . import (
+    __description__,
+    __version__,
+    _reset_logging,
+    functools,
+    itertools,
+)
 from .context import Context
 from .model import (
     And,
@@ -116,6 +121,7 @@ def cli(
 ) -> None:
     if debug or info:
         ctx = Context.top()
+        ctx.options.search.debug = bool(debug)
         ctx.options.store.debug = bool(debug)
         _reset_logging(debug=bool(debug), info=bool(info))
     if module:
@@ -206,7 +212,7 @@ def list_stores() -> None:
 
 def _list_name_description_pairs(pairs: Iterable[tuple[str, str]]) -> None:
     pairs = list(pairs)
-    longest_name_length = max(map(len, map(lambda t: t[0], pairs)))
+    longest_name_length = max(map(len, map(functools.fst, pairs)))
     for k, v in sorted(pairs):
         click.echo(f'{k:<{longest_name_length}}: {v}')
 
@@ -1490,9 +1496,13 @@ def _output_filter_page(
         resolved_page: Iterable[Term] = list(context.resolve(
             page, language='en', label=True,
             lemma=True, category=True, lexeme_language=True))
-        is_lexeme = (lambda x: isinstance(x, Lexeme))
+        ###
+        # TODO: Make sure we also resolve the category and language of any
+        # lexemes occurring in resolved page.  Should Context.resolve()
+        # handle this?
+        ###
         lexemes = itertools.chain(
-            *(x.traverse(is_lexeme) for x in resolved_page))
+            *(x.traverse(Lexeme.test) for x in resolved_page))
         context.resolve(itertools.chain(
             *((x.get_category(resolve=False),
                x.get_language(resolve=False))

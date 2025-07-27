@@ -4,10 +4,9 @@
 from __future__ import annotations
 
 import dataclasses
-import functools
 import sys
 
-from .. import itertools
+from .. import functools, itertools
 from ..context import Context
 from ..engine import _EngineOptions, Engine, EngineOptions
 from ..model import (

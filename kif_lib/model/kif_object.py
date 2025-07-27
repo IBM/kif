@@ -6,9 +6,9 @@ from __future__ import annotations
 import datetime
 import decimal
 import enum
-import functools
 import json
 
+from .. import functools
 from ..context import Context
 from ..typing import (
     Any,

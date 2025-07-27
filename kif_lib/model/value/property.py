@@ -3,11 +3,11 @@
 
 from __future__ import annotations
 
-import functools
 from typing import TYPE_CHECKING
 
 from typing_extensions import overload
 
+from ... import functools
 from ...context import Context
 from ...typing import (
     Any,

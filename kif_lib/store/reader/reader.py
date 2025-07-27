@@ -7,14 +7,13 @@ import abc
 import asyncio
 import contextlib
 import dataclasses
-import functools
 import io
 import logging
 import pathlib
 
 from typing_extensions import overload
 
-from ... import itertools
+from ... import functools, itertools
 from ...context.registry import EntityRegistry
 from ...model import Entity, Filter
 from ...model import Graph as KIF_Graph
@@ -174,8 +173,7 @@ class Reader(
         if graph is not None:
             push(self.Graph(KIF_Graph.check(graph, type(self), 'graph')))
         other, stmts = map(list, itertools.partition(
-            lambda s: isinstance(s, Statement),
-            self._preprocess_args(*args)))
+            Statement.test, self._preprocess_args(*args)))
         if stmts:
             push(self.Graph(KIF_Graph(*cast(Iterable[Statement], stmts))))
         for src in other:

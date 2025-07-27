@@ -2,5 +2,6 @@ kif_lib/compiler/sparql/builder.py ident
 kif_lib/compiler/sparql/results.py ident
 kif_lib/model/object.py ident
 kif_lib/store/sparql/jena_jpype.py ident
+kif_lib/store/sparql/qlever_process.py ident
 kif_lib/store/sparql/rdfox_pipe.py ident
 Makefile ident

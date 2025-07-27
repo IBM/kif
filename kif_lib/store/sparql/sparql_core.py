@@ -5,12 +5,11 @@ from __future__ import annotations
 
 import abc
 import asyncio
-import functools
 import logging
 import pathlib
 import threading
 
-from ... import itertools, rdflib
+from ... import functools, itertools, rdflib
 from ...compiler.sparql import SPARQL_FilterCompiler, SPARQL_Mapping
 from ...compiler.sparql.results import (
     SPARQL_Results,
@@ -231,7 +230,7 @@ class _CoreSPARQL_Store(
                 load('graph', self._load_graph,
                      Graph.check(graph, type(store), 'graph'))
             other, stmts = map(list, itertools.partition(
-                lambda s: isinstance(s, Statement), args))
+                Statement.test, args))
             if stmts:
                 load('graph', self._load_graph,
                      Graph(*cast(Iterable[Statement], stmts)))

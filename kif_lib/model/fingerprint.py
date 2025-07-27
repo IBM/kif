@@ -4,10 +4,9 @@
 from __future__ import annotations
 
 import abc
-import functools
 from typing import TYPE_CHECKING
 
-from .. import itertools
+from .. import functools, itertools
 from ..typing import (
     Any,
     cast,
@@ -227,9 +226,8 @@ class CompoundFingerprint(Fingerprint):
             return args[0]
         elif (isinstance(self, AndFingerprint)
               and (EmptyFingerprint() in args or len(
-                itertools.take(2, filter(
-                    lambda fp: isinstance(fp, ValueFingerprint),
-                    args))) > 1)):
+                  itertools.take(2, filter(
+                      ValueFingerprint.test, args))) > 1)):
             return EmptyFingerprint()
         elif (isinstance(self, OrFingerprint)
               and FullFingerprint() in args):

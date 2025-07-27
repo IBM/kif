@@ -57,7 +57,7 @@ class Template(OpenTerm):
 
     @override
     def _iterate_variables(self) -> Iterator[Variable]:
-        return self._traverse(lambda x: isinstance(x, Variable), self.is_open)
+        return self._traverse(Variable.test, self.is_open)
 
     @override
     def instantiate(

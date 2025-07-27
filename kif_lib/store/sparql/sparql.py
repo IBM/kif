@@ -4,10 +4,9 @@
 from __future__ import annotations
 
 import dataclasses
-import functools
 import re
 
-from ... import itertools, rdflib
+from ... import functools, itertools, rdflib
 from ...compiler.sparql import SPARQL_Mapping
 from ...context import Context
 from ...model import Filter, IRI, T_IRI, TGraph

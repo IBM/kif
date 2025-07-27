@@ -3,11 +3,10 @@
 
 from __future__ import annotations
 
-import functools
 import pathlib
 import tempfile
 
-from ... import rdflib
+from ... import functools, rdflib
 from ...compiler.sparql import SPARQL_Mapping
 from ...compiler.sparql.results import SPARQL_Results, SPARQL_ResultsAsk
 from ...model import TGraph

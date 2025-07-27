@@ -7,7 +7,7 @@ import abc
 
 from typing_extensions import overload
 
-from .. import itertools
+from .. import functools, itertools
 from .. import namespace as NS
 from ..cache import Cache
 from ..model import (
@@ -928,7 +928,7 @@ class EntityRegistry(Registry):
         id_map = {key(t): t[1] for t in pairs}
         for id_, group in itertools.groupby(sorted(pairs, key=key), key=key):
             store = id_map[id_]
-            subject_fp = OrFingerprint(*map(lambda t: t[0], group))
+            subject_fp = OrFingerprint(*map(functools.fst, group))
             property_fp = OrFingerprint(
                 _wd_label if label else False,
                 _wd_alias if aliases else False,

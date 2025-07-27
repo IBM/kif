@@ -3,9 +3,9 @@
 
 from __future__ import annotations
 
-import functools
 from typing import TYPE_CHECKING
 
+from ... import functools
 from ...rdflib import URIRef
 from ...typing import (
     Any,

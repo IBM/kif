@@ -6,10 +6,10 @@ from __future__ import annotations
 import asyncio
 import collections
 import dataclasses
-import functools
 import logging
 import re
 
+from .. import functools
 from ..context import Context
 from ..model import Item, Lexeme, Property, Text
 from ..typing import (

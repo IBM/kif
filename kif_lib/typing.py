@@ -43,11 +43,14 @@ from typing_extensions import (
     NotRequired,
     overload,
     override,
+    ParamSpec,
     Protocol,
+    runtime_checkable,
     Self,
     TypeAlias,
     TypedDict,
     TypeVar,
+    TypeVarTuple,
 )
 
 # Common aliases.
@@ -85,7 +88,9 @@ __all__ = (
     'Optional',
     'overload',
     'override',
+    'ParamSpec',
     'Protocol',
+    'runtime_checkable',
     'Self',
     'Sequence',
     'Set',
@@ -94,5 +99,6 @@ __all__ = (
     'TypeAlias',
     'TypedDict',
     'TypeVar',
+    'TypeVarTuple',
     'Union',
 )

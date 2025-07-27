@@ -96,6 +96,15 @@ class Object(Sequence, metaclass=ObjectMeta):
         """Base class for errors."""
 
     @classmethod
+    def test(cls, arg: Any) -> bool:
+        """Tests whether `arg` is an instance of this class.
+
+        Returns:
+           ``True`` if successful; ``False`` otherwise.
+        """
+        return isinstance(arg, cls)
+
+    @classmethod
     def check(
             cls,
             arg: Any,
@@ -590,7 +599,7 @@ class Object(Sequence, metaclass=ObjectMeta):
     def _check_arg(
             cls,
             arg: Any,
-            test: Callable[[Any], bool] | bool = lambda x: True,
+            test: Callable[[Any], bool] | bool = lambda _: True,
             details: TDet | None = None,
             function: TLoc | None = None,
             name: str | None = None,
@@ -610,7 +619,7 @@ class Object(Sequence, metaclass=ObjectMeta):
             cls,
             arg: Any | None,
             default: Any | None = None,
-            test: Callable[[Any], bool] | bool = lambda x: True,
+            test: Callable[[Any], bool] | bool = lambda _: True,
             details: TDet | None = None,
             function: TLoc | None = None,
             name: str | None = None,

@@ -4,12 +4,11 @@
 from __future__ import annotations
 
 import collections
-import functools
 from typing import TYPE_CHECKING
 
 from typing_extensions import overload
 
-from .. import itertools
+from .. import functools, itertools
 from ..typing import (
     Any,
     Callable,
@@ -719,10 +718,9 @@ class Context:
         resolver = KIF_Object._check_optional_arg_isinstance(
             resolver, Store, None, function, 'resolver')
         it1, it2 = itertools.tee(objects, 2)
-        is_entity = (lambda o: isinstance(o, Entity))
         entities: Iterable[Entity] = itertools.chain(*map(
-            lambda o: cast(KIF_Object, o).traverse(is_entity), filter(
-                lambda o: isinstance(o, KIF_Object), it1)))
+            lambda o: cast(KIF_Object, o).traverse(Entity.test), filter(
+                KIF_Object.test, it1)))
         pairs = cast(Iterable[tuple[Entity, Store]], filter(
             lambda t: t[1] is not None, map(
                 lambda e: (

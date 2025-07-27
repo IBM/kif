@@ -5,9 +5,8 @@ from __future__ import annotations
 
 import asyncio
 import dataclasses
-import functools
 
-from .. import itertools
+from .. import functools, itertools
 from ..context import Context
 from ..model import (
     Entity,

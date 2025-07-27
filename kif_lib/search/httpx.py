@@ -4,11 +4,11 @@
 from __future__ import annotations
 
 import dataclasses
-import functools
 import logging
 
 import httpx
 
+from .. import functools
 from ..__version__ import __version__
 from ..context import Context
 from ..model import IRI, KIF_Object, T_IRI

@@ -4,9 +4,8 @@
 from __future__ import annotations
 
 import dataclasses
-import functools
 
-from .. import itertools
+from .. import functools, itertools
 from ..context import Context
 from ..engine import _EngineOptions, Engine, EngineOptions
 from ..model import Item, KIF_Object, Lexeme, Property, String, TTextLanguage

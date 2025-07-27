@@ -183,7 +183,7 @@ class Variable(OpenTerm):
             return self._instantiate_tail(
                 theta, coerce, strict, function, name, position)
         elif coerce:
-            for other in filter(lambda v: isinstance(v, Variable), theta):
+            for other in filter(Variable.test, theta):
                 assert isinstance(other, Variable)
                 if other.name == self.name:
                     try:

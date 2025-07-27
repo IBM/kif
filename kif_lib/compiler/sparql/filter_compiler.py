@@ -4,9 +4,8 @@
 from __future__ import annotations
 
 import enum
-import functools
 
-from ... import itertools
+from ... import functools, itertools
 from ...model import (
     AndFingerprint,
     AnnotatedStatement,
@@ -704,9 +703,9 @@ class SPARQL_FilterCompiler(SPARQL_Compiler):
             value: VValue
     ) -> None:
         atoms, comps = map(list, itertools.partition(
-            lambda x: isinstance(x, CompoundFingerprint), fp.args))
+            CompoundFingerprint.test, fp.args))
         snaks, values = map(list, itertools.partition(
-            lambda x: isinstance(x, ValueFingerprint), atoms))
+            ValueFingerprint.test, atoms))
         if isinstance(fp, AndFingerprint):
             for child in itertools.chain(snaks, comps):
                 self._push_fp(entry, child, value)

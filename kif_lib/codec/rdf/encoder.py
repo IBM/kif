@@ -3,7 +3,7 @@
 
 from __future__ import annotations
 
-from ... import itertools
+from ... import functools, itertools
 from ...context import Context
 from ...model import (
     AnnotatedStatement,
@@ -145,15 +145,15 @@ class RDF_Encoder(
             context: Context | None = None
     ) -> None:
         if gen_wdref:
-            self._gen_wdref = lambda x: str(gen_wdref(x))
+            self._gen_wdref = functools.compose(str, gen_wdref)
         else:
             self._gen_wdref = self._default_gen_wdref
         if gen_wds:
-            self._gen_wds = lambda x: str(gen_wds(x))
+            self._gen_wds = functools.compose(str, gen_wds)
         else:
             self._gen_wds = self._default_gen_wds
         if gen_wdv:
-            self._gen_wdv = lambda x: str(gen_wdv(x))
+            self._gen_wdv = functools.compose(str, gen_wdv)
         else:
             self._gen_wdv = self._default_gen_wdv
         self._options = self._get_context_options(context).copy()

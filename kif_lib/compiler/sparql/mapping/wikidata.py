@@ -3,9 +3,9 @@
 
 from __future__ import annotations
 
-import functools
 import re
 
+from .... import functools
 from ....context import Context
 from ....model import (
     AliasProperty,

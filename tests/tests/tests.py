@@ -6,7 +6,6 @@ from __future__ import annotations
 import asyncio
 import datetime
 import decimal
-import functools
 import logging
 import os
 import pathlib
@@ -34,6 +33,7 @@ from kif_lib import (
     ExternalIdVariable,
     Filter,
     Fingerprint,
+    functools,
     Graph,
     GraphVariable,
     IRI,

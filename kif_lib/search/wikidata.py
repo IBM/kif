@@ -6,9 +6,8 @@ from __future__ import annotations
 import asyncio
 import collections
 import dataclasses
-import functools
 
-from .. import itertools
+from .. import functools, itertools
 from ..context import Context
 from ..model import IRI, Item, Lexeme, Property, Text
 from ..typing import (

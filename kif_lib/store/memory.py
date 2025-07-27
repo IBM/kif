@@ -5,10 +5,9 @@ from __future__ import annotations
 
 import asyncio
 import dataclasses
-import functools
 import logging
 
-from .. import itertools
+from .. import functools, itertools
 from ..model import Filter, Graph, Statement, TGraph
 from ..typing import (
     Any,

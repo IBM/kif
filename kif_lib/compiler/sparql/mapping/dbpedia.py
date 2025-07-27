@@ -3,11 +3,10 @@
 
 from __future__ import annotations
 
-import functools
 import re
 from typing import TYPE_CHECKING
 
-from .... import itertools
+from .... import functools, itertools
 from ....context import Context
 from ....model import Item, Normal, Property, Text, Variables
 from ....namespace import OWL, RDF, RDFS, Wikidata

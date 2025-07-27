@@ -4,10 +4,9 @@
 from __future__ import annotations
 
 import abc
-import functools
 from typing import TYPE_CHECKING
 
-from ... import itertools
+from ... import functools, itertools
 from ...typing import (
     Any,
     Callable,
@@ -239,7 +238,7 @@ class Term(KIF_Object):
         from .variable import Variable
         xnames, xterms = cast(
             tuple[Iterator[str], Iterator[Term]],
-            itertools.partition(lambda x: isinstance(x, Term), exclude))
+            itertools.partition(Term.test, exclude))
         exclude_set = set(itertools.chain(
             map(Variable.get_name, itertools.chain(
                 *map(Term.get_variables, xterms))), xnames))

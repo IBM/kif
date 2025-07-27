@@ -1598,7 +1598,7 @@ class Query(Encodable):
         Returns:
            Iterator of :class:`Variable`.
         """
-        return map(lambda x: self.fresh_var(), range(n))
+        return map(lambda _: self.fresh_var(), range(n))
 
 # -- Relational operators --------------------------------------------------
 
