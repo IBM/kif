@@ -153,6 +153,7 @@ class HttpxSearch(
 
     Parameters:
        search_name: Name of the search plugin to instantiate.
+       iri: IRI.
        headers: HTTP headers.
        kwargs: Other keyword arguments.
     """

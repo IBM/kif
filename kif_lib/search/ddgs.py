@@ -66,11 +66,12 @@ class _DDGS_SearchOptions(SearchOptions):
     def __init__(self, **kwargs: Any) -> None:
         super().__init__(**kwargs)
         self._init_backend(kwargs)
-        self._init_item_regex(kwargs)
+        self._init_in_url(kwargs)
+        self._init_item_match(kwargs)
         self._init_item_sub(kwargs)
-        self._init_lexeme_regex(kwargs)
+        self._init_lexeme_match(kwargs)
         self._init_lexeme_sub(kwargs)
-        self._init_property_regex(kwargs)
+        self._init_property_match(kwargs)
         self._init_property_sub(kwargs)
         self._init_site(kwargs)
 
@@ -123,54 +124,103 @@ class _DDGS_SearchOptions(SearchOptions):
         self._backend = self._check_optional_str(
             backend, None, function, name, position)
 
-    # -- item regex --
+    # -- in-URL --
 
-    #: Default value for the item regex.
-    DEFAULT_ITEM_REGEX: ClassVar[str | None] = None
+    #: Default value for the in-URL option.
+    DEFAULT_IN_URL: ClassVar[str | None] = None
 
-    _v_item_regex: ClassVar[tuple[Iterable[str], str | None]] =\
-        (('KIF_DDGS_SEARCH_ITEM_REGEX'), DEFAULT_ITEM_REGEX)
+    _v_in_url: ClassVar[tuple[Iterable[str], str | None]] =\
+        (('KIF_DDGS_SEARCH_IN_URL'), DEFAULT_IN_URL)
 
-    _item_regex: str | None
+    _in_url: str | None
 
-    def _init_item_regex(self, kwargs: dict[str, Any]) -> None:
-        self.item_regex = kwargs.get(
-            '_item_regex', self.getenv_optional_str(*self._v_item_regex))
+    def _init_in_url(self, kwargs: dict[str, Any]) -> None:
+        self.in_url = kwargs.get(
+            '_in_url', self.getenv_optional_str(*self._v_in_url))
 
     @property
-    def item_regex(self) -> str | None:
-        """The item regex of DDGS search."""
-        return self.get_item_regex()
+    def in_url(self) -> str | None:
+        """The in-URL DDGS search."""
+        return self.get_in_url()
 
-    @item_regex.setter
-    def item_regex(self, item_regex: str | None) -> None:
-        self.set_item_regex(item_regex)
+    @in_url.setter
+    def in_url(self, in_url: str | None) -> None:
+        self.set_in_url(in_url)
 
-    def get_item_regex(self) -> str | None:
-        """Gets the item regex of DDGS search.
+    def get_in_url(self) -> str | None:
+        """Gets the in-URL of DDGS search.
 
         Returns:
-           Item regex or ``None``.
+           in-URL or ``None``.
         """
-        return self._item_regex
+        return self._in_url
 
-    def set_item_regex(
+    def set_in_url(
             self,
-            item_regex: str | None = None,
+            in_url: str | None = None,
             function: Location | None = None,
             name: str | None = None,
             position: int | None = None
     ) -> None:
-        """Sets the item regex of DDGS search.
+        """Sets the in-URL of DDGS search.
 
         Parameters:
-           item_regex: Item regex.
+           in_url: In-URL.
            function: Function or function name.
            name: Argument name.
            position: Argument position.
         """
-        self._item_regex = self._check_optional_str(
-            item_regex, None, function, name, position)
+        self._in_url = self._check_optional_str(
+            in_url, None, function, name, position)
+
+    # -- item match regex --
+
+    #: Default value for the item match regex.
+    DEFAULT_ITEM_MATCH: ClassVar[str | None] = None
+
+    _v_item_match: ClassVar[tuple[Iterable[str], str | None]] =\
+        (('KIF_DDGS_SEARCH_ITEM_MATCH'), DEFAULT_ITEM_MATCH)
+
+    _item_match: str | None
+
+    def _init_item_match(self, kwargs: dict[str, Any]) -> None:
+        self.item_match = kwargs.get(
+            '_item_match', self.getenv_optional_str(*self._v_item_match))
+
+    @property
+    def item_match(self) -> str | None:
+        """The item match regex of DDGS search."""
+        return self.get_item_match()
+
+    @item_match.setter
+    def item_match(self, item_match: str | None) -> None:
+        self.set_item_match(item_match)
+
+    def get_item_match(self) -> str | None:
+        """Gets the item match regex of DDGS search.
+
+        Returns:
+           Item match regex or ``None``.
+        """
+        return self._item_match
+
+    def set_item_match(
+            self,
+            item_match: str | None = None,
+            function: Location | None = None,
+            name: str | None = None,
+            position: int | None = None
+    ) -> None:
+        """Sets the item match regex of DDGS search.
+
+        Parameters:
+           item_match: Item match regex.
+           function: Function or function name.
+           name: Argument name.
+           position: Argument position.
+        """
+        self._item_match = self._check_optional_str(
+            item_match, None, function, name, position)
 
     # -- item sub --
 
@@ -221,54 +271,54 @@ class _DDGS_SearchOptions(SearchOptions):
         self._item_sub = self._check_optional_str(
             item_sub, None, function, name, position)
 
-    # -- lexeme regex --
+    # -- lexeme match regex --
 
-    #: Default value for the lexeme regex.
-    DEFAULT_LEXEME_REGEX: ClassVar[str | None] = None
+    #: Default value for the lexeme match regex.
+    DEFAULT_LEXEME_MATCH: ClassVar[str | None] = None
 
-    _v_lexeme_regex: ClassVar[tuple[Iterable[str], str | None]] =\
-        (('KIF_DDGS_SEARCH_LEXEME_REGEX'), DEFAULT_LEXEME_REGEX)
+    _v_lexeme_match: ClassVar[tuple[Iterable[str], str | None]] =\
+        (('KIF_DDGS_SEARCH_LEXEME_MATCH'), DEFAULT_LEXEME_MATCH)
 
-    _lexeme_regex: str | None
+    _lexeme_match: str | None
 
-    def _init_lexeme_regex(self, kwargs: dict[str, Any]) -> None:
-        self.lexeme_regex = kwargs.get(
-            '_lexeme_regex', self.getenv_optional_str(*self._v_lexeme_regex))
+    def _init_lexeme_match(self, kwargs: dict[str, Any]) -> None:
+        self.lexeme_match = kwargs.get(
+            '_lexeme_match', self.getenv_optional_str(*self._v_lexeme_match))
 
     @property
-    def lexeme_regex(self) -> str | None:
-        """The lexeme regex of DDGS search."""
-        return self.get_lexeme_regex()
+    def lexeme_match(self) -> str | None:
+        """The lexeme match regex of DDGS search."""
+        return self.get_lexeme_match()
 
-    @lexeme_regex.setter
-    def lexeme_regex(self, lexeme_regex: str | None) -> None:
-        self.set_lexeme_regex(lexeme_regex)
+    @lexeme_match.setter
+    def lexeme_match(self, lexeme_match: str | None) -> None:
+        self.set_lexeme_match(lexeme_match)
 
-    def get_lexeme_regex(self) -> str | None:
-        """Gets the lexeme regex of DDGS search.
+    def get_lexeme_match(self) -> str | None:
+        """Gets the lexeme match regex of DDGS search.
 
         Returns:
-           Lexeme regex or ``None``.
+           Lexeme match regex or ``None``.
         """
-        return self._lexeme_regex
+        return self._lexeme_match
 
-    def set_lexeme_regex(
+    def set_lexeme_match(
             self,
-            lexeme_regex: str | None = None,
+            lexeme_match: str | None = None,
             function: Location | None = None,
             name: str | None = None,
             position: int | None = None
     ) -> None:
-        """Sets the lexeme regex of DDGS search.
+        """Sets the lexeme match regex of DDGS search.
 
         Parameters:
-           lexeme_regex: Lexeme regex.
+           lexeme_match: Lexeme match regex.
            function: Function or function name.
            name: Argument name.
            position: Argument position.
         """
-        self._lexeme_regex = self._check_optional_str(
-            lexeme_regex, None, function, name, position)
+        self._lexeme_match = self._check_optional_str(
+            lexeme_match, None, function, name, position)
 
     # -- lexeme sub --
 
@@ -319,55 +369,55 @@ class _DDGS_SearchOptions(SearchOptions):
         self._lexeme_sub = self._check_optional_str(
             lexeme_sub, None, function, name, position)
 
-    # -- property regex --
+    # -- property match regex --
 
-    #: Default value for the property regex.
-    DEFAULT_PROPERTY_REGEX: ClassVar[str | None] = None
+    #: Default value for the property match regex.
+    DEFAULT_PROPERTY_MATCH: ClassVar[str | None] = None
 
-    _v_property_regex: ClassVar[tuple[Iterable[str], str | None]] =\
-        (('KIF_DDGS_SEARCH_PROPERTY_REGEX'), DEFAULT_PROPERTY_REGEX)
+    _v_property_match: ClassVar[tuple[Iterable[str], str | None]] =\
+        (('KIF_DDGS_SEARCH_PROPERTY_MATCH'), DEFAULT_PROPERTY_MATCH)
 
-    _property_regex: str | None
+    _property_match: str | None
 
-    def _init_property_regex(self, kwargs: dict[str, Any]) -> None:
-        self.property_regex = kwargs.get(
-            '_property_regex', self.getenv_optional_str(
-                *self._v_property_regex))
+    def _init_property_match(self, kwargs: dict[str, Any]) -> None:
+        self.property_match = kwargs.get(
+            '_property_match', self.getenv_optional_str(
+                *self._v_property_match))
 
     @property
-    def property_regex(self) -> str | None:
-        """The property regex of DDGS search."""
-        return self.get_property_regex()
+    def property_match(self) -> str | None:
+        """The property match regex of DDGS search."""
+        return self.get_property_match()
 
-    @property_regex.setter
-    def property_regex(self, property_regex: str | None) -> None:
-        self.set_property_regex(property_regex)
+    @property_match.setter
+    def property_match(self, property_match: str | None) -> None:
+        self.set_property_match(property_match)
 
-    def get_property_regex(self) -> str | None:
-        """Gets the property regex of DDGS search.
+    def get_property_match(self) -> str | None:
+        """Gets the property match regex of DDGS search.
 
         Returns:
-           Property regex or ``None``.
+           Property match regex or ``None``.
         """
-        return self._property_regex
+        return self._property_match
 
-    def set_property_regex(
+    def set_property_match(
             self,
-            property_regex: str | None = None,
+            property_match: str | None = None,
             function: Location | None = None,
             name: str | None = None,
             position: int | None = None
     ) -> None:
-        """Sets the property regex of DDGS search.
+        """Sets the property match regex of DDGS search.
 
         Parameters:
-           property_regex: Property regex.
+           property_match: Property match regex.
            function: Function or function name.
            name: Argument name.
            position: Argument position.
         """
-        self._property_regex = self._check_optional_str(
-            property_regex, None, function, name, position)
+        self._property_match = self._check_optional_str(
+            property_match, None, function, name, position)
 
     # -- property sub --
 
@@ -492,19 +542,35 @@ class DDGS_SearchOptions(_DDGS_SearchOptions, name='ddgs'):
             function=function, name=name, position=position))
 
     @override
-    def get_item_regex(self) -> str | None:
-        return self._do_get('_item_regex', super().get_item_regex)
+    def get_in_url(self) -> str | None:
+        return self._do_get('_in_url', super().get_in_url)
 
     @override
-    def set_item_regex(
+    def set_in_url(
             self,
-            item_regex: str | None = None,
+            in_url: str | None = None,
             function: Location | None = None,
             name: str | None = None,
             position: int | None = None
     ) -> None:
-        self._do_set(item_regex, '_item_regex', functools.partial(
-            super().set_item_regex,
+        self._do_set(in_url, '_in_url', functools.partial(
+            super().set_in_url,
+            function=function, name=name, position=position))
+
+    @override
+    def get_item_match(self) -> str | None:
+        return self._do_get('_item_match', super().get_item_match)
+
+    @override
+    def set_item_match(
+            self,
+            item_match: str | None = None,
+            function: Location | None = None,
+            name: str | None = None,
+            position: int | None = None
+    ) -> None:
+        self._do_set(item_match, '_item_match', functools.partial(
+            super().set_item_match,
             function=function, name=name, position=position))
 
     @override
@@ -524,19 +590,19 @@ class DDGS_SearchOptions(_DDGS_SearchOptions, name='ddgs'):
             function=function, name=name, position=position))
 
     @override
-    def get_lexeme_regex(self) -> str | None:
-        return self._do_get('_lexeme_regex', super().get_lexeme_regex)
+    def get_lexeme_match(self) -> str | None:
+        return self._do_get('_lexeme_match', super().get_lexeme_match)
 
     @override
-    def set_lexeme_regex(
+    def set_lexeme_match(
             self,
-            lexeme_regex: str | None = None,
+            lexeme_match: str | None = None,
             function: Location | None = None,
             name: str | None = None,
             position: int | None = None
     ) -> None:
-        self._do_set(lexeme_regex, '_lexeme_regex', functools.partial(
-            super().set_lexeme_regex,
+        self._do_set(lexeme_match, '_lexeme_match', functools.partial(
+            super().set_lexeme_match,
             function=function, name=name, position=position))
 
     @override
@@ -556,19 +622,19 @@ class DDGS_SearchOptions(_DDGS_SearchOptions, name='ddgs'):
             function=function, name=name, position=position))
 
     @override
-    def get_property_regex(self) -> str | None:
-        return self._do_get('_property_regex', super().get_property_regex)
+    def get_property_match(self) -> str | None:
+        return self._do_get('_property_match', super().get_property_match)
 
     @override
-    def set_property_regex(
+    def set_property_match(
             self,
-            property_regex: str | None = None,
+            property_match: str | None = None,
             function: Location | None = None,
             name: str | None = None,
             position: int | None = None
     ) -> None:
-        self._do_set(property_regex, '_property_regex', functools.partial(
-            super().set_property_regex,
+        self._do_set(property_match, '_property_match', functools.partial(
+            super().set_property_match,
             function=function, name=name, position=position))
 
     @override
@@ -606,7 +672,7 @@ class DDGS_SearchOptions(_DDGS_SearchOptions, name='ddgs'):
 
 # == DDGS search ===========================================================
 
-DDGS_Proxy: TypeAlias = Any
+_DDGS_Proxy: TypeAlias = Any
 TOptions = TypeVar(
     'TOptions', bound=DDGS_SearchOptions, default=DDGS_SearchOptions)
 
@@ -620,6 +686,15 @@ class DDGS_Search(
 
     Parameters:
        search_name: Name of the search plugin to instantiate.
+       backend: DDGS backend.
+       in_url: DDGS in-URL.
+       item_match: Item match regex.
+       item_sub: Item sub.
+       lexeme_match: Lexeme match regex.
+       lexeme_sub: Lexeme sub.
+       property_match: Property match regex.
+       property_sub: Property sub.
+       site: DGGS site.
        kwargs: Other keyword arguments.
     """
 
@@ -631,26 +706,27 @@ class DDGS_Search(
     )
 
     #: DDGS client.
-    _ddgs: DDGS_Proxy | None
+    _ddgs: _DDGS_Proxy | None
 
-    #: The compiled item regex and sub (if any).
+    #: The compiled item match regex and sub (if any).
     _re_item: tuple[re.Pattern[str] | None, str | None] | None
 
-    #: The compiled lexeme regex and sub (if any).
+    #: The compiled lexeme match regex and sub (if any).
     _re_lexeme: tuple[re.Pattern[str] | None, str | None] | None
 
-    #: The compiled property regex and sub (if any).
+    #: The compiled property match regex and sub (if any).
     _re_property: tuple[re.Pattern[str] | None, str | None] | None
 
     def __init__(
             self,
             search_name: str,
             backend: str | None = None,
-            item_regex: str | None = None,
+            in_url: str | None = None,
+            item_match: str | None = None,
             item_sub: str | None = None,
-            lexeme_regex: str | None = None,
+            lexeme_match: str | None = None,
             lexeme_sub: str | None = None,
-            property_regex: str | None = None,
+            property_match: str | None = None,
             property_sub: str | None = None,
             site: str | None = None,
             **kwargs: Any
@@ -663,11 +739,12 @@ class DDGS_Search(
         super().__init__(
             search_name,
             backend=backend,
-            item_regex=item_regex,
+            in_url=in_url,
+            item_match=item_match,
             item_sub=item_sub,
-            lexeme_regex=lexeme_regex,
+            lexeme_match=lexeme_match,
             lexeme_sub=lexeme_sub,
-            property_regex=property_regex,
+            property_match=property_match,
             property_sub=property_sub,
             site=site,
             **kwargs)
@@ -682,26 +759,28 @@ class DDGS_Search(
         super()._update_options(**kwargs)
         if 'backend' in kwargs:
             self.set_backend(kwargs['backend'])
-        if 'item_regex' in kwargs:
-            self.set_item_regex(kwargs['item_regex'])
+        if 'in_url' in kwargs:
+            self.set_in_url(kwargs['in_url'])
+        if 'item_match' in kwargs:
+            self.set_item_match(kwargs['item_match'])
         if 'item_sub' in kwargs:
             self.set_item_sub(kwargs['item_sub'])
-        if 'lexeme_regex' in kwargs:
-            self.set_lexeme_regex(kwargs['lexeme_regex'])
+        if 'lexeme_match' in kwargs:
+            self.set_lexeme_match(kwargs['lexeme_match'])
         if 'lexeme_sub' in kwargs:
             self.set_lexeme_sub(kwargs['lexeme_sub'])
-        if 'property_regex' in kwargs:
-            self.set_property_regex(kwargs['property_regex'])
+        if 'property_match' in kwargs:
+            self.set_property_match(kwargs['property_match'])
         if 'property_sub' in kwargs:
             self.set_property_sub(kwargs['property_sub'])
         if 'site' in kwargs:
             self.set_site(kwargs['site'])
 
     @property
-    def ddgs(self) -> DDGS_Proxy:
+    def ddgs(self) -> _DDGS_Proxy:
         return self.get_ddgs()
 
-    def get_ddgs(self) -> DDGS_Proxy:
+    def get_ddgs(self) -> _DDGS_Proxy:
         if self._ddgs is None:
             try:
                 import ddgs  # type: ignore
@@ -723,7 +802,7 @@ class DDGS_Search(
     def get_re_item(self) -> tuple[re.Pattern[str] | None, str | None]:
         if self._re_item is None:
             self._re_item = self._get_re_x(
-                self.get_item_regex, self.get_item_sub)
+                self.get_item_match, self.get_item_sub)
         return self._re_item
 
     @property
@@ -733,7 +812,7 @@ class DDGS_Search(
     def get_re_lexeme(self) -> tuple[re.Pattern[str] | None, str | None]:
         if self._re_lexeme is None:
             self._re_lexeme = self._get_re_x(
-                self.get_lexeme_regex, self.get_lexeme_sub)
+                self.get_lexeme_match, self.get_lexeme_sub)
         return self._re_lexeme
 
     @property
@@ -743,7 +822,7 @@ class DDGS_Search(
     def get_re_property(self) -> tuple[re.Pattern[str] | None, str | None]:
         if self._re_property is None:
             self._re_property = self._get_re_x(
-                self.get_property_regex, self.get_property_sub)
+                self.get_property_match, self.get_property_sub)
         return self._re_property
 
     def _get_re_x(
@@ -819,65 +898,126 @@ class DDGS_Search(
     def _set_backend(self, backend: str | None) -> bool:
         return True
 
-# -- Item regex ------------------------------------------------------------
+# -- Backend ---------------------------------------------------------------
 
     @property
-    def default_item_regex(self) -> str | None:
-        """The default value for :attr:`DDGS_Search.item_regex`."""
-        return self.get_default_item_regex()
+    def default_in_url(self) -> str | None:
+        """The default value for :attr:`DDGS_Search.in_url`."""
+        return self.get_default_in_url()
 
-    def get_default_item_regex(self) -> str | None:
-        """Gets the default value for :attr:`DDGS_Search.item_regex`.
+    def get_default_in_url(self) -> str | None:
+        """Gets the default value for :attr:`DDGS_Search.in_url`.
 
         Returns:
-           Default item regex.
+           Default in-URL.
         """
-        return self.get_default_options().item_regex
+        return self.get_default_options().in_url
 
     @property
-    def item_regex(self) -> str | None:
-        """The item regex of DDGS search."""
-        return self.get_item_regex()
+    def in_url(self) -> str | None:
+        """The in-URL of DDGS search."""
+        return self.get_in_url()
 
-    @item_regex.setter
-    def item_regex(self, item_regex: str | None = None) -> None:
-        self.set_item_regex(item_regex)
+    @in_url.setter
+    def in_url(self, in_url: str | None = None) -> None:
+        self.set_in_url(in_url)
 
-    def get_item_regex(self, default: str | None = None) -> str | None:
-        """Gets the item regex of DDGS search.
+    def get_in_url(self, default: str | None = None) -> str | None:
+        """Gets the in-URL of DDGS search.
 
-        If the item regex is ``None``, returns `default`.
+        If the in-URL is ``None``, returns `default`.
 
         Parameters:
-           default: Default item_regex.
+           default: Default in-URL.
 
         Returns:
-           Item regex or ``None``.
+           In-URL or ``None``.
         """
-        item_regex = self.options.item_regex
-        if item_regex is None:
-            item_regex = default
-        return item_regex
+        in_url = self.options.in_url
+        if in_url is None:
+            in_url = default
+        return in_url
 
-    def set_item_regex(self, item_regex: str | None = None) -> None:
-        """Sets the item regex of DDGS search.
+    def set_in_url(self, in_url: str | None = None) -> None:
+        """Sets the in-URL of DDGS search.
 
-        If `item_regex` is ``None``, resets it to the default.
+        If `in_url` is ``None``, resets it to the default.
 
         Parameters:
-           item_regex: Item regex.
+           in_url: In-URL.
         """
         self._set_option_with_hooks(
-            item_regex,
-            self.options.get_item_regex,
+            in_url,
+            self.options.get_in_url,
             functools.partial(
-                self.options.set_item_regex,
-                function=self.set_item_regex,
-                name='item_regex',
+                self.options.set_in_url,
+                function=self.set_in_url,
+                name='in_url',
                 position=1),
-            self._set_item_regex)
+            self._set_in_url)
 
-    def _set_item_regex(self, item_regex: str | None) -> bool:
+    def _set_in_url(self, in_url: str | None) -> bool:
+        return True
+
+# -- Item match regex ------------------------------------------------------
+
+    @property
+    def default_item_match(self) -> str | None:
+        """The default value for :attr:`DDGS_Search.item_match`."""
+        return self.get_default_item_match()
+
+    def get_default_item_match(self) -> str | None:
+        """Gets the default value for :attr:`DDGS_Search.item_match`.
+
+        Returns:
+           Default item match regex.
+        """
+        return self.get_default_options().item_match
+
+    @property
+    def item_match(self) -> str | None:
+        """The item match regex of DDGS search."""
+        return self.get_item_match()
+
+    @item_match.setter
+    def item_match(self, item_match: str | None = None) -> None:
+        self.set_item_match(item_match)
+
+    def get_item_match(self, default: str | None = None) -> str | None:
+        """Gets the item match regex of DDGS search.
+
+        If the item match regex is ``None``, returns `default`.
+
+        Parameters:
+           default: Default item_match.
+
+        Returns:
+           Item match regex or ``None``.
+        """
+        item_match = self.options.item_match
+        if item_match is None:
+            item_match = default
+        return item_match
+
+    def set_item_match(self, item_match: str | None = None) -> None:
+        """Sets the item match regex of DDGS search.
+
+        If `item_match` is ``None``, resets it to the default.
+
+        Parameters:
+           item_match: Item match regex.
+        """
+        self._set_option_with_hooks(
+            item_match,
+            self.options.get_item_match,
+            functools.partial(
+                self.options.set_item_match,
+                function=self.set_item_match,
+                name='item_match',
+                position=1),
+            self._set_item_match)
+
+    def _set_item_match(self, item_match: str | None) -> bool:
         self._re_item = None
         return True
 
@@ -943,65 +1083,65 @@ class DDGS_Search(
         self._re_item = None
         return True
 
-# -- Lexeme regex ----------------------------------------------------------
+# -- Lexeme match regex ----------------------------------------------------
 
     @property
-    def default_lexeme_regex(self) -> str | None:
-        """The default value for :attr:`DDGS_Search.lexeme_regex`."""
-        return self.get_default_lexeme_regex()
+    def default_lexeme_match(self) -> str | None:
+        """The default value for :attr:`DDGS_Search.lexeme_match`."""
+        return self.get_default_lexeme_match()
 
-    def get_default_lexeme_regex(self) -> str | None:
-        """Gets the default value for :attr:`DDGS_Search.lexeme_regex`.
+    def get_default_lexeme_match(self) -> str | None:
+        """Gets the default value for :attr:`DDGS_Search.lexeme_match`.
 
         Returns:
-           Default lexeme regex.
+           Default lexeme match regex.
         """
-        return self.get_default_options().lexeme_regex
+        return self.get_default_options().lexeme_match
 
     @property
-    def lexeme_regex(self) -> str | None:
-        """The lexeme regex of DDGS search."""
-        return self.get_lexeme_regex()
+    def lexeme_match(self) -> str | None:
+        """The lexeme match regex of DDGS search."""
+        return self.get_lexeme_match()
 
-    @lexeme_regex.setter
-    def lexeme_regex(self, lexeme_regex: str | None = None) -> None:
-        self.set_lexeme_regex(lexeme_regex)
+    @lexeme_match.setter
+    def lexeme_match(self, lexeme_match: str | None = None) -> None:
+        self.set_lexeme_match(lexeme_match)
 
-    def get_lexeme_regex(self, default: str | None = None) -> str | None:
-        """Gets the lexeme regex of DDGS search.
+    def get_lexeme_match(self, default: str | None = None) -> str | None:
+        """Gets the lexeme match regex of DDGS search.
 
-        If the lexeme regex is ``None``, returns `default`.
+        If the lexeme match regex is ``None``, returns `default`.
 
         Parameters:
-           default: Default lexeme_regex.
+           default: Default lexeme_match.
 
         Returns:
-           Lexeme regex or ``None``.
+           Lexeme match regex or ``None``.
         """
-        lexeme_regex = self.options.lexeme_regex
-        if lexeme_regex is None:
-            lexeme_regex = default
-        return lexeme_regex
+        lexeme_match = self.options.lexeme_match
+        if lexeme_match is None:
+            lexeme_match = default
+        return lexeme_match
 
-    def set_lexeme_regex(self, lexeme_regex: str | None = None) -> None:
-        """Sets the lexeme regex of DDGS search.
+    def set_lexeme_match(self, lexeme_match: str | None = None) -> None:
+        """Sets the lexeme match regex of DDGS search.
 
-        If `lexeme_regex` is ``None``, resets it to the default.
+        If `lexeme_match` is ``None``, resets it to the default.
 
         Parameters:
-           lexeme_regex: Lexeme regex.
+           lexeme_match: Lexeme match regex.
         """
         self._set_option_with_hooks(
-            lexeme_regex,
-            self.options.get_lexeme_regex,
+            lexeme_match,
+            self.options.get_lexeme_match,
             functools.partial(
-                self.options.set_lexeme_regex,
-                function=self.set_lexeme_regex,
-                name='lexeme_regex',
+                self.options.set_lexeme_match,
+                function=self.set_lexeme_match,
+                name='lexeme_match',
                 position=1),
-            self._set_lexeme_regex)
+            self._set_lexeme_match)
 
-    def _set_lexeme_regex(self, lexeme_regex: str | None) -> bool:
+    def _set_lexeme_match(self, lexeme_match: str | None) -> bool:
         self._re_lexeme = None
         return True
 
@@ -1067,65 +1207,65 @@ class DDGS_Search(
         self._re_lexeme = None
         return True
 
-# -- Property regex --------------------------------------------------------
+# -- Property match regex --------------------------------------------------
 
     @property
-    def default_property_regex(self) -> str | None:
-        """The default value for :attr:`DDGS_Search.property_regex`."""
-        return self.get_default_property_regex()
+    def default_property_match(self) -> str | None:
+        """The default value for :attr:`DDGS_Search.property_match`."""
+        return self.get_default_property_match()
 
-    def get_default_property_regex(self) -> str | None:
-        """Gets the default value for :attr:`DDGS_Search.property_regex`.
+    def get_default_property_match(self) -> str | None:
+        """Gets the default value for :attr:`DDGS_Search.property_match`.
 
         Returns:
-           Default property regex.
+           Default property match regex.
         """
-        return self.get_default_options().property_regex
+        return self.get_default_options().property_match
 
     @property
-    def property_regex(self) -> str | None:
-        """The property regex of DDGS search."""
-        return self.get_property_regex()
+    def property_match(self) -> str | None:
+        """The property match regex of DDGS search."""
+        return self.get_property_match()
 
-    @property_regex.setter
-    def property_regex(self, property_regex: str | None = None) -> None:
-        self.set_property_regex(property_regex)
+    @property_match.setter
+    def property_match(self, property_match: str | None = None) -> None:
+        self.set_property_match(property_match)
 
-    def get_property_regex(self, default: str | None = None) -> str | None:
-        """Gets the property regex of DDGS search.
+    def get_property_match(self, default: str | None = None) -> str | None:
+        """Gets the property match regex of DDGS search.
 
-        If the property regex is ``None``, returns `default`.
+        If the property match regex is ``None``, returns `default`.
 
         Parameters:
-           default: Default property_regex.
+           default: Default property_match.
 
         Returns:
-           Property regex or ``None``.
+           Property match regex or ``None``.
         """
-        property_regex = self.options.property_regex
-        if property_regex is None:
-            property_regex = default
-        return property_regex
+        property_match = self.options.property_match
+        if property_match is None:
+            property_match = default
+        return property_match
 
-    def set_property_regex(self, property_regex: str | None = None) -> None:
-        """Sets the property regex of DDGS search.
+    def set_property_match(self, property_match: str | None = None) -> None:
+        """Sets the property match regex of DDGS search.
 
-        If `property_regex` is ``None``, resets it to the default.
+        If `property_match` is ``None``, resets it to the default.
 
         Parameters:
-           property_regex: Property regex.
+           property_match: Property match regex.
         """
         self._set_option_with_hooks(
-            property_regex,
-            self.options.get_property_regex,
+            property_match,
+            self.options.get_property_match,
             functools.partial(
-                self.options.set_property_regex,
-                function=self.set_property_regex,
-                name='property_regex',
+                self.options.set_property_match,
+                function=self.set_property_match,
+                name='property_match',
                 position=1),
-            self._set_property_regex)
+            self._set_property_match)
 
-    def _set_property_regex(self, property_regex: str | None) -> bool:
+    def _set_property_match(self, property_match: str | None) -> bool:
         self._re_property = None
         return True
 
@@ -1338,16 +1478,19 @@ class DDGS_Search(
             regex: re.Pattern[str] | None,
             repl: str | None
     ) -> Iterator[DDGS_Search.TData]:
-        backend, limit, site, timeout = self._check_options(options)
+        backend, debug, in_url, limit, site, timeout =\
+            self._check_options(options)
         return self._x_data_tail(
-            type, search, backend, limit, site, timeout, functools.partial(
-                self._match_and_sub_href, regex, repl))
+            type, search, backend, debug, in_url, limit, site, timeout,
+            functools.partial(self._match_and_sub_href, regex, repl, debug))
 
     def _x_data_tail(
             self,
             type: Literal['item', 'lexeme', 'property'],
             search: str,
             backend: str,
+            debug: bool,
+            in_url: str | None,
             limit: int,
             site: str | None,
             timeout: int | None,
@@ -1362,14 +1505,29 @@ class DDGS_Search(
                 f'{self.__class__.__qualname__} '
                 f'requires {_DDGS_URL}') from err
         assert isinstance(self.ddgs, DDGS)
+        if in_url:
+            search += ' inurl:' + in_url
         if site:
-            search += f' site:{site}'
+            search += ' site:' + site
+        ###
+        # TODO: Move the max_results constant (100) to an option. (?)
+        ###
+        ddgs_text_kwargs = {
+            'backend': backend,
+            'max_results': 100,
+            'timelimit': timeout,
+        }
         ddgs_text = functools.partial(
-            self.ddgs.text,
-            search, backend=backend, max_results=100, timelimit=timeout)
+            self.ddgs.text, search, **ddgs_text_kwargs)
         count, page = 0, 1
         while count < limit:
             try:
+                if _logger.isEnabledFor(logging.DEBUG):
+                    import pprint
+                    _logger.debug(
+                        '%s()\n%s',
+                        self._x_data_tail.__qualname__, pprint.pformat(dict(
+                            search=search, page=page, **ddgs_text_kwargs)))
                 for t in map(match_and_sub, ddgs_text(page=page)):
                     if t is not None:
                         yield t
@@ -1382,10 +1540,12 @@ class DDGS_Search(
     def _check_options(
             self,
             options: TOptions
-    ) -> tuple[str, int, str | None, int | None]:
+    ) -> tuple[str, bool, str | None, int, str | None, int | None]:
         backend = options.backend
         if backend is None:
             backend = 'auto'
+        debug = bool(options.debug)
+        in_url = options.in_url
         limit = options.limit
         if limit is None:
             limit = options.max_limit
@@ -1394,12 +1554,13 @@ class DDGS_Search(
         site = options.site
         timeout = (
             int(options.timeout) if options.timeout is not None else None)
-        return backend, limit, site, timeout
+        return backend, debug, in_url, limit, site, timeout
 
     def _match_and_sub_href(
             self,
             regex: re.Pattern[str] | None,
             repl: str | None,
+            debug: bool,
             data: DDGS_Search.TData
     ) -> DDGS_Search.TData | None:
         if 'href' not in data:
@@ -1411,7 +1572,7 @@ class DDGS_Search(
             if repl is not None:
                 data['href'] = regex.sub(repl, href)
             return data
-        else:
+        elif debug:
             _logger.debug('skipping %s', href)
         return None
 
@@ -1447,10 +1608,12 @@ class DDGS_Search(
             regex: re.Pattern[str] | None,
             repl: str | None
     ) -> AsyncIterator[DDGS_Search.TData]:
-        backend, limit, site, timeout = self._check_options(options)
+        backend, debug, in_url, limit, site, timeout =\
+            self._check_options(options)
         match_and_sub = functools.partial(
-            self._match_and_sub_href, regex, repl)
+            self._match_and_sub_href, regex, repl, debug)
         for t in await asyncio.create_task(asyncio.to_thread(
             lambda: self._x_data_tail(
-                type, search, backend, limit, site, timeout, match_and_sub))):
+                type, search, backend, debug, in_url, limit, site, timeout,
+                match_and_sub))):
             yield t

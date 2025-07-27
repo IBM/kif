@@ -13,6 +13,7 @@ from .ddgs import DDGS_SearchOptions
 from .empty import EmptySearchOptions
 from .httpx import HttpxSearchOptions
 from .wikidata import WikidataSearchOptions
+from .wikidata_ddgs import WikidataDDGS_SearchOptions
 
 
 @dataclasses.dataclass
@@ -34,6 +35,9 @@ class SearchOptions(_SearchOptions, name='search'):
     wikidata: WikidataSearchOptions = dataclasses.field(
         default_factory=WikidataSearchOptions)
 
+    wikidata_ddgs: WikidataDDGS_SearchOptions = dataclasses.field(
+        default_factory=WikidataDDGS_SearchOptions)
+
     def __init__(self, *args: Any, **kwargs: Any) -> None:
         super().__init__(*args, **kwargs)
         self.dbpedia = DBpediaSearchOptions()
@@ -41,6 +45,7 @@ class SearchOptions(_SearchOptions, name='search'):
         self.empty = EmptySearchOptions()
         self.httpx = HttpxSearchOptions()
         self.wikidata = WikidataSearchOptions()
+        self.wikidata_ddgs = WikidataDDGS_SearchOptions()
 
     @override
     def _get_parent_callback(self) -> _EngineOptions:

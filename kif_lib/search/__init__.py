@@ -9,6 +9,7 @@ from .ddgs import DDGS_Search
 from .empty import EmptySearch
 from .httpx import HttpxSearch
 from .wikidata import WikidataSearch
+from .wikidata_ddgs import WikidataDDGS_Search
 
 __all__ = (
     'DBpediaSearch',
@@ -16,5 +17,6 @@ __all__ = (
     'EmptySearch',
     'HttpxSearch',
     'Search',
+    'WikidataDDGS_Search',
     'WikidataSearch',
 )

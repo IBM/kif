@@ -33,11 +33,6 @@ class WikidataSearchOptions(HttpxSearchOptions, name='wikidata'):
     _v_debug: ClassVar[tuple[Iterable[str], bool | None]] =\
         (('KIF_WIKIDATA_SEARCH_DEBUG',), None)
 
-    DEFAULT_IRI = 'https://www.wikidata.org/w/api.php'
-
-    _v_iri: ClassVar[tuple[Iterable[str], str | None]] =\
-        (('KIF_WIKIDATA_SEARCH_IRI', 'WIKIDATA_WAPI'), DEFAULT_IRI)
-
     _v_max_limit: ClassVar[tuple[Iterable[str], int | None]] =\
         (('KIF_WIKIDATA_SEARCH_MAX_LIMIT',), None)
 
@@ -64,6 +59,13 @@ class WikidataSearchOptions(HttpxSearchOptions, name='wikidata'):
     _v_timeout: ClassVar[tuple[Iterable[str], float | None]] =\
         (('KIF_WIKIDATA_SEARCH_TIMEOUT',), None)
 
+    # -- httpx --
+
+    DEFAULT_IRI = 'https://www.wikidata.org/w/api.php'
+
+    _v_iri: ClassVar[tuple[Iterable[str], str | None]] =\
+        (('KIF_WIKIDATA_SEARCH_IRI', 'WIKIDATA_WAPI'), DEFAULT_IRI)
+
     def __init__(self, **kwargs: Any) -> None:
         super().__init__(**kwargs)
 
@@ -82,18 +84,12 @@ class WikidataSearch(
 
     Parameters:
        search_name: Name of the search plugin to instantiate.
-       iri: IRI of the target MediaWiki API.
        kwargs: Other keyword arguments.
     """
 
-    def __init__(
-            self,
-            search_name: str,
-            iri: T_IRI | None = None,
-            **kwargs: Any
-    ) -> None:
+    def __init__(self, search_name: str, *args: Any, **kwargs: Any) -> None:
         assert search_name == self.search_name
-        super().__init__(search_name, iri=iri, **kwargs)
+        super().__init__(search_name, *args, **kwargs)
 
     @override
     @classmethod

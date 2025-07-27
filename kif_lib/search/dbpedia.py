@@ -30,11 +30,6 @@ class DBpediaSearchOptions(HttpxSearchOptions, name='dbpedia'):
     _v_debug: ClassVar[tuple[Iterable[str], bool | None]] =\
         (('KIF_DBPEDIA_SEARCH_DEBUG',), None)
 
-    DEFAULT_IRI = 'https://lookup.dbpedia.org/api/search'
-
-    _v_iri: ClassVar[tuple[Iterable[str], str | None]] =\
-        (('KIF_DBPEDIA_SEARCH_IRI', 'DBPEDIA_LOOKUP'), DEFAULT_IRI)
-
     _v_max_limit: ClassVar[tuple[Iterable[str], int | None]] =\
         (('KIF_DBPEDIA_SEARCH_MAX_LIMIT',), None)
 
@@ -61,6 +56,13 @@ class DBpediaSearchOptions(HttpxSearchOptions, name='dbpedia'):
     _v_timeout: ClassVar[tuple[Iterable[str], float | None]] =\
         (('KIF_DBPEDIA_SEARCH_TIMEOUT',), None)
 
+    # -- httpx --
+
+    DEFAULT_IRI = 'https://lookup.dbpedia.org/api/search'
+
+    _v_iri: ClassVar[tuple[Iterable[str], str | None]] =\
+        (('KIF_DBPEDIA_SEARCH_IRI', 'DBPEDIA_LOOKUP'), DEFAULT_IRI)
+
     def __init__(self, **kwargs: Any) -> None:
         super().__init__(**kwargs)
 
@@ -79,18 +81,12 @@ class DBpediaSearch(
 
     Parameters:
        search_name: Name of the search plugin to instantiate.
-       iri: IRI of the target Lookup API.
        kwargs: Other keyword arguments.
     """
 
-    def __init__(
-            self,
-            search_name: str,
-            iri: T_IRI | None = None,
-            **kwargs: Any
-    ) -> None:
+    def __init__(self, search_name: str, *args: Any, **kwargs: Any) -> None:
         assert search_name == self.search_name
-        super().__init__(search_name, iri=iri, **kwargs)
+        super().__init__(search_name, *args, **kwargs)
 
     @override
     @classmethod
