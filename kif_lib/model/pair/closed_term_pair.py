@@ -3,36 +3,23 @@
 
 from __future__ import annotations
 
-from ..typing import (
+from ...typing import (
     Any,
+    cast,
     ClassVar,
-    Generic,
     Location,
     override,
     Self,
     Sequence,
-    TypeAlias,
     TypeVar,
-    Union,
 )
-from .term import ClosedTerm, Variable
-from .value import Value
+from ..term import ClosedTerm
 
-TValuePair: TypeAlias = Union['ValuePair', Sequence[Value]]
-VValuePair: TypeAlias = Union['ValuePairVariable', 'ValuePair']
-VTValuePair: TypeAlias = Union[Variable, VValuePair, TValuePair]
-
-_TClosedTermLeft = TypeVar('_TClosedTermLeft', bound=ClosedTerm)
-_TClosedTermRight = TypeVar('_TClosedTermRight', bound=ClosedTerm)
-
-_TValueLeft = TypeVar('_TValueLeft', bound=Value)
-_TValueRight = TypeVar('_TValueRight', bound=Value)
+TL = TypeVar('TL', bound=ClosedTerm)
+TR = TypeVar('TR', bound=ClosedTerm)
 
 
-class ClosedTermPair(
-        ClosedTerm,
-        Generic[_TClosedTermLeft, _TClosedTermRight]
-):
+class ClosedTermPair(ClosedTerm[TL, TR]):
     """Pair of closed terms.
 
     Parameters:
@@ -67,10 +54,10 @@ class ClosedTermPair(
         elif (not isinstance(arg, ClosedTerm)
               and isinstance(arg, Sequence) and len(arg) == 2):
             return cls(
-                cls.left_class.check(
-                    arg[0], function or cls.check, name, position),
-                cls.right_class.check(
-                    arg[1], function or cls.check, name, position))
+                cast(TL, cls.left_class.check(
+                    arg[0], function or cls.check, name, position)),
+                cast(TR, cls.right_class.check(
+                    arg[1], function or cls.check, name, position)))
         else:
             raise cls._check_error(arg, function, name, position)
 
@@ -84,11 +71,11 @@ class ClosedTermPair(
             raise self._should_not_get_here()
 
     @property
-    def left(self) -> _TClosedTermLeft:
+    def left(self) -> TL:
         """The left component of the pair."""
         return self[0]
 
-    def get_left(self) -> _TClosedTermLeft:
+    def get_left(self) -> TL:
         """Gets the left component of the pair.
 
         Returns:
@@ -97,46 +84,14 @@ class ClosedTermPair(
         return self[0]
 
     @property
-    def right(self) -> _TClosedTermRight:
+    def right(self) -> TR:
         """The right component of the pair."""
         return self.get_right()
 
-    def get_right(self) -> _TClosedTermRight:
+    def get_right(self) -> TR:
         """Gets the right component of the pair.
 
         Returns:
            Closed term.
         """
         return self[1]
-
-
-class ValuePairVariable(Variable):
-    """Snak set variable.
-
-    Parameters:
-       name: Name.
-    """
-
-    object_class: ClassVar[type[ValuePair]]  # pyright: ignore
-
-
-class ValuePair(
-        ClosedTermPair[_TValueLeft, _TValueRight],
-        left_class=Value,
-        right_class=Value,
-        variable_class=ValuePairVariable
-):
-    """Value pair.
-
-    Parameters:
-       left: Value.
-       right: Value.
-    """
-
-    left_class: ClassVar[type[Value]]                 # pyright: ignore
-    right_class: ClassVar[type[Value]]                # pyright: ignore
-    variable_class: ClassVar[type[ValuePairVariable]]  # pyright: ignore
-
-    @override
-    def __init__(self, left: _TValueLeft, right: _TValueRight) -> None:
-        super().__init__(left, right)

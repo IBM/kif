@@ -16,6 +16,7 @@ from ..typing import (
     override,
     Self,
     TypeAlias,
+    TypeVarTuple,
     Union,
 )
 from .kif_object import KIF_Object
@@ -29,10 +30,11 @@ TPath: TypeAlias = Union['Path', 'TSequencePath', 'TEdgePath']
 TSequencePath: TypeAlias = Union['SequencePath', Iterable[TPath]]
 TEdgePath: TypeAlias = Union['EdgePath', TProperty]
 
+Ts = TypeVarTuple('Ts')
 at_property = property
 
 
-class Path(KIF_Object):
+class Path(KIF_Object[*Ts]):
     """Abstract base class for property path expressions."""
 
     @classmethod
@@ -166,7 +168,7 @@ class SequencePath(Path):
                 yield arg
 
 
-class EdgePath(Path):
+class EdgePath(Path[Property]):
     """Edge (atomic) path expression."""
 
     @classmethod
@@ -184,7 +186,7 @@ class EdgePath(Path):
             return cls(Property.check(arg, function, name, position))
 
     def __init__(self, property: TProperty) -> None:
-        super().__init__(property)
+        super().__init__(property)  # type: ignore
 
     @at_property
     def property(self) -> Property:

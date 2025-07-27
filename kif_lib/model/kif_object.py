@@ -18,7 +18,7 @@ from ..typing import (
     Mapping,
     override,
     Self,
-    TypeVar,
+    TypeVarTuple,
 )
 from . import object
 
@@ -31,10 +31,10 @@ EncoderError = object.Encoder.Error
 Error = object.Object.Error
 ShouldNotGetHere = object.Object.ShouldNotGetHere
 
-T = TypeVar('T')
+Ts = TypeVarTuple('Ts')
 
 
-class KIF_Object(object.Object, metaclass=object.ObjectMeta):
+class KIF_Object(object.Object[*Ts], metaclass=object.ObjectMeta):
     """Abstract base class for KIF objects."""
 
     @property
@@ -42,7 +42,8 @@ class KIF_Object(object.Object, metaclass=object.ObjectMeta):
         """The current KIF context."""
         return self.get_context()
 
-    def get_context(self, context: Context | None = None) -> Context:
+    @classmethod
+    def get_context(cls, context: Context | None = None) -> Context:
         """Gets the current KIF context.
 
         If `context` is not ``None``, returns `context`.
@@ -127,7 +128,7 @@ class KIF_Object(object.Object, metaclass=object.ObjectMeta):
         Returns:
            KIF object.
         """
-        return type(self)(*self._substitute(
+        return type(self)(*self._substitute(  # pyright: ignore
             (lambda k: sigma.get(k, k))
             if isinstance(sigma, Mapping) else sigma))
 

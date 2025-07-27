@@ -21,6 +21,7 @@ from ...typing import (
     Self,
     Set,
     TypeAlias,
+    TypeVarTuple,
 )
 from ..kif_object import KIF_Object
 
@@ -28,11 +29,13 @@ if TYPE_CHECKING:               # pragma: no cover
     from .template import Template
     from .variable import Variable
 
+Ts = TypeVarTuple('Ts')
+
 #: The type of variable instantiations.
 Theta: TypeAlias = Mapping['Variable', Optional['Term']]
 
 
-class Term(KIF_Object):
+class Term(KIF_Object[*Ts]):
     """Abstract base class for terms."""
 
     class InstantiationError(ValueError):
@@ -253,7 +256,7 @@ class Term(KIF_Object):
         return cast(Self, self.instantiate(theta))
 
 
-class ClosedTerm(Term):
+class ClosedTerm(Term[*Ts]):
     """Abstract base class for closed (ground) terms."""
 
     #: Template class associated with this closed-term class.
@@ -310,7 +313,7 @@ class ClosedTerm(Term):
         return self             # nothing to do
 
 
-class OpenTerm(Term):
+class OpenTerm(Term[*Ts]):
     """Abstract base class for open terms."""
 
     #: Closed-term class associated with this open-term class.

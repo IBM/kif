@@ -14,11 +14,19 @@ import copy
 import functools
 import itertools
 import json
-from collections.abc import Iterator, Mapping, Sequence
+from collections.abc import Iterator, Mapping
 from typing import Callable, cast, ClassVar, Final, IO, Union
 
 import lark  # for S-expression parsing
-from typing_extensions import Any, override, Self, TypeAlias, TypeVar
+from typing_extensions import (
+    Any,
+    Generic,
+    override,
+    Self,
+    TypeAlias,
+    TypeVar,
+    TypeVarTuple,
+)
 
 TDet: TypeAlias = Union[Callable[[Any], str], str]
 TFun: TypeAlias = Callable[..., Any]
@@ -26,9 +34,9 @@ TLoc: TypeAlias = Union[TFun, str]
 TNum: TypeAlias = Union[float, int]
 
 F = TypeVar('F', bound=Callable[..., Any])
+S = TypeVar('S')
 T = TypeVar('T')
-T1 = TypeVar('T1')
-T2 = TypeVar('T2')
+Ts = TypeVarTuple('Ts')
 
 
 # == Object ================================================================
@@ -54,7 +62,7 @@ class ObjectMeta(abc.ABCMeta):
         return cls._object_subclasses[cls_name]
 
 
-class Object(Sequence, metaclass=ObjectMeta):
+class Object(Generic[*Ts], metaclass=ObjectMeta):
     """Abstract base class for syntactical objects."""
 
     class NilType:
@@ -200,15 +208,15 @@ class Object(Sequence, metaclass=ObjectMeta):
     _digest: str | None
 
     @abc.abstractmethod
-    def __init__(self, *args: Any) -> None:
+    def __init__(self, *args: *Ts) -> None:
         self._set_args(self._preprocess_args(args))
         self._hash = None
         self._digest = None
 
-    def _set_args(self, args: tuple[Any, ...]) -> None:
+    def _set_args(self, args: tuple[*Ts]) -> None:
         self._args = args
 
-    def _preprocess_args(self, args: tuple[Any, ...]) -> tuple[Any, ...]:
+    def _preprocess_args(self, args: tuple[Any, ...]) -> tuple[*Ts]:
         return tuple(map(
             self._preprocess_arg_callback, zip(args, itertools.count(1))))
 
@@ -231,6 +239,9 @@ class Object(Sequence, metaclass=ObjectMeta):
         if self._hash is None:
             self._hash = hash((type(self), self._args))
         return self._hash
+
+    def __iter__(self) -> Iterator[Any]:
+        return iter(self._args)
 
     def __len__(self) -> int:
         return len(self._args)
@@ -264,11 +275,11 @@ class Object(Sequence, metaclass=ObjectMeta):
         return self.dumps()
 
     @property
-    def args(self) -> tuple[Any, ...]:
+    def args(self) -> tuple[*Ts]:
         """The arguments of object."""
         return self.get_args()
 
-    def get_args(self) -> tuple[Any, ...]:
+    def get_args(self) -> tuple[*Ts]:
         """Gets the arguments of object.
 
         Returns:
@@ -362,9 +373,10 @@ class Object(Sequence, metaclass=ObjectMeta):
         """
         return type(self)(*itertools.starmap(
             self._replace, itertools.zip_longest(
-                self.args, args[:len(self.args)], fillvalue=self.KEEP)))
+                self.args, args[:len(self.args)],  # type: ignore
+                fillvalue=self.KEEP)))
 
-    def _replace(self, x: T1, y: T2) -> T1 | T2:
+    def _replace(self, x: T, y: S) -> T | S:
         if y is self.KEEP:
             return x
         else:
