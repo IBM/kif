@@ -956,7 +956,14 @@ class WikidataMapping(M):
             **kwargs
     ) -> None:
         self._start_L_tail(c, s)
-        self._p_text_tail(c, WIKIBASE.lemma, s, v, v0)
+        ###
+        # FIXME: We use the `lexeme_language_hack` here to avoid filtering
+        # out lemmas with a language different from the one that was passed
+        # expclititly in the filter.  We need to find a better way to do
+        # this.
+        ###
+        self._p_text_tail(
+            c, WIKIBASE.lemma, s, v, v0, lexeme_language_hack=True)
         self._ensure_wds_is_bound_fix(c)
 
     @M.register(
@@ -1339,7 +1346,8 @@ class WikidataMapping(M):
             ps: V_URI,
             wds: V_URI,
             v: VLiteral,
-            v0: VLiteral
+            v0: VLiteral,
+            lexeme_language_hack: bool = False
     ) -> None:
         if isinstance(v0, Var):
             c.q.triples()((wds, ps, v))
@@ -1347,7 +1355,11 @@ class WikidataMapping(M):
             c.q.filter(c.q.is_literal(v))
         elif isinstance(v, Var):
             c.q.triples()((wds, ps, v))
-            c.q.filter(c.q.eq(c.q.lang(v), v0))
+            if not lexeme_language_hack:
+                ###
+                # FIXME: See the LemmaProperty mapping entry.
+                ###
+                c.q.filter(c.q.eq(c.q.lang(v), v0))
             c.q.filter(c.q.is_literal(v))
         else:
             c.q.triples()((wds, ps, c.q.Literal(v, v0)))

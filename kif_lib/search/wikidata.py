@@ -10,7 +10,7 @@ import functools
 
 from .. import itertools
 from ..context import Context
-from ..model import IRI, Item, Lexeme, Property, T_IRI, Text
+from ..model import IRI, Item, Lexeme, Property, Text
 from ..typing import (
     Any,
     AsyncIterator,

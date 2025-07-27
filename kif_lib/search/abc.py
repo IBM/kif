@@ -3,7 +3,6 @@
 
 from __future__ import annotations
 
-import abc
 import dataclasses
 import functools
 
@@ -336,7 +335,6 @@ class Search(Engine[TOptions]):
         except Exception as err:
             raise ValueError(data) from err
 
-    @abc.abstractmethod
     def _to_item(self, data: TData) -> Item:
         raise NotImplementedError
 
@@ -377,7 +375,6 @@ class Search(Engine[TOptions]):
         except Exception as err:
             raise ValueError(data) from err
 
-    @abc.abstractmethod
     def _to_lexeme(self, data: TData) -> Lexeme:
         raise NotImplementedError
 
@@ -418,7 +415,6 @@ class Search(Engine[TOptions]):
         except Exception as err:
             raise ValueError(data) from err
 
-    @abc.abstractmethod
     def _to_property(self, data: TData) -> Property:
         raise NotImplementedError
 

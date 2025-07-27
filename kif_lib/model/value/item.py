@@ -119,7 +119,7 @@ class Item(
             from .pseudo_property import AliasProperty
             for aliases in descriptor['aliases'].values():
                 yield from map(AliasProperty(), aliases)
-        if 'description' in descriptor:
+        if 'descriptions' in descriptor:
             from .pseudo_property import DescriptionProperty
             for description in descriptor['descriptions'].values():
                 yield DescriptionProperty()(description)

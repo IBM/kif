@@ -3,23 +3,15 @@
 
 from __future__ import annotations
 
-import asyncio
-import collections
 import dataclasses
-import functools
 
-from .. import itertools
 from ..context import Context
-from ..model import IRI, Item, Lexeme, Property, T_IRI, Text
 from ..typing import (
     Any,
     AsyncIterator,
-    cast,
     ClassVar,
     Iterable,
     Iterator,
-    Literal,
-    Mapping,
     override,
     TypeAlias,
 )

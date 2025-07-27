@@ -8,7 +8,7 @@ import functools
 import re
 
 from ..context import Context
-from ..model import IRI, Item, T_IRI, Text
+from ..model import IRI, Item, Text
 from ..typing import (
     Any,
     AsyncIterator,

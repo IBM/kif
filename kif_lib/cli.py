@@ -6,6 +6,7 @@ from __future__ import annotations
 import asyncio
 import functools
 import os
+import pprint
 import re
 import sys
 
@@ -43,6 +44,7 @@ from .model import (
     Property,
     Quantity,
     ShallowDataValue,
+    SnakSet,
     SomeValueSnak,
     String,
     Term,
@@ -66,6 +68,7 @@ from .typing import (
     Self,
     Sequence,
     TypeVar,
+    Union,
 )
 from .vocabulary import db, pc, wd
 
@@ -315,6 +318,32 @@ class EncoderParamType(KIF_ParamType):
             return self.fail(str(err), param, ctx)
 
 
+class SearchParamType(KIF_ParamType):
+
+    name: str = 'search'
+
+    @override
+    def convert(
+            self,
+            value: Any,
+            param: click.Parameter | None,
+            ctx: click.Context | None
+    ) -> Search:
+        if isinstance(value, str):
+            for search_name in Search.registry.keys():
+                m = re.match(f'^{search_name}(@(.*))?$', value)
+                if m is not None:
+                    input_sources = m.group(2)
+                    if input_sources:
+                        return Search(search_name, *input_sources.split(';'))
+                    else:
+                        return Search(search_name)
+        try:
+            return KIF_Object._check_arg_isinstance(self.eval(value), Search)
+        except (ValueError, TypeError) as err:
+            return self.fail(str(err), param, ctx)
+
+
 class StoreParamType(KIF_ParamType):
 
     name: str = 'store'
@@ -503,7 +532,7 @@ class FilterParam:
         help='Maximum number of results.',
         envvar='LIMIT')
 
-    no_async_ = click.option(
+    no_async = click.option(
         '--no-async',
         'async_',
         is_flag=True,
@@ -800,10 +829,7 @@ class FilterParam:
         envvar='VALUE_MASK')
 
     @classmethod
-    def make_context(
-            cls,
-            resolve: bool | None = None
-    ) -> Context:
+    def make_context(cls, resolve: bool | None = None) -> Context:
         context = Context.top()
         if resolve is not None:
             context.options.entities.resolve = False
@@ -975,7 +1001,7 @@ class FilterParam:
 @FilterParam.dry_run
 @FilterParam.encoder
 @FilterParam.language
-@FilterParam.no_async_
+@FilterParam.no_async
 @FilterParam.no_distinct
 @FilterParam.no_resolve
 @FilterParam.non_best_ranked
@@ -1116,7 +1142,7 @@ def ask(
 @FilterParam.dry_run
 @FilterParam.encoder
 @FilterParam.language
-@FilterParam.no_async_
+@FilterParam.no_async
 @FilterParam.no_distinct
 @FilterParam.no_resolve
 @FilterParam.non_best_ranked
@@ -1278,7 +1304,7 @@ def count(
 @FilterParam.language
 @FilterParam.limit
 @FilterParam.lookahead
-@FilterParam.no_async_
+@FilterParam.no_async
 @FilterParam.no_distinct
 @FilterParam.no_resolve
 @FilterParam.non_best_ranked
@@ -1411,22 +1437,12 @@ def filter(
             omega=omega,
             page_size=page_size,
             timeout=timeout)
-
-        def output(
-                page: Iterable[Term],
-                pageno: int
-        ) -> None:
-            if resolve:
-                resolved_page = context.resolve(
-                    page, label=True, language='en')
-            else:
-                resolved_page = page
-            if encoder is None:
-                it = map(Term.to_markdown, resolved_page)
-                console.print(Markdown('\n\n'.join(it)))
-            else:
-                for term in resolved_page:
-                    print(encoder.encode(term).rstrip(), flush=True)
+        output = functools.partial(
+            _output_filter_page,
+            console,
+            encoder=encoder,
+            resolve=resolve,
+            context=context)
         if async_:
             af: dict[str, Callable[[], AsyncIterator[Term]]] = {
                 's': (lambda: target.afilter_s(filter=fr)),
@@ -1439,13 +1455,12 @@ def filter(
 
             async def afilter():
                 assert select is not None
-                it, n = af[select](), 0
+                it = af[select]()
                 while True:
                     page = await itertools.atake(target.page_size, it)
                     if not page:
                         break
-                    output(page, n)
-                    n += 1
+                    output(page)
             asyncio.run(afilter())
         else:
             f: dict[str, Callable[[], Iterator[Term]]] = {
@@ -1458,9 +1473,246 @@ def filter(
                 'spv': (lambda: target.filter(filter=fr))}
             assert select is not None
             batches = itertools.batched(f[select](), target.page_size)
-            for pageno, page in enumerate(batches):
-                output(page, pageno)
+            for page in batches:
+                output(page)
     _run(_filter)
+
+
+def _output_filter_page(
+        console: Console,
+        page: Iterable[Term],
+        encoder: Encoder | None = None,
+        resolve: bool | None = None,
+        context: Context | None = None,
+) -> None:
+    if resolve:
+        assert context is not None
+        resolved_page: Iterable[Term] = list(context.resolve(
+            page, language='en', label=True,
+            lemma=True, category=True, lexeme_language=True))
+        is_lexeme = (lambda x: isinstance(x, Lexeme))
+        lexemes = itertools.chain(
+            *(x.traverse(is_lexeme) for x in resolved_page))
+        context.resolve(itertools.chain(
+            *((x.get_category(resolve=False),
+               x.get_language(resolve=False))
+              for x in lexemes)),
+            language='en', label=True)
+    else:
+        resolved_page = page
+    if encoder is None:
+        it = map(Term.to_markdown, resolved_page)
+        console.print(Markdown('\n\n'.join(it)))
+    else:
+        for term in resolved_page:
+            print(encoder.encode(term).rstrip(), flush=True)
+
+
+class SearchParam:
+    """Common stuff for search-like commands."""
+
+    text = click.argument(
+        'text',
+        type=str,
+        required=True,
+        envvar='TEXT')
+
+    encoder = FilterParam.encoder
+
+    limit = FilterParam.limit
+
+    lookahead = FilterParam.lookahead
+
+    no_async = FilterParam.no_async
+
+    no_resolve = FilterParam.no_resolve
+
+    page_size = FilterParam.page_size
+
+    search = click.option(
+        '--search',
+        '-s',
+        'search',
+        type=SearchParamType.get_instance(),
+        multiple=True,
+        help='Target search.',
+        envvar='SEARCH')
+
+    timeout = FilterParam.timeout
+
+    type = click.option(
+        '--type',
+        'type',
+        type=click.Choice([
+            'item',
+            'item-descriptor',
+            'item-data',
+            'lexeme',
+            'lexeme-descriptor',
+            'lexeme-data',
+            'property',
+            'property-descriptor',
+            'property-data',
+        ]),
+        default='item',
+        help='Type specification.',
+        envvar='TYPE')
+
+    @classmethod
+    def make_context(cls, resolve: bool | None = None) -> Context:
+        return FilterParam.make_context(resolve)
+
+    @classmethod
+    def make_search(
+            cls,
+            search: Sequence[Search],
+            limit: int | None = None,
+            lookahead: int | None = None,
+            page_size: int | None = None,
+            timeout: float | None = None
+    ) -> Search:
+        target: Search
+        if len(search) == 0:
+            target = Search('wikidata')
+        elif len(search) == 1:
+            target = search[0]
+        else:
+            ###
+            # TODO: Handle more than one search.
+            ###
+            target = search[0]
+        if limit is not None:
+            target.set_limit(limit)
+        if lookahead is not None:
+            target.set_lookahead(lookahead)
+        if page_size is not None:
+            target.set_page_size(page_size)
+        if timeout is not None:
+            target.set_timeout(timeout)
+        return target
+
+
+@cli.command(help='Searches for entities matching text.')
+@SearchParam.text
+@SearchParam.encoder
+@SearchParam.limit
+@SearchParam.no_async
+@SearchParam.no_resolve
+@SearchParam.page_size
+@SearchParam.search
+@SearchParam.timeout
+@SearchParam.type
+def search(
+        search: Sequence[Search],
+        text: str,
+        async_: bool | None = None,
+        encoder: Encoder | None = None,
+        limit: int | None = None,
+        lookahead: int | None = None,
+        page_size: int | None = None,
+        resolve: bool | None = None,
+        timeout: float | None = None,
+        type: str | None = None
+) -> None:
+    def _search() -> None:
+        target = SearchParam.make_search(
+            search,
+            limit=limit,
+            lookahead=lookahead,
+            page_size=page_size,
+            timeout=timeout)
+        output = functools.partial(
+            _output_search_page,
+            Console(),
+            encoder=encoder,
+            resolve=resolve,
+            context=SearchParam.make_context(resolve))
+        if async_:
+            as_: dict[str, Callable[[], Union[
+                AsyncIterator[Item],
+                AsyncIterator[Lexeme],
+                AsyncIterator[Property],
+                AsyncIterator[tuple[Item, Item.Descriptor]],
+                AsyncIterator[tuple[Lexeme, Lexeme.Descriptor]],
+                AsyncIterator[tuple[Property, Property.Descriptor]],
+                AsyncIterator[Search.TData]
+            ]]] = {
+                'item': (lambda: target.aitem(text)),
+                'item-descriptor': (lambda: target.aitem_descriptor(text)),
+                'item-data': (lambda: target.aitem_data(text)),
+                'lexeme': (lambda: target.alexeme(text)),
+                'lexeme-descriptor': (lambda: target.alexeme_descriptor(text)),
+                'lexeme-data': (lambda: target.alexeme_data(text)),
+                'property': (lambda: target.aproperty(text)),
+                'property-descriptor': (
+                    lambda: target.aproperty_descriptor(text)),
+                'property-data': (lambda: target.aproperty_data(text))}
+
+            async def asearch():
+                assert type is not None
+                it = as_[type]()
+                while True:
+                    page = await itertools.atake(target.page_size, it)
+                    if not page:
+                        break
+                    output(type=type, page=page)  # type: ignore
+            asyncio.run(asearch())
+        else:
+            s: dict[str, Callable[[], Union[
+                Iterator[Item],
+                Iterator[Lexeme],
+                Iterator[Property],
+                Iterator[tuple[Item, Item.Descriptor]],
+                Iterator[tuple[Lexeme, Lexeme.Descriptor]],
+                Iterator[tuple[Property, Property.Descriptor]],
+                Iterator[Search.TData]
+            ]]] = {
+                'item': (lambda: target.item(text)),
+                'item-descriptor': (lambda: target.item_descriptor(text)),
+                'item-data': (lambda: target.item_data(text)),
+                'lexeme': (lambda: target.lexeme(text)),
+                'lexeme-descriptor': (lambda: target.lexeme_descriptor(text)),
+                'lexeme-data': (lambda: target.lexeme_data(text)),
+                'property': (lambda: target.property(text)),
+                'property-descriptor': (
+                    lambda: target.property_descriptor(text)),
+                'property-data': (lambda: target.property_data(text))}
+            assert type is not None
+            batches = itertools.batched(s[type](), target.page_size)
+            for page in batches:
+                output(type=type, page=page)  # type: ignore
+    _run(_search)
+
+
+def _output_search_page(
+        console: Console,
+        type: str,
+        page: Union[
+            Iterable[Item],
+            Iterable[Lexeme],
+            Iterable[Property],
+            Iterable[tuple[Item, Item.Descriptor]],
+            Iterable[tuple[Lexeme, Lexeme.Descriptor]],
+            Iterable[tuple[Property, Property.Descriptor]],
+            Iterable[Search.TData]],
+        encoder: Encoder | None = None,
+        resolve: bool | None = None,
+        context: Context | None = None,
+) -> None:
+    if type.endswith('data'):
+        for data in page:
+            console.print(pprint.pformat(data))
+            console.print()
+    elif type.endswith('descriptor'):
+        it = itertools.chain(*(
+            (entity, SnakSet(
+                *entity.descriptor_to_snaks(desc)))  # type: ignore
+            for entity, desc in page))
+        _output_filter_page(
+            console, list(it), encoder, resolve, context)  # type: ignore
+    else:
+        _output_filter_page(
+            console, page, encoder, resolve, context)  # type: ignore
 
 
 if __name__ == '__main__':

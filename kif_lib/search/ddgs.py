@@ -32,6 +32,7 @@ from .abc import Search, SearchOptions
 _DDGS_URL: Final[str] = 'https://github.com/deedy5/ddgs'
 _logger: Final[logging.Logger] = logging.getLogger(__name__)
 
+
 @dataclasses.dataclass
 class _DDGS_SearchOptions(SearchOptions):
     """DDGS search options."""
@@ -1498,7 +1499,7 @@ class DDGS_Search(
                 [DDGS_Search.TData], DDGS_Search.TData | None],
     ) -> Iterator[DDGS_Search.TData]:
         try:
-            from ddgs import DDGS                     # type: ignore
+            from ddgs import DDGS  # type: ignore
             from ddgs.exceptions import DDGSException  # type: ignore
         except ImportError as err:
             raise ImportError(
