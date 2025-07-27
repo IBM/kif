@@ -28,10 +28,11 @@ from ...model import (
     Value,
     ValueSnak,
 )
-from ...model.kif_object import Encoder, Object
+from ...model.kif_object import Encoder
 from ...namespace import ONTOLEX, PROV, RDF, WIKIBASE, Wikidata
 from ...rdflib import BNode, Literal, URIRef
 from ...typing import (
+    Any,
     Callable,
     cast,
     Iterator,
@@ -285,7 +286,7 @@ class RDF_Encoder(
             raise self._error(f'no schema for property: {property}')
 
     @override
-    def iterencode(self, input: Object) -> Iterator[str]:
+    def iterencode(self, input: Any) -> Iterator[str]:
         if isinstance(input, Graph):
             for s in input:
                 yield from self.iterencode(s)

@@ -988,11 +988,11 @@ class Encoder(Codec):
     def _error(cls, details: str) -> Encoder.Error:
         return cls.Error(details)
 
-    def encode(self, input: Object) -> str:
+    def encode(self, input: Any) -> str:
         """Encodes object.
 
         Parameters:
-           obj: Object.
+           input: Input.
 
         Returns:
            String.
@@ -1000,13 +1000,13 @@ class Encoder(Codec):
         return ''.join(self.iterencode(input))
 
     @abc.abstractmethod
-    def iterencode(self, input: Object) -> Iterator[str]:
+    def iterencode(self, input: Any) -> Iterator[str]:
         """Encodes object iteratively.
 
         Yields each string as available.
 
         Parameters:
-           obj: Object.
+           input: Input.
 
         Returns:
            An iterator of strings.
@@ -1021,7 +1021,7 @@ class ReprEncoder(Encoder, format='repr', description='Repr. encoder'):
         self.indent = indent
 
     @override
-    def iterencode(self, input: Object) -> Iterator[str]:
+    def iterencode(self, input: Any) -> Iterator[str]:
         return self._iterencode(input, 0, self.indent)
 
     def _iterencode(
@@ -1152,7 +1152,7 @@ class JSON_Encoder(Encoder, format='json', description='JSON encoder'):
         self.enc = self.Encoder(**kwargs)
 
     @override
-    def iterencode(self, input: Object) -> Iterator[str]:
+    def iterencode(self, input: Any) -> Iterator[str]:
         return self.enc.iterencode(input)
 
 
@@ -1184,7 +1184,7 @@ class Decoder(Codec):
         return cls.Error(details)
 
     @abc.abstractmethod
-    def decode(self, input: str) -> Object:
+    def decode(self, input: str) -> Any:
         """Decodes string.
 
         Parameters:
@@ -1206,7 +1206,7 @@ class ReprDecoder(Decoder, format='repr', description='Repr. decoder'):
             'set': set}}
 
     @override
-    def decode(self, input: str) -> Object:
+    def decode(self, input: str) -> Any:
         return eval(input, self._globals(), {})
 
 
@@ -1288,9 +1288,9 @@ list: "[" value* "]" -> list_
             transformer=self.Visitor(), cache=True)
 
     @override
-    def decode(self, input: str) -> Object:
+    def decode(self, input: str) -> Any:
         try:
-            return cast(Object, self.parser.parse(input))
+            return self.parser.parse(input)
         except lark.exceptions.UnexpectedInput as err:
             line, col, ctx = err.line, err.column, err.get_context(input)
             raise Decoder._error(
@@ -1322,5 +1322,5 @@ class JSON_Decoder(Decoder, format='json', description='JSON decoder'):
         self.dec = self.Decoder(**kwargs)
 
     @override
-    def decode(self, input: str) -> Object:
+    def decode(self, input: str) -> Any:
         return self.dec.decode(input)

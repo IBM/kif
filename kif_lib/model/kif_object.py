@@ -29,8 +29,6 @@ DecoderError = object.Decoder.Error
 Encoder = object.Encoder
 EncoderError = object.Encoder.Error
 Error = object.Object.Error
-
-Object = object.Object
 ShouldNotGetHere = object.Object.ShouldNotGetHere
 
 T = TypeVar('T')
@@ -200,8 +198,8 @@ class KIF_JSON_Encoder(
 
         @override
         def default(self, o: Any) -> Any:
-            if isinstance(o, Object):
-                obj = cast(Object, o)
+            if isinstance(o, object.Object):
+                obj = cast(object.Object, o)
                 return {
                     'class': type(obj).__qualname__,
                     'args': obj.args,

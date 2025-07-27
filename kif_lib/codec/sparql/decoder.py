@@ -24,7 +24,7 @@ from ...model import (
     ValueFingerprint,
     ValueSnak,
 )
-from ...model.kif_object import Decoder, DecoderError, Object
+from ...model.kif_object import Decoder, DecoderError
 from ...typing import Any, cast, override
 
 
@@ -73,7 +73,7 @@ At line {line}, column {column}:
         self._namespace = dict(Context.top().iris._nsm.namespaces())
 
     @override
-    def decode(self, input: str) -> Object:
+    def decode(self, input: str) -> Any:
         from pyparsing.exceptions import ParseException
         try:
             query = prepareQuery(input, initNs=self._namespace)

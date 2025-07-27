@@ -14,7 +14,7 @@ from ..model import (
     Text,
     ValueSnak,
 )
-from ..model.kif_object import Encoder, Object
+from ..model.kif_object import Encoder
 from ..typing import Any, Iterator, override
 
 
@@ -26,7 +26,7 @@ class DotEncoder(
     """Dot encoder."""
 
     @classmethod
-    def _to_graphviz(cls, input: Object) -> Any:
+    def _to_graphviz(cls, input: KIF_Object) -> Any:
         try:
             from graphviz import Digraph  # type: ignore
         except ImportError as err:
@@ -70,5 +70,5 @@ class DotEncoder(
         return g
 
     @override
-    def iterencode(self, input: Object) -> Iterator[str]:
+    def iterencode(self, input: Any) -> Iterator[str]:
         yield self._to_graphviz(input).source

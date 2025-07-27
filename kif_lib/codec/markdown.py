@@ -33,8 +33,8 @@ from ..model import (
     ValueSnak,
     Variable,
 )
-from ..model.kif_object import Encoder, Object
-from ..typing import Iterator, override
+from ..model.kif_object import Encoder
+from ..typing import Any, Iterator, override
 
 SP = ' '                        # space
 NL = '\n'                       # newline
@@ -48,7 +48,7 @@ class MarkdownEncoder(
     """Markdown encoder."""
 
     @override
-    def iterencode(self, input: Object) -> Iterator[str]:
+    def iterencode(self, input: Any) -> Iterator[str]:
         if isinstance(input, KIF_Object):
             yield from self._iterencode(input, 0)
         else:
