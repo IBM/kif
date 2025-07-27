@@ -128,48 +128,32 @@ class HttpxSPARQL_Store(
             try:
                 return self._http_post(query).json()
             except httpx.HTTPStatusError as err:
-                import json
-                try:
-                    _logger.error('%s:\n%s', err, json.dumps(
-                        err.response.json(), indent=2))
-                except json.JSONDecodeError:
-                    _logger.error('%s\n%s', err, err.response.text)
+                _logger.exception(err.response.text)
                 raise err
 
         def _http_post(self, text: str) -> httpx.Response:
-            try:
-                res = self.client.post(
-                    self._iri.content,
-                    content=text.encode('utf-8'),
-                    timeout=httpx.Timeout(self._store.timeout))
-                res.raise_for_status()
-                return res
-            except httpx.RequestError as err:
-                raise err
+            res = self.client.post(
+                self._iri.content,
+                content=text.encode('utf-8'),
+                timeout=httpx.Timeout(self._store.timeout))
+            res.raise_for_status()
+            return res
 
         @override
         async def _aselect(self, query: str) -> SPARQL_Results:
             try:
                 return (await self._http_apost(query)).json()
             except httpx.HTTPStatusError as err:
-                import json
-                try:
-                    _logger.error('%s:\n%s', err, json.dumps(
-                        err.response.json(), indent=2))
-                except json.JSONDecodeError:
-                    _logger.error('%s\n%s', err, err.response.text)
+                _logger.exception(err.response.text)
                 raise err
 
         async def _http_apost(self, text: str) -> httpx.Response:
-            try:
-                res = await self.aclient.post(
-                    self._iri.content,
-                    content=text.encode('utf-8'),
-                    timeout=httpx.Timeout(self._store.timeout))
-                res.raise_for_status()
-                return res
-            except httpx.RequestError as err:
-                raise err
+            res = await self.aclient.post(
+                self._iri.content,
+                content=text.encode('utf-8'),
+                timeout=httpx.Timeout(self._store.timeout))
+            res.raise_for_status()
+            return res
 
     def __init__(
             self,

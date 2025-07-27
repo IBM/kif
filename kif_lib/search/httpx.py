@@ -233,13 +233,10 @@ class HttpxSearch(
             params: httpx._types.QueryParamTypes | None = None,
             timeout: httpx._types.TimeoutTypes | None = None
     ) -> httpx.Response:
-        try:
-            res = self.client.get(
-                iri, params=params, timeout=httpx.Timeout(self.timeout))
-            res.raise_for_status()
-            return res
-        except httpx.RequestError as err:
-            raise err
+        res = self.client.get(
+            iri, params=params, timeout=httpx.Timeout(self.timeout))
+        res.raise_for_status()
+        return res
 
     def _http_get_json(
             self,
@@ -250,12 +247,7 @@ class HttpxSearch(
         try:
             return self._http_get(iri, params, timeout).json()
         except httpx.HTTPStatusError as err:
-            import json
-            try:
-                _logger.error('%s:\n%s', err, json.dumps(
-                    err.response.json(), indent=2))
-            except json.JSONDecodeError:
-                _logger.error('%s\n%s', err, err.response.text)
+            _logger.exception(err.response.text)
             raise err
 
     @property
@@ -279,13 +271,10 @@ class HttpxSearch(
             params: httpx._types.QueryParamTypes | None = None,
             timeout: httpx._types.TimeoutTypes | None = None
     ) -> httpx.Response:
-        try:
-            res = await self.aclient.get(
-                iri, params=params, timeout=httpx.Timeout(self.timeout))
-            res.raise_for_status()
-            return res
-        except httpx.RequestError as err:
-            raise err
+        res = await self.aclient.get(
+            iri, params=params, timeout=httpx.Timeout(self.timeout))
+        res.raise_for_status()
+        return res
 
     async def _http_aget_json(
             self,
@@ -296,12 +285,7 @@ class HttpxSearch(
         try:
             return (await self._http_aget(iri, params, timeout)).json()
         except httpx.HTTPStatusError as err:
-            import json
-            try:
-                _logger.error('%s:\n%s', err, json.dumps(
-                    err.response.json(), indent=2))
-            except json.JSONDecodeError:
-                _logger.error('%s\n%s', err, err.response.text)
+            _logger.exception(err.response.text)
             raise err
 
 # -- IRI -------------------------------------------------------------------

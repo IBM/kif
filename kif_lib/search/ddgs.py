@@ -785,6 +785,10 @@ class DDGS_Search(
         if self._ddgs is None:
             try:
                 import ddgs  # type: ignore
+                if self.debug:
+                    ddgs_logger = logging.getLogger('ddgs')
+                    ddgs_logger.removeHandler(ddgs_logger.handlers[0])
+                    ddgs_logger.setLevel(logging.getLogger('kif_lib').level)
                 self._ddgs = ddgs.DDGS(
                     timeout=(
                         int(self.timeout)
