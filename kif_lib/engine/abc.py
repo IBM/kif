@@ -10,7 +10,7 @@ import sys
 
 from .. import error, functools
 from ..context import Context, Section
-from ..model import KIF_Object, TQuantity
+from ..model import TQuantity
 from ..typing import (
     Any,
     Callable,

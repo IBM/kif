@@ -13,7 +13,6 @@ from ...model import (
     Graph,
     IRI,
     Item,
-    KIF_Object,
     Lexeme,
     NoValueSnak,
     Property,
