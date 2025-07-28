@@ -30,9 +30,9 @@ class DotEncoder(
         try:
             from graphviz import Digraph  # type: ignore
         except ImportError as err:
-            raise ImportError(
-                f'{cls.__qualname__} requires '
-                'https://pypi.org/project/graphviz/') from err
+            raise cls._missing_dependency(
+                cls.__qualname__, 'Graphviz',
+                'https://github.com/xflr6/graphviz/') from err
         if isinstance(input, Statement):
             input = Graph(input)
         if not isinstance(input, Graph):

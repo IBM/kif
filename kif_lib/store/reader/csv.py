@@ -49,8 +49,9 @@ class CSV_Reader(
             import pandas
             return pandas
         except ImportError as err:
-            raise ImportError(
-                f'{__name__} requires https://pandas.pydata.org') from err
+            raise cls._missing_dependency(
+                cls.__qualname__,
+                'pandas', 'https://pandas.pydata.org') from err
 
     @override
     def _check_unknown_arg(self, arg: Any) -> Reader.Source:

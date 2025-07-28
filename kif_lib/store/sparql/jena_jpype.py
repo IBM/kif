@@ -73,8 +73,8 @@ class Jena:
             import jpype.imports  # type: ignore
         except ImportError as err:
             raise ImportError(
-                f'{cls.__qualname__} requires '
-                'https://pypi.org/project/jpype1/') from err
+                f'{cls.__qualname__} requires JPype '
+                '(https://github.com/jpype-project/jpype)') from err
         jena_home = cls._find_jena_home(jena_home)
         assert jena_home is not None
         jena_home_lib = pathlib.Path(jena_home) / 'lib'
@@ -83,7 +83,7 @@ class Jena:
                 f'bad JENA_HOME (no such file "{jena_home_lib}")')
         if not jena_home_lib.is_dir():
             raise NotADirectoryError(
-                f'bad JENA_HOME (no not a directory "{jena_home_lib}")')
+                f'bad JENA_HOME (not a directory "{jena_home_lib}")')
         try:
             jpype.startJVM(classpath=list(
                 map(str, pathlib.Path(jena_home_lib).glob('*.jar'))))

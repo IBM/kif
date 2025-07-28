@@ -9,23 +9,11 @@ import pprint
 import re
 import sys
 
-try:
-    import click
-except ImportError as err:
-    raise ImportError(
-        f'{__name__} requires https://pypi.org/project/click/') from err
-
-try:
-    from rich.console import Console
-    from rich.markdown import Markdown
-except ImportError as err:
-    raise ImportError(
-        f'{__name__} requires https://github.com/Textualize/rich/') from err
-
 from . import (
     __description__,
     __version__,
     _reset_logging,
+    error,
     functools,
     itertools,
 )
@@ -76,6 +64,19 @@ from .typing import (
     Union,
 )
 from .vocabulary import db, pc, wd
+
+try:
+    import click
+except ImportError as err:
+    raise error.missing_dependency(
+        __name__, 'click', 'https://pypi.org/project/click/') from err
+
+try:
+    from rich.console import Console
+    from rich.markdown import Markdown
+except ImportError as err:
+    raise error.missing_dependency(
+        __name__, 'rich', 'https://github.com/Textualize/rich/') from err
 
 TObj = TypeVar('TObj', bound=KIF_Object)
 
