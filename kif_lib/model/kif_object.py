@@ -19,6 +19,7 @@ from ..typing import (
     override,
     Self,
     TypeVarTuple,
+    Unpack,
 )
 from . import object
 
@@ -29,12 +30,13 @@ DecoderError = object.Decoder.Error
 Encoder = object.Encoder
 EncoderError = object.Encoder.Error
 Error = object.Object.Error
+MissingDependency = object.Object.MissingDependency
 ShouldNotGetHere = object.Object.ShouldNotGetHere
 
 Ts = TypeVarTuple('Ts')
 
 
-class KIF_Object(object.Object[*Ts], metaclass=object.ObjectMeta):
+class KIF_Object(object.Object[Unpack[Ts]], metaclass=object.ObjectMeta):
     """Abstract base class for KIF objects."""
 
     @property

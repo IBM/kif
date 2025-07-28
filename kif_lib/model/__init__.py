@@ -35,7 +35,6 @@ from .kif_object import (
     DecoderError,
     Encoder,
     EncoderError,
-    Error,
     KIF_Object,
 )
 from .pair import (
@@ -249,7 +248,6 @@ __all__ = (
     'DecoderError',
     'Encoder',
     'EncoderError',
-    'Error',
     'KIF_Object',
 
     # term

@@ -14,6 +14,7 @@ from .typing import (
     runtime_checkable,
     TypeVar,
     TypeVarTuple,
+    Unpack,
 )
 
 __all__ = (
@@ -38,12 +39,12 @@ def id(x: T) -> T:
     return x
 
 
-def fst(x: tuple[T, *Ts]) -> T:
+def fst(x: tuple[T, Unpack[Ts]]) -> T:
     """First projection."""
     return x[0]
 
 
-def snd(x: tuple[S, T, *Ts]) -> T:
+def snd(x: tuple[S, T, Unpack[Ts]]) -> T:
     """Second projection."""
     return x[1]
 

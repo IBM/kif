@@ -9,7 +9,7 @@ import dataclasses
 import logging
 import re
 
-from .. import functools
+from .. import error, functools
 from ..context import Context
 from ..model import Item, Lexeme, Property, Text
 from ..typing import (
@@ -29,8 +29,12 @@ from ..typing import (
 )
 from .abc import Search, SearchOptions
 
-_DDGS_URL: Final[str] = 'https://github.com/deedy5/ddgs'
 _logger: Final[logging.Logger] = logging.getLogger(__name__)
+
+
+def _error_missing_ddgs(feature: str) -> error.MissingDependency:
+    return error.missing_dependency(
+        feature, 'DDGS', 'https://github.com/deedy5/ddgs')
 
 
 @dataclasses.dataclass
@@ -795,9 +799,8 @@ class DDGS_Search(
                         if self.timeout is not None else None),
                     verify=False)
             except ImportError as err:
-                raise ImportError(
-                    f'{self.__class__.__qualname__} '
-                    f'requires {_DDGS_URL}') from err
+                raise _error_missing_ddgs(
+                    self.__class__.__qualname__) from err
         return self._ddgs
 
     @property
@@ -1506,9 +1509,7 @@ class DDGS_Search(
             from ddgs import DDGS  # type: ignore
             from ddgs.exceptions import DDGSException  # type: ignore
         except ImportError as err:
-            raise ImportError(
-                f'{self.__class__.__qualname__} '
-                f'requires {_DDGS_URL}') from err
+            raise _error_missing_ddgs(self.__class__.__qualname__) from err
         assert isinstance(self.ddgs, DDGS)
         if in_url:
             search += ' inurl:' + in_url

@@ -1,7 +1,7 @@
 # Copyright (C) 2025 IBM Corp.
 # SPDX-License-Identifier: Apache-2.0
 #
-# $Id: 3706d9f5c61235308277a8a76e9edc0c7bbfcd0f $
+# $Id$
 #
 # Python bindings for QLever.
 #
@@ -16,11 +16,16 @@ import pathlib
 import queue
 import re
 import subprocess
+import sys
 import threading
 
 from typing_extensions import Final, Iterator, Optional, TextIO, TypeAlias
 
 TLocation: TypeAlias = pathlib.PurePath | str
+
+if sys.version_info < (3, 11):
+    # queue.ShutDown was added in Python 3.11
+    queue.ShutDown = Exception
 
 _logger: Final[logging.Logger] = logging.getLogger(__name__)
 
@@ -323,7 +328,8 @@ class QLever:
             _logger.debug(
                 'stopping server listening on port %d',
                 self._server_port)
-            self._server_logger_queue.shutdown(immediate=True)
+            if sys.version_info >= (3, 11):
+                self._server_logger_queue.shutdown(immediate=True)
             self._server_process.kill()
             self._server_process.wait()
             self._server_process = None

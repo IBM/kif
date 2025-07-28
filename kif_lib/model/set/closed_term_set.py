@@ -13,6 +13,7 @@ from ...typing import (
     Sequence,
     TypeVar,
     TypeVarTuple,
+    Unpack,
 )
 from ..term import ClosedTerm
 
@@ -61,7 +62,7 @@ class ClosedTermSet(ClosedTerm, Sequence[T]):
     _frozenset: frozenset[T]
 
     @override
-    def _set_args(self, args: tuple[*Ts]) -> None:
+    def _set_args(self, args: tuple[Unpack[Ts]]) -> None:
         self._frozenset = frozenset(args)  # type: ignore
         self._args = tuple(sorted(self._frozenset))
 

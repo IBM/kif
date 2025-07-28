@@ -26,6 +26,7 @@ from typing_extensions import (
     TypeAlias,
     TypeVar,
     TypeVarTuple,
+    Unpack,
 )
 
 TDet: TypeAlias = Union[Callable[[Any], str], str]
@@ -62,7 +63,7 @@ class ObjectMeta(abc.ABCMeta):
         return cls._object_subclasses[cls_name]
 
 
-class Object(Generic[*Ts], metaclass=ObjectMeta):
+class Object(Generic[Unpack[Ts]], metaclass=ObjectMeta):
     """Abstract base class for syntactical objects."""
 
     class NilType:
@@ -208,15 +209,15 @@ class Object(Generic[*Ts], metaclass=ObjectMeta):
     _digest: str | None
 
     @abc.abstractmethod
-    def __init__(self, *args: *Ts) -> None:
+    def __init__(self, *args: Unpack[Ts]) -> None:
         self._set_args(self._preprocess_args(args))
         self._hash = None
         self._digest = None
 
-    def _set_args(self, args: tuple[*Ts]) -> None:
+    def _set_args(self, args: tuple[Unpack[Ts]]) -> None:
         self._args = args
 
-    def _preprocess_args(self, args: tuple[Any, ...]) -> tuple[*Ts]:
+    def _preprocess_args(self, args: tuple[Any, ...]) -> tuple[Unpack[Ts]]:
         return tuple(map(
             self._preprocess_arg_callback, zip(args, itertools.count(1))))
 
@@ -275,11 +276,11 @@ class Object(Generic[*Ts], metaclass=ObjectMeta):
         return self.dumps()
 
     @property
-    def args(self) -> tuple[*Ts]:
+    def args(self) -> tuple[Unpack[Ts]]:
         """The arguments of object."""
         return self.get_args()
 
-    def get_args(self) -> tuple[*Ts]:
+    def get_args(self) -> tuple[Unpack[Ts]]:
         """Gets the arguments of object.
 
         Returns:
@@ -288,7 +289,7 @@ class Object(Generic[*Ts], metaclass=ObjectMeta):
         return self._args
 
     def get(self, i: int, default: Any | None = None) -> Any | None:
-        """Gets the value of the `i`-th argument of object (origin 0).
+        """Gets the value of the `i`-th argument of object (origin is 0).
 
         If argument's value is ``None``, returns `default`.
 
@@ -900,7 +901,34 @@ class Object(Generic[*Ts], metaclass=ObjectMeta):
         return cls._check_optional_arg_isinstance(
             arg, str, default, function, name, position)
 
-# -- Utility ---------------------------------------------------------------
+# -- Exceptions ------------------------------------------------------------
+
+    class MissingDependency(ImportError):
+        """Missing dependency."""
+
+    @classmethod
+    def _missing_dependency(
+            cls,
+            feature: str,
+            dependency: str,
+            dependency_url: str | None = None
+    ) -> MissingDependency:
+        """Makes a "missing dependency" error.
+
+        Parameters:
+           feature: Feature.
+           dependency: Dependency.
+           dependency_url: Dependency URL.
+
+        Returns:
+           A new :class:`MissingDependency` error.
+        """
+        msg = f'{feature} requires {dependency}'
+        if dependency_url:
+            msg += f' ({dependency_url})'
+            return cls.MissingDependency(msg)
+        else:
+            return cls.MissingDependency(msg)
 
     class ShouldNotGetHere(RuntimeError):
         """Should not get here."""

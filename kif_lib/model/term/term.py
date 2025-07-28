@@ -22,6 +22,7 @@ from ...typing import (
     Set,
     TypeAlias,
     TypeVarTuple,
+    Unpack,
 )
 from ..kif_object import KIF_Object
 
@@ -35,7 +36,7 @@ Ts = TypeVarTuple('Ts')
 Theta: TypeAlias = Mapping['Variable', Optional['Term']]
 
 
-class Term(KIF_Object[*Ts]):
+class Term(KIF_Object[Unpack[Ts]]):
     """Abstract base class for terms."""
 
     class InstantiationError(ValueError):
@@ -256,7 +257,7 @@ class Term(KIF_Object[*Ts]):
         return cast(Self, self.instantiate(theta))
 
 
-class ClosedTerm(Term[*Ts]):
+class ClosedTerm(Term[Unpack[Ts]]):
     """Abstract base class for closed (ground) terms."""
 
     #: Template class associated with this closed-term class.
@@ -313,7 +314,7 @@ class ClosedTerm(Term[*Ts]):
         return self             # nothing to do
 
 
-class OpenTerm(Term[*Ts]):
+class OpenTerm(Term[Unpack[Ts]]):
     """Abstract base class for open terms."""
 
     #: Closed-term class associated with this open-term class.

@@ -18,6 +18,7 @@ from ..typing import (
     TypeAlias,
     TypeVarTuple,
     Union,
+    Unpack,
 )
 from .kif_object import KIF_Object
 from .value import Property, TProperty, TValue
@@ -34,7 +35,7 @@ Ts = TypeVarTuple('Ts')
 at_property = property
 
 
-class Path(KIF_Object[*Ts]):
+class Path(KIF_Object[Unpack[Ts]]):
     """Abstract base class for property path expressions."""
 
     @classmethod

@@ -51,6 +51,7 @@ from typing_extensions import (
     TypedDict,
     TypeVar,
     TypeVarTuple,
+    Unpack,
 )
 
 # Common aliases.
@@ -101,4 +102,5 @@ __all__ = (
     'TypeVar',
     'TypeVarTuple',
     'Union',
+    'Unpack',
 )
