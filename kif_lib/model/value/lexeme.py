@@ -118,7 +118,7 @@ class Lexeme(
             yield LanguageProperty()(descriptor['language'])
 
     def __init__(self, iri: VTLexemeContent) -> None:
-        super().__init__(iri)
+        super().__init__(iri)   # type: ignore
 
     @override
     def _display(

@@ -31,8 +31,8 @@ TPath: TypeAlias = Union['Path', 'TSequencePath', 'TEdgePath']
 TSequencePath: TypeAlias = Union['SequencePath', Iterable[TPath]]
 TEdgePath: TypeAlias = Union['EdgePath', TProperty]
 
-Ts = TypeVarTuple('Ts')
 at_property = property
+Ts = TypeVarTuple('Ts')
 
 
 class Path(KIF_Object[Unpack[Ts]]):

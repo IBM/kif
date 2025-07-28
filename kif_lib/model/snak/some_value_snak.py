@@ -67,4 +67,4 @@ class SomeValueSnak(
                 arg, function or cls.check, name, position))
 
     def __init__(self, property: VTProperty) -> None:
-        super().__init__(property)
+        super().__init__(property)  # type: ignore

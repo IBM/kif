@@ -12,7 +12,9 @@ from ..typing import (
     Self,
     TypeAlias,
     TypedDict,
+    TypeVarTuple,
     Union,
+    Unpack,
 )
 from .rank import NormalRank, Rank, RankVariable, TRank, VRank, VTRank
 from .set import (
@@ -64,6 +66,9 @@ VAnnotatedStatement: TypeAlias =\
           'AnnotatedStatement']
 VTAnnotatedStatement: TypeAlias =\
     Union[Variable, VAnnotatedStatement, TAnnotatedStatement]
+
+
+Ts = TypeVarTuple('Ts', default=Unpack[tuple])
 
 
 class _Annotation(TypedDict, total=False):
@@ -190,7 +195,7 @@ class StatementVariable(Variable):
 
 
 class Statement(
-        ClosedTerm,
+        ClosedTerm[Entity, Snak, Unpack[Ts]],
         template_class=StatementTemplate,
         variable_class=StatementVariable
 ):
@@ -236,7 +241,7 @@ class Statement(
             raise cls._check_error(arg, function, name, position)
 
     def __init__(self, subject: VTEntity, snak: VTSnak) -> None:
-        super().__init__(subject, snak)
+        super().__init__(subject, snak)  # type: ignore
 
     def __matmul__(self, other: _Annotation) -> AnnotatedStatement:
         return self.annotate(**other)
@@ -454,7 +459,7 @@ class AnnotatedStatementVariable(StatementVariable):
 
 
 class AnnotatedStatement(
-        Statement,
+        Statement[QualifierRecord, ReferenceRecordSet, Rank],
         template_class=AnnotatedStatementTemplate,
         variable_class=AnnotatedStatementVariable
 ):
@@ -502,7 +507,7 @@ class AnnotatedStatement(
             rank: VTRank | None = None
     ) -> None:
         super(ClosedTerm, self).__init__(
-            subject, snak, qualifiers, references, rank)
+            subject, snak, qualifiers, references, rank)  # type: ignore
 
     @override
     def _preprocess_arg(self, arg: Any, i: int) -> Any:

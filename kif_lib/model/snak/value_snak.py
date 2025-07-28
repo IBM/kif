@@ -143,7 +143,7 @@ class ValueSnakVariable(SnakVariable):
 
 
 class ValueSnak(
-        Snak,
+        Snak[Value],
         template_class=ValueSnakTemplate,
         variable_class=ValueSnakVariable
 ):
@@ -176,7 +176,7 @@ class ValueSnak(
             raise cls._check_error(arg, function, name, position)
 
     def __init__(self, property: VTProperty, value: VTValue) -> None:
-        super().__init__(property, value)
+        super().__init__(property, value)  # type: ignore
 
     @staticmethod
     def _static_preprocess_arg(self_, arg: Any, i: int) -> Any:

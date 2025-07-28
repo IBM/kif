@@ -162,7 +162,7 @@ class TextDatatype(Datatype):
 
 
 class Text(
-        ShallowDataValue,
+        ShallowDataValue[str],
         datatype_class=TextDatatype,
         template_class=TextTemplate,
         variable_class=TextVariable
@@ -187,7 +187,7 @@ class Text(
         if language is None and isinstance(content, Text):
             super().__init__(content.content, content.language)
         else:
-            super().__init__(content, language)
+            super().__init__(content, language)  # type: ignore
 
     @override
     def _preprocess_arg(self, arg: Any, i: int) -> Any:

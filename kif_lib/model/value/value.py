@@ -22,7 +22,9 @@ from ...typing import (
     override,
     Self,
     TypeAlias,
+    TypeVarTuple,
     Union,
+    Unpack,
 )
 from ..term import ClosedTerm, Template, Variable
 from .datatype import Datatype
@@ -36,6 +38,8 @@ if TYPE_CHECKING:  # pragma: no cover
 TValue: TypeAlias = Union['Value', 'TDatetime', 'TDecimal', str]
 VTValue: TypeAlias = Union[Variable, 'VValue', TValue]
 VValue: TypeAlias = Union['ValueTemplate', 'ValueVariable', 'Value']
+
+Ts = TypeVarTuple('Ts')
 
 
 class ValueTemplate(Template):
@@ -55,7 +59,7 @@ class ValueVariable(Variable):
 
 
 class Value(
-        ClosedTerm,
+        ClosedTerm[Unpack[Ts]],
         template_class=ValueTemplate,
         variable_class=ValueVariable
 ):

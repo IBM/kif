@@ -60,7 +60,7 @@ class EntityTemplateTestCase(ValueTemplateTestCase):
             ],
             failure=[
                 cls('x'),
-                cls.object_class('x'),
+                cls.object_class('x'),  # pyright: ignore
                 ExternalId(Variable('x')),
                 IRI(Variable('x')),
                 String(Variable('x')),
@@ -128,7 +128,7 @@ class EntityTemplateTestCase(ValueTemplateTestCase):
             cls,
             success=[
                 (cls(Variable('x')),
-                 cls.object_class('x'),
+                 cls.object_class('x'),  # pyright: ignore
                  {IRI_Variable('x'): IRI('x')}),
                 (cls(Variable('x')),
                  cls(Variable('y')),
@@ -137,7 +137,8 @@ class EntityTemplateTestCase(ValueTemplateTestCase):
             ],
             failure=[
                 (cls(Variable('x')),
-                 {IRI_Variable('x'): cls.object_class('x')}),
+                 {IRI_Variable('x'):
+                  cls.object_class('x')}),  # pyright: ignore
                 (cls(Variable('x')),
                  {IRI_Variable('x'): String('x')}),
                 (cls(Variable('x')),
@@ -214,13 +215,13 @@ class EntityTestCase(ValueTestCase):
             success_prelude = []
         else:
             success_prelude = [
-                ('x', cls('x')),
-                (cls('x'), cls('x')),
-                (ExternalId('x'), cls('x')),
-                (IRI('x'), cls('x')),
-                (Literal('x'), cls('x')),
-                (String('x'), cls('x')),
-                (URIRef('x'), cls('x')),
+                ('x', cls('x')),             # pyright: ignore
+                (cls('x'), cls('x')),        # pyright: ignore
+                (ExternalId('x'), cls('x')),  # pyright: ignore
+                (IRI('x'), cls('x')),         # pyright: ignore
+                (Literal('x'), cls('x')),     # pyright: ignore
+                (String('x'), cls('x')),      # pyright: ignore
+                (URIRef('x'), cls('x')),      # pyright: ignore
             ]
             failure_prelude.append(cls.template_class(Variable('x')))
         super()._test_check(
@@ -242,12 +243,12 @@ class EntityTestCase(ValueTestCase):
             cls,
             assert_fn,
             success=[
-                ([cls('x')], cls('x')),
-                ([ExternalId('x')], cls('x')),
-                ([IRI('x')], cls('x')),
-                ([Literal('x')], cls('x')),
-                ([String('x')], cls('x')),
-                ([URIRef('x')], cls('x')),
+                ([cls('x')], cls('x')),        # pyright: ignore
+                ([ExternalId('x')], cls('x')),  # pyright: ignore
+                ([IRI('x')], cls('x')),         # pyright: ignore
+                ([Literal('x')], cls('x')),     # pyright: ignore
+                ([String('x')], cls('x')),      # pyright: ignore
+                ([URIRef('x')], cls('x')),      # pyright: ignore
                 *success
             ],
             failure=[
@@ -264,7 +265,8 @@ class EntityTestCase(ValueTestCase):
     ) -> None:
         assert isinstance(cls, type)
         assert issubclass(cls, Entity)
-        super()._test_variables(cls, (cls('x'), set()), *cases)
+        super()._test_variables(
+            cls, (cls('x'), set()), *cases)  # pyright: ignore
 
     @override
     def _test_instantiate(
@@ -278,7 +280,8 @@ class EntityTestCase(ValueTestCase):
         super()._test_instantiate(
             cls,
             success=itertools.chain(
-                [(cls('x'), cls('x'), {IRI_Variable('x'): IRI_Variable('y')})],
+                [(cls('x'), cls('x'),  # pyright: ignore
+                  {IRI_Variable('x'): IRI_Variable('y')})],
                 success), failure=failure)
 
     @override
@@ -293,11 +296,14 @@ class EntityTestCase(ValueTestCase):
         super()._test_match(
             cls,
             success=itertools.chain([
-                (cls('x'), cls('x'), {}),
-                (cls('x'), Variable('x', cls), {Variable('x', cls): cls('x')}),
-                (Variable('x', cls), cls('x'), {Variable('x', cls): cls('x')})
+                (cls('x'), cls('x'), {}),         # pyright: ignore
+                (cls('x'), Variable('x', cls),    # pyright: ignore
+                 {Variable('x', cls): cls('x')}),  # pyright: ignore
+                (Variable('x', cls), cls('x'),     # pyright: ignore
+                 {Variable('x', cls): cls('x')})   # pyright: ignore
             ], success),
-            failure=itertools.chain([(cls('x'), IRI_Variable('y'))], failure))
+            failure=itertools.chain([
+                (cls('x'), IRI_Variable('y'))], failure))  # pyright: ignore
 
     def _test_Entities(
             self,

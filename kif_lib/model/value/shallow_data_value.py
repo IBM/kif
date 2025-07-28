@@ -6,12 +6,23 @@ from __future__ import annotations
 from typing import TYPE_CHECKING
 
 from ...context import Context
-from ...typing import Any, cast, ClassVar, Location, override, Self
+from ...typing import (
+    Any,
+    cast,
+    ClassVar,
+    Location,
+    override,
+    Self,
+    TypeVarTuple,
+    Unpack,
+)
 from .data_value import DataValue, DataValueTemplate, DataValueVariable
 
 if TYPE_CHECKING:  # pragma: no cover
     from .string import VStringContent
     from .text import TTextLanguage
+
+Ts = TypeVarTuple('Ts', default=Unpack[tuple])
 
 
 class ShallowDataValueTemplate(DataValueTemplate):
@@ -52,7 +63,7 @@ class ShallowDataValueVariable(DataValueVariable):
 
 
 class ShallowDataValue(
-        DataValue,
+        DataValue[str, Unpack[Ts]],
         template_class=ShallowDataValueTemplate,
         variable_class=ShallowDataValueVariable
 ):
@@ -78,9 +89,9 @@ class ShallowDataValue(
                 return cast(Self, String(arg))
         else:                   # concrete subclass?
             if isinstance(arg, String):
-                return cls(arg.content)
+                return cls(arg.content)  # pyright: ignore
             if isinstance(arg, str):
-                return cls(str(arg))
+                return cls(str(arg))  # pyright: ignore
         raise cls._check_error(arg, function, name, position)
 
     @property

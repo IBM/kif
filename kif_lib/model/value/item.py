@@ -125,7 +125,7 @@ class Item(
                 yield DescriptionProperty()(description)
 
     def __init__(self, iri: VTItemContent) -> None:
-        super().__init__(iri)
+        super().__init__(iri)   # type: ignore
 
     @overload
     def __rmatmul__(self, other: QuantityTemplate) -> QuantityTemplate:

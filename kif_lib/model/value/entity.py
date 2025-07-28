@@ -16,23 +16,26 @@ from ...typing import (
     Self,
     TypeAlias,
     TypeVar,
+    TypeVarTuple,
     Union,
+    Unpack,
 )
 from ..term import Template, Variable
 from .iri import IRI, IRI_Template, IRI_Variable, T_IRI, V_IRI
 from .text import TTextLanguage
 from .value import Value, ValueTemplate, ValueVariable
 
+if TYPE_CHECKING:               # pragma: no cover
+    from ...store import Store
+    from ..snak import ValueSnak
+    from ..statement import Statement
+
 TEntity: TypeAlias = Union['Entity', T_IRI]
 VEntity: TypeAlias = Union['EntityTemplate', 'EntityVariable', 'Entity']
 VTEntity: TypeAlias = Union[Variable, VEntity, TEntity]
 
 T = TypeVar('T')
-
-if TYPE_CHECKING:               # pragma: no cover
-    from ...store import Store
-    from ..snak import ValueSnak
-    from ..statement import Statement
+Ts = TypeVarTuple('Ts', default=Unpack[tuple])
 
 
 class EntityTemplate(ValueTemplate):
@@ -75,7 +78,7 @@ class EntityVariable(ValueVariable):
 
 
 class Entity(
-        Value,
+        Value[IRI, Unpack[Ts]],
         template_class=EntityTemplate,
         variable_class=EntityVariable
 ):
@@ -108,7 +111,8 @@ class Entity(
         if isinstance(arg, cls):
             return arg
         elif cls is not Entity:  # concrete subclass?
-            return cls(IRI.check(arg, function or cls.check, name, position))
+            return cls(IRI.check(
+                arg, function or cls.check, name, position))  # pyright: ignore
         else:
             raise cls._check_error(arg, function, name, position)
 
@@ -138,7 +142,7 @@ class Entity(
         Returns:
            IRI.
         """
-        return self.args[0]
+        return self.args[0]     # type: ignore
 
     @property
     def resolver(self) -> Store | None:

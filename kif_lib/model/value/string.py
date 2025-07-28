@@ -66,7 +66,7 @@ class String(
     variable_class: ClassVar[type[StringVariable]]  # pyright: ignore
 
     def __init__(self, content: VTStringContent) -> None:
-        super().__init__(content)
+        super().__init__(content)  # type: ignore
 
     @override
     def _preprocess_arg(self, arg: Any, i: int) -> Any:

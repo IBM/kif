@@ -186,7 +186,7 @@ class _Entry:
         # IMPORTANT: Call this version when inside entry's constructor.
         ###
         return frozenset(itertools.chain(*map(
-            Term.get_variables, entry.patterns)))
+            Term.get_variables, entry.patterns)))  # type: ignore
 
     def get_preprocess_map(
             self

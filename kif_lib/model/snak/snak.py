@@ -13,7 +13,9 @@ from ...typing import (
     override,
     Self,
     TypeAlias,
+    TypeVarTuple,
     Union,
+    Unpack,
 )
 from ..term import ClosedTerm, Template, Variable
 from ..value import Property, PropertyTemplate, PropertyVariable, VProperty
@@ -22,11 +24,12 @@ if TYPE_CHECKING:                      # pragma: no cover
     from ..fingerprint import AndFingerprint, OrFingerprint, TFingerprint
     from .value_snak import TValueSnak  # noqa: F401
 
-at_property = property
-
 TSnak: TypeAlias = Union['Snak', 'TValueSnak']
 VSnak: TypeAlias = Union['SnakTemplate', 'SnakVariable', 'Snak']
 VTSnak: TypeAlias = Union[Variable, VSnak, TSnak]
+
+at_property = property
+Ts = TypeVarTuple('Ts', default=Unpack[tuple])
 
 
 class SnakTemplate(Template):
@@ -71,7 +74,7 @@ class SnakVariable(Variable):
 
 
 class Snak(
-        ClosedTerm,
+        ClosedTerm[Property, Unpack[Ts]],
         template_class=SnakTemplate,
         variable_class=SnakVariable
 ):

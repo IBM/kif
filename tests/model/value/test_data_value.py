@@ -35,7 +35,9 @@ class Test(DataValueTestCase):
         self.assertIs(DataValue.variable_class, DataValueVariable)
 
     def test_check(self) -> None:
-        assert_type(DataValue.check(0), DataValue)
+        assert_type(
+            DataValue[decimal.Decimal].check(0),
+            DataValue[decimal.Decimal])
         super()._test_check(
             DataValue,
             success=[

@@ -43,7 +43,7 @@ class Test(ValueTestCase):
         self.assertIs(Value.variable_class, ValueVariable)
 
     def test_check(self) -> None:
-        assert_type(Value.check(0), Value)
+        assert_type(Value[decimal.Decimal].check(0), Value[decimal.Decimal])
         super()._test_check(
             Value,
             success=[

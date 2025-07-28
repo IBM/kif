@@ -180,7 +180,11 @@ class TimeDatatype(Datatype):
 
 
 class Time(
-        DeepDataValue,
+        DeepDataValue[
+            datetime.datetime,
+            int | None,
+            int | None,
+            Item | None],
         datatype_class=TimeDatatype,
         template_class=TimeTemplate,
         variable_class=TimeVariable
@@ -321,7 +325,8 @@ class Time(
             timezone: VTTimeTimezoneContent | None = None,
             calendar: VTItem | None = None
     ) -> None:
-        super().__init__(time, precision, timezone, calendar)
+        super().__init__(
+            time, precision, timezone, calendar)  # type: ignore
 
     @override
     def _preprocess_arg(self, arg: Any, i: int) -> Any:

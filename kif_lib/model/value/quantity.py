@@ -168,7 +168,11 @@ class QuantityDatatype(Datatype):
 
 
 class Quantity(
-        DeepDataValue,
+        DeepDataValue[
+            decimal.Decimal,
+            Item | None,
+            decimal.Decimal | None,
+            decimal.Decimal | None],
         datatype_class=QuantityDatatype,
         template_class=QuantityTemplate,
         variable_class=QuantityVariable
@@ -219,7 +223,8 @@ class Quantity(
             unit: VTItem | None = None,
             lower_bound: VTQuantityContent | None = None,
             upper_bound: VTQuantityContent | None = None):
-        super().__init__(amount, unit, lower_bound, upper_bound)
+        super().__init__(
+            amount, unit, lower_bound, upper_bound)  # type: ignore
 
     @override
     def _preprocess_arg(self, arg: Any, i: int) -> Any:

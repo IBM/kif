@@ -445,7 +445,7 @@ class PropertyDatatype(Datatype):
 
 
 class Property(
-        Entity,
+        Entity[Datatype | None],
         datatype_class=PropertyDatatype,
         template_class=PropertyTemplate,
         variable_class=PropertyVariable
@@ -584,7 +584,7 @@ class Property(
             iri: VTPropertyContent,
             range: VTDatatype | None = None
     ) -> None:
-        super().__init__(iri, range)
+        super().__init__(iri, range)  # type: ignore
 
     @staticmethod
     @override

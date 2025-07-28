@@ -3,8 +3,10 @@
 
 from __future__ import annotations
 
-from ...typing import ClassVar
+from ...typing import ClassVar, TypeVarTuple, Unpack
 from .data_value import DataValue, DataValueTemplate, DataValueVariable
+
+Ts = TypeVarTuple('Ts', default=Unpack[tuple])
 
 
 class DeepDataValueTemplate(DataValueTemplate):
@@ -24,7 +26,7 @@ class DeepDataValueVariable(DataValueVariable):
 
 
 class DeepDataValue(
-        DataValue,
+        DataValue[Unpack[Ts]],
         template_class=DeepDataValueTemplate,
         variable_class=DeepDataValueVariable
 ):

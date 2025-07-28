@@ -82,7 +82,7 @@ class IRI(
         resolver: Store
 
     def __init__(self, content: VT_IRI_Content) -> None:
-        super().__init__(content)
+        super().__init__(content)  # type: ignore
 
     @override
     def _preprocess_arg(self, arg: Any, i: int) -> Any:
