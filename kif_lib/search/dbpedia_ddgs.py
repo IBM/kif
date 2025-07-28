@@ -19,94 +19,89 @@ from .ddgs import DDGS_Search, DDGS_SearchOptions
 
 
 @dataclasses.dataclass
-class WikidataDDGS_SearchOptions(DDGS_SearchOptions, name='wikidata_ddgs'):
-    """Wikidata DDGS search options."""
+class DBpediaDDGS_SearchOptions(DDGS_SearchOptions, name='dbpedia_ddgs'):
+    """DBpedia DDGS search options."""
 
     _v_debug: ClassVar[tuple[Iterable[str], bool | None]] =\
-        (('KIF_WIKIDATA_DDGS_SEARCH_DEBUG',), None)
+        (('KIF_DBPEDIA_DDGS_SEARCH_DEBUG',), None)
 
     _v_max_limit: ClassVar[tuple[Iterable[str], int | None]] =\
-        (('KIF_WIKIDATA_DDGS_SEARCH_MAX_LIMIT',), None)
+        (('KIF_DBPEDIA_DDGS_SEARCH_MAX_LIMIT',), None)
 
     _v_language: ClassVar[tuple[Iterable[str], str | None]] =\
-        (('KIF_WIKIDATA_DDGS_SEARCH_LANGUAGE',), None)
+        (('KIF_DBPEDIA_DDGS_SEARCH_LANGUAGE',), None)
 
     _v_limit: ClassVar[tuple[Iterable[str], int | None]] =\
-        (('KIF_WIKIDATA_DDGS_SEARCH_LIMIT',), None)
+        (('KIF_DBPEDIA_DDGS_SEARCH_LIMIT',), None)
 
     _v_lookahead: ClassVar[tuple[Iterable[str], int | None]] =\
-        (('KIF_WIKIDATA_DDGS_SEARCH_LOOKAHEAD',), None)
+        (('KIF_DBPEDIA_DDGS_SEARCH_LOOKAHEAD',), None)
 
     _v_max_page_size: ClassVar[tuple[Iterable[str], int | None]] =\
-        (('KIF_WIKIDATA_DDGS_SEARCH_MAX_PAGE_SIZE',), None)
+        (('KIF_DBPEDIA_DDGS_SEARCH_MAX_PAGE_SIZE',), None)
 
     _v_page_size: ClassVar[tuple[Iterable[str], int | None]] =\
-        (('KIF_WIKIDATA_DDGS_SEARCH_PAGE_SIZE',), None)
+        (('KIF_DBPEDIA_DDGS_SEARCH_PAGE_SIZE',), None)
 
     _v_max_timeout: ClassVar[tuple[Iterable[str], float | None]] =\
-        (('KIF_WIKIDATA_DDGS_SEARCH_MAX_TIMEOUT',), None)
+        (('KIF_DBPEDIA_DDGS_SEARCH_MAX_TIMEOUT',), None)
 
     _v_timeout: ClassVar[tuple[Iterable[str], float | None]] =\
-        (('KIF_WIKIDATA_DDGS_SEARCH_TIMEOUT',), None)
+        (('KIF_DBPEDIA_DDGS_SEARCH_TIMEOUT',), None)
 
     # -- ddgs --
 
     _v_backend: ClassVar[tuple[Iterable[str], str | None]] =\
-        (('KIF_WIKIDATA_DDGS_SEARCH_BACKEND'), None)
+        (('KIF_DBPEDIA_DDGS_SEARCH_BACKEND'), None)
 
     DEFAULT_ITEM_MATCH =\
-        r'^http[s]?://www\.wikidata\.org/(entity/Q|wiki/Q)(\d+)$'
+        r'^http[s]?://dbpedia\.org/(ontology/([^a-z]\w+)|resource/(\w+))$'
 
     _v_item_match: ClassVar[tuple[Iterable[str], str | None]] =\
-        (('KIF_WIKIDATA_DDGS_SEARCH_ITEM_MATCH'), DEFAULT_ITEM_MATCH)
+        (('KIF_DBPEDIA_DDGS_SEARCH_ITEM_MATCH'), DEFAULT_ITEM_MATCH)
 
-    DEFAULT_ITEM_SUB = r'http://www.wikidata.org/entity/Q\2'
+    DEFAULT_ITEM_SUB = r'http://dbpedia.org/\1'
 
     _v_item_sub: ClassVar[tuple[Iterable[str], str | None]] =\
-        (('KIF_WIKIDATA_DDGS_SEARCH_ITEM_SUB'), DEFAULT_ITEM_SUB)
-
-    DEFAULT_LEXEME_MATCH =\
-        r'^http[s]?://www\.wikidata\.org/(entity/L|wiki/Lexeme:L)(\d+)$'
+        (('KIF_DBPEDIA_DDGS_SEARCH_ITEM_SUB'), DEFAULT_ITEM_SUB)
 
     _v_lexeme_match: ClassVar[tuple[Iterable[str], str | None]] =\
-        (('KIF_WIKIDATA_DDGS_SEARCH_LEXEME_MATCH'), DEFAULT_LEXEME_MATCH)
-
-    DEFAULT_LEXEME_SUB = r'http://www.wikidata.org/entity/L\2'
+        (('KIF_DBPEDIA_DDGS_SEARCH_LEXEME_MATCH'), None)
 
     _v_lexeme_sub: ClassVar[tuple[Iterable[str], str | None]] =\
-        (('KIF_WIKIDATA_DDGS_SEARCH_LEXEME_SUB'), DEFAULT_LEXEME_SUB)
+        (('KIF_DBPEDIA_DDGS_SEARCH_LEXEME_SUB'), None)
 
     DEFAULT_PROPERTY_MATCH =\
-        r'^http[s]?://www\.wikidata\.org/(entity/P|wiki/Property:P)(\d+)$'
+        r'^http[s]?://dbpedia\.org/(ontology/[a-z]\w+)$'
 
     _v_property_match: ClassVar[tuple[Iterable[str], str | None]] =\
-        (('KIF_WIKIDATA_DDGS_SEARCH_PROPERTY_MATCH'), DEFAULT_PROPERTY_MATCH)
+        (('KIF_DBPEDIA_DDGS_SEARCH_PROPERTY_MATCH'), DEFAULT_PROPERTY_MATCH)
 
-    DEFAULT_PROPERTY_SUB = r'http://www.wikidata.org/entity/P\2'
+    DEFAULT_PROPERTY_SUB = r'http://dbpedia.org/\1'
 
     _v_property_sub: ClassVar[tuple[Iterable[str], str | None]] =\
-        (('KIF_WIKIDATA_DDGS_SEARCH_PROPERTY_SUB'), DEFAULT_PROPERTY_SUB)
+        (('KIF_DBPEDIA_DDGS_SEARCH_PROPERTY_SUB'), DEFAULT_PROPERTY_SUB)
 
-    DEFAULT_SITE = 'http://www.wikidata.org/'
+    DEFAULT_SITE = 'https://dbpedia.org/'
 
     _v_site: ClassVar[tuple[Iterable[str], str | None]] =\
-        (('KIF_WIKIDATA_DDGS_SEARCH_SITE'), DEFAULT_SITE)
+        (('KIF_DBPEDIA_DDGS_SEARCH_SITE'), DEFAULT_SITE)
 
     def __init__(self, **kwargs: Any) -> None:
         super().__init__(**kwargs)
 
 
-# == Wikidata DDGS search ==================================================
+# == DBpedia DDGS search ==================================================
 
-TOptions: TypeAlias = WikidataDDGS_SearchOptions
+TOptions: TypeAlias = DBpediaDDGS_SearchOptions
 
 
-class WikidataDDGS_Search(
+class DBpediaDDGS_Search(
         DDGS_Search[TOptions],
-        search_name='wikidata-ddgs',
-        search_description='Wikidata DDGS search'
+        search_name='dbpedia-ddgs',
+        search_description='DBpedia DDGS search'
 ):
-    """Wikidata DDGS search.
+    """DBpedia DDGS search.
 
     Parameters:
        search_name: Name of the search plugin to instantiate.
@@ -120,15 +115,15 @@ class WikidataDDGS_Search(
     @override
     @classmethod
     def get_default_options(cls, context: Context | None = None) -> TOptions:
-        return cls.get_context(context).options.search.wikidata_ddgs
+        return cls.get_context(context).options.search.dbpedia_ddgs
 
     @override
     def _lexeme_data(
             self,
             search: str,
             options: TOptions
-    ) -> Iterator[WikidataDDGS_Search.TData]:
-        options.in_url = 'lexeme'
+    ) -> Iterator[DBpediaDDGS_Search.TData]:
+        # options.in_url = 'lexeme'
         return super()._lexeme_data(search, options)
 
     @override
@@ -136,8 +131,8 @@ class WikidataDDGS_Search(
             self,
             search: str,
             options: TOptions
-    ) -> Iterator[WikidataDDGS_Search.TData]:
-        options.in_url = 'property'
+    ) -> Iterator[DBpediaDDGS_Search.TData]:
+        # options.in_url = 'property'
         return super()._property_data(search, options)
 
     @override
@@ -145,8 +140,8 @@ class WikidataDDGS_Search(
             self,
             search: str,
             options: TOptions
-    ) -> AsyncIterator[WikidataDDGS_Search.TData]:
-        options.in_url = 'lexeme'
+    ) -> AsyncIterator[DBpediaDDGS_Search.TData]:
+        # options.in_url = 'lexeme'
         return super()._alexeme_data(search, options)
 
     @override
@@ -154,6 +149,6 @@ class WikidataDDGS_Search(
             self,
             search: str,
             options: TOptions
-    ) -> AsyncIterator[WikidataDDGS_Search.TData]:
-        options.in_url = 'property'
+    ) -> AsyncIterator[DBpediaDDGS_Search.TData]:
+        options.site = 'https://dbpedia.org/ontology'
         return super()._aproperty_data(search, options)

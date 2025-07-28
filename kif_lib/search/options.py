@@ -9,6 +9,7 @@ from ..engine import _EngineOptions
 from ..typing import Any, override
 from .abc import _SearchOptions
 from .dbpedia import DBpediaSearchOptions
+from .dbpedia_ddgs import DBpediaDDGS_SearchOptions
 from .ddgs import DDGS_SearchOptions
 from .empty import EmptySearchOptions
 from .httpx import HttpxSearchOptions
@@ -22,6 +23,9 @@ class SearchOptions(_SearchOptions, name='search'):
 
     dbpedia: DBpediaSearchOptions = dataclasses.field(
         default_factory=DBpediaSearchOptions)
+
+    dbpedia_ddgs: DBpediaDDGS_SearchOptions = dataclasses.field(
+        default_factory=DBpediaDDGS_SearchOptions)
 
     ddgs: DDGS_SearchOptions = dataclasses.field(
         default_factory=DDGS_SearchOptions)
@@ -41,6 +45,7 @@ class SearchOptions(_SearchOptions, name='search'):
     def __init__(self, *args: Any, **kwargs: Any) -> None:
         super().__init__(*args, **kwargs)
         self.dbpedia = DBpediaSearchOptions()
+        self.dbpedia_ddgs = DBpediaDDGS_SearchOptions()
         self.ddgs = DDGS_SearchOptions()
         self.empty = EmptySearchOptions()
         self.httpx = HttpxSearchOptions()

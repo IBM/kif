@@ -5,6 +5,7 @@ from __future__ import annotations
 
 from .abc import Search
 from .dbpedia import DBpediaSearch
+from .dbpedia_ddgs import DBpediaDDGS_Search
 from .ddgs import DDGS_Search
 from .empty import EmptySearch
 from .httpx import HttpxSearch
@@ -12,6 +13,7 @@ from .wikidata import WikidataSearch
 from .wikidata_ddgs import WikidataDDGS_Search
 
 __all__ = (
+    'DBpediaDDGS_Search',
     'DBpediaSearch',
     'DDGS_Search',
     'EmptySearch',
