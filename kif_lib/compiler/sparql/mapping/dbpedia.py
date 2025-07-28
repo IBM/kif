@@ -8,8 +8,8 @@ from typing import TYPE_CHECKING
 
 from .... import functools, itertools
 from ....context import Context
-from ....model import Item, Normal, Property, Text, Variables
-from ....namespace import OWL, RDF, RDFS, Wikidata
+from ....model import Item, Normal, Property, Quantity, Text, Time, Variables
+from ....namespace import OWL, RDF, RDFS, Wikidata, XSD
 from ....namespace.dbpedia import DBpedia
 from ....typing import Final, TypeAlias
 from ....vocabulary import wd
@@ -37,15 +37,22 @@ s, s0, p, v, v0 = Variables('s', 's0', 'p', 'v', 'v0')
 class DBpediaMapping(M):
     """DBpedia SPARQL mapping."""
 
-    _re_ontology_uri: Final[re.Pattern] = re.compile(
-        f'^{re.escape(DBpedia.ONTOLOGY)}.*$')
+    _re_class_uri: Final[re.Pattern] = re.compile(
+        f'^{re.escape(DBpedia.ONTOLOGY)}[A-Z].*$')
+
+    _re_property_uri: Final[re.Pattern] = re.compile(
+        f'^{re.escape(DBpedia.ONTOLOGY)}[a-z].*$')
 
     _re_resource_uri: Final[re.Pattern] = re.compile(
         f'^{re.escape(DBpedia.RESOURCE)}.*$')
 
     #: Checks whether argument is a DBpedia ontology term.
-    CheckOntology: Final[M.EntryCallbackArgProcessorAlias] =\
-        functools.partial(M.CheckURI, match=_re_ontology_uri)
+    CheckClass: Final[M.EntryCallbackArgProcessorAlias] =\
+        functools.partial(M.CheckURI, match=_re_class_uri)
+
+    #: Checks whether argument is a DBpedia ontology term.
+    CheckProperty: Final[M.EntryCallbackArgProcessorAlias] =\
+        functools.partial(M.CheckURI, match=_re_property_uri)
 
     #: Checks whether argument is a DBpedia resource.
     CheckResource: Final[M.EntryCallbackArgProcessorAlias] =\
@@ -135,14 +142,23 @@ class DBpediaMapping(M):
 
     @M.register(
         [wd.subtype(Item(s), Item(v))],
-        {s: CheckOntology(),
-         v: CheckOntology()},
+        {s: CheckClass(),
+         v: CheckClass()},
         priority=M.VERY_LOW_PRIORITY,
         rank=Normal)
     def wd_subtype(self, c: C, s: V_URI, v: V_URI) -> None:
         self._start_oc(c, s)
         subtype = RDFS.subClassOf * '+'  # type: ignore
         c.q.triples()((s, subtype, v))
+
+    @M.register(
+        [wd.label(Item(s), Text(v, v0))],
+        {s: CheckClass()},
+        priority=M.LOW_PRIORITY,
+        rank=Normal)
+    def wd_label(self, c: C, s: V_URI, v: VLiteral, v0: VLiteral) -> None:
+        self._start_oc(c, s)
+        self._p_text(c, s, RDFS.label, v, v0)
 
     @M.register(
         [wd.label(Item(s), Text(v, v0))],
@@ -155,7 +171,7 @@ class DBpediaMapping(M):
 
     @M.register(
         [wd.label(Property(s, s0), Text(v, v0))],
-        {s: CheckOntology()},
+        {s: CheckProperty()},
         defaults={s0: None},
         priority=M.LOW_PRIORITY,
         rank=Normal)
@@ -184,9 +200,39 @@ class DBpediaMapping(M):
         self._start_r(c, s)
         self._p_text(c, s, RDFS.comment, v, v0)
 
+    # -- real properties --
+
+    @M.register(
+        [wd.instance_of(Item(s), Item(v))],
+        {s: CheckResource(),
+         v: CheckClass()},
+        rank=Normal)
+    def wd_instance_of_r_oc(self, c: C, s: V_URI, v: V_URI) -> None:
+        self._start_r(c, s)
+        self._start_oc(c, v)
+        c.q.triples()((s, RDF.type, v))
+
+    @M.register(
+        [wd.subclass_of(Item(s), Item(v))],
+        {s: CheckClass(),
+         v: CheckClass()},
+        rank=Normal)
+    def wd_subclass_of_oc_oc(self, c: C, s: V_URI, v: V_URI) -> None:
+        self._start_oc(c, s, v)
+        c.q.triples()((s, RDFS.subClassOf, v))
+
+    @M.register(
+        [wd.subproperty_of(Property(s), Property(v))],
+        {s: CheckProperty(),
+         v: CheckProperty()},
+        rank=Normal)
+    def wd_subproperty_of_op_op(self, c: C, s: V_URI, v: V_URI) -> None:
+        self._start_op(c, s, v)
+        c.q.triples()((s, RDFS.subPropertyOf, v))
+
     @M.register(
         [Property(p)(Item(s), Item(v))],
-        {p: CheckOntology(),
+        {p: CheckProperty(),
          s: CheckResource(),
          v: CheckResource()},
         rank=Normal)
@@ -198,6 +244,65 @@ class DBpediaMapping(M):
             (s, p, v),
             (p, RDFS.range, b),
             (b, RDF.type, OWL.Class))
+
+    @M.register(
+        [Property(p)(Item(s), Quantity(v))],
+        {p: CheckProperty(),
+         s: CheckResource()},
+        rank=Normal)
+    def op_r_text(
+            self,
+            c: C,
+            p: V_URI,
+            s: V_URI,
+            v: VLiteral
+    ) -> None:
+        self._start_r(c, s)
+        self._start_op(c, p)
+        d = c.fresh_qvar()
+        c.q.triples()(
+            (s, p, v),
+            (p, RDFS.range, d))
+        c.q.values(d)(
+            (XSD.decimal,),
+            (XSD.double,),
+            (XSD.integer,),
+            (XSD.nonNegativeInteger,),
+            # TODO: Bind the unit for H, M, S. (?)
+            (XSD.hour,),
+            (XSD.minute,),
+            (XSD.second,))
+
+    @M.register(
+        [Property(p)(Item(s), Text(v, v0))],
+        {p: CheckProperty(),
+         s: CheckResource()},
+        rank=Normal)
+    def op_r_text(
+            self,
+            c: C,
+            p: V_URI,
+            s: V_URI,
+            v: VLiteral,
+            v0: VLiteral
+    ) -> None:
+        self._start_r(c, s)
+        self._start_op(c, p)
+        c.q.triples()((p, RDFS.range, RDF.langString))
+        self._p_text(c, s, p, v, v0)
+
+    @M.register(
+        [Property(p)(Item(s), Time(
+            v, Time.DAY, 0, wd.proleptic_Gregorian_calendar))],
+        {p: CheckProperty(),
+         s: CheckResource()},
+        rank=Normal)
+    def op_r_time(self, c: C, p: V_URI, s: V_URI, v: VLiteral) -> None:
+        self._start_r(c, s)
+        self._start_op(c, p)
+        c.q.triples()(
+            (s, p, v),
+            (p, RDFS.range, XSD.date))
 
     @M.register(
         [Property(p)(Item(s), Item(v))],
