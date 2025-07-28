@@ -187,6 +187,21 @@ class DBpediaMapping(M):
 
     @M.register(
         [wd.description(Item(s), Text(v, v0))],
+        {s: CheckClass()},
+        priority=M.LOW_PRIORITY,
+        rank=Normal)
+    def wd_description_oc(
+            self,
+            c: C,
+            s: V_URI,
+            v: VLiteral,
+            v0: VLiteral
+    ) -> None:
+        self._start_oc(c, s)
+        self._p_text(c, s, RDFS.comment, v, v0)
+
+    @M.register(
+        [wd.description(Item(s), Text(v, v0))],
         {s: CheckResource()},
         priority=M.LOW_PRIORITY,
         rank=Normal)
@@ -198,6 +213,21 @@ class DBpediaMapping(M):
             v0: VLiteral
     ) -> None:
         self._start_r(c, s)
+        self._p_text(c, s, RDFS.comment, v, v0)
+
+    @M.register(
+        [wd.description(Property(s), Text(v, v0))],
+        {s: CheckProperty()},
+        priority=M.LOW_PRIORITY,
+        rank=Normal)
+    def wd_description_op(
+            self,
+            c: C,
+            s: V_URI,
+            v: VLiteral,
+            v0: VLiteral
+    ) -> None:
+        self._start_op(c, s)
         self._p_text(c, s, RDFS.comment, v, v0)
 
     # -- real properties --
