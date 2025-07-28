@@ -156,7 +156,7 @@ class DBpediaMapping(M):
         {s: CheckClass()},
         priority=M.LOW_PRIORITY,
         rank=Normal)
-    def wd_label(self, c: C, s: V_URI, v: VLiteral, v0: VLiteral) -> None:
+    def wd_label_oc(self, c: C, s: V_URI, v: VLiteral, v0: VLiteral) -> None:
         self._start_oc(c, s)
         self._p_text(c, s, RDFS.label, v, v0)
 
@@ -165,7 +165,7 @@ class DBpediaMapping(M):
         {s: CheckResource()},
         priority=M.LOW_PRIORITY,
         rank=Normal)
-    def wd_label(self, c: C, s: V_URI, v: VLiteral, v0: VLiteral) -> None:
+    def wd_label_r(self, c: C, s: V_URI, v: VLiteral, v0: VLiteral) -> None:
         self._start_r(c, s)
         self._p_text(c, s, RDFS.label, v, v0)
 
@@ -190,7 +190,7 @@ class DBpediaMapping(M):
         {s: CheckResource()},
         priority=M.LOW_PRIORITY,
         rank=Normal)
-    def wd_description(
+    def wd_description_r(
             self,
             c: C,
             s: V_URI,
@@ -250,7 +250,7 @@ class DBpediaMapping(M):
         {p: CheckProperty(),
          s: CheckResource()},
         rank=Normal)
-    def op_r_text(
+    def op_r_quantity(
             self,
             c: C,
             p: V_URI,
@@ -268,6 +268,7 @@ class DBpediaMapping(M):
             (XSD.double,),
             (XSD.integer,),
             (XSD.nonNegativeInteger,),
+            (XSD.nonPositiveInteger,),
             # TODO: Bind the unit for H, M, S. (?)
             (XSD.hour,),
             (XSD.minute,),
