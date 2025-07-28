@@ -19,13 +19,19 @@ import subprocess
 import sys
 import threading
 
-from typing_extensions import Final, Iterator, Optional, TextIO, TypeAlias
+from typing_extensions import (
+    Final,
+    Iterator,
+    Optional,
+    TextIO,
+    TypeAlias,
+    Union,
+)
 
-TLocation: TypeAlias = pathlib.PurePath | str
+TLocation: TypeAlias = Union[pathlib.PurePath, str]
 
-if sys.version_info < (3, 11):
-    # queue.ShutDown was added in Python 3.11
-    queue.ShutDown = Exception
+if sys.version_info < (3, 13):
+    setattr(queue, 'ShutDown', Exception)
 
 _logger: Final[logging.Logger] = logging.getLogger(__name__)
 
@@ -304,7 +310,7 @@ class QLever:
         try:
             while True:
                 queue_.put(output.readline().strip())
-        except queue.ShutDown:
+        except queue.ShutDown:  # type: ignore
             pass
         finally:
             output.close()
@@ -318,7 +324,7 @@ class QLever:
                 continue
             except queue.Empty:
                 continue
-            except queue.ShutDown:
+            except queue.ShutDown:  # type: ignore
                 break
         return 0, ''
 
@@ -328,7 +334,7 @@ class QLever:
             _logger.debug(
                 'stopping server listening on port %d',
                 self._server_port)
-            if sys.version_info >= (3, 11):
+            if sys.version_info >= (3, 13):
                 self._server_logger_queue.shutdown(immediate=True)
             self._server_process.kill()
             self._server_process.wait()

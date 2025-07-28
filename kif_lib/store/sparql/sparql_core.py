@@ -59,7 +59,7 @@ from ..abc import Store, StoreOptions, TOptions
 
 _TOptions = TypeVar('_TOptions', bound=StoreOptions)
 T = TypeVar('T')
-TLocation: TypeAlias = pathlib.PurePath | str
+TLocation: TypeAlias = Union[pathlib.PurePath, str]
 
 _logger: Final[logging.Logger] = logging.getLogger(__name__)
 _py_filter = filter

@@ -14,9 +14,9 @@ import json
 import os
 import pathlib
 
-from typing_extensions import Any, ClassVar, Protocol, TypeAlias
+from typing_extensions import Any, ClassVar, Protocol, TypeAlias, Union
 
-TLocation: TypeAlias = pathlib.PurePath | str
+TLocation: TypeAlias = Union[pathlib.PurePath, str]
 
 
 class Jena:

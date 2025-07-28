@@ -9,7 +9,16 @@ import math
 import sys
 
 from ...context import Context
-from ...typing import Any, ClassVar, Location, override, Self, TypeAlias, Union
+from ...typing import (
+    Any,
+    ClassVar,
+    Location,
+    Optional,
+    override,
+    Self,
+    TypeAlias,
+    Union,
+)
 from ..term import Template, Variable
 from .deep_data_value import (
     DeepDataValue,
@@ -182,9 +191,9 @@ class TimeDatatype(Datatype):
 class Time(
         DeepDataValue[
             datetime.datetime,
-            int | None,
-            int | None,
-            Item | None],
+            Optional[int],
+            Optional[int],
+            Optional[Item]],
         datatype_class=TimeDatatype,
         template_class=TimeTemplate,
         variable_class=TimeVariable

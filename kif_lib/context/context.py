@@ -22,6 +22,7 @@ from ..typing import (
     TracebackType,
     TypeVar,
     Union,
+    Unpack,
 )
 
 if TYPE_CHECKING:  # pragma: no cover
@@ -719,8 +720,9 @@ class Context:
             resolver, Store, None, function, 'resolver')
         it1, it2 = itertools.tee(objects, 2)
         entities: Iterable[Entity] = itertools.chain(*map(
-            lambda o: cast(KIF_Object, o).traverse(Entity.test), filter(
-                KIF_Object.test, it1)))
+            lambda o: cast(KIF_Object, o).traverse(
+                Entity[Unpack[tuple]].test), filter(
+                    KIF_Object.test, it1)))
         pairs = cast(Iterable[tuple[Entity, Store]], filter(
             lambda t: t[1] is not None, map(
                 lambda e: (

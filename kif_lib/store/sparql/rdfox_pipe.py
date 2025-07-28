@@ -16,9 +16,9 @@ import pathlib
 import re
 import subprocess
 
-from typing_extensions import Final, TypeAlias
+from typing_extensions import Final, TypeAlias, Union
 
-TLocation: TypeAlias = pathlib.PurePath | str
+TLocation: TypeAlias = Union[pathlib.PurePath, str]
 
 _logger: Final[logging.Logger] = logging.getLogger(__name__)
 

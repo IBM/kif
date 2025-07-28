@@ -63,7 +63,7 @@ class Encodable(ABC):
         if isinstance(v, Literal):
             return v._literal_n3(use_plain=True)
         else:
-            return v.n3()
+            return v.n3()       # type: ignore
 
     def __str__(self) -> str:
         return self.encode()

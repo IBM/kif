@@ -10,7 +10,15 @@ from ... import functools, rdflib
 from ...compiler.sparql import SPARQL_Mapping
 from ...compiler.sparql.results import SPARQL_Results, SPARQL_ResultsAsk
 from ...model import TGraph
-from ...typing import Any, BinaryIO, override, TextIO, TypeAlias, TypedDict
+from ...typing import (
+    Any,
+    BinaryIO,
+    Optional,
+    override,
+    TextIO,
+    TypeAlias,
+    TypedDict,
+)
 from . import qlever_process
 from .httpx import HttpxSPARQL_Store
 from .sparql_core import _CoreSPARQL_Store, TCoreSPARQL_Store, TLocation
@@ -21,25 +29,25 @@ class PostInitIndexBuilderArgs(TypedDict):
 
     rebuild_index: bool
     args: list[TLocation]
-    data: str | None
-    format: str | None
-    parse_parallel: bool | None
+    data: Optional[str]
+    format: Optional[str]
+    parse_parallel: Optional[bool]
 
 
 class PostInitServerArgs(TypedDict):
     """Server arguments to be used in post-init step."""
 
-    port: int | None
-    memory_max_size: float | None
-    default_query_timeout: int | None
-    throw_on_onbound_variables: bool | None
+    port: Optional[int]
+    memory_max_size: Optional[float]
+    default_query_timeout: Optional[int]
+    throw_on_onbound_variables: Optional[bool]
 
 
 class PostInitArgs(TypedDict):
     """Arguments to be used in post-init step."""
 
-    basename: str | None
-    index_dir: TLocation | None
+    basename: Optional[str]
+    index_dir: Optional[TLocation]
     index_builder_args: PostInitIndexBuilderArgs
     server_args: PostInitServerArgs
     other_args: dict[str, Any]

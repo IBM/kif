@@ -8,7 +8,16 @@ import enum
 
 from ...context import Context
 from ...namespace import Wikidata
-from ...typing import Any, ClassVar, Location, override, Self, TypeAlias, Union
+from ...typing import (
+    Any,
+    ClassVar,
+    Location,
+    Optional,
+    override,
+    Self,
+    TypeAlias,
+    Union,
+)
 from ..term import Template, Variable
 from .deep_data_value import (
     DeepDataValue,
@@ -170,9 +179,9 @@ class QuantityDatatype(Datatype):
 class Quantity(
         DeepDataValue[
             decimal.Decimal,
-            Item | None,
-            decimal.Decimal | None,
-            decimal.Decimal | None],
+            Optional[Item],
+            Optional[decimal.Decimal],
+            Optional[decimal.Decimal]],
         datatype_class=QuantityDatatype,
         template_class=QuantityTemplate,
         variable_class=QuantityVariable

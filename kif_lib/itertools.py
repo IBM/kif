@@ -46,7 +46,7 @@ from .typing import (
     Union,
 )
 
-__all__ = (
+__all__ = [                     # this must be a list!
     'achain',
     'aenumerate',
     'afilter',
@@ -73,7 +73,7 @@ __all__ = (
     'take',
     'tee',
     'uniq',
-)
+]
 
 H = TypeVar('H', bound=Hashable)
 R = TypeVar('R')

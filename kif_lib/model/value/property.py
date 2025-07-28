@@ -445,7 +445,7 @@ class PropertyDatatype(Datatype):
 
 
 class Property(
-        Entity[Datatype | None],
+        Entity[Union[Datatype, None]],
         datatype_class=PropertyDatatype,
         template_class=PropertyTemplate,
         variable_class=PropertyVariable
