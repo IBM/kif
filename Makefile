@@ -93,6 +93,7 @@ PYTHON?= python
 PYUPGRADE?= ${PYTHON} -m pyupgrade
 PYUPGRADE_OPTIONS?= --exit-zero-even-if-changed --py39-plus
 SETUP_PY?= setup.py
+SETUP_PY_CLASSIFIERS?= []
 SETUP_PY_ENTRY_POINTS?= {}
 SETUP_PY_EXTRAS_REQUIRE_ALL?= [*${SETUP_PY_EXTRAS_REQUIRE_DOCS},*${SETUP_PY_EXTRAS_REQUIRE_EXTRA},*${SETUP_PY_EXTRAS_REQUIRE_TESTS}]
 SETUP_PY_EXTRAS_REQUIRE_DOCS?= []
@@ -443,6 +444,7 @@ gen-setup-py:
 	$P "    author_email='${EMAIL}'," >>${SETUP_PY}
 	$P "    url='${URL}'," >>${SETUP_PY}
 	$P "    license='${LICENSE}'," >>${SETUP_PY}
+	$P "    classifiers=${SETUP_PY_CLASSIFIERS}," >>${SETUP_PY}
 	$P "    python_requires=${SETUP_PY_PYTHON_REQUIRES}," >>${SETUP_PY}
 	$P "    packages=setuptools.find_packages(exclude=${SETUP_PY_FIND_PACKAGES_EXCLUDE})," >>${SETUP_PY}
 	$P "    package_data=${SETUP_PY_PACKAGE_DATA}," >>${SETUP_PY}
