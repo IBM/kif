@@ -972,6 +972,12 @@ class Codec(abc.ABC):
     #: Codec description.
     description: ClassVar[str]
 
+    #: Alias for :meth:`Object._missing_dependency`.
+    _missing_dependency = Object._missing_dependency
+
+    #: Alias for :meth:`Object._should_not_get_here`.
+    _should_not_get_here = Object._should_not_get_here
+
     @classmethod
     def _register(
             cls,
@@ -1112,7 +1118,7 @@ class ReprEncoder(Encoder, format='repr', description='Repr. encoder'):
         elif isinstance(v, tuple):
             yield '('
         else:
-            raise Object._should_not_get_here()
+            raise self._should_not_get_here()
 
     def _end_collection(self, v: Any) -> Iterator[str]:
         if isinstance(v, list):
@@ -1123,7 +1129,7 @@ class ReprEncoder(Encoder, format='repr', description='Repr. encoder'):
             else:
                 yield ')'
         else:
-            raise Object._should_not_get_here()
+            raise self._should_not_get_here()
 
     def _repr(self, v: Any) -> Iterator[str]:
         yield repr(v)

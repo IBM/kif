@@ -7,7 +7,7 @@ import abc
 
 from typing_extensions import overload
 
-from .. import functools, itertools
+from .. import error, functools, itertools
 from .. import namespace as NS
 from ..cache import Cache
 from ..model import (
@@ -163,7 +163,7 @@ class EntityRegistry(Registry):
         elif isinstance(obj, Lexeme):
             return cast(Lexeme.Descriptor, desc)
         else:
-            raise KIF_Object._should_not_get_here()
+            raise error.should_not_get_here()
 
     def _describe(self, entity: Entity) -> dict[str, Any] | None:
         return self._cache.get(entity.iri.content)
@@ -478,7 +478,7 @@ class EntityRegistry(Registry):
             if language is not None:
                 self._add_language(entity, language)
         else:
-            raise KIF_Object._should_not_get_here()
+            raise error.should_not_get_here()
         return ret
 
     @overload
@@ -778,7 +778,7 @@ class EntityRegistry(Registry):
             else:
                 return None
         else:
-            raise KIF_Object._should_not_get_here()
+            raise error.should_not_get_here()
 
     @staticmethod
     def _remove_from_text_set_map_tail(
@@ -972,7 +972,7 @@ class EntityRegistry(Registry):
                     elif p == _wd_language and isinstance(v, Item):
                         status |= bool(self._add_language(s, v))
                 else:
-                    raise KIF_Object._should_not_get_here()
+                    raise error.should_not_get_here()
         return status
 
     def _resolve_preprocess_entities(
@@ -1021,7 +1021,7 @@ class EntityRegistry(Registry):
                     yield t
                     continue
             else:
-                raise KIF_Object._should_not_get_here()
+                raise error.should_not_get_here()
 
 
 class IRI_Registry(Registry):

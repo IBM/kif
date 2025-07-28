@@ -13,7 +13,6 @@ from rdflib.term import Literal, URIRef, Variable
 
 from ... import namespace as NS
 from ...context import Context
-from ...error import ShouldNotGetHere
 from ...model import (
     AndFingerprint,
     Filter,
@@ -98,7 +97,7 @@ At line {line}, column {column}:
                 elif isinstance(o, Literal):
                     sv = self._literal_to_value(o)
                 else:
-                    raise ShouldNotGetHere
+                    raise self._should_not_get_here()
                 snak = ValueSnak(sp, sv)
                 snmap[snak] = (p, o)
                 fpmap[s].append(snak)
@@ -187,7 +186,7 @@ At line {line}, column {column}:
             else:
                 return None
         else:
-            raise ShouldNotGetHere
+            raise self._should_not_get_here()
 
     def _predicate_to_fingerprint(
             self,
@@ -204,7 +203,7 @@ At line {line}, column {column}:
             else:
                 return None
         else:
-            raise ShouldNotGetHere
+            raise self._should_not_get_here()
 
     def _object_to_fingerprint(
             self,
@@ -223,4 +222,4 @@ At line {line}, column {column}:
             else:
                 return None
         else:
-            raise ShouldNotGetHere
+            raise self._should_not_get_here()

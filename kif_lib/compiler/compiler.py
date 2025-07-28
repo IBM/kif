@@ -5,22 +5,25 @@ from __future__ import annotations
 
 import abc
 
+from .. import error
 from ..context import Context
-from ..model.kif_object import KIF_Object
 from ..typing import Self
 
 
 class Compiler(abc.ABC):
     """Abstract base class for compilers."""
 
-    class Error(KIF_Object.Error):
+    class Error(error.Error):
         """Base class for compiler errors."""
+
+    #: Alias for :func:`error.missing_dependency`.
+    _missing_dependency = error.missing_dependency
+
+    #: Alias for :func:`error.should_not_get_here`.
+    _should_not_get_here = error.should_not_get_here
 
     def _cannot_compile_error(self, obj) -> Compiler.Error:
         return self.Error(f'cannot compile {obj}')
-
-    def _should_not_get_here(self) -> KIF_Object.ShouldNotGetHere:
-        return KIF_Object._should_not_get_here()
 
     @property
     def context(self) -> Context:

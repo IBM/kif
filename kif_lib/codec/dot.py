@@ -66,7 +66,7 @@ class DotEncoder(
                 g.edge(s.digest, s.digest,
                        label=p.display() + ' (no value)')
             else:
-                raise KIF_Object._should_not_get_here()
+                raise cls._should_not_get_here()
         return g
 
     @override

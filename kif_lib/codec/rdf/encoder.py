@@ -368,7 +368,7 @@ class RDF_Encoder(
         elif isinstance(snak, NoValueSnak):
             yield from self._tr((wds, RDF.type, wdno))
         else:
-            raise KIF_Object._should_not_get_here()
+            raise self._should_not_get_here()
 
     def _iterencode_entity(self, entity: Entity) -> Iterator[str]:
         if isinstance(entity, Item):
@@ -378,7 +378,7 @@ class RDF_Encoder(
         elif isinstance(entity, Lexeme):
             yield from self._do_iterencode_lexeme(entity)
         else:
-            raise KIF_Object._should_not_get_here()
+            raise self._should_not_get_here()
 
     def _do_iterencode_item(
             self,
@@ -464,7 +464,7 @@ class RDF_Encoder(
                 (wds, ps, value._to_rdflib()),
                 (wds, psv, self._seen_deep_data_value[value]))
         else:
-            raise KIF_Object._should_not_get_here()
+            raise self._should_not_get_here()
 
     def _do_iterencode_deep_data_value(
             self,
@@ -509,7 +509,7 @@ class RDF_Encoder(
                     (wdv, WIKIBASE.timeCalendarModel,
                      self._seen_entity[value.calendar]))
         else:
-            raise KIF_Object._should_not_get_here()
+            raise self._should_not_get_here()
 
     def _do_iterencode_reference_record(
             self,

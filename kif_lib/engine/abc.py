@@ -765,20 +765,11 @@ class Engine(Generic[TOptions]):
         """
         return cls.Error(details)
 
-    @classmethod
-    def _should_not_get_here(
-            cls,
-            details: str | None = None
-    ) -> error.ShouldNotGetHere:
-        """Makes a "should not get here" error.
+    #: Alias for :func:`error.missing_dependency`.
+    _missing_dependency = error.missing_dependency
 
-        Parameters:
-           details: Details.
-
-        Returns:
-           :class:`ShouldNotGetHere`.
-        """
-        return KIF_Object._should_not_get_here(details)
+    #: Alias for :func:`error.should_not_get_here`.
+    _should_not_get_here = error.should_not_get_here
 
 # -- Options ---------------------------------------------------------------
 
