@@ -65,7 +65,7 @@ class PubChemSearchOptions(HttpxSearchOptions, name='pubchem'):
     DEFAULT_IRI = 'https://pubchem.ncbi.nlm.nih.gov/rest/pug/'
 
     _v_iri: ClassVar[tuple[Iterable[str], str | None]] =\
-        (('KIF_PUBCHEM_SEARCH_IRI', 'PUBCHEM_LOOKUP'), DEFAULT_IRI)
+        (('KIF_PUBCHEM_SEARCH_IRI', 'PUBCHEM_PUG'), DEFAULT_IRI)
 
     def __init__(self, **kwargs: Any) -> None:
         super().__init__(**kwargs)
