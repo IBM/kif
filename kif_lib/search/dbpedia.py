@@ -25,7 +25,7 @@ from .httpx import HttpxSearch, HttpxSearchOptions
 
 @dataclasses.dataclass
 class DBpediaSearchOptions(HttpxSearchOptions, name='dbpedia'):
-    """Empty search options."""
+    """DBpedia search options."""
 
     _v_debug: ClassVar[tuple[Iterable[str], bool | None]] =\
         (('KIF_DBPEDIA_SEARCH_DEBUG',), None)

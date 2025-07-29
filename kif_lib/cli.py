@@ -1528,6 +1528,96 @@ class SearchParam:
         required=True,
         envvar='TEXT')
 
+    item = click.option(
+        '--item',
+        'item',
+        is_flag=True,
+        default=False,
+        help='Alias: --type=item',
+        envvar='ITEM')
+
+    item_data = click.option(
+        '--item-data',
+        'item_data',
+        is_flag=True,
+        default=False,
+        help='Alias: --type=item-data',
+        envvar='ITEM_DATA')
+
+    item_descriptor = click.option(
+        '--item-descriptor',
+        'item_descriptor',
+        is_flag=True,
+        default=False,
+        help='Alias: --type=item-descriptor',
+        envvar='ITEM_DESCRIPTOR')
+
+    lexeme = click.option(
+        '--lexeme',
+        'lexeme',
+        is_flag=True,
+        default=False,
+        help='Alias: --type=lexeme',
+        envvar='LEXEME')
+
+    lexeme_data = click.option(
+        '--lexeme-data',
+        'lexeme_data',
+        is_flag=True,
+        default=False,
+        help='Alias: --type=lexeme-data',
+        envvar='LEXEME_DATA')
+
+    lexeme_descriptor = click.option(
+        '--lexeme-descriptor',
+        'lexeme_descriptor',
+        is_flag=True,
+        default=False,
+        help='Alias: --type=lexeme-descriptor',
+        envvar='LEXEME_DESCRIPTOR')
+
+    property = click.option(
+        '--property',
+        'property',
+        is_flag=True,
+        default=False,
+        help='Alias: --type=property',
+        envvar='PROPERTY')
+
+    property_data = click.option(
+        '--property-data',
+        'property_data',
+        is_flag=True,
+        default=False,
+        help='Alias: --type=property-data',
+        envvar='PROPERTY_DATA')
+
+    property_descriptor = click.option(
+        '--property-descriptor',
+        'property_descriptor',
+        is_flag=True,
+        default=False,
+        help='Alias: --type=property-descriptor',
+        envvar='PROPERTY_DESCRIPTOR')
+
+    type = click.option(
+        '--type',
+        'type',
+        type=click.Choice([
+            'item',
+            'item-descriptor',
+            'item-data',
+            'lexeme',
+            'lexeme-descriptor',
+            'lexeme-data',
+            'property',
+            'property-descriptor',
+            'property-data',
+        ]),
+        default='item',
+        help='Type specification.',
+        envvar='TYPE')
+
     encoder = FilterParam.encoder
 
     limit = FilterParam.limit
@@ -1550,24 +1640,6 @@ class SearchParam:
         envvar='SEARCH')
 
     timeout = FilterParam.timeout
-
-    type = click.option(
-        '--type',
-        'type',
-        type=click.Choice([
-            'item',
-            'item-descriptor',
-            'item-data',
-            'lexeme',
-            'lexeme-descriptor',
-            'lexeme-data',
-            'property',
-            'property-descriptor',
-            'property-data',
-        ]),
-        default='item',
-        help='Type specification.',
-        envvar='TYPE')
 
     @classmethod
     def make_context(cls, resolve: bool | None = None) -> Context:
@@ -1606,7 +1678,16 @@ class SearchParam:
 @cli.command(help='Searches for entities matching text.')
 @SearchParam.text
 @SearchParam.encoder
+@SearchParam.item
+@SearchParam.item_data
+@SearchParam.item_descriptor
+@SearchParam.lexeme
+@SearchParam.lexeme_data
+@SearchParam.lexeme_descriptor
 @SearchParam.limit
+@SearchParam.property
+@SearchParam.property_data
+@SearchParam.property_descriptor
 @SearchParam.no_async
 @SearchParam.no_resolve
 @SearchParam.page_size
@@ -1616,6 +1697,15 @@ class SearchParam:
 def search(
         search: Sequence[Search],
         text: str,
+        item: bool | None = None,
+        item_data: bool | None = None,
+        item_descriptor: bool | None = None,
+        lexeme: bool | None = None,
+        lexeme_data: bool | None = None,
+        lexeme_descriptor: bool | None = None,
+        property: bool | None = None,
+        property_data: bool | None = None,
+        property_descriptor: bool | None = None,
         async_: bool | None = None,
         encoder: Encoder | None = None,
         limit: int | None = None,
@@ -1625,6 +1715,25 @@ def search(
         timeout: float | None = None,
         type: str | None = None
 ) -> None:
+    if item:
+        type = 'item'
+    if item_descriptor:
+        type = 'item-descriptor'
+    if item_data:
+        type = 'item-data'
+    if lexeme:
+        type = 'lexeme'
+    if lexeme_descriptor:
+        type = 'lexeme-descriptor'
+    if lexeme_data:
+        type = 'lexeme-data'
+    if property:
+        type = 'property'
+    if property_descriptor:
+        type = 'property-descriptor'
+    if property_data:
+        type = 'property-data'
+
     def _search() -> None:
         target = SearchParam.make_search(
             search,

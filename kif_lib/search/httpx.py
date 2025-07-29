@@ -244,11 +244,7 @@ class HttpxSearch(
             params: httpx._types.QueryParamTypes | None = None,
             timeout: httpx._types.TimeoutTypes | None = None
     ) -> HttpxSearch.TData:
-        try:
-            return self._http_get(iri, params, timeout).json()
-        except httpx.HTTPStatusError as err:
-            _logger.exception(err.response.text)
-            raise err
+        return self._http_get(iri, params, timeout).json()
 
     @property
     def aclient(self) -> httpx.AsyncClient:
@@ -282,11 +278,7 @@ class HttpxSearch(
             params: httpx._types.QueryParamTypes | None = None,
             timeout: httpx._types.TimeoutTypes | None = None
     ) -> HttpxSearch.TData:
-        try:
-            return (await self._http_aget(iri, params, timeout)).json()
-        except httpx.HTTPStatusError as err:
-            _logger.exception(err.response.text)
-            raise err
+        return (await self._http_aget(iri, params, timeout)).json()
 
 # -- IRI -------------------------------------------------------------------
 
