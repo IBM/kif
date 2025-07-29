@@ -21,6 +21,7 @@ from ...typing import (
     TypedDict,
     Union,
 )
+from ..kif_object import KIF_Object as KObj
 from ..term import Template, Variable
 from .entity import Entity, EntityTemplate, EntityVariable
 from .iri import IRI_Template, T_IRI
@@ -50,6 +51,13 @@ class ItemTemplate(EntityTemplate):
 
     def __init__(self, iri: VTItemContent) -> None:
         super().__init__(iri)
+
+    @override
+    def replace(
+            self,
+            iri: VTItemContent | KObj.TKEEP = KObj.KEEP
+    ) -> Self:
+        return super().replace(iri)
 
 
 class ItemVariable(EntityVariable):
@@ -162,6 +170,13 @@ class Item(
         else:
             return Quantity.check(other).replace(
                 self.KEEP, self, self.KEEP, self.KEEP)
+
+    @override
+    def replace(
+            self,
+            iri: VTItemContent | KObj.TKEEP = KObj.KEEP
+    ) -> Self:
+        return super().replace(iri)
 
     @override
     def _display(

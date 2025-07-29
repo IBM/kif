@@ -104,6 +104,18 @@ class Test(EntityTestCase):
             Quantity(Variable('x'), None, 4)@Item('y'),
             QuantityVariable('x'), Item('y'), 4)
 
+    def test_replace(self) -> None:
+        self.assertEqual(Item('x').replace('y'), Item('y'))
+        self.assertEqual(Item('x').replace(iri='y'), Item('y'))
+        self.assertEqual(Item('x').replace(Item.KEEP), Item('x'))
+        # item template
+        self.assertEqual(
+            Item('x').replace(Variable('x')),
+            ItemTemplate(Variable('x')))
+        self.assertEqual(
+            Item('x').replace(iri=Variable('x')),
+            ItemTemplate(Variable('x')))
+
     def test_variables(self) -> None:
         assert_type(Item('x').variables, Set[Variable])
         self._test_variables(Item)

@@ -31,6 +31,25 @@ class Test(EntityTemplateTestCase):
                 [Property('x')],
             ])
 
+    def test_replace(self) -> None:
+        self.assertEqual(
+            ItemTemplate(Variable('x')).replace(Variable('y')),
+            ItemTemplate(Variable('y')))
+        self.assertEqual(
+            ItemTemplate(Variable('x')).replace(iri=Variable('y')),
+            ItemTemplate(Variable('y')))
+        self.assertEqual(
+            ItemTemplate(Variable('x')).replace(ItemTemplate.KEEP),
+            ItemTemplate(Variable('x')))
+        self.assertEqual(
+            ItemTemplate(Variable('x')).replace(iri=ItemTemplate.KEEP),
+            ItemTemplate(Variable('x')))
+        # item
+        self.assertEqual(
+            ItemTemplate(Variable('x')).replace('x'), Item('x'))
+        self.assertEqual(
+            ItemTemplate(Variable('x')).replace(iri='x'), Item('x'))
+
     def test_variables(self) -> None:
         assert_type(ItemTemplate(Variable('x')).variables, Set[Variable])
         self._test_variables(ItemTemplate)
