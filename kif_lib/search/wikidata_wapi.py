@@ -26,44 +26,44 @@ from .httpx import HttpxSearch, HttpxSearchOptions
 
 
 @dataclasses.dataclass
-class WikidataSearchOptions(HttpxSearchOptions, name='wikidata'):
-    """Empty search options."""
+class WikidataWAPI_SearchOptions(HttpxSearchOptions, name='wikidata-wapi'):
+    """Wikidata Wikibase API search options."""
 
     _v_debug: ClassVar[tuple[Iterable[str], bool | None]] =\
-        (('KIF_WIKIDATA_SEARCH_DEBUG',), None)
+        (('KIF_WIKIDATA_WAPI_SEARCH_DEBUG',), None)
 
     _v_max_limit: ClassVar[tuple[Iterable[str], int | None]] =\
-        (('KIF_WIKIDATA_SEARCH_MAX_LIMIT',), None)
+        (('KIF_WIKIDATA_WAPI_SEARCH_MAX_LIMIT',), None)
 
     _v_language: ClassVar[tuple[Iterable[str], str | None]] =\
-        (('KIF_WIKIDATA_SEARCH_LANGUAGE',), None)
+        (('KIF_WIKIDATA_WAPI_SEARCH_LANGUAGE',), None)
 
     _v_limit: ClassVar[tuple[Iterable[str], int | None]] =\
-        (('KIF_WIKIDATA_SEARCH_LIMIT',), None)
+        (('KIF_WIKIDATA_WAPI_SEARCH_LIMIT',), None)
 
     _v_lookahead: ClassVar[tuple[Iterable[str], int | None]] =\
-        (('KIF_WIKIDATA_SEARCH_LOOKAHEAD',), None)
+        (('KIF_WIKIDATA_WAPI_SEARCH_LOOKAHEAD',), None)
 
     DEFAULT_MAX_PAGE_SIZE = 50
 
     _v_max_page_size: ClassVar[tuple[Iterable[str], int | None]] =\
-        (('KIF_WIKIDATA_SEARCH_MAX_PAGE_SIZE',), DEFAULT_MAX_PAGE_SIZE)
+        (('KIF_WIKIDATA_WAPI_SEARCH_MAX_PAGE_SIZE',), DEFAULT_MAX_PAGE_SIZE)
 
     _v_page_size: ClassVar[tuple[Iterable[str], int | None]] =\
-        (('KIF_WIKIDATA_SEARCH_PAGE_SIZE',), None)
+        (('KIF_WIKIDATA_WAPI_SEARCH_PAGE_SIZE',), None)
 
     _v_max_timeout: ClassVar[tuple[Iterable[str], float | None]] =\
-        (('KIF_WIKIDATA_SEARCH_MAX_TIMEOUT',), None)
+        (('KIF_WIKIDATA_WAPI_SEARCH_MAX_TIMEOUT',), None)
 
     _v_timeout: ClassVar[tuple[Iterable[str], float | None]] =\
-        (('KIF_WIKIDATA_SEARCH_TIMEOUT',), None)
+        (('KIF_WIKIDATA_WAPI_SEARCH_TIMEOUT',), None)
 
     # -- httpx --
 
     DEFAULT_IRI = 'https://www.wikidata.org/w/api.php'
 
     _v_iri: ClassVar[tuple[Iterable[str], str | None]] =\
-        (('KIF_WIKIDATA_SEARCH_IRI', 'WIKIDATA_WAPI'), DEFAULT_IRI)
+        (('KIF_WIKIDATA_WAPI_SEARCH_IRI', 'WIKIDATA_WAPI_WAPI'), DEFAULT_IRI)
 
     def __init__(self, **kwargs: Any) -> None:
         super().__init__(**kwargs)
@@ -71,15 +71,16 @@ class WikidataSearchOptions(HttpxSearchOptions, name='wikidata'):
 
 # == Wikidata search =======================================================
 
-TOptions: TypeAlias = WikidataSearchOptions
+TOptions: TypeAlias = WikidataWAPI_SearchOptions
 
 
-class WikidataSearch(
+class WikidataWAPI_Search(
         HttpxSearch[TOptions],
-        search_name='wikidata',
-        search_description='Wikidata MediaWiki API search'
+        search_name='wikidata-wapi',
+        search_aliases=['wikidata'],
+        search_description='Wikidata Wikibase API search'
 ):
-    """Wikidata MediaWiki API search.
+    """Wikidata Wikibase API search.
 
     Parameters:
        search_name: Name of the search plugin to instantiate.
@@ -92,28 +93,28 @@ class WikidataSearch(
     @override
     @classmethod
     def get_default_options(cls, context: Context | None = None) -> TOptions:
-        return cls.get_context(context).options.search.wikidata
+        return cls.get_context(context).options.search.wikidata_wapi
 
     @override
-    def _to_item(self, data: WikidataSearch.TData) -> Item:
+    def _to_item(self, data: WikidataWAPI_Search.TData) -> Item:
         return Item(data['concepturi'])
 
     @override
     def to_item_descriptor(
             self,
-            data: WikidataSearch.TData
+            data: WikidataWAPI_Search.TData
     ) -> tuple[Item, Item.Descriptor]:
         return (self._to_item(data), cast(
             Item.Descriptor, self._to_x_descriptor(data)))
 
     @override
-    def _to_lexeme(self, data: WikidataSearch.TData) -> Lexeme:
+    def _to_lexeme(self, data: WikidataWAPI_Search.TData) -> Lexeme:
         return Lexeme(data['concepturi'])
 
     @override
     def to_lexeme_descriptor(
             self,
-            data: WikidataSearch.TData
+            data: WikidataWAPI_Search.TData
     ) -> tuple[Lexeme, Lexeme.Descriptor]:
         lexeme = self._to_lexeme(data)
         try:
@@ -126,13 +127,13 @@ class WikidataSearch(
         return lexeme, {}
 
     @override
-    def _to_property(self, data: WikidataSearch.TData) -> Property:
+    def _to_property(self, data: WikidataWAPI_Search.TData) -> Property:
         return Property(data['concepturi'], data['datatype'])
 
     @override
     def to_property_descriptor(
             self,
-            data: WikidataSearch.TData
+            data: WikidataWAPI_Search.TData
     ) -> tuple[Property, Property.Descriptor]:
         prop = self._to_property(data)
         desc = self._to_x_descriptor(data)
@@ -141,7 +142,7 @@ class WikidataSearch(
 
     def _to_x_descriptor(
             self,
-            data: WikidataSearch.TData,
+            data: WikidataWAPI_Search.TData,
             empty: dict[str, Any] = {}
     ) -> dict[str, Any]:
         try:
@@ -166,7 +167,7 @@ class WikidataSearch(
             self,
             search: str,
             options: TOptions
-    ) -> Iterator[WikidataSearch.TData]:
+    ) -> Iterator[WikidataWAPI_Search.TData]:
         return self._x_data('item', search, options)
 
     @override
@@ -174,7 +175,7 @@ class WikidataSearch(
             self,
             search: str,
             options: TOptions
-    ) -> Iterator[WikidataSearch.TData]:
+    ) -> Iterator[WikidataWAPI_Search.TData]:
         return self._x_data('lexeme', search, options)
 
     @override
@@ -182,7 +183,7 @@ class WikidataSearch(
             self,
             search: str,
             options: TOptions
-    ) -> Iterator[WikidataSearch.TData]:
+    ) -> Iterator[WikidataWAPI_Search.TData]:
         return self._x_data('property', search, options)
 
     def _x_data(
@@ -190,7 +191,7 @@ class WikidataSearch(
             type: Literal['item', 'lexeme', 'property'],
             search: str,
             options: TOptions
-    ) -> Iterator[WikidataSearch.TData]:
+    ) -> Iterator[WikidataWAPI_Search.TData]:
         iri, language, limit, page_size = self._check_options(options)
         get_json = functools.partial(self._http_get_json, iri.content)
         stream = self._build_search_entities_params_stream(
@@ -264,7 +265,7 @@ class WikidataSearch(
             self,
             search: str,
             options: TOptions
-    ) -> AsyncIterator[WikidataSearch.TData]:
+    ) -> AsyncIterator[WikidataWAPI_Search.TData]:
         return self._ax_data('item', search, options)
 
     @override
@@ -272,7 +273,7 @@ class WikidataSearch(
             self,
             search: str,
             options: TOptions
-    ) -> AsyncIterator[WikidataSearch.TData]:
+    ) -> AsyncIterator[WikidataWAPI_Search.TData]:
         return self._ax_data('lexeme', search, options)
 
     @override
@@ -280,7 +281,7 @@ class WikidataSearch(
             self,
             search: str,
             options: TOptions
-    ) -> AsyncIterator[WikidataSearch.TData]:
+    ) -> AsyncIterator[WikidataWAPI_Search.TData]:
         return self._ax_data('property', search, options)
 
     async def _ax_data(
@@ -288,7 +289,7 @@ class WikidataSearch(
             type: Literal['item', 'lexeme', 'property'],
             search: str,
             options: TOptions
-    ) -> AsyncIterator[WikidataSearch.TData]:
+    ) -> AsyncIterator[WikidataWAPI_Search.TData]:
         iri, language, limit, page_size = self._check_options(options)
         get_json = functools.partial(self._http_aget_json, iri.content)
         stream = self._build_search_entities_params_stream(

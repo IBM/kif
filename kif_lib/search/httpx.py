@@ -189,7 +189,6 @@ class HttpxSearch(
             headers: HTTP_Headers | None = None,
             **kwargs: Any
     ) -> None:
-        assert search_name == self.search_name
         try:
             self._headers = {
                 **dict(self._default_headers),

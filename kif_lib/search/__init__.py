@@ -10,8 +10,8 @@ from .ddgs import DDGS_Search
 from .empty import EmptySearch
 from .httpx import HttpxSearch
 from .pubchem import PubChemSearch
-from .wikidata import WikidataSearch
 from .wikidata_ddgs import WikidataDDGS_Search
+from .wikidata_wapi import WikidataWAPI_Search
 
 __all__ = (
     'DBpediaDDGS_Search',
@@ -22,5 +22,5 @@ __all__ = (
     'PubChemSearch',
     'Search',
     'WikidataDDGS_Search',
-    'WikidataSearch',
+    'WikidataWAPI_Search',
 )

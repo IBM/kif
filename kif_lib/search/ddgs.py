@@ -736,7 +736,6 @@ class DDGS_Search(
             site: str | None = None,
             **kwargs: Any
     ) -> None:
-        assert search_name == self.search_name
         self._ddgs = None
         self._re_item = None
         self._re_lexeme = None

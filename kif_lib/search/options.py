@@ -14,8 +14,8 @@ from .ddgs import DDGS_SearchOptions
 from .empty import EmptySearchOptions
 from .httpx import HttpxSearchOptions
 from .pubchem import PubChemSearchOptions
-from .wikidata import WikidataSearchOptions
 from .wikidata_ddgs import WikidataDDGS_SearchOptions
+from .wikidata_wapi import WikidataWAPI_SearchOptions
 
 
 @dataclasses.dataclass
@@ -40,8 +40,8 @@ class SearchOptions(_SearchOptions, name='search'):
     pubchem: PubChemSearchOptions = dataclasses.field(
         default_factory=PubChemSearchOptions)
 
-    wikidata: WikidataSearchOptions = dataclasses.field(
-        default_factory=WikidataSearchOptions)
+    wikidata_wapi: WikidataWAPI_SearchOptions = dataclasses.field(
+        default_factory=WikidataWAPI_SearchOptions)
 
     wikidata_ddgs: WikidataDDGS_SearchOptions = dataclasses.field(
         default_factory=WikidataDDGS_SearchOptions)
@@ -54,8 +54,8 @@ class SearchOptions(_SearchOptions, name='search'):
         self.empty = EmptySearchOptions()
         self.httpx = HttpxSearchOptions()
         self.pubchem = PubChemSearchOptions()
-        self.wikidata = WikidataSearchOptions()
         self.wikidata_ddgs = WikidataDDGS_SearchOptions()
+        self.wikidata_wapi = WikidataWAPI_SearchOptions()
 
     @override
     def _get_parent_callback(self) -> _EngineOptions:
