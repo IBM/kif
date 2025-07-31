@@ -87,7 +87,9 @@ _G: Final[dict[str, Any]] = {}
 _PROFILE: bool = False
 
 
-@click.group(help=f'KIF: {__description__}.')
+@click.group(
+    help=f'KIF: {__description__}.',
+    epilog='See <https://ibm.github.io/kif/> for more information.')
 @click.version_option(version=__version__)
 @click.option(
     '--debug',
@@ -155,28 +157,11 @@ def _run(command: Callable[[], None]) -> None:
         command()
 
 
-@cli.command(help='Show the available decoders and exit.')
-def list_decoders() -> None:
-    def _list_decoders() -> None:
-        _list_name_description_pairs(
-            ((k, v.description) for k, v in Decoder.registry.items()))
-    _run(_list_decoders)
-
-
-@cli.command(help='Show the available encoders and exit.')
-def list_encoders() -> None:
-    def _list_encoders() -> None:
-        _list_name_description_pairs(
-            ((k, v.description) for k, v in Encoder.registry.items()))
-    _run(_list_encoders)
-
-
-@cli.command(help='Show KIF context options and exit.')
+@cli.command(help='Show KIF options and exit.')
 @click.argument(
     'name',
     type=str,
-    default='kif'
-)
+    default='kif')
 @click.option(
     '--describe',
     '-d',
@@ -184,38 +169,84 @@ def list_encoders() -> None:
     is_flag=True,
     default=False,
     help='Show option description.')
-def list_options(name: str, describe: bool | None = None) -> None:
-    def _list_options() -> None:
+def show_options(name: str, describe: bool | None = None) -> None:
+    def _show_options() -> None:
         ctx = Context.top()
         if describe:
             click.echo(ctx.get_option_description_by_name(name))
         else:
             click.echo(ctx.get_option_by_name(name))
-    _run(_list_options)
+    _run(_show_options)
 
 
-@cli.command(help='Show the available search plugins and exit.')
-def list_searchers() -> None:
-    def _list_searchers() -> None:
-        _list_name_description_pairs(
-            ((k, v.search_description)
-             for k, v in Search.registry.items()))
-    _run(_list_searchers)
+@cli.command(help='Show available plugins and exit.')
+@click.option(
+    '--decoder',
+    is_flag=True,
+    default=False,
+    help='Show decoder plugins.')
+@click.option(
+    '--encoder',
+    is_flag=True,
+    default=False,
+    help='Show encoder plugins.')
+@click.option(
+    '--search',
+    is_flag=True,
+    default=False,
+    help='Show search plugins.')
+@click.option(
+    '--store',
+    is_flag=True,
+    default=False,
+    help='Show store plugins.')
+def show_plugins(
+        decoder: bool,
+        encoder: bool,
+        store: bool,
+        search: bool
+) -> None:
+    n = sum(map(int, (decoder, encoder, store, search)))
+    if not n:
+        n, (decoder, encoder, store, search) = 4, itertools.repeat(True, 4)
+    _run(lambda: _echo_lines(_join_name_description_pairs(
+        itertools.chain(*itertools.starmap(
+            lambda ty, it: ((f'{ty}.{k}' if n != 1 else k, v) for k, v in it),
+            (('decoder', _iterate_decoder_plugins() if decoder else ()),
+             ('encoder', _iterate_encoder_plugins() if encoder else ()),
+             ('search', _iterate_search_plugins() if search else ()),
+             ('store', _iterate_store_plugins() if store else ())))))))
 
 
-@cli.command(help='Show the available store plugins and exit.')
-def list_stores() -> None:
-    def _list_stores() -> None:
-        _list_name_description_pairs(
-            ((k, v.store_description) for k, v in Store.registry.items()))
-    _run(_list_stores)
-
-
-def _list_name_description_pairs(pairs: Iterable[tuple[str, str]]) -> None:
+def _join_name_description_pairs(
+        pairs: Iterable[tuple[str, str]]
+) -> Iterator[str]:
     pairs = list(pairs)
-    longest_name_length = max(map(len, map(functools.fst, pairs)))
-    for k, v in sorted(pairs):
-        click.echo(f'{k:<{longest_name_length}}: {v}')
+    if pairs:
+        longest_name_length = max(map(len, map(functools.fst, pairs)))
+        for k, v in sorted(pairs):
+            yield f'{k:<{longest_name_length}} : {v}'
+
+
+def _iterate_decoder_plugins() -> Iterator[tuple[str, str]]:
+    return ((k, v.description) for k, v in Decoder.registry.items())
+
+
+def _iterate_encoder_plugins() -> Iterator[tuple[str, str]]:
+    return ((k, v.description) for k, v in Encoder.registry.items())
+
+
+def _iterate_search_plugins() -> Iterator[tuple[str, str]]:
+    return ((k, v.search_description) for k, v in Search.registry.items())
+
+
+def _iterate_store_plugins() -> Iterator[tuple[str, str]]:
+    return ((k, v.store_description) for k, v in Store.registry.items())
+
+
+def _echo_lines(lines: Iterator[str]) -> None:
+    for line in lines:
+        click.echo(line)
 
 
 class KIF_ParamType(click.ParamType):
