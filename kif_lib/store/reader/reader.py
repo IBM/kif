@@ -156,7 +156,6 @@ class Reader(
             parse: ParseFn | None = None,
             **kwargs: Any
     ) -> None:
-        assert store_name == self.store_name
         super().__init__(store_name)
         self._args = []
         self._kwargs = kwargs

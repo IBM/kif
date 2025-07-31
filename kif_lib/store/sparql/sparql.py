@@ -214,7 +214,6 @@ class SPARQL_Store(
             mapping: SPARQL_Mapping | None = None,
             **kwargs: Any
     ) -> None:
-        assert store_name == self.store_name
         other, iris = map(list, itertools.partition(
             self._is_http_or_https_iri, args))
 
@@ -319,7 +318,6 @@ class DBpediaSPARQL_Store(
             wikidata_properties: bool | None = None,
             **kwargs: Any
     ) -> None:
-        assert store_name == self.store_name
         if not args:
             resolver_iri = self.get_context(
                 kwargs.get('context')).options.vocabulary.db.resolver
@@ -357,7 +355,6 @@ class PubChemSPARQL_Store(
             normalize_casrn: bool | None = None,
             **kwargs: Any
     ) -> None:
-        assert store_name == self.store_name
         if not args:
             resolver_iri = self.get_context(
                 kwargs.get('context')).options.vocabulary.pc.resolver
@@ -398,7 +395,6 @@ class WikidataSPARQL_Store(
             use_schema: bool | None = None,
             **kwargs: Any
     ) -> None:
-        assert store_name == self.store_name
         if not args:
             resolver_iri = self.get_context(
                 kwargs.get('context')).options.vocabulary.wd.resolver
@@ -420,6 +416,7 @@ class WikidataSPARQL_Store(
 class WDQS_Store(
         WikidataSPARQL_Store,
         store_name='wdqs',
+        store_aliases=['wikidata'],
         store_description='Wikidata query service store'
 ):
     """Alias for :class:`WikidataSPARQL_Store` with stricter mappings."""
@@ -439,7 +436,6 @@ class WDQS_Store(
             truthy: Filter.TDatatypeMask | None = None,
             **kwargs: Any
     ) -> None:
-        assert store_name == self.store_name
         if mapping is None:
             mapping = _CoreSPARQL_Store._wikidata_mapping_constructor(
                 blazegraph=True,  # force

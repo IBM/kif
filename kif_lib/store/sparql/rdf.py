@@ -53,8 +53,6 @@ class RDF_Store(
             backend: str | None = None,
             **kwargs: Any
     ) -> None:
-        assert store_name == self.store_name
-
         def mk_child_store(store_name: str) -> Store:
             return Store(
                 store_name, *args, format=format, location=location,
@@ -104,7 +102,6 @@ class DBpediaRDF_Store(
             wikidata_properties: bool | None = None,
             **kwargs: Any
     ) -> None:
-        assert store_name == self.store_name
         if mapping is None:
             mapping = _CoreSPARQL_Store._dbpedia_mapping_constructor(
                 wikidata_properties=wikidata_properties)
@@ -137,7 +134,6 @@ class PubChemRDF_Store(
             normalize_casrn: bool | None = None,
             **kwargs: Any
     ) -> None:
-        assert store_name == self.store_name
         if mapping is None:
             mapping = _CoreSPARQL_Store._pubchem_mapping_constructor(
                 normalize_casrn=normalize_casrn)
@@ -172,7 +168,6 @@ class WikidataRDF_Store(
             use_schema: bool | None = None,
             **kwargs: Any
     ) -> None:
-        assert store_name == self.store_name
         if mapping is None:
             mapping = _CoreSPARQL_Store._wikidata_mapping_constructor(
                 blazegraph=False,  # force

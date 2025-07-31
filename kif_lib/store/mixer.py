@@ -272,9 +272,8 @@ class MixerStore(
             sync_flags: TSyncFlags | None = None,
             **kwargs: Any
     ) -> None:
-        assert store_name == self.store_name
         self._init_sources(sources)
-        super().__init__(sync_flags=sync_flags, **kwargs)
+        super().__init__(store_name, sync_flags=sync_flags, **kwargs)
 
     @override
     @classmethod

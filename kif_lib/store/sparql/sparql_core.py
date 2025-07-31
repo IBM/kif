@@ -324,7 +324,6 @@ class _CoreSPARQL_Store(
             *args: Any,
             **kwargs: Any
     ) -> None:
-        assert store_name == self.store_name
         self._mapping = None
         self._init_mapping(mapping, type(self), 'mapping')
         self._backend = None

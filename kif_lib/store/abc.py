@@ -41,6 +41,7 @@ from ..typing import (
     Location,
     Mapping,
     override,
+    Set,
     TypeVar,
 )
 
@@ -588,6 +589,9 @@ class Store(Engine[TOptions]):
     #: The name of this store plugin.
     store_name: ClassVar[str]
 
+    #: The aliases of this store plugin.
+    store_aliases: ClassVar[Set[str]]
+
     #: The description of this store plugin.
     store_description: ClassVar[str]
 
@@ -595,10 +599,13 @@ class Store(Engine[TOptions]):
     def __init_subclass__(
             cls,
             store_name: str,
-            store_description: str
+            store_description: str,
+            store_aliases: Iterable[str] = frozenset()
     ) -> None:
-        Store._register_plugin(cls, store_name, store_description)
+        Store._register_plugin(
+            cls, store_name, store_aliases, store_description)
         cls.store_name = cls.plugin_name
+        cls.store_aliases = cls.plugin_aliases
         cls.store_description = cls.plugin_description
 
     def __new__(cls, store_name: str, *args: Any, **kwargs: Any):
@@ -623,6 +630,7 @@ class Store(Engine[TOptions]):
 
     def __init__(
             self,
+            store_name: str,
             *args: Any,
             base_filter: Filter | None = None,
             debug: bool | None = None,
@@ -656,6 +664,10 @@ class Store(Engine[TOptions]):
            context: Context.
            kwargs: Other keyword arguments.
         """
+        assert (
+            store_name == self.store_name
+            or store_name in self.store_aliases), (
+                (store_name, self.store_name, self.store_aliases))
         super().__init__(
             *args,
             base_filter=base_filter,

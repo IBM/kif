@@ -101,8 +101,7 @@ class MemoryStore(
             graph: TGraph | None = None,
             **kwargs: Any
     ) -> None:
-        assert store_name == self.store_name
-        super().__init__(*args, **kwargs)
+        super().__init__(store_name, *args, **kwargs)
         self._statements = set(itertools.chain(
             map(functools.partial(
                 Statement.check, function=type(self), name='args'), args),

@@ -70,5 +70,4 @@ class EmptyStore(
     """
 
     def __init__(self, store_name: str, *args: Any, **kwargs: Any) -> None:
-        assert store_name == self.store_name
-        super().__init__(*args, **kwargs)
+        super().__init__(store_name, *args, **kwargs)

@@ -205,7 +205,6 @@ class RDFoxSPARQL_Store(
             mapping: SPARQL_Mapping | None = None,
             **kwargs: Any
     ) -> None:
-        assert store_name == self.store_name
         super().__init__(
             store_name,
             (mapping if mapping is not None

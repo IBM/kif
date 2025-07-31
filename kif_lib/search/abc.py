@@ -21,6 +21,7 @@ from ..typing import (
     Mapping,
     Optional,
     override,
+    Set,
     TypeAlias,
     TypeVar,
 )
@@ -177,6 +178,9 @@ class Search(Engine[TOptions]):
     #: The name of this search plugin.
     search_name: ClassVar[str]
 
+    #: The aliases of this search plugin.
+    search_aliases: ClassVar[Set[str]]
+
     #: The description of this search plugin.
     search_description: ClassVar[str]
 
@@ -184,10 +188,13 @@ class Search(Engine[TOptions]):
     def __init_subclass__(
             cls,
             search_name: str,
-            search_description: str
+            search_description: str,
+            search_aliases: Iterable[str] = frozenset()
     ) -> None:
-        Search._register_plugin(cls, search_name, search_description)
+        Search._register_plugin(
+            cls, search_name, search_aliases, search_description)
         cls.search_name = cls.plugin_name
+        cls.search_aliases = cls.plugin_aliases
         cls.search_description = cls.plugin_description
 
     def __new__(cls, search_name: str, *args: Any, **kwargs: Any):
@@ -215,6 +222,7 @@ class Search(Engine[TOptions]):
 
     def __init__(
             self,
+            search_name: str,
             *args: Any,
             debug: bool | None = None,
             language: TTextLanguage | None = None,
@@ -240,6 +248,10 @@ class Search(Engine[TOptions]):
            context: Context.
            kwargs: Other keyword arguments.
         """
+        assert (
+            search_name == self.search_name
+            or search_name in self.search_aliases), (
+                (search_name, self.search_name, self.search_aliases))
         super().__init__(
             *args,
             debug=debug,

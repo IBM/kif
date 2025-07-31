@@ -56,5 +56,4 @@ class EmptySearch(
     """
 
     def __init__(self, search_name: str, *args: Any, **kwargs: Any) -> None:
-        assert search_name == self.search_name
-        super().__init__(*args, **kwargs)
+        super().__init__(search_name, *args, **kwargs)

@@ -8,7 +8,7 @@ import contextlib
 import dataclasses
 import sys
 
-from .. import error, functools
+from .. import error, functools, itertools
 from ..context import Context, Section
 from ..model import TQuantity
 from ..typing import (
@@ -24,6 +24,7 @@ from ..typing import (
     Optional,
     override,
     Self,
+    Set,
     TypeVar,
 )
 
@@ -718,6 +719,9 @@ class Engine(Generic[TOptions]):
     #: Plugin name.
     plugin_name: ClassVar[str]
 
+    #: Plugin aliases.
+    plugin_aliases: ClassVar[Set[str]]
+
     #: Plugin description.
     plugin_description: ClassVar[str]
 
@@ -726,11 +730,15 @@ class Engine(Generic[TOptions]):
             cls,
             engine: type[Engine],
             name: str,
+            aliases: Iterable[str],
             description: str
     ) -> None:
         engine.plugin_name = name
+        engine.plugin_aliases = frozenset(aliases)
         engine.plugin_description = description
-        cls.registry[engine.plugin_name] = engine  # type: ignore
+        for name in itertools.chain(
+                (engine.plugin_name,), engine.plugin_aliases):
+            cls.registry[name] = engine  # type: ignore
 
 # -- Context ---------------------------------------------------------------
 
