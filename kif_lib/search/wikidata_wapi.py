@@ -6,10 +6,12 @@ from __future__ import annotations
 import asyncio
 import collections
 import dataclasses
+import re
 
 from .. import functools, itertools
 from ..context import Context
 from ..model import IRI, Item, Lexeme, Property, Text
+from ..namespace import Wikidata
 from ..typing import (
     Any,
     AsyncIterator,
@@ -80,7 +82,7 @@ class WikidataWAPI_Search(
         search_aliases=['wikidata'],
         search_description='Wikidata Wikibase API search'
 ):
-    """Wikidata Wikibase API search.
+    """Wikidata Wikibase API search with "wbsearchentities" action.
 
     Parameters:
        search_name: Name of the search plugin to instantiate.
@@ -198,11 +200,11 @@ class WikidataWAPI_Search(
             search, type, 'json', language, page_size)
         count = 0
         while count < limit:
-            res = get_json(next(stream))
-            if 'search' not in res:
-                break           # nothing to do
-            yield from res['search']
-            n = len(res['search'])
+            res = self._x_data_parse(get_json(next(stream)))
+            if not res:
+                break
+            yield from res
+            n = len(res)
             if n < page_size:
                 break
             count += n
@@ -260,6 +262,12 @@ class WikidataWAPI_Search(
         if offset is not None:
             yield ('continue', offset)
 
+    def _x_data_parse(
+            self,
+            response: dict[str, Any]
+    ) -> list[WikidataWAPI_Search.TData]:
+        return response.get('search', [])
+
     @override
     def _aitem_data(
             self,
@@ -297,14 +305,126 @@ class WikidataWAPI_Search(
         count = 0
         for batch in itertools.batched(stream, options.lookahead):
             tasks = (asyncio.ensure_future(get_json(p)) for p in batch)
-            for res in await asyncio.gather(*tasks):
-                if 'search' not in res:
+            for res in map(self._x_data_parse, await asyncio.gather(*tasks)):
+                if not res:
                     return      # nothing to do
-                for t in res['search']:
+                for t in res:
                     yield t
-                n = len(res['search'])
+                n = len(res)
                 if n < page_size:
                     return
                 count += n
                 if count == limit:
                     return
+
+
+class WikidataWAPI_QuerySearch(
+        WikidataWAPI_Search,
+        search_name='wikidata-wapi-query',
+        search_description='Wikidata Wikibase API search using "query" action'
+):
+    """Alias for :class:`WikidataWAPI_Search` using "query" action."""
+
+    def __init__(self, search_name: str, *args: Any, **kwargs: Any) -> None:
+        super().__init__(search_name, *args, **kwargs)
+
+    _re_item: re.Pattern[str] = re.compile(r'^Q\d+$')
+
+    @override
+    def _to_item(self, data: WikidataWAPI_Search.TData) -> Item:
+        if self._re_item.match(data['title']):
+            return Item(Wikidata.WD[data['title']])
+        else:
+            raise ValueError
+
+    @override
+    def to_item_descriptor(
+            self,
+            data: WikidataWAPI_Search.TData
+    ) -> tuple[Item, Item.Descriptor]:
+        if 'snippet' in data:
+            return (self._to_item(data), {
+                'descriptions': {'en': Text(data['snippet'], 'en')}})
+        else:
+            return (self._to_item(data), {})
+
+    @override
+    def to_lexeme(self, data: WikidataWAPI_Search.TData) -> Lexeme:
+        raise NotImplementedError
+
+    @override
+    def to_lexeme_descriptor(
+            self,
+            data: WikidataWAPI_Search.TData
+    ) -> tuple[Lexeme, Lexeme.Descriptor]:
+        raise NotImplementedError
+
+    @override
+    def to_property(self, data: WikidataWAPI_Search.TData) -> Property:
+        raise NotImplementedError
+
+    @override
+    def to_property_descriptor(
+            self,
+            data: WikidataWAPI_Search.TData
+    ) -> tuple[Property, Property.Descriptor]:
+        raise NotImplementedError
+
+    @override
+    def _build_search_entities_params_tail(
+            self,
+            search: str,
+            type: Literal['item', 'lexeme', 'property'],
+            format: str | None = None,
+            language: str | None = None,
+            limit: int | None = None,
+            offset: int | None = None
+    ) -> Iterator[tuple[str, int | str]]:
+        yield ('action', 'query')
+        yield ('list', 'search')
+        yield ('srsearch', search)
+        if format is not None:
+            yield ('format', format)
+        if limit is not None:
+            yield ('srlimit', limit)
+        if offset is not None:
+            yield ('sroffset', offset)
+
+    @override
+    def _lexeme_data(
+            self,
+            search: str,
+            options: TOptions
+    ) -> Iterator[WikidataWAPI_Search.TData]:
+        return iter(())
+
+    @override
+    def _property_data(
+            self,
+            search: str,
+            options: TOptions
+    ) -> Iterator[WikidataWAPI_Search.TData]:
+        return iter(())
+
+    @override
+    def _x_data_parse(
+            self,
+            response: dict[str, Any]
+    ) -> list[WikidataWAPI_Search.TData]:
+        return response['query']['search']
+
+    @override
+    def _alexeme_data(
+            self,
+            search: str,
+            options: TOptions
+    ) -> AsyncIterator[WikidataWAPI_Search.TData]:
+        return self._asearch_empty_iterator()
+
+    @override
+    def _aproperty_data(
+            self,
+            search: str,
+            options: TOptions
+    ) -> AsyncIterator[WikidataWAPI_Search.TData]:
+        return self._asearch_empty_iterator()
