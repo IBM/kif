@@ -15,6 +15,7 @@ from .empty import EmptySearchOptions
 from .httpx import HttpxSearchOptions
 from .pubchem import PubChemSearchOptions
 from .wikidata_ddgs import WikidataDDGS_SearchOptions
+from .wikidata_rest import WikidataREST_SearchOptions
 from .wikidata_wapi import WikidataWAPI_SearchOptions
 
 
@@ -40,11 +41,14 @@ class SearchOptions(_SearchOptions, name='search'):
     pubchem: PubChemSearchOptions = dataclasses.field(
         default_factory=PubChemSearchOptions)
 
-    wikidata_wapi: WikidataWAPI_SearchOptions = dataclasses.field(
-        default_factory=WikidataWAPI_SearchOptions)
-
     wikidata_ddgs: WikidataDDGS_SearchOptions = dataclasses.field(
         default_factory=WikidataDDGS_SearchOptions)
+
+    wikidata_rest: WikidataREST_SearchOptions = dataclasses.field(
+        default_factory=WikidataREST_SearchOptions)
+
+    wikidata_wapi: WikidataWAPI_SearchOptions = dataclasses.field(
+        default_factory=WikidataWAPI_SearchOptions)
 
     def __init__(self, *args: Any, **kwargs: Any) -> None:
         super().__init__(*args, **kwargs)
@@ -55,6 +59,7 @@ class SearchOptions(_SearchOptions, name='search'):
         self.httpx = HttpxSearchOptions()
         self.pubchem = PubChemSearchOptions()
         self.wikidata_ddgs = WikidataDDGS_SearchOptions()
+        self.wikidata_rest = WikidataREST_SearchOptions()
         self.wikidata_wapi = WikidataWAPI_SearchOptions()
 
     @override

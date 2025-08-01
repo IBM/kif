@@ -17,18 +17,19 @@ from ..typing import (
     AsyncIterator,
     cast,
     ClassVar,
+    Final,
     Iterable,
     Iterator,
     Literal,
     Mapping,
     override,
-    TypeAlias,
+    TypeVar,
 )
 from .httpx import HttpxSearch, HttpxSearchOptions
 
 
 @dataclasses.dataclass
-class WikidataWAPI_SearchOptions(HttpxSearchOptions, name='wikidata-wapi'):
+class WikidataWAPI_SearchOptions(HttpxSearchOptions, name='wikidata_wapi'):
     """Wikidata Wikibase API search options."""
 
     _v_debug: ClassVar[tuple[Iterable[str], bool | None]] =\
@@ -65,7 +66,7 @@ class WikidataWAPI_SearchOptions(HttpxSearchOptions, name='wikidata-wapi'):
     DEFAULT_IRI = 'https://www.wikidata.org/w/api.php'
 
     _v_iri: ClassVar[tuple[Iterable[str], str | None]] =\
-        (('KIF_WIKIDATA_WAPI_SEARCH_IRI', 'WIKIDATA_WAPI_WAPI'), DEFAULT_IRI)
+        (('KIF_WIKIDATA_WAPI_SEARCH_IRI', 'WIKIDATA_WAPI'), DEFAULT_IRI)
 
     def __init__(self, **kwargs: Any) -> None:
         super().__init__(**kwargs)
@@ -73,7 +74,10 @@ class WikidataWAPI_SearchOptions(HttpxSearchOptions, name='wikidata-wapi'):
 
 # == Wikidata search =======================================================
 
-TOptions: TypeAlias = WikidataWAPI_SearchOptions
+TOptions = TypeVar(
+    'TOptions',
+    bound=WikidataWAPI_SearchOptions,
+    default=WikidataWAPI_SearchOptions)
 
 
 class WikidataWAPI_Search(
@@ -95,7 +99,8 @@ class WikidataWAPI_Search(
     @override
     @classmethod
     def get_default_options(cls, context: Context | None = None) -> TOptions:
-        return cls.get_context(context).options.search.wikidata_wapi
+        return cast(TOptions, cls.get_context(
+            context).options.search.wikidata_wapi)
 
     @override
     def _to_item(self, data: WikidataWAPI_Search.TData) -> Item:
@@ -194,7 +199,7 @@ class WikidataWAPI_Search(
             search: str,
             options: TOptions
     ) -> Iterator[WikidataWAPI_Search.TData]:
-        iri, language, limit, page_size = self._check_options(options)
+        iri, language, limit, page_size = self._check_options(type, options)
         get_json = functools.partial(self._http_get_json, iri.content)
         stream = self._build_search_entities_params_stream(
             search, type, 'json', language, page_size)
@@ -211,6 +216,7 @@ class WikidataWAPI_Search(
 
     def _check_options(
             self,
+            type: Literal['item', 'lexeme', 'property'],
             options: TOptions
     ) -> tuple[IRI, str, int, int]:
         iri = options.iri
@@ -298,7 +304,7 @@ class WikidataWAPI_Search(
             search: str,
             options: TOptions
     ) -> AsyncIterator[WikidataWAPI_Search.TData]:
-        iri, language, limit, page_size = self._check_options(options)
+        iri, language, limit, page_size = self._check_options(type, options)
         get_json = functools.partial(self._http_aget_json, iri.content)
         stream = self._build_search_entities_params_stream(
             search, type, 'json', language, page_size)
@@ -321,14 +327,14 @@ class WikidataWAPI_Search(
 class WikidataWAPI_QuerySearch(
         WikidataWAPI_Search,
         search_name='wikidata-wapi-query',
-        search_description='Wikidata Wikibase API search using "query" action'
+        search_description='Wikidata Wikibase API search ("query" action)'
 ):
     """Alias for :class:`WikidataWAPI_Search` using "query" action."""
 
     def __init__(self, search_name: str, *args: Any, **kwargs: Any) -> None:
         super().__init__(search_name, *args, **kwargs)
 
-    _re_item: re.Pattern[str] = re.compile(r'^Q\d+$')
+    _re_item: Final[re.Pattern[str]] = re.compile(r'^Q\d+$')
 
     @override
     def _to_item(self, data: WikidataWAPI_Search.TData) -> Item:
