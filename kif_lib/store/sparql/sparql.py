@@ -299,6 +299,7 @@ class SPARQL_Store(
 class DBpediaSPARQL_Store(
         SPARQL_Store,
         store_name='dbpedia-sparql',
+        store_aliases=['dbpedia'],
         store_description='DBpedia SPARQL store'
 ):
     """Alias for :class:`SPARQL_Store` with DBpedia mappings."""
@@ -336,6 +337,7 @@ class DBpediaSPARQL_Store(
 class PubChemSPARQL_Store(
         SPARQL_Store,
         store_name='pubchem-sparql',
+        store_aliases=['pubchem'],
         store_description='PubChem SPARQL store'
 ):
     """Alias for :class:`SPARQL_Store` with PubChem mappings."""
