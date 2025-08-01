@@ -68,7 +68,7 @@ class WikidataREST_SearchOptions(
         super().__init__(**kwargs)
 
 
-# == Wikidata search =======================================================
+# == Wikidata REST search ==================================================
 
 TOptions: TypeAlias = WikidataREST_SearchOptions
 

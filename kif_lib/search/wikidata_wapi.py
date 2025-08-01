@@ -72,7 +72,7 @@ class WikidataWAPI_SearchOptions(HttpxSearchOptions, name='wikidata_wapi'):
         super().__init__(**kwargs)
 
 
-# == Wikidata search =======================================================
+# == Wikidata WAPI search ==================================================
 
 TOptions = TypeVar(
     'TOptions',
@@ -323,6 +323,8 @@ class WikidataWAPI_Search(
                 if count == limit:
                     return
 
+
+# == Wikidata WAPI query search ============================================
 
 class WikidataWAPI_QuerySearch(
         WikidataWAPI_Search,
