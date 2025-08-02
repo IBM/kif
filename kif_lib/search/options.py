@@ -13,6 +13,7 @@ from .dbpedia_lookup import DBpediaLookupSearchOptions
 from .ddgs import DDGS_SearchOptions
 from .empty import EmptySearchOptions
 from .httpx import HttpxSearchOptions
+from .pubchem_ddgs import PubChemDDGS_SearchOptions
 from .pubchem_pug import PubChemPUG_SearchOptions
 from .wikidata_ddgs import WikidataDDGS_SearchOptions
 from .wikidata_rest import WikidataREST_SearchOptions
@@ -38,6 +39,9 @@ class SearchOptions(_SearchOptions, name='search'):
     httpx: HttpxSearchOptions = dataclasses.field(
         default_factory=HttpxSearchOptions)
 
+    pubchem_ddgs: PubChemDDGS_SearchOptions = dataclasses.field(
+        default_factory=PubChemDDGS_SearchOptions)
+
     pubchem_pug: PubChemPUG_SearchOptions = dataclasses.field(
         default_factory=PubChemPUG_SearchOptions)
 
@@ -57,6 +61,7 @@ class SearchOptions(_SearchOptions, name='search'):
         self.ddgs = DDGS_SearchOptions()
         self.empty = EmptySearchOptions()
         self.httpx = HttpxSearchOptions()
+        self.pubchem_ddgs = PubChemDDGS_SearchOptions()
         self.pubchem_pug = PubChemPUG_SearchOptions()
         self.wikidata_ddgs = WikidataDDGS_SearchOptions()
         self.wikidata_rest = WikidataREST_SearchOptions()

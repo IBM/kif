@@ -122,17 +122,7 @@ class DBpediaDDGS_Search(
             search: str,
             options: TOptions
     ) -> Iterator[DBpediaDDGS_Search.TData]:
-        # options.in_url = 'lexeme'
-        return super()._lexeme_data(search, options)
-
-    @override
-    def _property_data(
-            self,
-            search: str,
-            options: TOptions
-    ) -> Iterator[DBpediaDDGS_Search.TData]:
-        # options.in_url = 'property'
-        return super()._property_data(search, options)
+        return iter(())
 
     @override
     def _alexeme_data(
@@ -140,8 +130,7 @@ class DBpediaDDGS_Search(
             search: str,
             options: TOptions
     ) -> AsyncIterator[DBpediaDDGS_Search.TData]:
-        # options.in_url = 'lexeme'
-        return super()._alexeme_data(search, options)
+        return self._asearch_empty_iterator()
 
     @override
     def _aproperty_data(

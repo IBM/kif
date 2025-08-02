@@ -6,7 +6,6 @@ from __future__ import annotations
 import dataclasses
 import re
 
-from .. import functools
 from ..context import Context
 from ..model import IRI, Item, Text
 from ..typing import (

@@ -8,7 +8,6 @@ import logging
 
 import httpx
 
-from .. import functools
 from ..context import Context
 from ..model import IRI, Item, Text
 from ..namespace.pubchem import PubChem
