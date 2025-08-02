@@ -176,7 +176,7 @@ class _CoreSPARQL_Store(
         ) -> SPARQL_Results:
             """Async version of :meth:`_CoreSPARQL_Store.Backend.select`."""
             _logger.debug('%s()\n%s', self.aselect.__qualname__, query)
-            return await self._aselect(query)
+            return await self._aselect(query, timeout)
 
         async def _aselect(
                 self,
