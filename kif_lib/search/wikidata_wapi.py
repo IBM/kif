@@ -199,8 +199,10 @@ class WikidataWAPI_Search(
             search: str,
             options: TOptions
     ) -> Iterator[WikidataWAPI_Search.TData]:
-        iri, language, limit, page_size = self._check_options(type, options)
-        get_json = functools.partial(self._http_get_json, iri.content)
+        iri, language, limit, page_size, timeout = self._check_options(
+            type, options)
+        get_json = functools.partial(
+            self._http_get_json, iri.content, timeout=timeout)
         stream = self._build_search_entities_params_stream(
             search, type, 'json', language, page_size)
         count = 0
@@ -218,7 +220,7 @@ class WikidataWAPI_Search(
             self,
             type: Literal['item', 'lexeme', 'property'],
             options: TOptions
-    ) -> tuple[IRI, str, int, int]:
+    ) -> tuple[IRI, str, int, int, float | None]:
         iri = options.iri
         if iri is None:
             assert self.options.DEFAULT_IRI is not None
@@ -231,7 +233,8 @@ class WikidataWAPI_Search(
         else:
             limit = min(limit, options.max_limit)
         page_size = min(options.page_size, limit, options.max_page_size)
-        return iri, language, limit, page_size
+        timeout = options.timeout
+        return iri, language, limit, page_size, timeout
 
     def _build_search_entities_params_stream(
             self,
@@ -304,8 +307,10 @@ class WikidataWAPI_Search(
             search: str,
             options: TOptions
     ) -> AsyncIterator[WikidataWAPI_Search.TData]:
-        iri, language, limit, page_size = self._check_options(type, options)
-        get_json = functools.partial(self._http_aget_json, iri.content)
+        iri, language, limit, page_size, timeout = self._check_options(
+            type, options)
+        get_json = functools.partial(
+            self._http_aget_json, iri.content, timeout=timeout)
         stream = self._build_search_entities_params_stream(
             search, type, 'json', language, page_size)
         count = 0

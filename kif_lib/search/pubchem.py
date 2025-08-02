@@ -78,7 +78,8 @@ TOptions: TypeAlias = PubChemSearchOptions
 
 class PubChemSearch(
         HttpxSearch[TOptions],
-        search_name='pubchem',
+        search_name='pubchem-pug',
+        search_aliases=['pubchem'],
         search_description='PubChem PUG search'
 ):
     """PubChem PUG search.
@@ -120,11 +121,10 @@ class PubChemSearch(
             search: str,
             options: TOptions
     ) -> Iterator[PubChemSearch.TData]:
-        get_json = functools.partial(
-            self._http_get_json,
-            self._build_search_iri(self._check_options(options), search))
+        iri, timeout = self._check_options(options)
         try:
-            data = get_json()
+            data = self._http_get_json(
+                self._build_search_iri(iri, search), timeout=timeout)
             if 'InformationList' in data:
                 yield from data['InformationList'].get('Information', ())
         except httpx.HTTPStatusError as err:
@@ -136,12 +136,13 @@ class PubChemSearch(
     def _check_options(
             self,
             options: TOptions
-    ) -> IRI:
+    ) -> tuple[IRI, float | None]:
         iri = options.iri
         if iri is None:
             assert self.options.DEFAULT_IRI is not None
             iri = IRI(self.options.DEFAULT_IRI)
-        return iri
+        timeout = options.timeout
+        return iri, timeout
 
     def _build_search_iri(
             self,
@@ -166,11 +167,10 @@ class PubChemSearch(
             search: str,
             options: TOptions
     ) -> AsyncIterator[PubChemSearch.TData]:
-        get_json = functools.partial(
-            self._http_aget_json,
-            self._build_search_iri(self._check_options(options), search))
+        iri, timeout = self._check_options(options)
         try:
-            data = await get_json()
+            data = await self._http_aget_json(
+                self._build_search_iri(iri, search), timeout=timeout)
             if 'InformationList' in data:
                 for t in data['InformationList'].get('Information', ()):
                     yield t

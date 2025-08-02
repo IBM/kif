@@ -74,7 +74,8 @@ TOptions: TypeAlias = DBpediaSearchOptions
 
 class DBpediaSearch(
         HttpxSearch[TOptions],
-        search_name='dbpedia',
+        search_name='dbpedia-lookup',
+        search_aliases=['dbpedia'],
         search_description='DBpedia Lookup API search'
 ):
     """DBpedia Lookup API search.
@@ -127,16 +128,16 @@ class DBpediaSearch(
             options: TOptions
     ) -> Iterator[DBpediaSearch.TData]:
         assert type == 'item', type
-        iri, limit = self._check_options(options)
-        get_json = functools.partial(self._http_get_json, iri.content)
-        data = get_json(self._build_search_params(search, limit))
+        iri, limit, timeout = self._check_options(options)
+        data = self._http_get_json(
+            iri.content, self._build_search_params(search, limit), timeout)
         if 'docs' in data:
             yield from data['docs']
 
     def _check_options(
             self,
             options: TOptions
-    ) -> tuple[IRI, int]:
+    ) -> tuple[IRI, int, float | None]:
         iri = options.iri
         if iri is None:
             assert self.options.DEFAULT_IRI is not None
@@ -146,7 +147,8 @@ class DBpediaSearch(
             limit = options.max_limit
         else:
             limit = min(limit, options.max_limit)
-        return iri, limit
+        timeout = options.timeout
+        return iri, limit, timeout
 
     def _build_search_params(
             self,
@@ -170,9 +172,9 @@ class DBpediaSearch(
             options: TOptions
     ) -> AsyncIterator[DBpediaSearch.TData]:
         assert type == 'item', type
-        iri, limit = self._check_options(options)
-        get_json = functools.partial(self._http_aget_json, iri.content)
-        data = await get_json(self._build_search_params(search, limit))
+        iri, limit, timeout = self._check_options(options)
+        data = await self._http_aget_json(
+            iri.content, self._build_search_params(search, limit), timeout)
         if 'docs' in data:
             for t in data['docs']:
                 yield t

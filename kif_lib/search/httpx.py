@@ -233,7 +233,7 @@ class HttpxSearch(
             timeout: httpx._types.TimeoutTypes | None = None
     ) -> httpx.Response:
         res = self.client.get(
-            iri, params=params, timeout=httpx.Timeout(self.timeout))
+            iri, params=params, timeout=httpx.Timeout(timeout))
         res.raise_for_status()
         return res
 
@@ -267,7 +267,7 @@ class HttpxSearch(
             timeout: httpx._types.TimeoutTypes | None = None
     ) -> httpx.Response:
         res = await self.aclient.get(
-            iri, params=params, timeout=httpx.Timeout(self.timeout))
+            iri, params=params, timeout=httpx.Timeout(timeout))
         res.raise_for_status()
         return res
 
