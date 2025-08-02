@@ -158,7 +158,7 @@ class WikidataREST_Search(
             self,
             type: Literal['item', 'lexeme', 'property'],
             options: TOptions
-    ) -> tuple[IRI, str, int, int]:
+    ) -> tuple[IRI, str, int, int, float | None]:
         iri, *args = super()._check_options(type, options)
         plural = self._check_options_type_plural[type]
         iri = IRI(f"{iri.content.rstrip('/')}/wikibase/v0/search/{plural}")

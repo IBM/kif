@@ -8,12 +8,12 @@ import dataclasses
 from ..engine import _EngineOptions
 from ..typing import Any, override
 from .abc import _SearchOptions
-from .dbpedia import DBpediaSearchOptions
 from .dbpedia_ddgs import DBpediaDDGS_SearchOptions
+from .dbpedia_lookup import DBpediaLookupSearchOptions
 from .ddgs import DDGS_SearchOptions
 from .empty import EmptySearchOptions
 from .httpx import HttpxSearchOptions
-from .pubchem import PubChemSearchOptions
+from .pubchem_pug import PubChemPUG_SearchOptions
 from .wikidata_ddgs import WikidataDDGS_SearchOptions
 from .wikidata_rest import WikidataREST_SearchOptions
 from .wikidata_wapi import WikidataWAPI_SearchOptions
@@ -23,11 +23,11 @@ from .wikidata_wapi import WikidataWAPI_SearchOptions
 class SearchOptions(_SearchOptions, name='search'):
     """Search options."""
 
-    dbpedia: DBpediaSearchOptions = dataclasses.field(
-        default_factory=DBpediaSearchOptions)
-
     dbpedia_ddgs: DBpediaDDGS_SearchOptions = dataclasses.field(
         default_factory=DBpediaDDGS_SearchOptions)
+
+    dbpedia_lookup: DBpediaLookupSearchOptions = dataclasses.field(
+        default_factory=DBpediaLookupSearchOptions)
 
     ddgs: DDGS_SearchOptions = dataclasses.field(
         default_factory=DDGS_SearchOptions)
@@ -38,8 +38,8 @@ class SearchOptions(_SearchOptions, name='search'):
     httpx: HttpxSearchOptions = dataclasses.field(
         default_factory=HttpxSearchOptions)
 
-    pubchem: PubChemSearchOptions = dataclasses.field(
-        default_factory=PubChemSearchOptions)
+    pubchem_pug: PubChemPUG_SearchOptions = dataclasses.field(
+        default_factory=PubChemPUG_SearchOptions)
 
     wikidata_ddgs: WikidataDDGS_SearchOptions = dataclasses.field(
         default_factory=WikidataDDGS_SearchOptions)
@@ -52,12 +52,12 @@ class SearchOptions(_SearchOptions, name='search'):
 
     def __init__(self, *args: Any, **kwargs: Any) -> None:
         super().__init__(*args, **kwargs)
-        self.dbpedia = DBpediaSearchOptions()
         self.dbpedia_ddgs = DBpediaDDGS_SearchOptions()
+        self.dbpedia_lookup = DBpediaLookupSearchOptions()
         self.ddgs = DDGS_SearchOptions()
         self.empty = EmptySearchOptions()
         self.httpx = HttpxSearchOptions()
-        self.pubchem = PubChemSearchOptions()
+        self.pubchem_pug = PubChemPUG_SearchOptions()
         self.wikidata_ddgs = WikidataDDGS_SearchOptions()
         self.wikidata_rest = WikidataREST_SearchOptions()
         self.wikidata_wapi = WikidataWAPI_SearchOptions()

@@ -28,55 +28,55 @@ _logger: Final[logging.Logger] = logging.getLogger(__name__)
 
 
 @dataclasses.dataclass
-class PubChemSearchOptions(HttpxSearchOptions, name='pubchem'):
-    """PubChem search options."""
+class PubChemPUG_SearchOptions(HttpxSearchOptions, name='pubchem_pug'):
+    """PubChem PUG search options."""
 
     _v_debug: ClassVar[tuple[Iterable[str], bool | None]] =\
-        (('KIF_PUBCHEM_SEARCH_DEBUG',), None)
+        (('KIF_PUBCHEM_PUG_SEARCH_DEBUG',), None)
 
     _v_max_limit: ClassVar[tuple[Iterable[str], int | None]] =\
-        (('KIF_PUBCHEM_SEARCH_MAX_LIMIT',), None)
+        (('KIF_PUBCHEM_PUG_SEARCH_MAX_LIMIT',), None)
 
     _v_language: ClassVar[tuple[Iterable[str], str | None]] =\
-        (('KIF_PUBCHEM_SEARCH_LANGUAGE',), None)
+        (('KIF_PUBCHEM_PUG_SEARCH_LANGUAGE',), None)
 
     _v_limit: ClassVar[tuple[Iterable[str], int | None]] =\
-        (('KIF_PUBCHEM_SEARCH_LIMIT',), None)
+        (('KIF_PUBCHEM_PUG_SEARCH_LIMIT',), None)
 
     _v_lookahead: ClassVar[tuple[Iterable[str], int | None]] =\
-        (('KIF_PUBCHEM_SEARCH_LOOKAHEAD',), None)
+        (('KIF_PUBCHEM_PUG_SEARCH_LOOKAHEAD',), None)
 
     DEFAULT_MAX_PAGE_SIZE = 50
 
     _v_max_page_size: ClassVar[tuple[Iterable[str], int | None]] =\
-        (('KIF_PUBCHEM_SEARCH_MAX_PAGE_SIZE',), DEFAULT_MAX_PAGE_SIZE)
+        (('KIF_PUBCHEM_PUG_SEARCH_MAX_PAGE_SIZE',), DEFAULT_MAX_PAGE_SIZE)
 
     _v_page_size: ClassVar[tuple[Iterable[str], int | None]] =\
-        (('KIF_PUBCHEM_SEARCH_PAGE_SIZE',), None)
+        (('KIF_PUBCHEM_PUG_SEARCH_PAGE_SIZE',), None)
 
     _v_max_timeout: ClassVar[tuple[Iterable[str], float | None]] =\
-        (('KIF_PUBCHEM_SEARCH_MAX_TIMEOUT',), None)
+        (('KIF_PUBCHEM_PUG_SEARCH_MAX_TIMEOUT',), None)
 
     _v_timeout: ClassVar[tuple[Iterable[str], float | None]] =\
-        (('KIF_PUBCHEM_SEARCH_TIMEOUT',), None)
+        (('KIF_PUBCHEM_PUG_SEARCH_TIMEOUT',), None)
 
     # -- httpx --
 
     DEFAULT_IRI = 'https://pubchem.ncbi.nlm.nih.gov/rest/pug/'
 
     _v_iri: ClassVar[tuple[Iterable[str], str | None]] =\
-        (('KIF_PUBCHEM_SEARCH_IRI', 'PUBCHEM_PUG'), DEFAULT_IRI)
+        (('KIF_PUBCHEM_PUG_SEARCH_IRI', 'PUBCHEM_PUG'), DEFAULT_IRI)
 
     def __init__(self, **kwargs: Any) -> None:
         super().__init__(**kwargs)
 
 
-# == PubChem search =======================================================
+# == PubChem PUG search ====================================================
 
-TOptions: TypeAlias = PubChemSearchOptions
+TOptions: TypeAlias = PubChemPUG_SearchOptions
 
 
-class PubChemSearch(
+class PubChemPUG_Search(
         HttpxSearch[TOptions],
         search_name='pubchem-pug',
         search_aliases=['pubchem'],
@@ -95,16 +95,16 @@ class PubChemSearch(
     @override
     @classmethod
     def get_default_options(cls, context: Context | None = None) -> TOptions:
-        return cls.get_context(context).options.search.pubchem
+        return cls.get_context(context).options.search.pubchem_pug
 
     @override
-    def _to_item(self, data: PubChemSearch.TData) -> Item:
+    def _to_item(self, data: PubChemPUG_Search.TData) -> Item:
         return Item(PubChem.COMPOUND[f"CID{data['CID']}"])
 
     @override
     def to_item_descriptor(
             self,
-            data: PubChemSearch.TData
+            data: PubChemPUG_Search.TData
     ) -> tuple[Item, Item.Descriptor]:
         item = self._to_item(data)
         if 'Synonym' in data:
@@ -120,7 +120,7 @@ class PubChemSearch(
             self,
             search: str,
             options: TOptions
-    ) -> Iterator[PubChemSearch.TData]:
+    ) -> Iterator[PubChemPUG_Search.TData]:
         iri, timeout = self._check_options(options)
         try:
             data = self._http_get_json(
@@ -159,14 +159,14 @@ class PubChemSearch(
             self,
             search: str,
             options: TOptions
-    ) -> AsyncIterator[PubChemSearch.TData]:
+    ) -> AsyncIterator[PubChemPUG_Search.TData]:
         return self._aitem_data_tail(search, options)
 
     async def _aitem_data_tail(
             self,
             search: str,
             options: TOptions
-    ) -> AsyncIterator[PubChemSearch.TData]:
+    ) -> AsyncIterator[PubChemPUG_Search.TData]:
         iri, timeout = self._check_options(options)
         try:
             data = await self._http_aget_json(

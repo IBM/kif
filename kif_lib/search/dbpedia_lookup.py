@@ -24,44 +24,44 @@ from .httpx import HttpxSearch, HttpxSearchOptions
 
 
 @dataclasses.dataclass
-class DBpediaSearchOptions(HttpxSearchOptions, name='dbpedia'):
+class DBpediaLookupSearchOptions(HttpxSearchOptions, name='dbpedia'):
     """DBpedia search options."""
 
     _v_debug: ClassVar[tuple[Iterable[str], bool | None]] =\
-        (('KIF_DBPEDIA_SEARCH_DEBUG',), None)
+        (('KIF_DBPEDIA_LOOKUP_SEARCH_DEBUG',), None)
 
     _v_max_limit: ClassVar[tuple[Iterable[str], int | None]] =\
-        (('KIF_DBPEDIA_SEARCH_MAX_LIMIT',), None)
+        (('KIF_DBPEDIA_LOOKUP_SEARCH_MAX_LIMIT',), None)
 
     _v_language: ClassVar[tuple[Iterable[str], str | None]] =\
-        (('KIF_DBPEDIA_SEARCH_LANGUAGE',), None)
+        (('KIF_DBPEDIA_LOOKUP_SEARCH_LANGUAGE',), None)
 
     _v_limit: ClassVar[tuple[Iterable[str], int | None]] =\
-        (('KIF_DBPEDIA_SEARCH_LIMIT',), None)
+        (('KIF_DBPEDIA_LOOKUP_SEARCH_LIMIT',), None)
 
     _v_lookahead: ClassVar[tuple[Iterable[str], int | None]] =\
-        (('KIF_DBPEDIA_SEARCH_LOOKAHEAD',), None)
+        (('KIF_DBPEDIA_LOOKUP_SEARCH_LOOKAHEAD',), None)
 
     DEFAULT_MAX_PAGE_SIZE = 50
 
     _v_max_page_size: ClassVar[tuple[Iterable[str], int | None]] =\
-        (('KIF_DBPEDIA_SEARCH_MAX_PAGE_SIZE',), DEFAULT_MAX_PAGE_SIZE)
+        (('KIF_DBPEDIA_LOOKUP_SEARCH_MAX_PAGE_SIZE',), DEFAULT_MAX_PAGE_SIZE)
 
     _v_page_size: ClassVar[tuple[Iterable[str], int | None]] =\
-        (('KIF_DBPEDIA_SEARCH_PAGE_SIZE',), None)
+        (('KIF_DBPEDIA_LOOKUP_SEARCH_PAGE_SIZE',), None)
 
     _v_max_timeout: ClassVar[tuple[Iterable[str], float | None]] =\
-        (('KIF_DBPEDIA_SEARCH_MAX_TIMEOUT',), None)
+        (('KIF_DBPEDIA_LOOKUP_SEARCH_MAX_TIMEOUT',), None)
 
     _v_timeout: ClassVar[tuple[Iterable[str], float | None]] =\
-        (('KIF_DBPEDIA_SEARCH_TIMEOUT',), None)
+        (('KIF_DBPEDIA_LOOKUP_SEARCH_TIMEOUT',), None)
 
     # -- httpx --
 
     DEFAULT_IRI = 'https://lookup.dbpedia.org/api/search'
 
     _v_iri: ClassVar[tuple[Iterable[str], str | None]] =\
-        (('KIF_DBPEDIA_SEARCH_IRI', 'DBPEDIA_LOOKUP'), DEFAULT_IRI)
+        (('KIF_DBPEDIA_LOOKUP_SEARCH_IRI', 'DBPEDIA_LOOKUP'), DEFAULT_IRI)
 
     def __init__(self, **kwargs: Any) -> None:
         super().__init__(**kwargs)
@@ -69,10 +69,10 @@ class DBpediaSearchOptions(HttpxSearchOptions, name='dbpedia'):
 
 # == DBpedia search =======================================================
 
-TOptions: TypeAlias = DBpediaSearchOptions
+TOptions: TypeAlias = DBpediaLookupSearchOptions
 
 
-class DBpediaSearch(
+class DBpediaLookupSearch(
         HttpxSearch[TOptions],
         search_name='dbpedia-lookup',
         search_aliases=['dbpedia'],
@@ -91,10 +91,10 @@ class DBpediaSearch(
     @override
     @classmethod
     def get_default_options(cls, context: Context | None = None) -> TOptions:
-        return cls.get_context(context).options.search.dbpedia
+        return cls.get_context(context).options.search.dbpedia_lookup
 
     @override
-    def _to_item(self, data: DBpediaSearch.TData) -> Item:
+    def _to_item(self, data: DBpediaLookupSearch.TData) -> Item:
         return Item(data['resource'][0])
 
     _re_to_item_descritor_label_cleanup: re.Pattern[str] =\
@@ -103,7 +103,7 @@ class DBpediaSearch(
     @override
     def to_item_descriptor(
             self,
-            data: DBpediaSearch.TData
+            data: DBpediaLookupSearch.TData
     ) -> tuple[Item, Item.Descriptor]:
         item = self._to_item(data)
         if 'label' in data:
@@ -118,7 +118,7 @@ class DBpediaSearch(
             self,
             search: str,
             options: TOptions
-    ) -> Iterator[DBpediaSearch.TData]:
+    ) -> Iterator[DBpediaLookupSearch.TData]:
         return self._x_data('item', search, options)
 
     def _x_data(
@@ -126,7 +126,7 @@ class DBpediaSearch(
             type: Literal['item', 'lexeme', 'property'],
             search: str,
             options: TOptions
-    ) -> Iterator[DBpediaSearch.TData]:
+    ) -> Iterator[DBpediaLookupSearch.TData]:
         assert type == 'item', type
         iri, limit, timeout = self._check_options(options)
         data = self._http_get_json(
@@ -162,7 +162,7 @@ class DBpediaSearch(
             self,
             search: str,
             options: TOptions
-    ) -> AsyncIterator[DBpediaSearch.TData]:
+    ) -> AsyncIterator[DBpediaLookupSearch.TData]:
         return self._ax_data('item', search, options)
 
     async def _ax_data(
@@ -170,7 +170,7 @@ class DBpediaSearch(
             type: Literal['item', 'lexeme', 'property'],
             search: str,
             options: TOptions
-    ) -> AsyncIterator[DBpediaSearch.TData]:
+    ) -> AsyncIterator[DBpediaLookupSearch.TData]:
         assert type == 'item', type
         iri, limit, timeout = self._check_options(options)
         data = await self._http_aget_json(
