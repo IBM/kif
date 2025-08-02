@@ -6,6 +6,9 @@ The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.0.0/).
 
 ## 0.11.1 (?)
 
+- Fixed store `ask()`, `count()`, `filter()` (and their async versions)
+  methods to honor the timeout parameter.
+
 - Updated `property_mask` of filter to use a new type of mask, called
   `PropertyMask`, which allows one to distinguish between real properties
   and pseudo-properties.
