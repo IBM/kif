@@ -113,6 +113,9 @@ class RDFox:
             buf = self.process.stdout.read(io.DEFAULT_BUFFER_SIZE)
             if buf:
                 return buf
+            elif self.process.poll() is not None:
+                raise RuntimeError(
+                    f'process exited with status {self.process.poll()}')
 
     def _write(self, line: str, end: str | None = None) -> None:
         assert self.process.stdin is not None

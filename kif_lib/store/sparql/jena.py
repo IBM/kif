@@ -93,12 +93,23 @@ class JenaSPARQL_Store(
                 self._jena.skolemize()
 
         @override
-        def _ask(self, query: str) -> SPARQL_ResultsAsk:
-            return {'boolean': cast(bool, self._select(query))}
+        def _ask(
+                self,
+                query: str,
+                timeout: float | None = None
+        ) -> SPARQL_ResultsAsk:
+            return {'boolean': cast(bool, self._select(query, timeout))}
 
         @override
-        def _select(self, query: str) -> SPARQL_Results:
+        def _select(
+                self,
+                query: str,
+                timeout: float | None = None
+        ) -> SPARQL_Results:
             with self._lock:
+                ###
+                # TODO: Honor timeout.
+                ###
                 return cast(SPARQL_Results, self._jena.query(query))
 
     #: Type alias for Jena SPARQL store arguments.

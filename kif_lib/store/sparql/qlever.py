@@ -251,24 +251,36 @@ class QLeverSPARQL_Store(
             await self._httpx_backend.aclose()
 
         @override
-        def _ask(self, query: str) -> SPARQL_ResultsAsk:
-            return self._httpx_backend.ask(query)
+        def _ask(
+                self,
+                query: str,
+                timeout: float | None = None
+        ) -> SPARQL_ResultsAsk:
+            return self._httpx_backend.ask(query, timeout)
 
         @override
-        async def _aask(self, query: str) -> SPARQL_ResultsAsk:
-            return await self._httpx_backend.aask(query)
+        async def _aask(
+                self,
+                query: str,
+                timeout: float | None = None
+        ) -> SPARQL_ResultsAsk:
+            return await self._httpx_backend.aask(query, timeout)
 
         @override
-        def _select(self, query: str) -> SPARQL_Results:
-            return self._httpx_backend._select(query)
+        def _select(
+                self,
+                query: str,
+                timeout: float | None = None
+        ) -> SPARQL_Results:
+            return self._httpx_backend._select(query, timeout)
 
         @override
-        async def _aselect(self, query: str) -> SPARQL_Results:
-            return await self._httpx_backend._aselect(query)
-
-        @override
-        def _set_timeout(self, timeout: float | None = None) -> None:
-            self._httpx_backend._set_timeout(timeout)
+        async def _aselect(
+                self,
+                query: str,
+                timeout: float | None = None
+        ) -> SPARQL_Results:
+            return await self._httpx_backend._aselect(query, timeout)
 
     #: Type alias for QLever SPARQL store arguments.
     Args: TypeAlias = QLeverBackend.Args

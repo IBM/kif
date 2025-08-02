@@ -111,11 +111,16 @@ class _CoreSPARQL_Store(
         async def _aclose(self) -> None:
             pass
 
-        def ask(self, query: str) -> SPARQL_ResultsAsk:
+        def ask(
+                self,
+                query: str,
+                timeout: float | None = None
+        ) -> SPARQL_ResultsAsk:
             """Evaluates ask query over back-end.
 
             Parameters:
                query: Query string.
+               timeout: Timeout.
 
             Returns:
                Ask query results.
@@ -126,7 +131,11 @@ class _CoreSPARQL_Store(
         def _ask(self, query: str) -> SPARQL_ResultsAsk:
             return cast(SPARQL_ResultsAsk, self._select(query))
 
-        async def aask(self, query: str) -> SPARQL_ResultsAsk:
+        async def aask(
+                self,
+                query: str,
+                timeout: float | None = None
+        ) -> SPARQL_ResultsAsk:
             """Async version of :meth:`_CoreSPARQL_Store.Backend.ask`."""
             _logger.debug('%s()\n%s', self.aask.__qualname__, query)
             return await self._aask(query)
@@ -135,33 +144,47 @@ class _CoreSPARQL_Store(
             return await asyncio.create_task(asyncio.to_thread(
                 lambda: self._ask(query)))
 
-        def select(self, query: str) -> SPARQL_Results:
+        def select(
+                self,
+                query: str,
+                timeout: float | None = None
+        ) -> SPARQL_Results:
             """Evaluates select query over back-end.
 
             Parameters:
                query: Query string.
+               timeout: Timeout.
 
             Returns:
                Select query results.
             """
             _logger.debug('%s()\n%s', self.select.__qualname__, query)
-            return self._select(query)
+            return self._select(query, timeout)
 
         @abc.abstractmethod
-        def _select(self, query: str) -> SPARQL_Results:
+        def _select(
+                self,
+                query: str,
+                timeout: float | None = None
+        ) -> SPARQL_Results:
             raise NotImplementedError
 
-        async def aselect(self, query: str) -> SPARQL_Results:
+        async def aselect(
+                self,
+                query: str,
+                timeout: float | None = None
+        ) -> SPARQL_Results:
             """Async version of :meth:`_CoreSPARQL_Store.Backend.select`."""
             _logger.debug('%s()\n%s', self.aselect.__qualname__, query)
             return await self._aselect(query)
 
-        async def _aselect(self, query: str) -> SPARQL_Results:
+        async def _aselect(
+                self,
+                query: str,
+                timeout: float | None = None
+        ) -> SPARQL_Results:
             return await asyncio.create_task(asyncio.to_thread(
-                lambda: self._select(query)))
-
-        def _set_timeout(self, timeout: float | None = None) -> None:
-            pass
+                lambda: self._select(query, timeout)))
 
     class LocalBackend(Backend):
         """Abstract base class for local backends.
@@ -339,11 +362,6 @@ class _CoreSPARQL_Store(
     async def _aclose(self) -> None:
         if self._backend is not None:
             await self.backend.aclose()
-
-    @override
-    def _set_timeout(self, timeout: float | None) -> bool:
-        self.backend._set_timeout(timeout)
-        return True
 
 # -- Backend ---------------------------------------------------------------
 
@@ -559,7 +577,7 @@ class _CoreSPARQL_Store(
             filter, options, projection)
         return sum(
             self._parse_count_results(
-                count, self.backend.select(str(query)))
+                count, self.backend.select(str(query), options.timeout))
             for count, query in it)
 
     @override
@@ -612,7 +630,8 @@ class _CoreSPARQL_Store(
         it = list(self._build_count_query_stream_from_filter(
             filter, options, projection))
         tasks = (
-            asyncio.ensure_future(self.backend.aselect(str(query)))
+            asyncio.ensure_future(
+                self.backend.aselect(str(query), options.timeout))
             for _, query in it)
         return sum(
             self._parse_count_results(count, results)
@@ -741,6 +760,7 @@ class _CoreSPARQL_Store(
         if limit is None:
             limit = options.max_limit
         assert limit is not None
+        timeout = options.timeout
         total_count = 0
 
         def process(
@@ -753,7 +773,7 @@ class _CoreSPARQL_Store(
             count = 0
             for query in stream:
                 bindings = list(self._build_filter_result_binding_stream((
-                    self.backend.select(str(query)),)))
+                    self.backend.select(str(query), timeout),)))
                 for binding in itertools.chain(bindings, ({},)):
                     if not bindings:
                         return      # done
@@ -905,6 +925,7 @@ class _CoreSPARQL_Store(
         if limit is None:
             limit = options.max_limit
         assert limit is not None
+        timeout = options.timeout
         total_count = 0
 
         async def aprocess(
@@ -917,7 +938,8 @@ class _CoreSPARQL_Store(
             count = 0
             for batch in itertools.batched(stream, self.lookahead):
                 tasks = (
-                    asyncio.ensure_future(self.backend.aselect(str(q)))
+                    asyncio.ensure_future(self.backend.aselect(
+                        str(q), timeout))
                     for q in batch)
                 bindings = list(self._build_filter_result_binding_stream(
                     await asyncio.gather(*tasks)))

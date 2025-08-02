@@ -124,34 +124,50 @@ class HttpxSPARQL_Store(
                 self._aclient = None
 
         @override
-        def _select(self, query: str) -> SPARQL_Results:
+        def _select(
+                self,
+                query: str,
+                timeout: float | None = None
+        ) -> SPARQL_Results:
             try:
-                return self._http_post(query).json()
+                return self._http_post(query, timeout).json()
             except httpx.HTTPStatusError as err:
                 _logger.exception(err.response.text)
                 raise err
 
-        def _http_post(self, text: str) -> httpx.Response:
+        def _http_post(
+                self,
+                text: str,
+                timeout: float | None = None
+        ) -> httpx.Response:
             res = self.client.post(
                 self._iri.content,
                 content=text.encode('utf-8'),
-                timeout=httpx.Timeout(self._store.timeout))
+                timeout=httpx.Timeout(timeout))
             res.raise_for_status()
             return res
 
         @override
-        async def _aselect(self, query: str) -> SPARQL_Results:
+        async def _aselect(
+                self,
+                query: str,
+                timeout: float | None = None
+        ) -> SPARQL_Results:
             try:
-                return (await self._http_apost(query)).json()
+                return (await self._http_apost(query, timeout)).json()
             except httpx.HTTPStatusError as err:
                 _logger.exception(err.response.text)
                 raise err
 
-        async def _http_apost(self, text: str) -> httpx.Response:
+        async def _http_apost(
+                self,
+                text: str,
+                timeout: float | None = None
+        ) -> httpx.Response:
             res = await self.aclient.post(
                 self._iri.content,
                 content=text.encode('utf-8'),
-                timeout=httpx.Timeout(self._store.timeout))
+                timeout=httpx.Timeout(timeout))
             res.raise_for_status()
             return res
 

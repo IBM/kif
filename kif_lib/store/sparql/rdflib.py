@@ -104,8 +104,15 @@ class RDFLibSPARQL_Store(
                 self._rdflib_graph = self._rdflib_graph.skolemize()
 
         @override
-        def _select(self, query: str) -> SPARQL_Results:
+        def _select(
+                self,
+                query: str,
+                timeout: float | None = None
+        ) -> SPARQL_Results:
             with self._lock:
+                ###
+                # TODO: Honor timeout.
+                ###
                 res = self._rdflib_graph.query(query)
             return json.loads(cast(bytes, res.serialize(format='json')))
 
