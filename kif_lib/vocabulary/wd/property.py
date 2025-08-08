@@ -140,6 +140,7 @@ language_of_work_or_name = P(407)
 league_or_competition = P(118)
 legal_status_medicine = P(3493)
 licensed_to_broadcast_to = P(1408)
+located_in_or_next_to_body_of_water = P(206)
 located_in_the_administrative_territorial_entity = P(131)
 located_in_time_zone = P(421)
 located_on_astronomical_body = P(376)
@@ -420,6 +421,7 @@ __all__ = (
     'league_or_competition',
     'legal_status_medicine',
     'licensed_to_broadcast_to',
+    'located_in_or_next_to_body_of_water',
     'located_in_the_administrative_territorial_entity',
     'located_in_time_zone',
     'located_on_astronomical_body',

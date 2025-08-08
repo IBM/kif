@@ -23,7 +23,7 @@ from .httpx import HttpxSearch, HttpxSearchOptions
 
 
 @dataclasses.dataclass
-class DBpediaLookupSearchOptions(HttpxSearchOptions, name='dbpedia'):
+class DBpediaLookupSearchOptions(HttpxSearchOptions, name='dbpedia_lookup'):
     """DBpedia search options."""
 
     _v_debug: ClassVar[tuple[Iterable[str], bool | None]] =\
