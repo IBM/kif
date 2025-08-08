@@ -49,17 +49,17 @@ $ pip install kif-lib@git+https://github.com/IBM/kif.git
 
 ## Documentation
 
-See [documentation](https://ibm.github.io/kif/) and [examples](./examples).
+See [documentation](https://ibm.github.io/kif/).
 
-### Hello world!
+## Examples
 
-<hr/>
+Click on the headings for details.
 
-#### (1)
-
-Gets from [Wikidata](https://www.wikidata.org/) all statements with property
-[shares border with (P47)](http://www.wikidata.org/entity/P47) and value
-[Brazil (Q155)](http://www.wikidata.org/entity/Q155).
+<details>
+<summary>
+Gets from <a href="https://www.wikidata.org/">Wikidata</a> all statements with property <a href="http://www.wikidata.org/entity/P47">shares border with (P47)</a> and value
+<a href="http://www.wikidata.org/entity/Q155">Brazil (Q155)</a>.
+</summary>
 
 Using the `kif` command-line utility:
 
@@ -85,14 +85,13 @@ kb = Store('wdqs', 'https://query.wikidata.org/sparql')
 for stmt in kb.filter(property=wd.shares_border_with, value=wd.Q(155)):
     print(stmt)
 ```
+</details>
 
-<hr/>
-
-#### (2)
-
-Gets from [Wikidata](https://www.wikidata.org/) and [PubChem
-RDF](https://qlever.cs.uni-freiburg.de/api/pubchem) the IRI and molecular
+<details>
+<summary>
+Gets from <a href="https://www.wikidata.org/">Wikidata</a> and <a href="https://qlever.cs.uni-freiburg.de/api/pubchem">PubChem</a> the IRI and molecular
 mass of all chemicals whose formula is H₂O.
+</summary>
 
 Using the `kif` command-line utility:
 
@@ -124,6 +123,9 @@ it = kb.filter_sv(subject=wd.chemical_formula('H₂O'), property=wd.mass)
 for chem, mass in it:
     print(chem, mass)
 ```
+</details>
+
+See [examples](./examples) for more examples.
 
 ## Citation
 
