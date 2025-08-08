@@ -4,7 +4,25 @@ All notable changes to this project will be documented in this file.
 
 The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.0.0/).
 
-## 0.11.1 (?)
+## 0.12.0 (2025-08-08)
+
+- Added an abstract Engine API and refactored the Store API to used it.
+
+- Added a new Search API for search plugins.  A search plugin is an
+  interface to a similarity search method within a namespace.  Also added
+  built-in plugins for looking up entities in Wikidata, DBpedia, and PubChem
+  namespaces.
+
+- Added a `search` target to KIF CLI for running search queries.
+
+- Added a `show-plugins` target to KIF CLI which replaces the previous
+  `list-*` targets.
+
+- Renamed the `list-options` target in KIF CLI to `show-options`.
+
+- Added `sparql-qlever` store, a local RDF store that uses
+  [QLever](https://github.com/ad-freiburg/qlever) to evaluate SPARQL
+  queries.
 
 - Fixed store `ask()`, `count()`, `filter()` (and their async versions)
   methods to honor the timeout parameter.
@@ -12,6 +30,10 @@ The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.0.0/).
 - Updated `property_mask` of filter to use a new type of mask, called
   `PropertyMask`, which allows one to distinguish between real properties
   and pseudo-properties.
+
+- Extended the DBpedia SPARQL mapping to cover more statement patterns.
+  More specifically, statements whose value is a data value.  Also, added an
+  option to disable the automatic matching of Wikidata properties.
 
 - Added `describe_mask` option to RDF encoder.  This determines whether
   statements corresponding to entity descriptors should be included in the
@@ -126,9 +148,10 @@ The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.0.0/).
 
 ## 0.8.2 (2025-05-27)
 
-- Added `sparql-rdfox` store, a local RDF store that uses RDFox to evaluate
-  SPARQL queries.  The `sparql-rdfox` backend in now used by default by the
-  `rdf` store if a working `RDFox` command is available.
+- Added `sparql-rdfox` store, a local RDF store that uses
+  [RDFox](https://www.oxfordsemantic.tech/rdfox) to evaluate SPARQL queries.
+  The `sparql-rdfox` backend in now used by default by the `rdf` store if a
+  working `RDFox` command is available.
 
 - Fixed a design issue in the internal Store API: `_afilter()` is no longer
   marked as `async`.  It returns an async iterator but it might not need to
