@@ -211,6 +211,7 @@ producer = P(162)
 product_or_material_produced_or_service_provided = P(1056)
 production_company = P(272)
 properties_for_this_type = P(1963)
+property_constraint = P(2302)
 property_proposal_discussion = P(3254)
 PubChem_CID = P(662)
 publication_date = P(577)
@@ -495,6 +496,7 @@ __all__ = (
     'product_produced',
     'production_company',
     'properties_for_this_type',
+    'property_constraint',
     'property_proposal_discussion',
     'PubChem_CID',
     'publication_date',

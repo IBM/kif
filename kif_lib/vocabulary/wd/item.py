@@ -180,7 +180,7 @@ summit = Q(207326, 'summit')
 Supercalifragilisticexpialidocious = Q(103, 'Supercalifragilisticexpialidocious')
 Suriname = Q(730, 'Suriname')
 system_software = Q(676202, 'system software')
-type_of_a_chemical_entity = Q(113145171, 'type of a chemical entity')
+type_of_chemical_entity = Q(113145171, 'type of a chemical entity')
 unit_of_mass = Q(3647172, 'unit of mass')
 United_Kingdom = Q(145, 'United Kingdom')
 United_States_of_America = Q(30, 'United States of America')
@@ -202,6 +202,9 @@ Wikidata_property_related_to_medicine = Q(19887775, 'Wikidata property related t
 Wikidata_property_to_identify_substances = Q(19833835, 'Wikidata property to identify substances')
 Wilmslow = Q(2011497, 'Wilmslow')
 woman = Q(467, 'woman')
+
+# Aliases:
+type_of_a_chemical_entity = type_of_chemical_entity
 
 __all__ = (
     '_1',
@@ -377,6 +380,7 @@ __all__ = (
     'Suriname',
     'system_software',
     'type_of_a_chemical_entity',
+    'type_of_chemical_entity',
     'unit_of_mass',
     'United_Kingdom',
     'United_States_of_America',
