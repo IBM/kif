@@ -448,6 +448,15 @@ class _CoreSPARQL_Store(
         return DBpediaMapping(*args, **kwargs)
 
     @classmethod
+    def _europa_mapping_constructor(
+            cls,
+            *args: Any,
+            **kwargs: Any
+    ) -> SPARQL_Mapping:
+        from ...compiler.sparql.mapping.europa import EuropaMapping
+        return EuropaMapping(*args, **kwargs)
+
+    @classmethod
     def _pubchem_mapping_constructor(
             cls,
             *args: Any,

@@ -85,6 +85,19 @@ class DBpediaOptions(_VocabularyOptions, name='db'):
 
 
 @dataclasses.dataclass
+class EuropaOptions(_VocabularyOptions, name='eu'):
+    """Europa vocabulary options."""
+
+    DEFAULT_RESOLVER = 'https://data.europa.eu/sparql'
+
+    _v_resolver =\
+        (('KIF_VOCABULARY_EU_RESOLVER', 'EUROPA'), DEFAULT_RESOLVER)
+
+    def __init__(self, **kwargs: Any) -> None:
+        super().__init__(**kwargs)
+
+
+@dataclasses.dataclass
 class PubChemOptions(_VocabularyOptions, name='pc'):
     """PubChem vocabulary options."""
 
@@ -217,5 +230,6 @@ class VocabularyOptions(Section, name='vocabulary'):
     """Vocabulary options."""
 
     db: DBpediaOptions = dataclasses.field(default_factory=DBpediaOptions)
+    eu: EuropaOptions = dataclasses.field(default_factory=EuropaOptions)
     pc: PubChemOptions = dataclasses.field(default_factory=PubChemOptions)
     wd: WikidataOptions = dataclasses.field(default_factory=WikidataOptions)

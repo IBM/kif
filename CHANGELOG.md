@@ -4,6 +4,11 @@ All notable changes to this project will be documented in this file.
 
 The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.0.0/).
 
+## 0.12.1 (?)
+
+- Added SPARQL mappings for https://data.europa.eu/.  Added 'europa' SPARQL
+  store.
+
 ## 0.12.0 (2025-08-08)
 
 - Added an abstract Engine API and refactored the Store API to used it.

@@ -7,6 +7,7 @@ import dataclasses
 
 from ....context import Section
 from .dbpedia_options import DBpediaMappingOptions
+from .europa_options import EuropaMappingOptions
 from .pubchem_options import PubChemMappingOptions
 from .wikidata_options import WikidataMappingOptions
 
@@ -17,6 +18,9 @@ class MappingOptions(Section, name='mapping'):
 
     dbpedia: DBpediaMappingOptions = dataclasses.field(
         default_factory=DBpediaMappingOptions)
+
+    europa: EuropaMappingOptions = dataclasses.field(
+        default_factory=EuropaMappingOptions)
 
     pubchem: PubChemMappingOptions = dataclasses.field(
         default_factory=PubChemMappingOptions)

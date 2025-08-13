@@ -16,6 +16,7 @@ from .rdflib import RDFLibSPARQL_Store
 from .rdfox import RDFoxSPARQL_Store
 from .sparql import (
     DBpediaSPARQL_Store,
+    EuropaSPARQL_Store,
     PubChemSPARQL_Store,
     SPARQL_Store,
     SPARQL_StoreOptions,
@@ -26,13 +27,14 @@ from .sparql import (
 __all__ = (
     'DBpediaRDF_Store',
     'DBpediaSPARQL_Store',
+    'EuropaSPARQL_Store',
     'HttpxSPARQL_Store',
     'JenaSPARQL_Store',
     'PubChemRDF_Store',
     'PubChemSPARQL_Store',
     'QLeverSPARQL_Store',
-    'RDF_Store',
     'RDFLibSPARQL_Store',
+    'RDF_Store',
     'RDFoxSPARQL_Store',
     'SPARQL_Store',
     'SPARQL_StoreOptions',

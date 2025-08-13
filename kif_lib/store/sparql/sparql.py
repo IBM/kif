@@ -334,6 +334,42 @@ class DBpediaSPARQL_Store(
             mapping=mapping, **kwargs)
 
 
+class EuropaSPARQL_Store(
+        SPARQL_Store,
+        store_name='europa-sparql',
+        store_aliases=['europa'],
+        store_description='Europa (data.europa.eu) SPARQL store'
+):
+    """Alias for :class:`SPARQL_Store` with Europa mappings."""
+
+    def __init__(
+            self,
+            store_name: str,
+            *args: SPARQL_Store.Args,
+            format: str | None = None,
+            location: str | None = None,
+            file: BinaryIO | TextIO | None = None,
+            data: bytes | str | None = None,
+            graph: TGraph | None = None,
+            rdflib_graph: rdflib.Graph | None = None,
+            skolemize: bool | None = None,
+            mapping: SPARQL_Mapping | None = None,
+            **kwargs: Any
+    ) -> None:
+        if not args:
+            resolver_iri = self.get_context(
+                kwargs.get('context')).options.vocabulary.eu.resolver
+            if resolver_iri is not None:
+                args = (resolver_iri,)
+        if mapping is None:
+            mapping = _CoreSPARQL_Store._europa_mapping_constructor()
+        super().__init__(
+            store_name, *args, format=format,
+            location=location, file=file, data=data, graph=graph,
+            rdflib_graph=rdflib_graph, skolemize=skolemize,
+            mapping=mapping, **kwargs)
+
+
 class PubChemSPARQL_Store(
         SPARQL_Store,
         store_name='pubchem-sparql',
