@@ -158,7 +158,7 @@ class EuropaMapping(M):
         rank=Normal)
     def wd_publication_date(self, c: C, s: V_URI, v: VLiteral) -> None:
         self._start_dataset(c, s)
-        c.q.triples()((s, DCT.created|DCT.issued, v))  # type: ignore
+        c.q.triples()((s, DCT.created | DCT.issued, v))  # type: ignore
 
     @M.register(
         [wd.reference_URL(Item(s), IRI(v))],
