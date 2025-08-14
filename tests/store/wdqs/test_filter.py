@@ -104,7 +104,15 @@ class Test(StoreTestCase):
                     wd.language_of_work_or_name(wd.English),
                     wd.retrieved(Time(
                         '2020-07-11', Time.DAY, 0,
-                        wd.proleptic_Gregorian_calendar))])})
+                        wd.proleptic_Gregorian_calendar))],
+                references=[[
+                    wd.archive_URL(
+                        'https://web.archive.org/web/20150530030303/'
+                        'https://www.cia.gov/library/publications/'
+                        'resources/the-world-factbook/geos/br.html'),
+                    wd.archive_date(
+                        Time('2015-05-30', Time.DAY, 0,
+                             wd.proleptic_Gregorian_calendar))]])})
 
     def test_language(self) -> None:
         kb = self.KB()

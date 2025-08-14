@@ -13,6 +13,8 @@ applies_to_part = P(518)
 applies_to_taxon = P(2352)
 architect = P(84)
 architectural_style = P(149)
+archive_date = P(2960)
+archive_URL = P(1065)
 assessment = P(5021)
 author = P(50)
 author_name_string = P(2093)
@@ -294,6 +296,8 @@ __all__ = (
     'applies_to_taxon',
     'architect',
     'architectural_style',
+    'archive_date',
+    'archive_URL',
     'assessment',
     'author',
     'author_name_string',

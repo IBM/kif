@@ -23,7 +23,7 @@ class Test(StoreTestCase):
     def test_count(self) -> None:
         c, F = self.store_count_assertion(self.KB())
         c(4, F(wd.Brazil, wd.instance_of))
-        c(69, F(wd.Brazil, wd.type))
+        c(68, F(wd.Brazil, wd.type))
 
     def test_filter_subject_is_item(self) -> None:
         xf, F = self.store_xfilter_assertion(self.KB())
@@ -37,11 +37,7 @@ class Test(StoreTestCase):
            set(map(lambda s: wd.a(
                s, wd.Wikidata_property_for_ontology_mapping), (
                    wd.equivalent_class,
-                   wd.equivalent_property,
                    wd.exact_match,
-                   wd.external_subproperty,
-                   wd.external_superproperty,
-                   wd.formatter_URI_for_RDF_resource,
                    wd.GeoNames_feature_code,
                    wd.mapping_relation_type,
                    wd.narrower_external_class))))
