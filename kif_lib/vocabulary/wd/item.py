@@ -204,6 +204,7 @@ Wilmslow = Q(2011497, 'Wilmslow')
 woman = Q(467, 'woman')
 
 # Aliases:
+dataset = data_set
 type_of_a_chemical_entity = type_of_chemical_entity
 
 __all__ = (
@@ -253,6 +254,7 @@ __all__ = (
     'dalton',
     'data_set',
     'database',
+    'dataset',
     'day',
     'degree_Celsius',
     'degree_Fahrenheit',

@@ -47,10 +47,11 @@ def reload(force: bool = True, context: Context | None = None) -> None:
     ctx = Context.top(context)
     ctx.iris.register(Europa.DATASET, prefix='eu_dataset')
     ctx.iris.register(Europa.EUROPA, prefix='eu')
-    resolver_iri = ctx.options.vocabulary.db.resolver
+    resolver_iri = ctx.options.vocabulary.eu.resolver
     if resolver_iri is not None:
         from ...store import Store
         kb = Store('europa-sparql', resolver_iri)
+        ctx.iris.register(Europa.DATASET, resolver=kb)
         ctx.iris.register(Europa.EUROPA, resolver=kb)
 
 

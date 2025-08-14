@@ -137,6 +137,7 @@ inverse_property = P(1696)
 ionization_energy = P(2260)
 isomeric_SMILES = P(2017)
 language_of_work_or_name = P(407)
+last_update = P(5017)
 league_or_competition = P(118)
 legal_status_medicine = P(3493)
 licensed_to_broadcast_to = P(1408)
@@ -262,6 +263,7 @@ transport_network = P(16)
 type_of_unit_for_this_property = P(2876)
 typically_sells = P(7163)
 Unicode_character = P(487)
+URL = P(2699)
 used_by = P(1535)
 uses = P(2283)
 valid_in_place = P(3005)
@@ -417,6 +419,7 @@ __all__ = (
     'ionization_energy',
     'isomeric_SMILES',
     'language_of_work_or_name',
+    'last_update',
     'LC50',
     'LD50',
     'league_or_competition',
@@ -549,6 +552,7 @@ __all__ = (
     'type_of_unit_for_this_property',
     'typically_sells',
     'Unicode_character',
+    'URL',
     'used_by',
     'uses',
     'valid_in_place',

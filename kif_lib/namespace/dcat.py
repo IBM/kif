@@ -14,3 +14,4 @@ class DCAT(DefinedNamespace):
 
     _NS = Namespace('http://www.w3.org/ns/dcat#')
     Dataset: URIRef
+    landingPage: URIRef

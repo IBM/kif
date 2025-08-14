@@ -63,7 +63,7 @@ from .typing import (
     TypeVar,
     Union,
 )
-from .vocabulary import db, pc, wd
+from .vocabulary import db, eu, pc, wd
 
 try:
     import click
@@ -278,6 +278,7 @@ class KIF_ParamType(click.ParamType):
             'Encoder': Encoder,
             'Entity': Entity,
             'ENTITY': Filter.ENTITY,
+            'eu': eu,
             'EXTERNAL_ID': Filter.EXTERNAL_ID,
             'ExternalId': ExternalId,
             'Filter': Filter,

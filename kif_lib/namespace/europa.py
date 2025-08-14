@@ -11,8 +11,7 @@ class Europa:
     """The Europa namespace."""
 
     EUROPA: Final[Namespace] = Namespace('http://data.europa.eu/')
-
-    DATASET: Final[Namespace] = Namespace(EUROPA['/88u/dataset/'])
+    DATASET: Final[Namespace] = Namespace(EUROPA['88u/dataset/'])
 
     namespaces: Final[dict[str, Namespace]] = {
         str(DATASET): DATASET,
