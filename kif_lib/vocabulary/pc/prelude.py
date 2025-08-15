@@ -23,7 +23,7 @@ def reload(force: bool = True, context: Context | None = None) -> None:
     ctx.iris.register(PubChem.COMPOUND, prefix='pc')
     resolver_iri = ctx.options.vocabulary.pc.resolver
     if resolver_iri is not None:
-        from ..store import Store
+        from ...store import Store
         kb = Store('pubchem-sparql', resolver_iri)
         ctx.iris.register(PubChem.COMPOUND, resolver=kb)
         ctx.iris.register(PubChem.PATENT, resolver=kb)
@@ -32,8 +32,9 @@ def reload(force: bool = True, context: Context | None = None) -> None:
     if force:
         import importlib
 
-        from . import pc
-        importlib.reload(pc)
+        from . import item, property
+        importlib.reload(item)
+        importlib.reload(property)
 
 
 reload(force=False)

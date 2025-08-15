@@ -13,6 +13,7 @@ from ....model import (
     IRI,
     Item,
     Normal,
+    Property,
     Quantity,
     String,
     Text,
@@ -28,7 +29,6 @@ from ....namespace.pubchem import PubChem
 from ....namespace.semsci import CHEMINF, SIO
 from ....namespace.vcard import VCARD
 from ....typing import Final, TypeAlias
-from ....vocabulary import pc_ as pc
 from ....vocabulary import wd
 from ..filter_compiler import SPARQL_FilterCompiler as C
 from .mapping import SPARQL_Mapping as M
@@ -46,6 +46,13 @@ URI: TypeAlias = C.Query.URI
 V_URI: TypeAlias = C.Query.V_URI
 Var: TypeAlias = C.Query.Variable
 VLiteral: TypeAlias = C.Query.VLiteral
+
+
+isotope_atom_count = Property(
+    CHEMINF.isotope_atom_count_generated_by_pubchem_software_library, Quantity)
+
+IUPAC_name = Property(
+    CHEMINF.IUPAC_Name_generated_by_LexiChem, Text)
 
 #: Variables used in register patterns.
 s, v = Variables('s', 'v')
@@ -174,7 +181,7 @@ class PubChemMapping(M):
 
     @M.register(
         list(map(lambda p: p(
-            pc.isotope_atom_count,
+            isotope_atom_count,
             wd.Wikidata_property_related_to_chemistry), (
                 wd.instance_of, wd.type))),
         priority=M.VERY_LOW_PRIORITY,
@@ -183,7 +190,7 @@ class PubChemMapping(M):
         pass
 
     @M.register(
-        [wd.label(pc.isotope_atom_count, 'isotope atom count')],
+        [wd.label(isotope_atom_count, 'isotope atom count')],
         priority=M.VERY_LOW_PRIORITY,
         rank=Normal)
     def wd_label_pc_isotope_atom_count(self, c: C) -> None:
@@ -191,7 +198,7 @@ class PubChemMapping(M):
 
     @M.register(
         list(map(lambda p: p(
-            pc.IUPAC_name,
+            IUPAC_name,
             wd.Wikidata_property_related_to_chemistry), (
                 wd.instance_of, wd.type))),
         priority=M.VERY_LOW_PRIORITY,
@@ -200,7 +207,7 @@ class PubChemMapping(M):
         pass
 
     @M.register(
-        [wd.label(pc.IUPAC_name, 'IUPAC name')],
+        [wd.label(IUPAC_name, 'IUPAC name')],
         priority=M.VERY_LOW_PRIORITY,
         rank=Normal)
     def wd_label_pc_IUPAC_name(self, c: C) -> None:
@@ -406,7 +413,7 @@ class PubChemMapping(M):
             (attr, SIO.has_value, v))
 
     @M.register(
-        [pc.isotope_atom_count(Item(s), Quantity(v))],
+        [isotope_atom_count(Item(s), Quantity(v))],
         {s: CheckCompound(),
          v: M.CheckInt()},
         rank=Normal)
@@ -419,7 +426,7 @@ class PubChemMapping(M):
             (attr, SIO.has_value, v))
 
     @M.register(
-        [pc.IUPAC_name(Item(s), Text(v, 'en'))],
+        [IUPAC_name(Item(s), Text(v, 'en'))],
         {s: CheckCompound()},
         rank=Normal)
     def wd_IUPAC_name(self, c: C, s: V_URI, v: VLiteral) -> None:
