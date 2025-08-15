@@ -3,8 +3,8 @@
 
 from __future__ import annotations
 
-from ..model import Property, Quantity, Text
-from ..namespace.semsci import CHEMINF
+from ...model import Property, Quantity, Text
+from ...namespace.semsci import CHEMINF
 
 __all__ = (
     'isotope_atom_count',

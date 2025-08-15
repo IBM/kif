@@ -3,9 +3,9 @@
 
 from __future__ import annotations
 
-from ..context import Context
-from ..namespace.pubchem import PubChem
-from ..namespace.semsci import SEMSCI
+from ...context import Context
+from ...namespace.pubchem import PubChem
+from ...namespace.semsci import SEMSCI
 
 __all__ = (
     'reload',

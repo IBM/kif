@@ -3,9 +3,9 @@
 
 from __future__ import annotations
 
-from ..context import Context
-from ..model import Item, TText, TTextSet
-from ..namespace.pubchem import PubChem
+from ...context import Context
+from ...model import Item, TText, TTextSet
+from ...namespace.pubchem import PubChem
 
 __all__ = (
     'CID',
