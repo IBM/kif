@@ -6,15 +6,9 @@ from __future__ import annotations
 from ..context import Context
 from ..namespace.pubchem import PubChem
 from ..namespace.semsci import SEMSCI
-from .pc_ import CID, isotope_atom_count, IUPAC_name, patent, source
 
 __all__ = (
-    'CID',
-    'isotope_atom_count',
-    'IUPAC_name',
-    'patent',
     'reload',
-    'source',
 )
 
 
