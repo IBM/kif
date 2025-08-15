@@ -180,6 +180,7 @@ summit = Q(207326, 'summit')
 Supercalifragilisticexpialidocious = Q(103, 'Supercalifragilisticexpialidocious')
 Suriname = Q(730, 'Suriname')
 system_software = Q(676202, 'system software')
+theme = Q(1053916, 'theme')
 type_of_chemical_entity = Q(113145171, 'type of a chemical entity')
 unit_of_mass = Q(3647172, 'unit of mass')
 United_Kingdom = Q(145, 'United Kingdom')
@@ -381,6 +382,7 @@ __all__ = (
     'Supercalifragilisticexpialidocious',
     'Suriname',
     'system_software',
+    'theme',
     'type_of_a_chemical_entity',
     'type_of_chemical_entity',
     'unit_of_mass',

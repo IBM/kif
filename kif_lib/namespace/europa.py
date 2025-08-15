@@ -10,9 +10,14 @@ from ..typing import Final
 class Europa:
     """The Europa namespace."""
 
-    EUROPA: Final[Namespace] = Namespace('http://data.europa.eu/')
-    DATASET: Final[Namespace] = Namespace(EUROPA['88u/dataset/'])
+    AUTHORITY: Final[Namespace] = Namespace(
+        'http://publications.europa.eu/resource/authority/')
+
+    DATASET: Final[Namespace] = Namespace('http://data.europa.eu/88u/dataset/')
+    THEME: Final[Namespace] = Namespace(AUTHORITY['data-theme/'])
 
     namespaces: Final[dict[str, Namespace]] = {
+        str(AUTHORITY): AUTHORITY,
         str(DATASET): DATASET,
+        str(THEME): THEME,
     }

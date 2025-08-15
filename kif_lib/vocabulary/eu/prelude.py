@@ -8,12 +8,13 @@ from ...model import Item, TText, TTextSet
 from ...namespace.europa import Europa
 
 __all__ = (
-    'Dataset',
+    'dataset',
     'reload',
+    'theme',
 )
 
 
-def Dataset(
+def dataset(
         name: str,
         label: TText | None = None,
         aliases: TTextSet | None = None,
@@ -37,6 +38,30 @@ def Dataset(
         label=label, aliases=aliases, description=description)
 
 
+def theme(
+        name: str,
+        label: TText | None = None,
+        aliases: TTextSet | None = None,
+        description: TText | None = None,
+        context: Context | None = None
+) -> Item:
+    """Creates a Europa theme item with the given descriptors.
+
+    Parameters:
+       name: Name.
+       label: Label.
+       aliases: Aliases.
+       description: Description.
+       context: KIF context.
+
+    Returns:
+       Item.
+    """
+    return Context.top(context).entities.register(
+        Item(Europa.THEME[name]),
+        label=label, aliases=aliases, description=description)
+
+
 def reload(force: bool = True, context: Context | None = None) -> None:
     """Reloads the `db` module.
 
@@ -46,13 +71,13 @@ def reload(force: bool = True, context: Context | None = None) -> None:
     """
     ctx = Context.top(context)
     ctx.iris.register(Europa.DATASET, prefix='eu_dataset')
-    ctx.iris.register(Europa.EUROPA, prefix='eu')
+    ctx.iris.register(Europa.THEME, prefix='eu_theme')
     resolver_iri = ctx.options.vocabulary.eu.resolver
     if resolver_iri is not None:
         from ...store import Store
         kb = Store('europa-sparql', resolver_iri)
         ctx.iris.register(Europa.DATASET, resolver=kb)
-        ctx.iris.register(Europa.EUROPA, resolver=kb)
+        ctx.iris.register(Europa.THEME, resolver=kb)
 
 
 reload(force=False)

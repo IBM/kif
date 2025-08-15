@@ -9,9 +9,10 @@ from typing import TYPE_CHECKING
 from .... import functools, itertools
 from ....context import Context
 from ....model import IRI, Item, Normal, Text, Time, Variables
-from ....namespace import DCT, RDF, RDFS
+from ....namespace import DCT, RDF, RDFS, SKOS
 from ....namespace.dcat import DCAT
 from ....namespace.europa import Europa
+from ....namespace.euvoc import EUVOC
 from ....typing import Final, TypeAlias
 from ....vocabulary import wd
 from ..filter_compiler import SPARQL_FilterCompiler as C
@@ -42,9 +43,16 @@ class EuropaMapping(M):
     _re_dataset_uri: Final[re.Pattern] = re.compile(
         f'^{re.escape(Europa.DATASET)}.*$')
 
+    _re_theme_uri: Final[re.Pattern] = re.compile(
+        f'^{re.escape(Europa.THEME)}.*$')
+
     #: Checks whether argument is a dataset URI.
     CheckDataset: Final[M.EntryCallbackArgProcessorAlias] =\
         functools.partial(M.CheckURI, match=_re_dataset_uri)
+
+    #: Checks whether argument is a theme URI.
+    CheckTheme: Final[M.EntryCallbackArgProcessorAlias] =\
+        functools.partial(M.CheckURI, match=_re_theme_uri)
 
 # -- Initialization --------------------------------------------------------
 
@@ -80,7 +88,13 @@ class EuropaMapping(M):
 
     def _start_dataset(self, c: C, x: V_URI, *xs: V_URI) -> None:
         c.q.triples()(*map(
-            lambda y: (y, RDF.type, DCAT.Dataset), itertools.chain((x,), xs)))
+            lambda y: (
+                y, RDF.type, DCAT.Dataset), itertools.chain((x,), xs)))
+
+    def _start_theme(self, c: C, x: V_URI, *xs: V_URI) -> None:
+        c.q.triples()(*map(
+            lambda y: (
+                y, RDF.type, EUVOC.DataTheme), itertools.chain((x,), xs)))
 
     def _p_text(
             self,
@@ -102,6 +116,13 @@ class EuropaMapping(M):
 # -- Dataset ---------------------------------------------------------------
 
     @M.register(
+        [wd.instance_of(Item(s), wd.dataset)],
+        {s: CheckDataset()},
+        rank=Normal)
+    def wd_instance_of_dataset(self, c: C, s: V_URI) -> None:
+        self._start_dataset(c, s)
+
+    @M.register(
         [wd.label(Item(s), Text(v, v0))],
         {s: CheckDataset()},
         priority=M.LOW_PRIORITY,
@@ -114,11 +135,7 @@ class EuropaMapping(M):
             v0: VLiteral
     ) -> None:
         self._start_dataset(c, s)
-        with c.q.union():
-            with c.q.group():
-                self._p_text(c, s, DCT.title, v, v0)
-            with c.q.group():
-                self._p_text(c, s, RDFS.label, v, v0)
+        self._p_text(c, s, DCT.title | RDFS.label, v, v0)  # type: ignore
 
     @M.register(
         [wd.description(Item(s), Text(v, v0))],
@@ -136,27 +153,30 @@ class EuropaMapping(M):
         self._p_text(c, s, DCT.description, v, v0)
 
     @M.register(
-        [wd.instance_of(Item(s), wd.dataset)],
-        {s: CheckDataset()},
-        rank=Normal)
-    def wd_instance_of_dataset(self, c: C, s: V_URI) -> None:
-        self._start_dataset(c, s)
-
-    @M.register(
         [wd.last_update(Item(s), Time(
             v, Time.DAY, 0, wd.proleptic_Gregorian_calendar))],
         {s: CheckDataset()},
         rank=Normal)
-    def wd_last_update(self, c: C, s: V_URI, v: VLiteral) -> None:
+    def wd_last_update_dataset(self, c: C, s: V_URI, v: VLiteral) -> None:
         self._start_dataset(c, s)
         c.q.triples()((s, DCT.modified, v))
+
+    @M.register(
+        [wd.main_subject(Item(s), Item(v))],
+        {s: CheckDataset(),
+         v: CheckTheme()},
+        rank=Normal)
+    def wd_main_subject_dataset(self, c: C, s: V_URI, v: V_URI) -> None:
+        self._start_dataset(c, s)
+        self._start_theme(c, v)
+        c.q.triples()((s, DCAT.theme, v))
 
     @M.register(
         [wd.publication_date(Item(s), Time(
             v, Time.DAY, 0, wd.proleptic_Gregorian_calendar))],
         {s: CheckDataset()},
         rank=Normal)
-    def wd_publication_date(self, c: C, s: V_URI, v: VLiteral) -> None:
+    def wd_publication_date_dataset(self, c: C, s: V_URI, v: VLiteral) -> None:
         self._start_dataset(c, s)
         c.q.triples()((s, DCT.created | DCT.issued, v))  # type: ignore
 
@@ -167,3 +187,42 @@ class EuropaMapping(M):
     def wd_reference_url_dataset(self, c: C, s: V_URI, v: V_URI) -> None:
         self._start_dataset(c, s)
         c.q.triples()((s, DCAT.landingPage, v))
+
+# -- Theme -----------------------------------------------------------------
+
+    @M.register(
+        [wd.instance_of(Item(s), wd.theme)],
+        {s: CheckTheme()},
+        rank=Normal)
+    def wd_instance_of_theme(self, c: C, s: V_URI) -> None:
+        self._start_theme(c, s)
+
+    @M.register(
+        [wd.label(Item(s), Text(v, v0))],
+        {s: CheckTheme()},
+        priority=M.LOW_PRIORITY,
+        rank=Normal)
+    def wd_label_theme(
+            self,
+            c: C,
+            s: V_URI,
+            v: VLiteral,
+            v0: VLiteral
+    ) -> None:
+        self._start_theme(c, s)
+        self._p_text(c, s, SKOS.prefLabel, v, v0)  # type: ignore
+
+    @M.register(
+        [wd.description(Item(s), Text(v, v0))],
+        {s: CheckDataset()},
+        priority=M.LOW_PRIORITY,
+        rank=Normal)
+    def wd_description_theme(
+            self,
+            c: C,
+            s: V_URI,
+            v: VLiteral,
+            v0: VLiteral
+    ) -> None:
+        self._start_theme(c, s)
+        self._p_text(c, s, SKOS.definition, v, v0)
