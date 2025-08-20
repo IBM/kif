@@ -38,7 +38,7 @@ from ..model import (
     TTextLanguage,
     ValueSnak,
 )
-from ..rdflib import Graph, NamespaceManager, split_uri
+from ..rdflib import Graph, NamespaceManager
 from ..store import Store
 from ..typing import (
     Any,
@@ -1138,7 +1138,7 @@ class IRI_Registry(Registry):
         if resolver is not None:
             return resolver
         try:
-            ns, _ = split_uri(iri.content)
+            ns, _ = iri.split()
         except ValueError:
             return None
         else:
@@ -1167,7 +1167,7 @@ class IRI_Registry(Registry):
         if schema is not None:
             return schema
         try:
-            ns, _ = split_uri(iri.content)
+            ns, _ = iri.split()
         except ValueError:
             return None
         else:

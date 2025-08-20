@@ -91,6 +91,19 @@ class Test(ShallowDataValueTestCase):
         assert_type(IRI('x').match(Variable('x')), Optional[Theta])
         self._test_match(IRI, failure=[(IRI('x'), StringVariable('y'))])
 
+    def test_split(self) -> None:
+        assert_type(IRI('x').split(), tuple[IRI, str])
+        self.assertEqual(IRI('').split(), (IRI('/'), ''))
+        self.assertEqual(IRI('x').split(), (IRI('./'), 'x'))
+        self.assertEqual(IRI('./').split(), (IRI('./'), ''))
+        self.assertEqual(
+            IRI('http://ex.org/').split(), (IRI('http://ex.org/'), ''))
+        self.assertEqual(
+            IRI('http://ex.org/abc').split(), (IRI('http://ex.org/'), 'abc'))
+        self.assertEqual(
+            IRI('https://ex.org/abc#def').split(),
+            (IRI('https://ex.org/abc#'), 'def'))
+
     def test_describe(self) -> None:
         with Context():
             assert_type(IRI('x').describe(), Optional[IRI.Descriptor])

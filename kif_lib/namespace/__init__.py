@@ -3,7 +3,11 @@
 
 from __future__ import annotations
 
-from ..rdflib import DCT, FOAF, OWL, RDF, RDFS, SKOS, XSD
+import pathlib
+from urllib import parse as urllib_parse
+
+from .. import itertools
+from ..rdflib import DCT, FOAF, OWL, RDF, RDFS, SKOS, URIRef, XSD
 from .ontolex import ONTOLEX
 from .prov import PROV
 from .schema import SCHEMA
@@ -12,7 +16,7 @@ from .wikidata import T_NS as T_NS_
 from .wikidata import T_URI as T_URI_
 from .wikidata import Wikidata
 
-__all__ = [
+__all__ = (
     'DCT',
     'FOAF',
     'ONTOLEX',
@@ -41,7 +45,7 @@ __all__ = [
     'WIKIBASE',
     'Wikidata',
     'XSD',
-]
+)
 
 T_NS = T_NS_
 T_URI = T_URI_
@@ -77,3 +81,28 @@ PREFIXES: dict[str, object] = {
     'xsd': XSD,
     **Wikidata.prefixes
 }
+
+
+def split_uri(
+        uri: str | URIRef,
+        _empty: urllib_parse.ParseResult = urllib_parse.urlparse('')
+) -> tuple[str, str]:
+    """Splits URI into namespace and name.
+
+    Parameters:
+       uri: URI.
+
+    Returns:
+       The namespace and name of URI.
+    """
+    t = urllib_parse.urlparse(str(uri))
+    if t.fragment:
+        return urllib_parse.urlunparse(
+            itertools.chain(t[:3], _empty[3:])) + '#', t.fragment
+    else:
+        path = pathlib.PurePath(t.path or '/')
+        parent = str(path.parent)
+        if parent[-1] != '/':
+            parent += '/'
+        return urllib_parse.urlunparse(itertools.chain(
+            t[:2], (parent,), _empty[3:])), path.name

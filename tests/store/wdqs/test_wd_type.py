@@ -23,7 +23,7 @@ class Test(StoreTestCase):
     def test_count(self) -> None:
         c, F = self.store_count_assertion(self.KB())
         c(4, F(wd.Brazil, wd.instance_of))
-        c(68, F(wd.Brazil, wd.type))
+        c(69, F(wd.Brazil, wd.type))
 
     def test_filter_subject_is_item(self) -> None:
         xf, F = self.store_xfilter_assertion(self.KB())

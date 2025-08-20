@@ -15,7 +15,6 @@ from rdflib.namespace import (
     RDF,
     RDFS,
     SKOS,
-    split_uri,
     XSD,
 )
 from rdflib.parser import InputSource
@@ -40,7 +39,6 @@ __all__ = (
     'RDFS',
     'Result',
     'SKOS',
-    'split_uri',
     'URIRef',
     'Variable',
     'XSD',

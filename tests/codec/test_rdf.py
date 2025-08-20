@@ -9,7 +9,6 @@ from kif_lib import Context, Filter, Graph, Item, Lexeme
 from kif_lib import namespace as NS
 from kif_lib import Normal, Preferred, Property, Store
 from kif_lib.model import EncoderError
-from kif_lib.rdflib import split_uri
 from kif_lib.typing import Any
 from kif_lib.vocabulary import pc, wd
 
@@ -33,7 +32,7 @@ class Test(TestCase):
         schema = Property._check_schema(input_schema)
         kb = Store('rdf', data=input.to_rdf(**kwargs))
         for prop in args:
-            p = schema['p'].content + split_uri(prop.iri.content)[1]
+            p = schema['p'].content + prop.iri.split()[1]
             status = kb._sources[0].backend._ask(  # type: ignore
                 f'ASK {{_:b <{p}> ?wds. ?wds <{NS.WIKIBASE.rank}> _:b2}}')
             self.assertTrue(status['boolean'])
@@ -53,23 +52,23 @@ class Test(TestCase):
 <x> <http://wikiba.se/ontology#propertyType> \
 <http://wikiba.se/ontology#WikibaseItem> .
 <x> <http://wikiba.se/ontology#claim> \
-<http://www.wikidata.org/prop/> .
+<http://www.wikidata.org/prop/x> .
 <x> <http://wikiba.se/ontology#qualifier> \
-<http://www.wikidata.org/prop/qualifier/> .
+<http://www.wikidata.org/prop/qualifier/x> .
 <x> <http://wikiba.se/ontology#qualifierValue> \
-<http://www.wikidata.org/prop/qualifier/value/> .
+<http://www.wikidata.org/prop/qualifier/value/x> .
 <x> <http://wikiba.se/ontology#reference> \
-<http://www.wikidata.org/prop/reference/> .
+<http://www.wikidata.org/prop/reference/x> .
 <x> <http://wikiba.se/ontology#referenceValue> \
-<http://www.wikidata.org/prop/reference/value/> .
+<http://www.wikidata.org/prop/reference/value/x> .
 <x> <http://wikiba.se/ontology#statementProperty> \
-<http://www.wikidata.org/prop/statement/> .
+<http://www.wikidata.org/prop/statement/x> .
 <x> <http://wikiba.se/ontology#statementValue> \
-<http://www.wikidata.org/prop/statement/value/> .
+<http://www.wikidata.org/prop/statement/value/x> .
 <x> <http://wikiba.se/ontology#novalue> \
-<http://www.wikidata.org/prop/novalue/> .
+<http://www.wikidata.org/prop/novalue/x> .
 <x> <http://wikiba.se/ontology#directClaim> \
-<http://www.wikidata.org/prop/direct/> .
+<http://www.wikidata.org/prop/direct/x> .
 ''')
 
     def test_lexeme_to_rdf(self) -> None:

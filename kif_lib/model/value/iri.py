@@ -98,6 +98,16 @@ class IRI(
         else:
             raise self_._should_not_get_here()
 
+    def split(self) -> tuple[IRI, str]:
+        """Splits IRI into namespace and name.
+
+        Returns:
+           The namespace and name of IRI.
+        """
+        from ...namespace import split_uri
+        ns, name = split_uri(self.content)
+        return IRI(ns), name
+
     def describe(self) -> IRI.Descriptor | None:
         """Gets the descriptor of IRI in KIF context.
 

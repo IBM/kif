@@ -1061,8 +1061,7 @@ class Property(
         if schema is not None:
             if resolve:
                 try:
-                    from ... import rdflib
-                    _, name = rdflib.split_uri(self.iri.content)
+                    _, name = self.iri.split()
                     schema = cast(
                         Property.Schema,
                         {k: IRI(cast(IRI, v).content + name)
