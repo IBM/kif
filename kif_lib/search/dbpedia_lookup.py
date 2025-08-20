@@ -96,7 +96,7 @@ class DBpediaLookupSearch(
     def _to_item(self, data: DBpediaLookupSearch.TData) -> Item:
         return Item(data['resource'][0])
 
-    _re_to_item_descritor_label_cleanup: re.Pattern[str] =\
+    _re_to_item_descritor_cleanup: re.Pattern[str] =\
         re.compile(r'</?[a-zA-Z]*>')
 
     @override
@@ -105,12 +105,16 @@ class DBpediaLookupSearch(
             data: DBpediaLookupSearch.TData
     ) -> tuple[Item, Item.Descriptor]:
         item = self._to_item(data)
+        desc: Item.Descriptor = {}
         if 'label' in data:
-            label = self._re_to_item_descritor_label_cleanup.sub(
+            label = self._re_to_item_descritor_cleanup.sub(
                 '', data['label'][0])
-            return item, {'labels': {'en': Text(label, 'en')}}
-        else:
-            return item, {}
+            desc['labels'] = {'en': Text(label, 'en')}
+        if 'comment' in data:
+            description = self._re_to_item_descritor_cleanup.sub(
+                '', data['comment'][0])
+            desc['descriptions'] = {'en': Text(description, 'en')}
+        return item, desc
 
     @override
     def _item_data(
