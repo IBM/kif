@@ -644,8 +644,7 @@ class FilterParam:
         is_flag=True,
         default=True,
         help='Match non-best ranked statements.',
-        envvar='BEST_RANKED',
-    )
+        envvar='BEST_RANKED')
 
     omega = click.option(
         '--omega',
@@ -889,6 +888,12 @@ class FilterParam:
         required=False,
         help='Value datatype mask.',
         envvar='VALUE_MASK')
+
+    vocabulary_dump = click.option(
+        '--vocabulary-dump',
+        'vocabulary_dump',
+        is_flag=True,
+        help='Dump entities using vocabulary module format.')
 
     @classmethod
     def make_context(cls, resolve: bool | None = None) -> Context:
@@ -1409,6 +1414,7 @@ def count(
 @FilterParam.value_is_time
 @FilterParam.value_is_value
 @FilterParam.value_mask
+@FilterParam.vocabulary_dump
 def filter(
         store: Sequence[Store],
         subject: Fingerprint | None = None,
@@ -1461,7 +1467,8 @@ def filter(
         page_size: int | None = None,
         resolve: bool | None = None,
         select: str | None = None,
-        timeout: float | None = None
+        timeout: float | None = None,
+        vocabulary_dump: bool | None = None
 ) -> None:
     def _filter() -> None:
         console = Console()
@@ -1511,6 +1518,7 @@ def filter(
             omega=omega,
             page_size=page_size,
             timeout=timeout)
+        nonlocal encoder
         if encoder_dot:
             encoder = Encoder._check_format('dot')()
         elif encoder_json:
@@ -1528,6 +1536,7 @@ def filter(
             console,
             encoder=encoder,
             resolve=resolve,
+            vocabulary_dump=vocabulary_dump,
             context=context)
         if async_:
             af: dict[str, Callable[[], AsyncIterator[Term]]] = {
@@ -1569,12 +1578,14 @@ def _output_filter_page(
         page: Iterable[Term],
         encoder: Encoder | None = None,
         resolve: bool | None = None,
-        context: Context | None = None,
+        vocabulary_dump: bool | None = None,
+        context: Context | None = None
 ) -> None:
-    if resolve:
+    if resolve or vocabulary_dump:
         assert context is not None
         resolved_page: Iterable[Term] = list(context.resolve(
             page, language='en', label=True,
+            description=bool(vocabulary_dump),
             lemma=True, category=True, lexeme_language=True))
         ###
         # TODO: Make sure we also resolve the category and language of any
@@ -1590,12 +1601,37 @@ def _output_filter_page(
             language='en', label=True)
     else:
         resolved_page = page
-    if encoder is None:
-        it = map(Term.to_markdown, resolved_page)
-        console.print(Markdown('\n\n'.join(it)))
+    if vocabulary_dump:
+        from .str2id import Str2Id
+        entities = set(itertools.chain(
+            *(term.traverse(Entity.test) for term in resolved_page)))
+        as_id = Str2Id()
+        var_entity_pairs = (
+            (as_id(e.label.content), e)
+            for e in entities
+            if isinstance(e, (Item, Property)) and e.label is not None)
+        for var, entity in var_entity_pairs:
+            assert isinstance(entity, (Item, Property))
+            assert entity.label
+            label = (
+                "label='"
+                + entity.label.content.replace("'", r"\'")
+                + "'")
+            if entity.description:
+                description = (
+                    ", description='"
+                    + entity.description.content.replace("'", r"\'")
+                    + "'")
+            else:
+                description = ''
+            print(f"{var} = {entity}.register({label}{description})")
     else:
-        for term in resolved_page:
-            print(encoder.encode(term).rstrip(), flush=True)
+        if encoder is None:
+            it = map(Term.to_markdown, resolved_page)
+            console.print(Markdown('\n\n'.join(it)))
+        else:
+            for term in resolved_page:
+                print(encoder.encode(term).rstrip(), flush=True)
 
 
 class SearchParam:

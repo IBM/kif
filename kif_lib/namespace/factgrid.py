@@ -28,3 +28,15 @@ class FactGrid:
     WDS: Final[Namespace] = Namespace(WD['statement/'])
     WDT: Final[Namespace] = Namespace(P['direct/'])
     WDV: Final[Namespace] = Namespace(FACTGRID['value/'])
+
+    schema: Final[dict[str, Namespace]] = {
+        'p': P,
+        'pq': PQ,
+        'pqv': PQV,
+        'pr': PR,
+        'prv': PRV,
+        'ps': PS,
+        'psv': PSV,
+        'wdno': WDNO,
+        'wdt': WDT,
+    }

@@ -6,6 +6,7 @@ from __future__ import annotations
 from ...context import Context
 from ...model import IRI, Item, Property, TDatatype, TProperty, TText, TTextSet
 from ...namespace.factgrid import FactGrid
+from ...typing import cast
 
 __all__ = (
     'P',
@@ -83,11 +84,18 @@ def reload(force: bool = True, context: Context | None = None) -> None:
     """
     ctx = Context.top(context)
     ctx.iris.register(FactGrid.WD, prefix='fg')
+    ctx.iris.register(IRI(FactGrid.WD), schema=cast(Property.Schema, {
+        k: IRI(str(v)) for k, v in FactGrid.schema.items()}))
     resolver_iri = ctx.options.vocabulary.fg.resolver
     if resolver_iri is not None:
         from ...store import Store
         kb = Store('factgrid-sparql', resolver_iri)
         ctx.iris.register(FactGrid.WD, resolver=kb)
+    if force:
+        import importlib
 
+        from . import item, property
+        importlib.reload(item)
+        importlib.reload(property)
 
 reload(force=False)

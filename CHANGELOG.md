@@ -6,8 +6,16 @@ The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.0.0/).
 
 ## 0.12.1 (?)
 
-- Added SPARQL mappings for https://data.europa.eu/.  Added 'europa' SPARQL
+- Added `factgrid` SPARQL store which uses the Wikidata mappings with a
+  custom namespace.  See https://database.factgrid.de/.
+
+- Added SPARQL mappings for https://data.europa.eu/.  Added `europa` SPARQL
   store.
+
+- Add `--vocabulary-dump` option to KIF CLI filter command.
+
+- Add convenience encoder flags to KIF CLI, i.e., `--markdown`, `--repr`,
+  etc.
 
 ## 0.12.0 (2025-08-08)
 
