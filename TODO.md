@@ -6,10 +6,10 @@
 
 ## Codec
 
-- DICT/JSON codec: for generating dicts/json in standard Wikidata format.
+- dict/JSON codec: For generating dicts/JSON in standard Wikidata format or
+  a simplified JSON format.
 
-- RDF encoder: BUG: Add an option to escape URLs (should be true by
-  default).  (?)
+- RDF encoder: Add an option to escape URLs.  (BUG?)
 
 - Repr decoder: Replace `eval()` by a proper parser (via lark).
 
