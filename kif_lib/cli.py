@@ -548,6 +548,48 @@ class FilterParam:
         help='Encoder.',
         envvar='ENCODER')
 
+    encoder_dot = click.option(
+        '--dot',
+        'encoder_dot',
+        is_flag=True,
+        default=False,
+        help='Alias: --encoder=dot.')
+
+    encoder_json = click.option(
+        '--json',
+        'encoder_json',
+        is_flag=True,
+        default=False,
+        help='Alias: --encoder=json.')
+
+    encoder_markdown = click.option(
+        '--markdown',
+        'encoder_markdown',
+        is_flag=True,
+        default=False,
+        help='Alias: --encoder=markdown.')
+
+    encoder_rdf = click.option(
+        '--rdf',
+        'encoder_rdf',
+        is_flag=True,
+        default=False,
+        help='Alias: --encoder=rdf.')
+
+    encoder_repr = click.option(
+        '--repr',
+        'encoder_repr',
+        is_flag=True,
+        default=False,
+        help='Alias: --encoder=repr.')
+
+    encoder_sexp = click.option(
+        '--sexp',
+        'encoder_sexp',
+        is_flag=True,
+        default=False,
+        help='Alias: --encoder=sexp.')
+
     language = click.option(
         '--language',
         'language',
@@ -658,24 +700,21 @@ class FilterParam:
         'snak_is_no_value',
         is_flag=True,
         default=False,
-        help='Alias: --snak-mask=NO_VALUE_SNAK.',
-        envvar='SNAK_IS_NO_VALUE')
+        help='Alias: --snak-mask=NO_VALUE_SNAK.')
 
     snak_is_some_value = click.option(
         '--snak-is-some-value',
         'snak_is_some_value',
         is_flag=True,
         default=False,
-        help='Alias: --snak-mask=SOME_VALUE_SNAK.',
-        envvar='SNAK_IS_SOME_VALUE')
+        help='Alias: --snak-mask=SOME_VALUE_SNAK.')
 
     snak_is_value = click.option(
         '--snak-is-value',
         'snak_is_value',
         is_flag=True,
         default=False,
-        help='Alias: --snak-mask=VALUE_SNAK.',
-        envvar='SNAK_IS_VALUE')
+        help='Alias: --snak-mask=VALUE_SNAK.')
 
     snak_mask = click.option(
         '--snak-mask',
@@ -706,24 +745,21 @@ class FilterParam:
         'subject_is_item',
         is_flag=True,
         default=False,
-        help='Alias: --subject-mask=ITEM.',
-        envvar='SUBJECT_IS_ITEM')
+        help='Alias: --subject-mask=ITEM.')
 
     subject_is_property = click.option(
         '--subject-is-property',
         'subject_is_property',
         is_flag=True,
         default=False,
-        help='Alias: --subject-mask=PROPERTY.',
-        envvar='SUBJECT_IS_PROPERTY')
+        help='Alias: --subject-mask=PROPERTY.')
 
     subject_is_lexeme = click.option(
         '--subject-is-lexeme',
         'subject_is_lexeme',
         is_flag=True,
         default=False,
-        help='Alias: --subject-mask=LEXEME.',
-        envvar='SUBJECT_IS_LEXEME')
+        help='Alias: --subject-mask=LEXEME.')
 
     subject_mask = click.option(
         '--subject-mask',
@@ -754,111 +790,97 @@ class FilterParam:
         'value_is_data_value',
         is_flag=True,
         default=False,
-        help='Alias: --snak-is-value --value-mask=DATA_VALUE.',
-        envvar='VALUE_IS_DATA_VALUE')
+        help='Alias: --snak-is-value --value-mask=DATA_VALUE.')
 
     value_is_deep_data_value = click.option(
         '--value-is-deep-data-value',
         'value_is_deep_data_value',
         is_flag=True,
         default=False,
-        help='Alias: --snak-is-value --value-mask=DEEP_DATA_VALUE.',
-        envvar='VALUE_IS_DEEP_DATA_VALUE')
+        help='Alias: --snak-is-value --value-mask=DEEP_DATA_VALUE.')
 
     value_is_entity = click.option(
         '--value-is-entity',
         'value_is_entity',
         is_flag=True,
         default=False,
-        help='Alias: --snak-is-value --value-mask=ENTITY.',
-        envvar='VALUE_IS_ENTITY')
+        help='Alias: --snak-is-value --value-mask=ENTITY.')
 
     value_is_external_id = click.option(
         '--value-is-external-id',
         'value_is_external_id',
         is_flag=True,
         default=False,
-        help='Alias: --snak-is-value --value-mask=EXTERNAL_ID.',
-        envvar='VALUE_IS_EXTERNAL_ID')
+        help='Alias: --snak-is-value --value-mask=EXTERNAL_ID.')
 
     value_is_iri = click.option(
         '--value-is-iri',
         'value_is_iri',
         is_flag=True,
         default=False,
-        help='Alias: --snak-is-value --value-mask=IRI.',
-        envvar='VALUE_IS_IRI')
+        help='Alias: --snak-is-value --value-mask=IRI.')
 
     value_is_item = click.option(
         '--value-is-item',
         'value_is_item',
         is_flag=True,
         default=False,
-        help='Alias: --snak-is-value --value-mask=ITEM.',
-        envvar='VALUE_IS_ITEM')
+        help='Alias: --snak-is-value --value-mask=ITEM.')
 
     value_is_lexeme = click.option(
         '--value-is-lexeme',
         'value_is_lexeme',
         is_flag=True,
         default=False,
-        help='Alias: --snak-is-value --value-mask=LEXEME.',
-        envvar='VALUE_IS_LEXEME')
+        help='Alias: --snak-is-value --value-mask=LEXEME.')
 
     value_is_property = click.option(
         '--value-is-property',
         'value_is_property',
         is_flag=True,
         default=False,
-        help='Alias: --snak-is-value --value-mask=PROPERTY.',
-        envvar='VALUE_IS_PROPERTY')
+        help='Alias: --snak-is-value --value-mask=PROPERTY.')
 
     value_is_quantity = click.option(
         '--value-is-quantity',
         'value_is_quantity',
         is_flag=True,
         default=False,
-        help='Alias: --snak-is-value --value-mask=QUANTITY.',
-        envvar='VALUE_IS_QUANTITY')
+        help='Alias: --snak-is-value --value-mask=QUANTITY.')
 
     value_is_shallow_data_value = click.option(
         '--value-is-shallow-data-value',
         'value_is_shallow_data_value',
         is_flag=True,
         default=False,
-        help='Alias: --snak-is-value --value-mask=SHALLOW_DATA_VALUE.',
-        envvar='VALUE_IS_SHALLOW_DATA_VALUE')
+        help='Alias: --snak-is-value --value-mask=SHALLOW_DATA_VALUE.')
 
     value_is_string = click.option(
         '--value-is-string',
         'value_is_string',
         is_flag=True,
         default=False,
-        help='Alias: --snak-is-value --value-mask=STRING.',
-        envvar='VALUE_IS_STRING')
+        help='Alias: --snak-is-value --value-mask=STRING.')
 
     value_is_text = click.option(
         '--value-is-text',
         'value_is_text',
         is_flag=True,
         default=False,
-        help='Alias: --snak-is-value --value-mask=TEXT.',
-        envvar='VALUE_IS_TEXT')
+        help='Alias: --snak-is-value --value-mask=TEXT.')
 
     value_is_time = click.option(
         '--value-is-time',
         'value_is_time',
         is_flag=True,
         default=False,
-        help='Alias: --snak-is-value --value-mask=TIME.',
-        envvar='VALUE_IS_TIME')
+        help='Alias: --snak-is-value --value-mask=TIME.')
 
     value_is_value = click.option(
         '--value-is-value',
         'value_is_value',
         is_flag=True,
-        help='Alias: --snak-is-value --value-mask=VALUE.',
-        envvar='VALUE_IS_VALUE')
+        help='Alias: --snak-is-value --value-mask=VALUE.')
 
     value_mask = click.option(
         '--value-mask',
@@ -1339,11 +1361,14 @@ def count(
 @FilterParam.property
 @FilterParam.value
 @FilterParam.annotated
+@FilterParam.encoder_dot
 @FilterParam.dry_run
 @FilterParam.encoder
+@FilterParam.encoder_json
 @FilterParam.language
 @FilterParam.limit
 @FilterParam.lookahead
+@FilterParam.encoder_markdown
 @FilterParam.no_async
 @FilterParam.no_distinct
 @FilterParam.no_resolve
@@ -1353,7 +1378,10 @@ def count(
 @FilterParam.property_option
 @FilterParam.property_mask
 @FilterParam.rank_mask
+@FilterParam.encoder_rdf
+@FilterParam.encoder_repr
 @FilterParam.select
+@FilterParam.encoder_sexp
 @FilterParam.snak_is_no_value
 @FilterParam.snak_is_some_value
 @FilterParam.snak_is_value
@@ -1421,6 +1449,12 @@ def filter(
         distinct: bool | None = None,
         dry_run: bool | None = None,
         encoder: Encoder | None = None,
+        encoder_dot: bool | None = None,
+        encoder_json: bool | None = None,
+        encoder_markdown: bool | None = None,
+        encoder_rdf: bool | None = None,
+        encoder_repr: bool | None = None,
+        encoder_sexp: bool | None = None,
         limit: int | None = None,
         lookahead: int | None = None,
         omega: int | None = None,
@@ -1477,6 +1511,18 @@ def filter(
             omega=omega,
             page_size=page_size,
             timeout=timeout)
+        if encoder_dot:
+            encoder = Encoder._check_format('dot')()
+        elif encoder_json:
+            encoder = Encoder._check_format('json')()
+        elif encoder_markdown:
+            encoder = Encoder._check_format('markdown')()
+        elif encoder_rdf:
+            encoder = Encoder._check_format('rdf')()
+        elif encoder_repr:
+            encoder = Encoder._check_format('repr')()
+        elif encoder_sexp:
+            encoder = Encoder._check_format('sexp')()
         output = functools.partial(
             _output_filter_page,
             console,
