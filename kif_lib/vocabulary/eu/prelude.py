@@ -63,7 +63,7 @@ def theme(
 
 
 def reload(force: bool = True, context: Context | None = None) -> None:
-    """Reloads the `db` module.
+    """Reloads the `eu` module.
 
     Parameters:
        force: Force reload.

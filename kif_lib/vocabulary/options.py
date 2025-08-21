@@ -98,6 +98,19 @@ class EuropaOptions(_VocabularyOptions, name='eu'):
 
 
 @dataclasses.dataclass
+class FactGridOptions(_VocabularyOptions, name='fg'):
+    """FactGrid vocabulary options."""
+
+    DEFAULT_RESOLVER = 'https://database.factgrid.de/sparql'
+
+    _v_resolver =\
+        (('KIF_VOCABULARY_FG_RESOLVER', 'FACTGRID'), DEFAULT_RESOLVER)
+
+    def __init__(self, **kwargs: Any) -> None:
+        super().__init__(**kwargs)
+
+
+@dataclasses.dataclass
 class PubChemOptions(_VocabularyOptions, name='pc'):
     """PubChem vocabulary options."""
 
@@ -231,5 +244,6 @@ class VocabularyOptions(Section, name='vocabulary'):
 
     db: DBpediaOptions = dataclasses.field(default_factory=DBpediaOptions)
     eu: EuropaOptions = dataclasses.field(default_factory=EuropaOptions)
+    fg: FactGridOptions = dataclasses.field(default_factory=FactGridOptions)
     pc: PubChemOptions = dataclasses.field(default_factory=PubChemOptions)
     wd: WikidataOptions = dataclasses.field(default_factory=WikidataOptions)
