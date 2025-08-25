@@ -93,7 +93,7 @@ Using the KIF API:
 # Create a SPARQL store loaded with UniProt mappings.
 kb = Store('uniprot', 'https://sparql.uniprot.org/sparql')
 
-# Counts the number of distinct subjects (`s`) of statements with the given property and value.
+# Counts the number of distinct subjects of statements with the given property and value.
 n = kb.count_s(property=wd.taxon_rank, value=wd.species)
 print(n)
 ```
