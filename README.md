@@ -77,7 +77,7 @@ for stmt in kb.filter(property=wd.shares_border_with, value=wd.Q(155)):
 
 <details>
 <summary>
-Counts the number of species in <a href="https://www.uniprot.org/">UniProt</a>.
+Counts the number of <a href="http://www.wikidata.org/entity/Q7432">species (Q7432)</a> in <a href="https://www.uniprot.org/">UniProt</a>.
 </summary>
 
 Using the `kif` command-line utility:
