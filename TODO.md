@@ -1,10 +1,16 @@
 # TODO
 
-## CLI
+## Code
+
+- Make sure that `get_context()` methods are defined as class-methods.
+
+- Revise the use of `logger.exception()`.
+
+### CLI
 
 - Add `--set` option to the top-level command set KIF context options.
 
-## Codec
+### Codec
 
 - dict/JSON codec: For generating dicts/JSON in standard Wikidata format or
   a simplified JSON format.
@@ -13,19 +19,25 @@
 
 - Repr decoder: Replace `eval()` by a proper parser (via lark).
 
-## Compiler
+### Compiler
 
 - PubChem mapping: Add support for the use of QIDs as compound identifiers
   in subjects and values. (?)
 
-- Filter compiler: Aggregate snaks with the same property (optimization).
+- SPARQL compiler: Add support for variables in fingerprints, e.g.,
+  `filter(subject=x)`, `filter(subject=wd.shares_border_with(x))`,
+  `filter(subject=p(wd.Brazil)`.
 
-- Filter compiler: Use subqueries to implement fingerprints. (?)
+- SPARQL compiler: Aggregate snaks with the same property (optimization).
 
-- Filter compiler: Make the compiler return a stream of queries to be
-  executed in parallel.
+- SPARQL compiler: Use subqueries to implement fingerprints. (?)
 
-## Context
+- SPARQL compiler: Add support for matching annotations in filters.  For
+  example, `filter(references=[wd.stated_in(wd.PubChem)])`.
+
+- Add initial support for non-SPARQL query languages (SQL and Cypher).
+
+### Context
 
 - Entity registry: Cache the property-constraint
   (allowed-entity-types-constraint) of properties.  We could expose this as
@@ -35,11 +47,14 @@
 - Options: Allow KIF-object values in environment variables.  For example,
   one could set `WIKIDATA` to `IRI('https://www.wikidata.org/sparql')`. (?)
 
-## Model
+### Model
 
-- Per-class, more convenient version of `KIF_Object.replace()`.
+- Add support for per-class, more convenient version of
+  `KIF_Object.replace()` which can handle `kwargs`.
 
-- Add `context` argument to model classes. (?)
+- Add `context` argument to model classes, including `Filter`. (?)
+
+- Extend support for generics to `OpenTerm` subclasses.
 
 - Filter: Add "normalized" flag to instruct KIF to obtain the normalized
   value (when it exists).
@@ -78,7 +93,7 @@
 
 - Time: `Time()` should default to `now()`.
 
-## Store
+### Store
 
 - BUG: Bad bindings should be ignored when producing query results.  That
   is, they should be skipped with a warning.
@@ -106,6 +121,11 @@
   One of the columns of the CSV should be used for the subject; the
   remaining columns should be used for properties.
 
+- TTL/n3 reader: Use a state machine to read triples and construct
+  statements progressively.
+
+- Mixer: Add new types of mixers, e.g., chain, interleave, and, or.
+
 - Mixer: Add support for entity unification: When a fingerprint is used with
   an identifier property (external id) we could ask the mixer to perform
   entity unification, i.e., use one of the underlying stores as the source
@@ -119,3 +139,16 @@
 
 - Mixer: Brainstorm: Exploit SPARQL federation in cases where children
   support the SPARQL protocol.
+
+- RDFox: Rename `rdfox_pipe` to `rdfox_process`.
+
+### Vocabulary
+
+- Make vocabulary first-class objects.  The loaded vocabularies should be
+  stored in the library context and the user should be able to load parts of
+  a vocabulary, e.g., `wd.load('chemistry')`.
+
+## Docs
+
+- Revise the use of doc-strings to document class constructors, cf. `Store`
+  and `Search`.
