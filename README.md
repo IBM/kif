@@ -4,36 +4,23 @@
 
 # Knowledge Integration Framework
 
-KIF is a knowledge integration framework from [IBM
-Research](https://research.ibm.com/).
+KIF is a knowledge integration framework from [IBM Research](https://research.ibm.com/).
 
-It is based on [Wikidata](https://www.wikidata.org/) and licensed under the
-[Apache-2.0 license](./LICENSE).
+It is based on [Wikidata](https://www.wikidata.org/) and licensed under the [Apache-2.0 license](./LICENSE).
 
-First time here? Check out the [quickstart
-guide](https://ibm.github.io/kif/quickstart.html).
+First time here? Check out the [quickstart guide](https://ibm.github.io/kif/quickstart.html).
 
 ## Highlights
 
 * KIF is an interface to query knowledge sources as if they were Wikidata.
 
-* KIF queries are written as simple, high-level filters using entities of
-  the [Wikidata data
-  model](https://www.wikidata.org/wiki/Wikidata:Data_model).
+* KIF queries are written as simple, high-level filters using entities of the [Wikidata data model](https://www.wikidata.org/wiki/Wikidata:Data_model).
 
-* KIF can be used to query Wikidata itself or other knowledge sources,
-  provided proper mappings are given.
+* KIF can be used to query Wikidata itself or other knowledge sources, provided proper mappings are given.
 
-* KIF comes with built-in mappings for [DBpedia](https://www.dbpedia.org/),
-  [FactGrid](https://database.factgrid.de/),
-  [PubChem](https://pubchem.ncbi.nlm.nih.gov/),
-  [UniProt](https://sparql.uniprot.org/sparql/) among others.  New mappings
-  can be added programmatically.
+* KIF comes with built-in mappings for [DBpedia](https://www.dbpedia.org/), [FactGrid](https://database.factgrid.de/), [PubChem](https://pubchem.ncbi.nlm.nih.gov/), and [UniProt](https://www.uniprot.org/), among others.  New mappings can be added programmatically.
 
-* KIF has full support for
-  [asyncio](https://docs.python.org/3/library/asyncio.html).  KIF async API
-  can be used run queries asynchronously, without blocking waiting on their
-  results.
+* KIF has full support for [asyncio](https://docs.python.org/3/library/asyncio.html).  KIF async API can be used run queries asynchronously, without blocking waiting on their results.
 
 ## Installation
 
@@ -59,8 +46,7 @@ Click on the headings for details.
 
 <details>
 <summary>
-Gets from <a href="https://www.wikidata.org/">Wikidata</a> all statements with property <a href="http://www.wikidata.org/entity/P47">shares border with (P47)</a> and value
-<a href="http://www.wikidata.org/entity/Q155">Brazil (Q155)</a>.
+Gets from <a href="https://www.wikidata.org/">Wikidata</a> all statements with property <a href="http://www.wikidata.org/entity/P47">shares border with (P47)</a> and value <a href="http://www.wikidata.org/entity/Q155">Brazil (Q155)</a>.
 </summary>
 
 Using the `kif` command-line utility:
@@ -91,14 +77,26 @@ for stmt in kb.filter(property=wd.shares_border_with, value=wd.Q(155)):
 
 <details>
 <summary>
-Gets from <a href="https://www.wikidata.org/">Wikidata</a> and <a href="https://qlever.cs.uni-freiburg.de/api/pubchem">PubChem</a> the IRI and molecular
-mass of all chemicals whose formula is H₂O.
+Counts the number of species in <a href="https://www.uniprot.org/">UniProt</a>.
 </summary>
 
 Using the `kif` command-line utility:
 
 ```shell
-$ kif filter -s wdqs -s pubchem-sparql --select sv --subject='wd.chemical_formula("H₂O")' --property=wd.mass
+$ kif count -s uniprot --select s --property=wd.taxon_rank --value=wd.species
+2182677
+```
+</details>
+
+<details>
+<summary>
+Gets from <a href="https://www.wikidata.org/">Wikidata</a> and <a href="https://qlever.cs.uni-freiburg.de/api/pubchem">PubChem</a> the IRI and molecular mass of all chemicals whose formula is H₂O.
+</summary>
+
+Using the `kif` command-line utility:
+
+```shell
+$ kif filter -s wdqs -s pubchem --select sv --subject='wd.chemical_formula("H₂O")' --property=wd.mass
 ```
 
 > (**Item** [hydrogen tritium oxide](http://www.wikidata.org/entity/Q106010186)) 20.01878893 [dalton](http://www.wikidata.org/entity/Q483261) <br/>
@@ -111,11 +109,11 @@ Using the KIF API:
 ```python
 # Create a mixer store combining:
 # • wdqs: A SPARQL store loaded with Wikidata mappings optimized for WDQS.
-# • pubchem-sparql: A SPARQL store loaded with PubChem RDF mappings.
+# • pubchem: A SPARQL store loaded with PubChem RDF mappings.
 
 kb = Store('mixer', [
     Store('wdqs', 'https://query.wikidata.org/sparql'),
-    Store('pubchem-sparql', 'https://qlever.cs.uni-freiburg.de/api/pubchem')])
+    Store('pubchem', 'https://qlever.cs.uni-freiburg.de/api/pubchem')])
 
 # Filter the subject and value (sv) of all statements where:
 # • subject has chemical formula (P274) H₂O.
@@ -131,11 +129,8 @@ See [examples](./examples) for more examples.
 
 ## Citation
 
-Guilherme Lima, João M. B. Rodrigues, Marcelo Machado, Elton Soares, Sandro
-R. Fiorini, Raphael Thiago, Leonardo G. Azevedo, Viviane T. da Silva, Renato
-Cerqueira. ["KIF: A Wikidata-Based Framework for Integrating Heterogeneous
-Knowledge Sources"](https://arxiv.org/abs/2403.10304), arXiv:2403.10304,
-2024.
+Guilherme Lima, João M. B. Rodrigues, Marcelo Machado, Elton Soares, Sandro R. Fiorini, Raphael Thiago, Leonardo G. Azevedo, Viviane T. da Silva, Renato Cerqueira. ["KIF: A Wikidata-Based Framework for Integrating Heterogeneous
+Knowledge Sources"](https://arxiv.org/abs/2403.10304), arXiv:2403.10304, 2024.
 
 ## License
 
