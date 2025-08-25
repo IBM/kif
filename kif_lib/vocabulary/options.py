@@ -124,6 +124,19 @@ class PubChemOptions(_VocabularyOptions, name='pc'):
 
 
 @dataclasses.dataclass
+class UniProtOptions(_VocabularyOptions, name='eu'):
+    """UniProt vocabulary options."""
+
+    DEFAULT_RESOLVER = 'https://sparql.uniprot.org/sparql'
+
+    _v_resolver =\
+        (('KIF_VOCABULARY_UP_RESOLVER', 'UNIPROT'), DEFAULT_RESOLVER)
+
+    def __init__(self, **kwargs: Any) -> None:
+        super().__init__(**kwargs)
+
+
+@dataclasses.dataclass
 class WikidataOptions(_VocabularyOptions, name='wd'):
     """Wikidata vocabulary options."""
 
@@ -246,4 +259,5 @@ class VocabularyOptions(Section, name='vocabulary'):
     eu: EuropaOptions = dataclasses.field(default_factory=EuropaOptions)
     fg: FactGridOptions = dataclasses.field(default_factory=FactGridOptions)
     pc: PubChemOptions = dataclasses.field(default_factory=PubChemOptions)
+    up: UniProtOptions = dataclasses.field(default_factory=UniProtOptions)
     wd: WikidataOptions = dataclasses.field(default_factory=WikidataOptions)

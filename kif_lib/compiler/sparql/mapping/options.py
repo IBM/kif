@@ -9,6 +9,7 @@ from ....context import Section
 from .dbpedia_options import DBpediaMappingOptions
 from .europa_options import EuropaMappingOptions
 from .pubchem_options import PubChemMappingOptions
+from .uniprot_options import UniProtMappingOptions
 from .wikidata_options import WikidataMappingOptions
 
 
@@ -24,6 +25,9 @@ class MappingOptions(Section, name='mapping'):
 
     pubchem: PubChemMappingOptions = dataclasses.field(
         default_factory=PubChemMappingOptions)
+
+    uniprot: UniProtMappingOptions = dataclasses.field(
+        default_factory=UniProtMappingOptions)
 
     wikidata: WikidataMappingOptions = dataclasses.field(
         default_factory=WikidataMappingOptions)

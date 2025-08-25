@@ -137,15 +137,22 @@ class HttpxSPARQL_Store(
 
         def _http_post(
                 self,
-                text: str,
+                content: str,
                 timeout: float | None = None
         ) -> httpx.Response:
             res = self.client.post(
                 self._iri.content,
-                content=text.encode('utf-8'),
+                content=self._http_post_encode_content(content),
                 timeout=httpx.Timeout(timeout))
             res.raise_for_status()
             return res
+
+        def _http_post_encode_content(self, content: str) -> bytes:
+            if ('Content-Type' in self._headers
+                and self._headers['Content-Type'].startswith(
+                    'application/x-www-form-urlencoded')):
+                content = 'query=' + content
+            return content.encode('utf-8')
 
         @override
         async def _aselect(
@@ -161,12 +168,12 @@ class HttpxSPARQL_Store(
 
         async def _http_apost(
                 self,
-                text: str,
+                content: str,
                 timeout: float | None = None
         ) -> httpx.Response:
             res = await self.aclient.post(
                 self._iri.content,
-                content=text.encode('utf-8'),
+                content=self._http_post_encode_content(content),
                 timeout=httpx.Timeout(timeout))
             res.raise_for_status()
             return res

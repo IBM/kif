@@ -116,7 +116,7 @@ class Str2Id:
         self.tr = str.maketrans(dict(it()))
 
     @classmethod
-    def _normalize_kv(self, t: tuple[str, str]) -> tuple[str, str]:
+    def _normalize_kv(cls, t: tuple[str, str]) -> tuple[str, str]:
         return (t[0], '_' + t[1].replace('-', '_') + '_')
 
     def __call__(

@@ -24,9 +24,11 @@ guide](https://ibm.github.io/kif/quickstart.html).
 * KIF can be used to query Wikidata itself or other knowledge sources,
   provided proper mappings are given.
 
-* KIF comes with built-in mappings for [DBpedia](https://www.dbpedia.org/)
-  and [PubChem RDF](https://pubchem.ncbi.nlm.nih.gov/docs/rdf).  Other
-  mappings can be added programmatically.
+* KIF comes with built-in mappings for [DBpedia](https://www.dbpedia.org/),
+  [FactGrid](https://database.factgrid.de/),
+  [PubChem](https://pubchem.ncbi.nlm.nih.gov/),
+  [UniProt](https://sparql.uniprot.org/sparql/) among others.  New mappings
+  can be added programmatically.
 
 * KIF has full support for
   [asyncio](https://docs.python.org/3/library/asyncio.html).  KIF async API

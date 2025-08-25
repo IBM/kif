@@ -698,6 +698,7 @@ class SPARQL_Mapping(Sequence[_Entry]):
             'coerce',
             'startswith',
             'endswith',
+            'replace',
             'replace_prefix',
             'replace_suffix',
             'match',
@@ -719,6 +720,9 @@ class SPARQL_Mapping(Sequence[_Entry]):
 
         #: Suffix to match.
         endswith: str | None
+
+        #: String to match plus replacement.
+        replace: Mapping[str, str] | None
 
         #: Prefix to match plus replacement.
         replace_prefix: tuple[str, str] | None
@@ -742,17 +746,27 @@ class SPARQL_Mapping(Sequence[_Entry]):
                 coerce: type[str] | None = None,
                 startswith: str | None = None,
                 endswith: str | None = None,
+                replace: Mapping[str, str] | None = None,
+                replace_inv: Mapping[str, str] | None = None,
                 replace_prefix: tuple[str, str] | None = None,
                 replace_suffix: tuple[str, str] | None = None,
                 match: str | re.Pattern | None = None,
                 sub: tuple[str | re.Pattern, str] | None = None,
-                tr: Mapping[str, str] | None = None
+                tr: Mapping[str, str] | None = None,
         ) -> None:
             self.subclass = subclass or str
             self.optional = optional if optional is not None else False
             self.coerce = coerce
             self.startswith = startswith
             self.endswith = endswith
+            if replace_inv:
+                self.replace =\
+                    {str(v): str(k) for k, v in replace_inv.items()}
+            elif replace:
+                self.replace =\
+                    {str(k): str(v) for k, v in replace.items()}
+            else:
+                self.replace = None
             self.replace_prefix = replace_prefix
             self.replace_suffix = replace_suffix
             if match is not None:
@@ -790,6 +804,8 @@ class SPARQL_Mapping(Sequence[_Entry]):
                 raise m.Skip
             if self.endswith and not arg.endswith(self.endswith):
                 raise m.Skip
+            if self.replace is not None:
+                arg = type(arg)(self.replace.get(str(arg), arg))
             if self.replace_prefix is not None:
                 old, new = self.replace_prefix
                 arg = type(arg)(new + arg.removeprefix(old))
@@ -829,6 +845,8 @@ class SPARQL_Mapping(Sequence[_Entry]):
                 coerce: type[str] | None = None,
                 startswith: str | None = None,
                 endswith: str | None = None,
+                replace: Mapping[str, str] | None = None,
+                replace_inv: Mapping[str, str] | None = None,
                 replace_prefix: tuple[str, str] | None = None,
                 replace_suffix: tuple[str, str] | None = None,
                 match: str | re.Pattern | None = None,
@@ -844,6 +862,8 @@ class SPARQL_Mapping(Sequence[_Entry]):
                 coerce=coerce,
                 startswith=startswith,
                 endswith=endswith,
+                replace=replace,
+                replace_inv=replace_inv,
                 replace_prefix=replace_prefix,
                 replace_suffix=replace_suffix,
                 match=match,
@@ -893,6 +913,8 @@ class SPARQL_Mapping(Sequence[_Entry]):
                 coerce: type[str] | None = None,
                 startswith: str | None = None,
                 endswith: str | None = None,
+                replace: Mapping[str, str] | None = None,
+                replace_inv: Mapping[str, str] | None = None,
                 replace_prefix: tuple[str, str] | None = None,
                 replace_suffix: tuple[str, str] | None = None,
                 match: str | re.Pattern | None = None,
@@ -905,6 +927,8 @@ class SPARQL_Mapping(Sequence[_Entry]):
                 optional=optional,
                 coerce=coerce,
                 startswith=startswith,
+                replace=replace,
+                replace_inv=replace_inv,
                 replace_prefix=replace_prefix,
                 replace_suffix=replace_suffix,
                 endswith=endswith,

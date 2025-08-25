@@ -466,6 +466,15 @@ class _CoreSPARQL_Store(
         return PubChemMapping(*args, **kwargs)
 
     @classmethod
+    def _uniprot_mapping_constructor(
+            cls,
+            *args: Any,
+            **kwargs: Any
+    ) -> SPARQL_Mapping:
+        from ...compiler.sparql.mapping.uniprot import UniProtMapping
+        return UniProtMapping(*args, **kwargs)
+
+    @classmethod
     def _wikidata_mapping_constructor(
             cls,
             *args: Any,

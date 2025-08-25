@@ -44,6 +44,7 @@ chemistry = Q(2329, 'chemistry')
 ChemSpider = Q(2311683, 'ChemSpider')
 child_ = Q(7569, 'child')
 Chile = Q(298, 'Chile')
+class_ = Q(37517, 'class')
 coffee = Q(8486, 'coffee')
 Colombia = Q(739, 'Colombia')
 comma_separated_values = Q(935809, 'comma-separated values')
@@ -58,6 +59,7 @@ day = Q(573, 'day')
 degree_Celsius = Q(25267, 'degree Celsius')
 degree_Fahrenheit = Q(42289, 'degree Fahrenheit')
 dog = Q(144, 'dog')
+domain = Q(146481, 'domain')
 dopamine = Q(170304, 'dopamine')
 drama_film = Q(130232, 'drama film')
 Easter = Q(21196, 'Easter')
@@ -84,6 +86,7 @@ French_Guiana = Q(3769, 'French Guiana')
 frog = Q(3116510, 'frog')
 Garden_of_Eden = Q(19014, 'Garden of Eden')
 Garden_of_Eden = Q(19014, 'Garden of Eden')
+genus = Q(34740, 'genus')
 Germany = Q(183, 'Germany')
 ginga = Q(1411420, 'ginga')
 Ginga = Q(5563000, 'Ginga')
@@ -112,6 +115,7 @@ joule_per_mole_kelvin_difference = Q(69427692, 'joule per mole kelvin difference
 kelvin = Q(11579, 'kelvin')
 kilogram = Q(11570, 'kilogram')
 kind_of_quantity = Q(110653654, 'kind of quantity')
+kingdom = Q(36732, 'kingdom')
 laboratory_mouse = Q(2842787, 'laboratory mouse')
 laboratory_rat = Q(3089676, 'laboratory rat')
 Latin_America = Q(12585, 'Latin America')
@@ -141,12 +145,14 @@ New_York_City = Q(60, 'New York City')
 North_America = Q(49, 'North America')
 Oceania = Q(55643, 'Oceania')
 oral_administration = Q(285166, 'oral administration')
+order = Q(36602, 'order')
 Paraguay = Q(733, 'Paraguay')
 part = Q(15989253, 'part')
 parts_per_million = Q(21006887, 'parts per million')
 patent = Q(253623, 'patent')
 per_and_polyfluoroalkyl_substances = Q(648037, 'per- and polyfluoroalkyl substances')
 Peru =  Q(419, 'Peru')
+phylum = Q(38348, 'phylum')
 physics = Q(413, 'physics')
 Pico_31_de_Março = Q(1264913, 'Pico 31 de Março')
 Pico_da_Neblina = Q(739484, 'Pico da Neblina')
@@ -174,12 +180,16 @@ sodium_bicarbonate = Q(179731, 'sodium bicarbonate')
 South_America = Q(18, 'South America')
 sovereign_state = Q(3624078, 'sovereign_state')
 Spanish = Q(1321, 'Spanish')
+species = Q(7432, 'species')
 state = Q(7275, 'state')
+strain = Q(855769, 'strain')
 subcutaneous_injection = Q(2035485, 'subcutaneous injection')
 summit = Q(207326, 'summit')
 Supercalifragilisticexpialidocious = Q(103, 'Supercalifragilisticexpialidocious')
 Suriname = Q(730, 'Suriname')
 system_software = Q(676202, 'system software')
+taxon = Q(16521, 'taxon')
+taxonomic_rank = Q(427626, 'taxonomic rank')
 theme = Q(1053916, 'theme')
 type_of_chemical_entity = Q(113145171, 'type of a chemical entity')
 unit_of_mass = Q(3647172, 'unit of mass')
@@ -245,6 +255,7 @@ __all__ = (
     'ChemSpider',
     'child_',
     'Chile',
+    'class_',
     'coffee',
     'Colombia',
     'comma_separated_values',
@@ -260,6 +271,7 @@ __all__ = (
     'degree_Celsius',
     'degree_Fahrenheit',
     'dog',
+    'domain',
     'dopamine',
     'drama_film',
     'Easter',
@@ -286,6 +298,7 @@ __all__ = (
     'frog',
     'Garden_of_Eden',
     'Garden_of_Eden',
+    'genus',
     'Germany',
     'ginga',
     'Ginga',
@@ -314,6 +327,7 @@ __all__ = (
     'kelvin',
     'kilogram',
     'kind_of_quantity',
+    'kingdom',
     'laboratory_mouse',
     'laboratory_rat',
     'Latin_America',
@@ -343,12 +357,14 @@ __all__ = (
     'North_America',
     'Oceania',
     'oral_administration',
+    'order',
     'Paraguay',
     'part',
     'parts_per_million',
     'patent',
     'per_and_polyfluoroalkyl_substances',
     'Peru',
+    'phylum',
     'physics',
     'Pico_31_de_Março',
     'Pico_da_Neblina',
@@ -376,12 +392,16 @@ __all__ = (
     'South_America',
     'sovereign_state',
     'Spanish',
+    'species',
     'state',
+    'strain',
     'subcutaneous_injection',
     'summit',
     'Supercalifragilisticexpialidocious',
     'Suriname',
     'system_software',
+    'taxon',
+    'taxonomic_rank',
     'theme',
     'type_of_a_chemical_entity',
     'type_of_chemical_entity',

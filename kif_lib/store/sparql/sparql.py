@@ -218,20 +218,58 @@ class SPARQL_Store(
             self._is_http_or_https_iri, args))
 
         def it() -> Iterator[Store]:
-            for iri in iris:
-                yield Store('sparql-httpx', iri, mapping=mapping, **kwargs)
+            yield from self._store_from_iri_args(
+                *map(lambda iri: IRI.check(iri, type(self)), iris),
+                mapping=mapping, **kwargs)
             if (other
                     or location is not None
                     or file is not None
                     or data is not None
                     or graph is not None
                     or rdflib_graph is not None):
-                yield Store(
-                    'rdf', *other, format=format,
+                yield from self._store_from_other_args(
+                    'rdf', *cast(
+                        Iterable[RDF_Store.Args], other), format=format,
                     location=location, file=file, data=data, graph=graph,
                     rdflib_graph=rdflib_graph, skolemize=skolemize,
                     mapping=mapping, **kwargs)
         super().__init__(store_name, list(it()), **kwargs)
+
+    def _store_from_iri_args(
+            self,
+            *iris: IRI,
+            mapping: SPARQL_Mapping | None = None,
+            **kwargs: Any
+    ) -> Iterator[Store]:
+        for iri in iris:
+            yield self._store_from_iri_arg(iri, mapping=mapping, **kwargs)
+
+    def _store_from_iri_arg(
+            self,
+            iri: IRI,
+            mapping: SPARQL_Mapping | None = None,
+            **kwargs: Any
+    ) -> Store:
+        return Store('sparql-httpx', iri, mapping=mapping, **kwargs)
+
+    def _store_from_other_args(
+            self,
+            *other: RDF_Store.Args,
+            format: str | None = None,
+            location: str | None = None,
+            file: BinaryIO | TextIO | None = None,
+            data: bytes | str | None = None,
+            graph: TGraph | None = None,
+            rdflib_graph: rdflib.Graph | None = None,
+            skolemize: bool | None = None,
+            mapping: SPARQL_Mapping | None = None,
+            **kwargs: Any
+    ) -> Iterator[Store]:
+        yield Store(
+            'rdf', *other, format=format,
+            location=location, file=file, data=data, graph=graph,
+            rdflib_graph=rdflib_graph, skolemize=skolemize,
+            mapping=mapping, **kwargs)
 
     @override
     @classmethod
@@ -406,6 +444,59 @@ class PubChemSPARQL_Store(
             location=location, file=file, data=data, graph=graph,
             rdflib_graph=rdflib_graph, skolemize=skolemize,
             mapping=mapping, **kwargs)
+
+
+class UniProtSPARQL_Store(
+        SPARQL_Store,
+        store_name='uniprot-sparql',
+        store_aliases=['uniprot'],
+        store_description='UniProt SPARQL store'
+):
+    """Alias for :class:`SPARQL_Store` with UniProt mappings."""
+
+    def __init__(
+            self,
+            store_name: str,
+            *args: SPARQL_Store.Args,
+            format: str | None = None,
+            location: str | None = None,
+            file: BinaryIO | TextIO | None = None,
+            data: bytes | str | None = None,
+            graph: TGraph | None = None,
+            rdflib_graph: rdflib.Graph | None = None,
+            skolemize: bool | None = None,
+            mapping: SPARQL_Mapping | None = None,
+            **kwargs: Any
+    ) -> None:
+        if not args:
+            resolver_iri = self.get_context(
+                kwargs.get('context')).options.vocabulary.up.resolver
+            if resolver_iri is not None:
+                args = (resolver_iri,)
+        if mapping is None:
+            mapping = _CoreSPARQL_Store._uniprot_mapping_constructor()
+        super().__init__(
+            store_name, *args, format=format,
+            location=location, file=file, data=data, graph=graph,
+            rdflib_graph=rdflib_graph, skolemize=skolemize,
+            mapping=mapping, **kwargs)
+
+    @override
+    def _store_from_iri_arg(
+            self,
+            iri: IRI,
+            mapping: SPARQL_Mapping | None = None,
+            **kwargs: Any
+    ) -> Store:
+        if iri == self.get_context(
+                kwargs.get('context')).options.vocabulary.up.resolver:
+            ###
+            # The official UniProt endpoint accepts only URL encoded-POST.
+            ###
+            headers = kwargs.get('headers', {})
+            headers['Content-Type'] = 'application/x-www-form-urlencoded'
+            kwargs['headers'] = headers
+        return super()._store_from_iri_arg(iri, mapping, **kwargs)
 
 
 class WikidataSPARQL_Store(
