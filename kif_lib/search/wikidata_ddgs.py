@@ -54,6 +54,9 @@ class WikidataDDGS_SearchOptions(DDGS_SearchOptions, name='wikidata_ddgs'):
     _v_backend: ClassVar[tuple[Iterable[str], str | None]] =\
         (('KIF_WIKIDATA_DDGS_SEARCH_BACKEND'), None)
 
+    _v_in_url: ClassVar[tuple[Iterable[str], str | None]] =\
+        (('KIF_WIKIDATA_DDGS_SEARCH_IN_URL'), None)
+
     DEFAULT_ITEM_MATCH =\
         r'^http[s]?://www\.wikidata\.org/(entity/Q|wiki/Q)(\d+)$'
 

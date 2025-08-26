@@ -4,7 +4,7 @@
 from __future__ import annotations
 
 from kif_lib.context import Context, Section
-from kif_lib.typing import override, Sequence
+from kif_lib.typing import override
 
 from ..ddgs.test_options import Test as _Test
 
