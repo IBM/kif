@@ -86,8 +86,9 @@ Counts the number of <a href="http://www.wikidata.org/entity/Q7432">species (Q74
 
 ```shell
 $ kif count -s uniprot --select s --property=wd.taxon_rank --value=wd.species
-2182677
 ```
+
+> 2182677
 
 <b>KIF API</b>
 
