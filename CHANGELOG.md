@@ -6,7 +6,7 @@ The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.0.0/).
 
 ## 0.12.1 (?)
 
-- Added `factgrid` SPARQL store which uses the Wikidata mappings with a
+- Added `factgrid` SPARQL store which uses custom Wikidata mappings and a
   custom namespace.  See https://database.factgrid.de/.
 
 - Added SPARQL mappings for https://www.uniprot.org/.  Added `uniprot`
