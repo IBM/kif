@@ -8,6 +8,7 @@ import dataclasses
 from ....context import Section
 from .dbpedia_options import DBpediaMappingOptions
 from .europa_options import EuropaMappingOptions
+from .factgrid_options import FactGridMappingOptions
 from .pubchem_options import PubChemMappingOptions
 from .uniprot_options import UniProtMappingOptions
 from .wikidata_options import WikidataMappingOptions
@@ -22,6 +23,9 @@ class MappingOptions(Section, name='mapping'):
 
     europa: EuropaMappingOptions = dataclasses.field(
         default_factory=EuropaMappingOptions)
+
+    factgrid: FactGridMappingOptions = dataclasses.field(
+        default_factory=FactGridMappingOptions)
 
     pubchem: PubChemMappingOptions = dataclasses.field(
         default_factory=PubChemMappingOptions)

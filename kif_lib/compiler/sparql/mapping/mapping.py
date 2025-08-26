@@ -588,9 +588,12 @@ class SPARQL_Mapping(Sequence[_Entry]):
 
     @classmethod
     def __init_subclass__(cls) -> None:
-        cls._entries = [
-            cls.Entry(*t) for t in SPARQL_Mapping._scheduled_entries]
-        SPARQL_Mapping._scheduled_entries = []
+        if not hasattr(cls, '_entries'):
+            cls._entries = []
+        if SPARQL_Mapping._scheduled_entries:
+            cls._entries.extend(  # type: ignore
+                cls.Entry(*t) for t in SPARQL_Mapping._scheduled_entries)
+            SPARQL_Mapping._scheduled_entries = []
 
     @classmethod
     def register(

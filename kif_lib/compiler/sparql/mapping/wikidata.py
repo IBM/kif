@@ -67,7 +67,7 @@ from ....namespace import (
 from ....typing import (
     Any,
     cast,
-    Final,
+    ClassVar,
     Iterable,
     Iterator,
     Optional,
@@ -79,7 +79,7 @@ from ....typing import (
 from ..filter_compiler import SPARQL_FilterCompiler as C
 from ..results import SPARQL_ResultsBinding
 from .mapping import SPARQL_Mapping as M
-from .options import WikidataMappingOptions
+from .wikidata_options import WikidataMappingOptions
 
 __all__ = (
     'WikidataMapping',
@@ -96,6 +96,7 @@ URI: TypeAlias = C.Query.URI
 V_URI: TypeAlias = C.Query.V_URI
 V_URI3: TypeAlias = tuple[V_URI, V_URI, V_URI]
 
+Path: TypeAlias = C.Query.Path
 Var: TypeAlias = C.Query.Variable
 
 T_WDS: TypeAlias = Union[BNode, Var]
@@ -114,16 +115,30 @@ class WikidataMapping(M):
        blazegraph: Whether to target Blazegraph (use named subqueries).
        strict: Whether to be strict (assume full Wikidata compatibility).
        truthy: Truthy mask to be used in the filter compilation phase.
+       use_schema: Whether to use the registered property schemas.
+       type: Expression for matching :class:`TypeProperty`.
+       subtype: Expression for matching from :class:`SubtypeProperty`.
     """
 
-    _re_item_uri: Final[re.Pattern] = re.compile(
+    _default_type: ClassVar[Path] =\
+        Wikidata.WDT.P31 / (Wikidata.WDT.P279 * '*')  # type: ignore
+
+    _default_subtype: ClassVar[Path] = Wikidata.WDT.P279 * '+'  # type: ignore
+
+    _re_item_uri: ClassVar[re.Pattern] = re.compile(
         f'^{re.escape(Wikidata.WD)}Q[1-9][0-9]*$')
 
-    _re_lexeme_uri: Final[re.Pattern] = re.compile(
+    _re_lexeme_uri: ClassVar[re.Pattern] = re.compile(
         f'^{re.escape(Wikidata.WD)}L[1-9][0-9]*$')
 
-    _re_property_uri: Final[re.Pattern] = re.compile(
+    _re_property_uri: ClassVar[re.Pattern] = re.compile(
         f'^{re.escape(Wikidata.WD)}P[1-9][0-9]*$')
+
+    _repl_item_uri: ClassVar[Union[dict[str, str], None]] = None
+
+    _repl_lexeme_uri: ClassVar[Union[dict[str, str], None]] = None
+
+    _repl_property_uri: ClassVar[Union[dict[str, str], None]] = None
 
     class CheckDatatype(M.EntryCallbackArgProcessor):
         """Checks whether argument is a datatype value."""
@@ -138,8 +153,9 @@ class WikidataMapping(M):
         """Checks whether argument is an item URI."""
 
         def __call__(self, m: M, c: C, arg: Arg) -> Arg:
-            assert isinstance(m, WikidataMapping)
+            assert isinstance(m, WikidataMapping), m
             return m.CheckURI(
+                replace=m._repl_item_uri,
                 match=m._re_item_uri if m.options.strict else None)(
                 m, c, arg)
 
@@ -147,8 +163,9 @@ class WikidataMapping(M):
         """Checks whether argument is a property URI."""
 
         def __call__(self, m: M, c: C, arg: Arg) -> Arg:
-            assert isinstance(m, WikidataMapping)
+            assert isinstance(m, WikidataMapping), m
             return m.CheckURI(
+                replace=m._repl_property_uri,
                 match=m._re_property_uri if m.options.strict else None)(
                 m, c, arg)
 
@@ -156,8 +173,9 @@ class WikidataMapping(M):
         """Checks whether argument is a lexeme URI."""
 
         def __call__(self, m: M, c: C, arg: Arg) -> Arg:
-            assert isinstance(m, WikidataMapping)
+            assert isinstance(m, WikidataMapping), m
             return m.CheckURI(
+                replace=m._repl_lexeme_uri,
                 match=m._re_lexeme_uri if m.options.strict else None)(
                 m, c, arg)
 
@@ -183,12 +201,20 @@ class WikidataMapping(M):
     __slots__ = (
         '_context',
         '_options',
+        '_subtype',
+        '_type',
         '_uri_schema',
         '_wds',
     )
 
     #: Wikidata SPARQL mapping options.
     _options: WikidataMappingOptions
+
+    #: The instance-of property.
+    _type: Union[URI, Path]
+
+    #: The subclass-of property.
+    _subtype: Union[URI, Path]
 
     #: Resolved property URI schema indexed by property URI.
     _uri_schema: dict[URI, URI_Schema]
@@ -202,6 +228,8 @@ class WikidataMapping(M):
             strict: bool | None = None,
             truthy: Filter.TDatatypeMask | None = None,
             use_schema: bool | None = None,
+            type: URI | Path | None = None,
+            subtype: URI | Path | None = None,
             context: Context | None = None
     ) -> None:
         super().__init__(context)
@@ -214,6 +242,8 @@ class WikidataMapping(M):
             self.options.set_truthy(truthy)
         if use_schema is not None:
             self.options.set_use_schema(use_schema)
+        self._type = type or self._default_type
+        self._subtype = subtype or self._default_subtype
         self._uri_schema = {}
         self._wds = []
 
@@ -776,8 +806,7 @@ class WikidataMapping(M):
         rank=Normal)
     def p_item_type(self, c: C, s: V_URI, v: V_URI, **kwargs) -> None:
         self._start_Q_tail(c, s)
-        ty = Wikidata.WDT.P31 / (Wikidata.WDT.P279 * '*')  # type: ignore
-        self._p_item_tail(c, ty, s, v)
+        self._p_item_tail(c, self._type, s, v)  # type: ignore
         self._ensure_wds_is_bound_fix(c)
 
     @M.register(
@@ -796,8 +825,7 @@ class WikidataMapping(M):
             **kwargs
     ) -> None:
         self._start_P_tail(c, s, s0)
-        ty = Wikidata.WDT.P31 / (Wikidata.WDT.P279 * '*')  # type: ignore
-        self._p_item_tail(c, ty, s, v)
+        self._p_item_tail(c, self._type, s, v)  # type: ignore
         self._ensure_wds_is_bound_fix(c)
 
     @M.register(
@@ -808,8 +836,7 @@ class WikidataMapping(M):
         rank=Normal)
     def p_lexeme_type(self, c: C, s: V_URI, v: V_URI, **kwargs) -> None:
         self._start_L_tail(c, s)
-        ty = Wikidata.WDT.P31 / (Wikidata.WDT.P279 * '*')  # type: ignore
-        self._p_item_tail(c, ty, s, v)
+        self._p_item_tail(c, self._type, s, v)  # type: ignore
         self._ensure_wds_is_bound_fix(c)
 
     # -- subtype (pseudo-property) --
@@ -822,8 +849,7 @@ class WikidataMapping(M):
         rank=Normal)
     def p_item_subtype(self, c: C, s: V_URI, v: V_URI, **kwargs) -> None:
         self._start_Q_tail(c, s)
-        subtype = Wikidata.WDT.P279 * '+'  # type: ignore
-        self._p_item_tail(c, subtype, s, v)
+        self._p_item_tail(c, self._subtype, s, v)  # type: ignore
         self._ensure_wds_is_bound_fix(c)
 
     # -- label (pseudo-property) --

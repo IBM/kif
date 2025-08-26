@@ -457,6 +457,15 @@ class _CoreSPARQL_Store(
         return EuropaMapping(*args, **kwargs)
 
     @classmethod
+    def _factgrid_mapping_constructor(
+            cls,
+            *args: Any,
+            **kwargs: Any
+    ) -> SPARQL_Mapping:
+        from ...compiler.sparql.mapping.factgrid import FactGridMapping
+        return FactGridMapping(*args, **kwargs)
+
+    @classmethod
     def _pubchem_mapping_constructor(
             cls,
             *args: Any,

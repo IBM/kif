@@ -1369,6 +1369,7 @@ class Query(Encodable):
     V_URI: TypeAlias = Union[URIRef, Variable]
     VTerm: TypeAlias = Union[Term, Variable]
 
+    Path: TypeAlias = Path
     Clause: TypeAlias = Clause
     Expression: TypeAlias = Expression
     BooleanExpression: TypeAlias = BooleanExpression

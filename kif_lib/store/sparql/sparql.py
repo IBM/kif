@@ -571,9 +571,9 @@ class FactGridSPARQL_Store(
             if resolver_iri is not None:
                 args = (resolver_iri,)
         if mapping is None:
-            mapping = _CoreSPARQL_Store._wikidata_mapping_constructor(
+            mapping = _CoreSPARQL_Store._factgrid_mapping_constructor(
                 blazegraph=True,  # force
-                strict=False,     # force
+                strict=True,      # force
                 truthy=truthy)
         super().__init__(
             store_name, *args, format=format,
