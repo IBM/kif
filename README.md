@@ -48,8 +48,9 @@ Click on the headings for details.
 <summary>
 Gets from <a href="https://www.wikidata.org/">Wikidata</a> all statements with property <a href="http://www.wikidata.org/entity/P47">shares border with (P47)</a> and value <a href="http://www.wikidata.org/entity/Q155">Brazil (Q155)</a>.
 </summary>
+<br/>
 
-Using the KIF CLI:
+<b>KIF CLI</b>
 
 ```shell
 kif filter -s wikidata --property=wd.shares_border_with --value='wd.Q(155)'
@@ -60,7 +61,7 @@ kif filter -s wikidata --property=wd.shares_border_with --value='wd.Q(155)'
 > (**Statement** (**Item** [Paraguay](http://www.wikidata.org/entity/Q733)) (**ValueSnak** (**Property** [shares border with](http://www.wikidata.org/entity/P47)) (**Item** [Brazil](http://www.wikidata.org/entity/Q155)))) <br/>
 > ⋮
 
-Using the KIF API:
+<b>KIF API</b>
 
 ```python
 from kif_lib import *               # import the KIF namespace
@@ -79,21 +80,22 @@ for stmt in kb.filter(property=wd.shares_border_with, value=wd.Q(155)):
 <summary>
 Counts the number of <a href="http://www.wikidata.org/entity/Q7432">species (Q7432)</a> in <a href="https://www.uniprot.org/">UniProt</a>.
 </summary>
+<br/>
 
-Using the KIF CLI:
+<b>KIF CLI</b>
 
 ```shell
 $ kif count -s uniprot --select s --property=wd.taxon_rank --value=wd.species
 2182677
 ```
 
-Using the KIF API:
+<b>KIF API</b>
 
 ```python
 # Create a SPARQL store loaded with UniProt mappings.
 kb = Store('uniprot', 'https://sparql.uniprot.org/sparql')
 
-# Counts the number of distinct subjects of statements with the given property and value.
+# Count the number of distinct subjects of statements with the given property and value.
 n = kb.count_s(property=wd.taxon_rank, value=wd.species)
 print(n)
 ```
@@ -103,8 +105,9 @@ print(n)
 <summary>
 Gets from <a href="https://www.wikidata.org/">Wikidata</a> and <a href="https://qlever.cs.uni-freiburg.de/api/pubchem">PubChem</a> the IRI and molecular mass of all chemicals whose formula is H₂O.
 </summary>
+</br>
 
-Using the KIF CLI:
+<b>KIF CLI</b>
 
 ```shell
 $ kif filter -s wikidata -s pubchem --select sv --subject='wd.chemical_formula("H₂O")' --property=wd.mass
@@ -115,7 +118,7 @@ $ kif filter -s wikidata -s pubchem --select sv --subject='wd.chemical_formula("
 > (**Item** [diprotium oxide](http://www.wikidata.org/entity/Q106010185)) 18.010564684 [dalton](http://www.wikidata.org/entity/Q483261) <br/>
 > ⋮
 
-Using the KIF API:
+<b>KIF API</b>
 
 ```python
 # Create a mixer store combining:
