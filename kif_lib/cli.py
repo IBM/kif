@@ -53,6 +53,7 @@ from .typing import (
     AsyncIterator,
     Awaitable,
     Callable,
+    cast,
     ClassVar,
     Final,
     Iterable,
@@ -1933,22 +1934,25 @@ def _output_search_page(
             Iterable[Search.TData]],
         encoder: Encoder | None = None,
         resolve: bool | None = None,
-        context: Context | None = None,
+        context: Context | None = None
 ) -> None:
     if type.endswith('data'):
         for data in page:
             console.print(pprint.pformat(data))
             console.print()
-    elif type.endswith('descriptor'):
-        it = itertools.chain(*(
-            (entity, SnakSet(
-                *entity.descriptor_to_snaks(desc)))  # type: ignore
-            for entity, desc in page))
-        _output_filter_page(
-            console, list(it), encoder, resolve, context)  # type: ignore
     else:
-        _output_filter_page(
-            console, page, encoder, resolve, context)  # type: ignore
+        output = functools.partial(
+            _output_filter_page,
+            console=console, encoder=encoder,
+            resolve=resolve, context=context)
+        if type.endswith('descriptor'):
+            it = itertools.chain(*(
+                (entity, SnakSet(
+                    *entity.descriptor_to_snaks(desc)))  # type: ignore
+                for entity, desc in page))
+            output(page=cast(Iterable[Term], list(it)))
+        else:
+            output(page=cast(Iterable[Term], page))
 
 
 if __name__ == '__main__':

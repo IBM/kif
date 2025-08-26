@@ -54,6 +54,9 @@ class DBpediaDDGS_SearchOptions(DDGS_SearchOptions, name='dbpedia_ddgs'):
     _v_backend: ClassVar[tuple[Iterable[str], str | None]] =\
         (('KIF_DBPEDIA_DDGS_SEARCH_BACKEND'), None)
 
+    _v_in_url: ClassVar[tuple[Iterable[str], str | None]] =\
+        (('KIF_DBPEDIA_DDGS_SEARCH_IN_URL'), None)
+
     DEFAULT_ITEM_MATCH =\
         r'^http[s]?://dbpedia\.org/(ontology/([^a-z]\w+)|resource/(\w+))$'
 
