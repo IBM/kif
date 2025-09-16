@@ -73,6 +73,8 @@ does_not_have_part = P(3113)
 download_link = P(4945)
 DSSTox_substance_ID = P(3117)
 duration = P(2047)
+EC_number = P(232)
+ECHA_Substance_Infocard_ID = P(2566)
 educated_at = P(69)
 element_symbol = P(246)
 elevation_above_sea_level = P(2044)
@@ -357,6 +359,8 @@ __all__ = (
     'DSSTox_substance_ID',
     'duration',
     'EC50',
+    'EC_number',
+    'ECHA_Substance_Infocard_ID',
     'educated_at',
     'element_symbol',
     'elevation_above_sea_level',
