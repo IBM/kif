@@ -325,7 +325,7 @@ class Reader(
         fp: TextIO
         if pathlib.PurePath(location).suffix == '.gz':
             import gzip
-            fp = gzip.open(location)  # type: ignore
+            fp = gzip.open(location, 'rt', encoding='utf-8')  # type: ignore
         else:
             fp = open(location, encoding='utf-8')
         yield iter(self._load(fp))
