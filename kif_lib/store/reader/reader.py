@@ -322,7 +322,12 @@ class Reader(
             self,
             location: TLocation
     ) -> Generator[Iterable[T], None, None]:
-        fp = open(location, encoding='utf-8')
+        fp: TextIO
+        if pathlib.PurePath(location).suffix == '.gz':
+            import gzip
+            fp = gzip.open(location)  # type: ignore
+        else:
+            fp = open(location, encoding='utf-8')
         yield iter(self._load(fp))
         fp.close()
 
