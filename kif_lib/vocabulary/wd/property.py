@@ -21,6 +21,7 @@ author_name_string = P(2093)
 auxiliary_verb = P(5401)
 based_on = P(144)
 based_on_heuristic = P(887)
+boiling_point = P(2102)
 canonical_SMILES = P(233)
 capital = P(36)
 CAS_Registry_Number = P(231)
@@ -96,6 +97,7 @@ field_of_this_occupation = P(425)
 field_of_work = P(101)
 file_format = P(2701)
 film_editor = P(1040)
+flash_point = P(2128)
 followed_by = P(156)
 follows = P(155)
 formatter_URI_for_RDF_resource = P(1921)
@@ -224,6 +226,7 @@ publisher = P(123)
 quantity_symbol_string = P(416)
 record_label = P(264)
 reference_URL = P(854)
+refractive_index = P(1109)
 related_property = P(1659)
 Relations_Ontology_ID = P(3590)
 religion_or_worldview = P(140)
@@ -255,10 +258,12 @@ stereoisomer_of = P(3364)
 subclass_of = P(279)
 subject_lexeme = P(6254)
 subproperty_of = P(1647)
+surface_tension = P(3013)
 taxon_name = P(225)
 taxon_rank = P(105)
 temperature = P(2076)
 TheCocktailDB_ingredient_ID = P(9057)
+thermal_conductivity = P(2068)
 time_index = P(4895)
 title = P(1476)
 tonality = P(826)
@@ -271,6 +276,7 @@ URL = P(2699)
 used_by = P(1535)
 uses = P(2283)
 valid_in_place = P(3005)
+vapor_pressure = P(2119)
 vessel_class = P(289)
 width = P(2049)
 Wikidata_item_of_this_property = P(1629)
@@ -306,6 +312,7 @@ __all__ = (
     'auxiliary_verb',
     'based_on',
     'based_on_heuristic',
+    'boiling_point',
     'canonical_SMILES',
     'capital',
     'CAS_Registry_Number',
@@ -382,6 +389,7 @@ __all__ = (
     'field_of_work',
     'file_format',
     'film_editor',
+    'flash_point',
     'followed_by',
     'follows',
     'formatter_URI_for_RDF_resource',
@@ -515,6 +523,7 @@ __all__ = (
     'quantity_symbol_string',
     'record_label',
     'reference_URL',
+    'refractive_index',
     'related_property',
     'Relations_Ontology_ID',
     'religion_or_worldview',
@@ -548,10 +557,12 @@ __all__ = (
     'subclass_of',
     'subject_lexeme',
     'subproperty_of',
+    'surface_tension',
     'taxon_name',
     'taxon_rank',
     'temperature',
     'TheCocktailDB_ingredient_ID',
+    'thermal_conductivity',
     'time_index',
     'title',
     'tonality',
@@ -564,6 +575,7 @@ __all__ = (
     'used_by',
     'uses',
     'valid_in_place',
+    'vapor_pressure',
     'vessel_class',
     'width',
     'Wikidata_item_of_this_property',
