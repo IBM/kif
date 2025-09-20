@@ -74,6 +74,7 @@ does_not_have_part = P(3113)
 download_link = P(4945)
 DSSTox_substance_ID = P(3117)
 duration = P(2047)
+dynamic_viscosity = P(3070)
 EC_number = P(232)
 ECHA_Substance_Infocard_ID = P(2566)
 educated_at = P(69)
@@ -365,6 +366,7 @@ __all__ = (
     'download_link',
     'DSSTox_substance_ID',
     'duration',
+    'dynamic_viscosity',
     'EC50',
     'EC_number',
     'ECHA_Substance_Infocard_ID',
