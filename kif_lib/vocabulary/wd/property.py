@@ -72,6 +72,7 @@ doctoral_advisor = P(184)
 doctoral_student = P(185)
 does_not_have_part = P(3113)
 download_link = P(4945)
+DSSTox_compound_ID = P(8494)
 DSSTox_substance_ID = P(3117)
 duration = P(2047)
 dynamic_viscosity = P(3070)
@@ -283,10 +284,13 @@ width = P(2049)
 Wikidata_item_of_this_property = P(1629)
 Wikidata_property = P(1687)
 Wikidata_property_example_for_lexemes = P(5192)
+Wikimedia_import_URL = P(4656)
 WordNet_31_Synset_ID = P(8814)
 YouTube_video_ID = P(1651)
 
 # Aliases:
+DTXCID = DSSTox_compound_ID
+DTXSID = DSSTox_substance_ID
 EC50 = half_maximal_effective_concentration
 LC50 = median_lethal_concentration
 LD50 = median_lethal_dose
@@ -364,7 +368,11 @@ __all__ = (
     'doctoral_student',
     'does_not_have_part',
     'download_link',
+    'DSSTox_compound_ID',
     'DSSTox_substance_ID',
+    'DSSTox_substance_ID',
+    'DTXCID',
+    'DTXSID',
     'duration',
     'dynamic_viscosity',
     'EC50',
@@ -583,6 +591,7 @@ __all__ = (
     'Wikidata_item_of_this_property',
     'Wikidata_property',
     'Wikidata_property_example_for_lexemes',
+    'Wikimedia_import_URL',
     'WordNet_31_Synset_ID',
     'YouTube_video_ID',
 )
