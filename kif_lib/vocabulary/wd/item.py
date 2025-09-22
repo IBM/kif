@@ -8,6 +8,7 @@ from .prelude import Q
 # autopep8: off
 # flake8: noqa
 
+
 _1 = Q(199, '1')
 acetone = Q(49546, 'acetone')
 Adam = Q(70899, 'Adam')
@@ -124,6 +125,7 @@ laboratory_rat = Q(3089676, 'laboratory rat')
 Latin_America = Q(12585, 'Latin America')
 lion = Q(140, 'lion')
 liquid = Q(11435, 'liquid')
+litre_per_kilogram = Q(57175557, 'litre per kilogram')
 machine_learning = Q(2539, 'machine learning')
 male = Q(6581097, 'male')
 male_human = Q(84048850, 'male human')
@@ -341,6 +343,7 @@ __all__ = (
     'Latin_America',
     'lion',
     'liquid',
+    'litre_per_kilogram',
     'machine_learning',
     'male',
     'male_human',

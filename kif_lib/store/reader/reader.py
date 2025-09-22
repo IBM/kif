@@ -294,10 +294,10 @@ class Reader(
                     self._register(
                         entity, aliases=itertools.chain(  # type: ignore
                             *t['aliases'].values()))
-                if 'description' in t:
+                if 'descriptions' in t:
                     self._register(
                         entity,  # type: ignore
-                        description=t['descriptions'].values())
+                        descriptions=t['descriptions'].values())
                 if isinstance(entity, Property):
                     t = cast(Property.Descriptor, descriptor)
                     if 'range' in t:
