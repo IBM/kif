@@ -8,7 +8,6 @@ from .prelude import Q
 # autopep8: off
 # flake8: noqa
 
-
 _1 = Q(199, '1')
 acetone = Q(49546, 'acetone')
 Adam = Q(70899, 'Adam')
@@ -61,6 +60,7 @@ database = Q(8513, 'database')
 day = Q(573, 'day')
 degree_Celsius = Q(25267, 'degree Celsius')
 degree_Fahrenheit = Q(42289, 'degree Fahrenheit')
+document = Q(49848, 'document')
 dog = Q(144, 'dog')
 domain = Q(146481, 'domain')
 dopamine = Q(170304, 'dopamine')
@@ -184,6 +184,7 @@ seculararchy = Q(859563, 'seculararchy')
 skin_absorption = Q(4669896, 'skin absorption')
 slope = Q(944588, 'slope')
 sodium_bicarbonate = Q(179731, 'sodium bicarbonate')
+software = Q(7397, 'software')
 South_America = Q(18, 'South America')
 sovereign_state = Q(3624078, 'sovereign_state')
 Spanish = Q(1321, 'Spanish')
@@ -279,6 +280,7 @@ __all__ = (
     'day',
     'degree_Celsius',
     'degree_Fahrenheit',
+    'document',
     'dog',
     'domain',
     'dopamine',
@@ -402,6 +404,7 @@ __all__ = (
     'skin_absorption',
     'slope',
     'sodium_bicarbonate',
+    'software',
     'South_America',
     'sovereign_state',
     'Spanish',

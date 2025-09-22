@@ -287,6 +287,7 @@ Wikidata_property = P(1687)
 Wikidata_property_example_for_lexemes = P(5192)
 Wikimedia_import_URL = P(4656)
 WordNet_31_Synset_ID = P(8814)
+work_available_at_URL = P(953)
 YouTube_video_ID = P(1651)
 
 # Aliases:
@@ -597,5 +598,6 @@ __all__ = (
     'Wikidata_property_example_for_lexemes',
     'Wikimedia_import_URL',
     'WordNet_31_Synset_ID',
+    'work_available_at_URL',
     'YouTube_video_ID',
 )

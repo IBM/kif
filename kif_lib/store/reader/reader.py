@@ -314,8 +314,9 @@ class Reader(
                     self._register(entity, language=l['language'])
         return entity           # type: ignore
 
-    def _schedule(self, statement: Statement) -> None:
-        self._scheduled.add(statement)
+    def _schedule(self, *statements: Statement) -> None:
+        for statement in statements:
+            self._scheduled.add(statement)
 
     @contextlib.contextmanager
     def _load_location(
