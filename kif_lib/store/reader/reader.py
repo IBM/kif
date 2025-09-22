@@ -431,9 +431,10 @@ class Reader(
             it = map(lambda stmt: stmt.annotate(), it)
         else:
             it = map(lambda stmt: stmt.unannotate(), it)
+        it = itertools.filter(filter.match, it)
         if options.limit is not None:
             it = itertools.islice(it, options.limit)
-        return itertools.filter(filter.match, it)
+        return it
 
     def _filter_parse_location(
             self,

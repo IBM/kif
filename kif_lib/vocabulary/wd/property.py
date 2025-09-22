@@ -61,6 +61,7 @@ derived_from_lexeme = P(5191)
 described_at_URL = P(973)
 described_by_source = P(1343)
 designed_by = P(287)
+determination_method_or_standard = P(459)
 developer = P(178)
 Dictionary_of_American_Regional_English_ID = P(12448)
 different_from = P(1889)
@@ -289,6 +290,7 @@ WordNet_31_Synset_ID = P(8814)
 YouTube_video_ID = P(1651)
 
 # Aliases:
+determined_by = determination_method_or_standard
 DTXCID = DSSTox_compound_ID
 DTXSID = DSSTox_substance_ID
 EC50 = half_maximal_effective_concentration
@@ -357,6 +359,8 @@ __all__ = (
     'described_at_URL',
     'described_by_source',
     'designed_by',
+    'determination_method_or_standard',
+    'determined_by',
     'developer',
     'Dictionary_of_American_Regional_English_ID',
     'different_from',
