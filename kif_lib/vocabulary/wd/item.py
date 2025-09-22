@@ -36,6 +36,7 @@ caffeine = Q(60235, 'caffeine')
 carbon = Q(623, 'carbon')
 carbonic_acid = Q(104334, 'carbonic acid')
 CAS_Common_Chemistry = Q(18907859, 'CAS Common Chemistry')
+centipoise = Q(26162557, 'centipoise')
 characterization = Q(2165586, 'characterization')
 chemical_compound = Q(11173, 'chemical compound')
 chemical_entity = Q(43460564, 'chemical entity')
@@ -52,6 +53,7 @@ CompTox_Chemistry_Dashboard = Q(26998510, 'CompTox Chemistry Dashboard')
 continent_ = Q(5107, 'continent')
 copyrighted = Q(50423863, 'copyrighted')
 country_ = Q(6256, 'country')
+cubic_centimetre_per_mole = Q(24008537, 'cubic centimetre per mole')
 dalton = Q(483261, 'dalton')
 data_set = Q(1172284, 'data set')
 database = Q(8513, 'database')
@@ -62,6 +64,7 @@ dog = Q(144, 'dog')
 domain = Q(146481, 'domain')
 dopamine = Q(170304, 'dopamine')
 drama_film = Q(130232, 'drama film')
+dyne_per_centimetre = Q(106455582, 'dyne per centimetre')
 Easter = Q(21196, 'Easter')
 ECHA_Substance_Infocard_database = Q(59911453, 'ECHA Substance Infocard database')
 El_Capitan = Q(1124852, 'El Capitan')
@@ -134,7 +137,9 @@ metre = Q(11573, 'metre')
 microgram_per_kilogram = Q(107313731, 'microgram per kilogram')
 middleware = Q(146768, 'middleware')
 milligram_per_kilogram = Q(21091747, 'milligram per kilogram')
+millimetre_of_mercury = Q(6859652, 'millimetre of mercury')
 minute = Q(7727, 'minute')
+mole_per_litre = Q(21064845, 'mole per litre')
 Monte_Pascoal = Q(1499212, 'Monte Pascoal')
 Mount_Everest = Q(513, 'Mount Everest')
 mountain = Q(8502, 'mountain')
@@ -247,6 +252,7 @@ __all__ = (
     'carbon',
     'carbonic_acid',
     'CAS_Common_Chemistry',
+    'centipoise',
     'characterization',
     'chemical_compound',
     'chemical_entity',
@@ -263,6 +269,7 @@ __all__ = (
     'continent_',
     'copyrighted',
     'country_',
+    'cubic_centimetre_per_mole',
     'dalton',
     'data_set',
     'database',
@@ -274,6 +281,7 @@ __all__ = (
     'domain',
     'dopamine',
     'drama_film',
+    'dyne_per_centimetre',
     'Easter',
     'ECHA_Substance_Infocard_database',
     'El_Capitan',
@@ -346,7 +354,9 @@ __all__ = (
     'microgram_per_kilogram',
     'middleware',
     'milligram_per_kilogram',
+    'millimetre_of_mercury',
     'minute',
+    'mole_per_litre',
     'Monte_Pascoal',
     'Mount_Everest',
     'mountain',
