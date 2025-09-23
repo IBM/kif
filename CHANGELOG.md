@@ -15,6 +15,9 @@ The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.0.0/).
 - Added SPARQL mappings for https://data.europa.eu/.  Added `europa` SPARQL
   store.
 
+- Add `?` operator for specifying engine arguments using a glob pattern in
+  KIF CLI.
+
 - Add `--vocabulary-dump` option to KIF CLI filter command.
 
 - Add convenience encoder flags to KIF CLI, i.e., `--markdown`, `--repr`,

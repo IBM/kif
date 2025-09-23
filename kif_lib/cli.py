@@ -4,7 +4,9 @@
 from __future__ import annotations
 
 import asyncio
+import logging
 import os
+import pathlib
 import pprint
 import re
 import sys
@@ -18,6 +20,7 @@ from . import (
     itertools,
 )
 from .context import Context
+from .engine import Engine
 from .model import (
     And,
     DataValue,
@@ -83,6 +86,9 @@ TObj = TypeVar('TObj', bound=KIF_Object)
 
 #: The globals table to be passed to :func:`eval`.
 _G: Final[dict[str, Any]] = {}
+
+#: The module logger.
+_LOGGER: Final[logging.Logger] = logging.getLogger(__name__)
 
 #: Whether to profile the current command.
 _PROFILE: bool = False
@@ -360,35 +366,12 @@ class EncoderParamType(KIF_ParamType):
             return self.fail(str(err), param, ctx)
 
 
-class SearchParamType(KIF_ParamType):
+class EngineParamType(KIF_ParamType):
 
-    name: str = 'search'
-
-    @override
-    def convert(
-            self,
-            value: Any,
-            param: click.Parameter | None,
-            ctx: click.Context | None
-    ) -> Search:
-        if isinstance(value, str):
-            for search_name in Search.registry.keys():
-                m = re.match(f'^{search_name}(@(.*))?$', value)
-                if m is not None:
-                    input_sources = m.group(2)
-                    if input_sources:
-                        return Search(search_name, *input_sources.split(';'))
-                    else:
-                        return Search(search_name)
-        try:
-            return KIF_Object._check_arg_isinstance(self.eval(value), Search)
-        except (ValueError, TypeError) as err:
-            return self.fail(str(err), param, ctx)
-
-
-class StoreParamType(KIF_ParamType):
-
-    name: str = 'store'
+    constructor: ClassVar[type[Engine]]
+    constructor_re: ClassVar[re.Pattern[str]] = re.compile(
+        r'^([\w-]+)(?:([@?])(.*))?$')
+    name: str = 'engine'
 
     @override
     def convert(
@@ -396,24 +379,42 @@ class StoreParamType(KIF_ParamType):
             value: Any,
             param: click.Parameter | None,
             ctx: click.Context | None
-    ) -> Store:
+    ) -> Engine:
         if isinstance(value, str):
-            for store_name in Store.registry.keys():
-                m = re.match(f'^{store_name}(@(.*))?$', value)
-                if m is not None:
-                    input_sources = m.group(2)
-                    if input_sources:
-                        return Store(store_name, *input_sources.split(';'))
-                    else:
-                        return Store(store_name)
+            m = self.constructor_re.match(value)
+            if m:
+                plugin_name, op, args = m.groups()
+                if args:
+                    if op == '@':
+                        return self.constructor(plugin_name, *args.split(';'))
+                    if op == '?':
+                        exp_args = list(pathlib.Path('.').glob(args))
+                        _LOGGER.info(
+                            'expanded arguments: %s',
+                            ';'.join(map(str, exp_args)))
+                        return self.constructor(plugin_name, *exp_args)
+                return self.constructor(plugin_name)
         try:
-            return KIF_Object._check_arg_isinstance(self.eval(value), Store)
+            return KIF_Object._check_arg_isinstance(
+                self.eval(value), self.constructor)
         except (ValueError, TypeError) as err:
             return self.fail(str(err), param, ctx)
 
     @override
     def split_envvar_value(self, rv: str) -> Sequence[str]:  # type: ignore
         return (rv or '').split(';')
+
+
+class SearchParamType(EngineParamType):
+
+    constructor = Search
+    name = 'search'
+
+
+class StoreParamType(EngineParamType):
+
+    constructor = Store
+    name = 'store'
 
 
 class KIF_ObjectParamType(KIF_ParamType):
