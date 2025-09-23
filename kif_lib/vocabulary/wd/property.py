@@ -133,6 +133,7 @@ highest_point = P(610)
 home_venue = P(115)
 homograph_lexeme = P(5402)
 HSDB_ID = P(2062)
+immediately_dangerous_to_life_or_health = P(2129)
 imported_from_Wikimedia_project = P(143)
 inception = P(571)
 InChI = P(234)
@@ -157,6 +158,7 @@ located_on_astronomical_body = P(376)
 location = P(276)
 location_of_discovery = P(189)
 location_of_formation = P(740)
+lowest_observed_adverse_effect_level = P(2718)
 lowest_point = P(1589)
 lyrics_by = P(676)
 made_from_material = P(186)
@@ -181,6 +183,7 @@ named_after = P(138)
 narrower_external_class = P(3950)
 native_label = P(1705)
 negates_property = P(11317)
+no_observed_adverse_effect_level = P(2717)
 notable_work = P(800)
 number_of_decimal_digits = P(7316)
 number_of_records = P(4876)
@@ -295,9 +298,12 @@ determined_by = determination_method_or_standard
 DTXCID = DSSTox_compound_ID
 DTXSID = DSSTox_substance_ID
 EC50 = half_maximal_effective_concentration
+IDLH = immediately_dangerous_to_life_or_health
 LC50 = median_lethal_concentration
 LD50 = median_lethal_dose
+LOAEL = lowest_observed_adverse_effect_level
 material_produced = product_or_material_produced_or_service_provided
+NOAEL = no_observed_adverse_effect_level
 position_played_on_team = position_played_on_team_speciality
 product_produced = product_or_material_produced_or_service_provided
 same_as = said_to_be_the_same_as
@@ -437,6 +443,8 @@ __all__ = (
     'home_venue',
     'homograph_lexeme',
     'HSDB_ID',
+    'IDLH',
+    'immediately_dangerous_to_life_or_health',
     'imported_from_Wikimedia_project',
     'inception',
     'InChI',
@@ -456,6 +464,7 @@ __all__ = (
     'league_or_competition',
     'legal_status_medicine',
     'licensed_to_broadcast_to',
+    'LOAEL',
     'located_in_or_next_to_body_of_water',
     'located_in_the_administrative_territorial_entity',
     'located_in_time_zone',
@@ -463,6 +472,7 @@ __all__ = (
     'location',
     'location_of_discovery',
     'location_of_formation',
+    'lowest_observed_adverse_effect_level',
     'lowest_point',
     'lyrics_by',
     'made_from_material',
@@ -488,6 +498,8 @@ __all__ = (
     'narrower_external_class',
     'native_label',
     'negates_property',
+    'no_observed_adverse_effect_level',
+    'NOAEL',
     'notable_work',
     'number_of_decimal_digits',
     'number_of_records',
