@@ -173,6 +173,7 @@ median_lethal_dose = P(2240)
 melting_point = P(2101)
 member_of = P(463)
 member_of_political_party = P(102)
+minimal_lethal_concentration = P(2710)
 minimal_lethal_dose = P(2300)
 minor_planet_group = P(196)
 mother = P(25)
@@ -300,6 +301,7 @@ DTXSID = DSSTox_substance_ID
 EC50 = half_maximal_effective_concentration
 IDLH = immediately_dangerous_to_life_or_health
 LC50 = median_lethal_concentration
+LCLo = minimal_lethal_concentration
 LD50 = median_lethal_dose
 LOAEL = lowest_observed_adverse_effect_level
 material_produced = product_or_material_produced_or_service_provided
@@ -460,6 +462,7 @@ __all__ = (
     'language_of_work_or_name',
     'last_update',
     'LC50',
+    'LCLo',
     'LD50',
     'league_or_competition',
     'legal_status_medicine',
@@ -488,6 +491,7 @@ __all__ = (
     'melting_point',
     'member_of',
     'member_of_political_party',
+    'minimal_lethal_concentration',
     'minimal_lethal_dose',
     'minor_planet_group',
     'mother',

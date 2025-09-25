@@ -15,13 +15,16 @@ The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.0.0/).
 - Added SPARQL mappings for https://data.europa.eu/.  Added `europa` SPARQL
   store.
 
-- Add `?` operator for specifying engine arguments using a glob pattern in
+- Added `?` operator for specifying engine arguments using a glob pattern in
   KIF CLI.
 
-- Add `--vocabulary-dump` option to KIF CLI filter command.
+- Added `--vocabulary-dump` option to KIF CLI filter command.
 
-- Add convenience encoder flags to KIF CLI, i.e., `--markdown`, `--repr`,
+- Added convenience encoder flags to KIF CLI, i.e., `--markdown`, `--repr`,
   etc.
+
+- Updated base reader to limit the number of parallel tasks.  It now creates
+  at most N parallel tasks, where N is two times the number CPUs.
 
 ## 0.12.0 (2025-08-08)
 

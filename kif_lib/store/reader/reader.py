@@ -472,6 +472,23 @@ class Reader(
         with load_fn(arg) as it:
             return itertools.chain(*map(self._parse_fn, it))
 
+    @classmethod
+    def _afilter_get_parallel_task_limit(cls, default: int = 4) -> int:
+        try:
+            import psutil
+            cpu_count = psutil.cpu_count()
+            if cpu_count is not None:
+                return cpu_count * 2
+            else:
+                return default
+        except ImportError:
+            _logger.warning(
+                'cannot determine the number of CPUs, '
+                'requires psutil (https://github.com/giampaolo/psutil)')
+            _logger.warning(
+                'fall-backing to a limit of %d parallel tasks', default)
+            return default
+
     @override
     def _afilter(
             self,
@@ -483,21 +500,37 @@ class Reader(
             limit = options.max_limit
         assert limit is not None
         parse = functools.partial(self._filter_parse_arg, filter, options)
+        task_counter = 0
 
         async def task(
                 it: Iterator[Statement]
         ) -> tuple[Iterator[Statement], list[Statement]]:
+            nonlocal task_counter
+            i = task_counter
             _logger.debug(
-                '%s():reading %d statements asynchronously',
-                task.__qualname__, options.page_size)
-            return await asyncio.to_thread(
+                '%s():task %d: reading %d statements...',
+                task.__qualname__, i, options.page_size)
+            task_counter += 1
+            res = await asyncio.to_thread(
                 lambda: (it, itertools.take(options.page_size, it)))
+            _logger.debug(
+                '%s():task %d: done, read %d statements)',
+                task.__qualname__, i, len(res[1]))
+            return res
 
         assert len(self._args) >= 3
         pre, mid, pos = (self._args[0],), self._args[1:-1], (self._args[-1],)
         f = (lambda it: self._afilter_helper(list(map(parse, it)), task))
         return itertools.amix(
-            f(pre), f(mid), f(pos),
+            f(pre),
+            ###
+            # IMPORTANT: We use itertools.batched() here to limit the number
+            # of parallel tasks to the number returned by
+            # self._afilter_get_parallel_task_limit().
+            ###
+            *map(f, itertools.batched(
+                mid, self._afilter_get_parallel_task_limit())),
+            f(pos),
             distinct=options.distinct,
             distinct_window_size=options.distinct_window_size,
             limit=limit, method='chain')
@@ -508,13 +541,30 @@ class Reader(
             task: Callable[[Iterator[Statement]], Coroutine[
                 None, None, tuple[Iterator[Statement], list[Statement]]]]
     ) -> AsyncIterator[Statement]:
+        try:
+            import psutil
+            process = psutil.Process()
+            psinfo = (lambda: ' '
+                      f'({process.memory_percent():.1f}% mem., '
+                      f'{process.cpu_percent():.1f}% CPU, '
+                      f'{process.num_threads()} threads)')
+        except ImportError:
+            psinfo = None
+        count = 0
         while its:
             for it, batch in await asyncio.gather(*map(task, its)):
                 if batch:
                     for stmt in batch:
+                        count += 1
                         yield stmt
                 else:
                     its.remove(it)
+            _logger.debug(
+                '%s(): %d yielded, %d scheduled, %d registered%s',
+                self._afilter_helper.__qualname__, count,
+                len(self._scheduled), len(self._registered),
+                psinfo() if psinfo else '')
+            count = 0
 
 
 class JSONL_Reader(
