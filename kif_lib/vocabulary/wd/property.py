@@ -231,6 +231,7 @@ PubChem_CID = P(662)
 publication_date = P(577)
 publisher = P(123)
 quantity_symbol_string = P(416)
+quotation = P(1683)
 record_label = P(264)
 reference_URL = P(854)
 refractive_index = P(1109)
@@ -552,6 +553,7 @@ __all__ = (
     'publication_date',
     'publisher',
     'quantity_symbol_string',
+    'quotation',
     'record_label',
     'reference_URL',
     'refractive_index',

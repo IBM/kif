@@ -102,6 +102,7 @@ gram_per_kilogram = Q(21061369, 'gram per kilogram')
 gram_per_mole = Q(28924752, 'gram per mole')
 Guinea_pig = Q(79803, 'Guinea pig')
 Guyana = Q(734, 'Guyana')
+Hazardous_Chemical_Information_System = Q(65240840, 'Hazardous Chemical Information System')
 Hazardous_Substances_Data_Bank = Q(5687720, 'Hazardous Substances Data Bank')
 height_ = Q(208826, 'height')
 house_cat = Q(146, 'house cat')
@@ -173,6 +174,7 @@ rabbit = Q(9394, 'rabbit')
 Raul = Q(13415699, 'Raul')
 Raul_Seixas = Q(1392583, 'Raul Seixas')
 rectal_administration = Q(419892, 'rectal administration')
+Regulation_EC_No_1272_2008 = Q(2005334, 'Regulation (EC) No. 1272/2008')
 report = Q(10870555, 'report')
 Rio_de_Janeiro = Q(8678, 'Rio de Janeiro')
 river = Q(4022, 'river')
@@ -322,6 +324,7 @@ __all__ = (
     'gram_per_mole',
     'Guinea_pig',
     'Guyana',
+    'Hazardous_Chemical_Information_System',
     'Hazardous_Substances_Data_Bank',
     'height_',
     'house_cat',
@@ -393,6 +396,7 @@ __all__ = (
     'Raul',
     'Raul_Seixas',
     'rectal_administration',
+    'Regulation_EC_No_1272_2008',
     'report',
     'Rio_de_Janeiro',
     'river',
