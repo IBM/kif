@@ -37,6 +37,7 @@ class_of_non_item_property_value = P(10726)
 combines_lexemes = P(5238)
 complementary_property = P(8882)
 composer = P(86)
+concentration = P(6274)
 conflict = P(607)
 connecting_line = P(81)
 constellation = P(59)
@@ -176,6 +177,7 @@ member_of_political_party = P(102)
 minimal_lethal_concentration = P(2710)
 minimal_lethal_dose = P(2300)
 minor_planet_group = P(196)
+model_number = P(13351)
 mother = P(25)
 mouth_of_the_watercourse = P(403)
 movement = P(135)
@@ -215,6 +217,7 @@ place_of_birth = P(19)
 place_of_burial = P(119)
 place_of_death = P(20)
 platform = P(400)
+point_in_time = P(585)
 political_ideology = P(1142)
 population = P(1082)
 position_held = P(39)
@@ -345,6 +348,7 @@ __all__ = (
     'combines_lexemes',
     'complementary_property',
     'composer',
+    'concentration',
     'conflict',
     'connecting_line',
     'constellation',
@@ -495,6 +499,7 @@ __all__ = (
     'minimal_lethal_concentration',
     'minimal_lethal_dose',
     'minor_planet_group',
+    'model_number',
     'mother',
     'mouth_of_the_watercourse',
     'movement',
@@ -535,6 +540,7 @@ __all__ = (
     'place_of_burial',
     'place_of_death',
     'platform',
+    'point_in_time',
     'political_ideology',
     'population',
     'position_held',

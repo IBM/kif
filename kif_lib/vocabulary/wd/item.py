@@ -38,6 +38,7 @@ carbonic_acid = Q(104334, 'carbonic acid')
 CAS_Common_Chemistry = Q(18907859, 'CAS Common Chemistry')
 centipoise = Q(26162557, 'centipoise')
 characterization = Q(2165586, 'characterization')
+ChemExpo = Q(133818816, 'ChemExpo')
 chemical_compound = Q(11173, 'chemical compound')
 chemical_entity = Q(43460564, 'chemical entity')
 ChemIDplus = Q(20593, 'ChemIDplus')
@@ -138,9 +139,19 @@ mathematics = Q(395, 'mathematics')
 methanol = Q(14982, 'methanol')
 metre = Q(11573, 'metre')
 microgram_per_kilogram = Q(107313731, 'microgram per kilogram')
+microlitre = Q(2282891, 'microlitre')
 middleware = Q(146768, 'middleware')
+milligram = Q(3241121, 'milligram')
+milligram_per_cubic_metre = Q(21077820, 'milligram per cubic metre')
+milligram_per_day = Q(107210240, 'milligram_per_day')
 milligram_per_kilogram = Q(21091747, 'milligram per kilogram')
+milligram_per_litre = Q(55726194, 'milligram per litre')
+millilitre = Q(2332346, 'millilitre')
+millilitre_per_kilogram = Q(106639777, 'millilitre per kilogram')
 millimetre_of_mercury = Q(6859652, 'millimetre of mercury')
+millimole = Q(56156859, 'millimole')
+millimole_per_kilogram = Q(107440662, 'millimole per kilogram')
+millimole_per_litre = Q(55435387, 'millimole per litre')
 minute = Q(7727, 'minute')
 mole_per_litre = Q(21064845, 'mole per litre')
 Monte_Pascoal = Q(1499212, 'Monte Pascoal')
@@ -152,6 +163,8 @@ Nepal = Q(837, 'Nepal')
 New_York_City = Q(60, 'New York City')
 North_America = Q(49, 'North America')
 Oceania = Q(55643, 'Oceania')
+OECD_Functional_Use_Categories = Q(131929187, 'OECD Functional Use Categories')
+OECD_Product_Use_Categories = Q(134113538, 'OECD Product Use Categories')
 oral_administration = Q(285166, 'oral administration')
 order = Q(36602, 'order')
 Paraguay = Q(733, 'Paraguay')
@@ -159,11 +172,13 @@ part = Q(15989253, 'part')
 parts_per_million = Q(21006887, 'parts per million')
 patent = Q(253623, 'patent')
 per_and_polyfluoroalkyl_substances = Q(648037, 'per- and polyfluoroalkyl substances')
+percent = Q(11229, 'percent')
 Peru =  Q(419, 'Peru')
 phylum = Q(38348, 'phylum')
 physics = Q(413, 'physics')
 Pico_31_de_Março = Q(1264913, 'Pico 31 de Março')
 Pico_da_Neblina = Q(739484, 'Pico da Neblina')
+picomole = Q(56157048, 'picomole')
 Portuguese = Q(5146, 'Portuguese')
 product = Q(2424752, 'product')
 proleptic_Gregorian_calendar = Q(1985727, 'proleptic Gregorian calendar')
@@ -178,6 +193,7 @@ Regulation_EC_No_1272_2008 = Q(2005334, 'Regulation (EC) No. 1272/2008')
 report = Q(10870555, 'report')
 Rio_de_Janeiro = Q(8678, 'Rio de Janeiro')
 river = Q(4022, 'river')
+safety_data_sheet = Q(222067, 'safety data sheet')
 Salvador = Q(36947, 'Salvador')
 scholarly_article = Q(13442814, 'scholarly article')
 scientist = Q(901, 'scientist')
@@ -259,6 +275,7 @@ __all__ = (
     'CAS_Common_Chemistry',
     'centipoise',
     'characterization',
+    'ChemExpo',
     'chemical_compound',
     'chemical_entity',
     'ChemIDplus',
@@ -360,9 +377,19 @@ __all__ = (
     'methanol',
     'metre',
     'microgram_per_kilogram',
+    'microlitre',
     'middleware',
+    'milligram',
+    'milligram_per_cubic_metre',
+    'milligram_per_day',
     'milligram_per_kilogram',
+    'milligram_per_litre',
+    'millilitre',
+    'millilitre_per_kilogram',
     'millimetre_of_mercury',
+    'millimole',
+    'millimole_per_kilogram',
+    'millimole_per_litre',
     'minute',
     'mole_per_litre',
     'Monte_Pascoal',
@@ -374,6 +401,8 @@ __all__ = (
     'New_York_City',
     'North_America',
     'Oceania',
+    'OECD_Functional_Use_Categories',
+    'OECD_Product_Use_Categories',
     'oral_administration',
     'order',
     'Paraguay',
@@ -381,11 +410,13 @@ __all__ = (
     'parts_per_million',
     'patent',
     'per_and_polyfluoroalkyl_substances',
+    'percent',
     'Peru',
     'phylum',
     'physics',
     'Pico_31_de_Março',
     'Pico_da_Neblina',
+    'picomole',
     'Portuguese',
     'product',
     'proleptic_Gregorian_calendar',
@@ -400,6 +431,7 @@ __all__ = (
     'report',
     'Rio_de_Janeiro',
     'river',
+    'safety_data_sheet',
     'Salvador',
     'scholarly_article',
     'scientist',
