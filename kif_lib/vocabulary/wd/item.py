@@ -91,6 +91,7 @@ female_human = Q(84048852, 'female human')
 feminine = Q(1775415, 'feminine')
 flame_retardant = Q(902863, 'flame retardant')
 flying_saucer = Q(5401971, 'flying saucer')
+Food_and_Agriculture_Organization = Q(82151, 'Food and Agriculture Organization')
 France = Q(142, 'France')
 French_Guiana = Q(3769, 'French Guiana')
 frog = Q(3116510, 'frog')
@@ -282,6 +283,7 @@ year = Q(577, 'year')
 # Aliases:
 dataset = data_set
 EPA = Environmental_Protection_Agency
+FAO = Food_and_Agriculture_Organization
 type_of_a_chemical_entity = type_of_chemical_entity
 USGS = United_States_Geological_Survey
 WHO = World_Health_Organization
@@ -365,6 +367,7 @@ __all__ = (
     'Eve',
     'exact_match_',
     'Fall_of_man',
+    'FAO',
     'FDA_approved',
     'female',
     'female_given_name',
@@ -372,6 +375,7 @@ __all__ = (
     'feminine',
     'flame_retardant',
     'flying_saucer',
+    'Food_and_Agriculture_Organization',
     'France',
     'French_Guiana',
     'frog',
