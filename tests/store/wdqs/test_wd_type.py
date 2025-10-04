@@ -23,7 +23,7 @@ class Test(StoreTestCase):
     def test_count(self) -> None:
         c, F = self.store_count_assertion(self.KB())
         c(4, F(wd.Brazil, wd.instance_of))
-        c(69, F(wd.Brazil, wd.type))
+        c(67, F(wd.Brazil, wd.type))
 
     def test_filter_subject_is_item(self) -> None:
         xf, F = self.store_xfilter_assertion(self.KB())
@@ -34,13 +34,12 @@ class Test(StoreTestCase):
     def test_filter_subject_is_property(self) -> None:
         xf, F = self.store_xfilter_assertion(self.KB())
         xf(F(None, wd.type, wd.Wikidata_property_for_ontology_mapping),
-           set(map(lambda s: wd.a(
-               s, wd.Wikidata_property_for_ontology_mapping), (
-                   wd.equivalent_class,
-                   wd.exact_match,
-                   wd.GeoNames_feature_code,
-                   wd.mapping_relation_type,
-                   wd.narrower_external_class))))
+           {wd.a(s, wd.Wikidata_property_for_ontology_mapping)
+            for s in (wd.equivalent_class,
+                      wd.exact_match,
+                      wd.GeoNames_feature_code,
+                      wd.mapping_relation_type,
+                      wd.narrower_external_class)})
 
     def test_filter_subject_is_lexeme(self) -> None:
         raise self.TODO()

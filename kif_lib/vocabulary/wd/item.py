@@ -18,6 +18,7 @@ Alan_Turing = Q(7251, 'Alan Turing')
 algorithm = Q(8366, 'algorithm')
 Amazonas = Q(40040, 'Amazonas')
 Americas = Q(828, 'Americas')
+approximately = Q(60070514, 'approximately')
 Argentina = Q(414, 'Argentina')
 aromatic_compound = Q(19834818, 'aromatic compound')
 aromatic_hydrocarbon = Q(230731, 'aromatic hydrocarbon')
@@ -44,6 +45,7 @@ chemical_entity = Q(43460564, 'chemical entity')
 ChemIDplus = Q(20593, 'ChemIDplus')
 chemistry = Q(2329, 'chemistry')
 ChemSpider = Q(2311683, 'ChemSpider')
+chicken = Q(780, 'chicken')
 child_ = Q(7569, 'child')
 Chile = Q(298, 'Chile')
 class_ = Q(37517, 'class')
@@ -101,7 +103,9 @@ gram_per_100_gram_of_solvent = Q(21127659, 'gram per 100 gram of solvent')
 gram_per_cubic_centimetre = Q(13147228, 'gram per cubic centimetre')
 gram_per_kilogram = Q(21061369, 'gram per kilogram')
 gram_per_mole = Q(28924752, 'gram per mole')
-Guinea_pig = Q(79803, 'Guinea pig')
+greater_than = Q(47035128, 'greater than')
+greater_than_or_equal_to = Q(55935291, 'greater than or equal to')
+guinea_pig = Q(79803, 'guinea pig')
 Guyana = Q(734, 'Guyana')
 Hazardous_Chemical_Information_System = Q(65240840, 'Hazardous Chemical Information System')
 Hazardous_Substances_Data_Bank = Q(5687720, 'Hazardous Substances Data Bank')
@@ -111,9 +115,11 @@ human = Q(5, 'human')
 human_biblical_figure = Q(20643955, 'human biblical figure')
 hydrogen = Q(556, 'hydrogen')
 IBM = Q(37156, 'IBM')
-IBM_AIX = Q(269856, 'IBM_AIX')
+IBM_AIX = Q(269856, 'IBM AIX')
 infant = Q(998, 'infant')
 inhalation = Q(840343, 'inhalation')
+injection = Q(245359, 'injection')
+intramuscular_injection = Q(432083, 'intramuscular injection')
 intraperitoneal_injection = Q(1400536, 'intraperitoneal injection')
 intravenous_infusion_and_defusion = Q(640448, 'intravenous infusion and defusion')
 intravenous_injection = Q(1369403, 'intravenous injection')
@@ -125,6 +131,8 @@ kingdom = Q(36732, 'kingdom')
 laboratory_mouse = Q(2842787, 'laboratory mouse')
 laboratory_rat = Q(3089676, 'laboratory rat')
 Latin_America = Q(12585, 'Latin America')
+less_than = Q(52834024, 'less than')
+less_than_or_equal_to = Q(55935272, 'less than or equal to')
 lion = Q(140, 'lion')
 liquid = Q(11435, 'liquid')
 litre_per_kilogram = Q(57175557, 'litre per kilogram')
@@ -136,22 +144,28 @@ man = Q(8441, 'man')
 masculine = Q(499327, 'masculine')
 mass_ = Q(11423, 'mass')
 mathematics = Q(395, 'mathematics')
+megabecquerel = Q(94489429, 'megabecquerel')
 methanol = Q(14982, 'methanol')
 metre = Q(11573, 'metre')
 microgram_per_kilogram = Q(107313731, 'microgram per kilogram')
 microlitre = Q(2282891, 'microlitre')
 middleware = Q(146768, 'middleware')
+millibecquerel = Q(95866767, 'millibecquerel')
 milligram = Q(3241121, 'milligram')
 milligram_per_cubic_metre = Q(21077820, 'milligram per cubic metre')
-milligram_per_day = Q(107210240, 'milligram_per_day')
+milligram_per_day = Q(107210240, 'milligram per day')
 milligram_per_kilogram = Q(21091747, 'milligram per kilogram')
 milligram_per_litre = Q(55726194, 'milligram per litre')
+milligram_per_minute = Q(107210295, 'milligram per minute')
+milligram_per_square_centimetre = Q(107133667, 'milligram per square centimetre')
 millilitre = Q(2332346, 'millilitre')
 millilitre_per_kilogram = Q(106639777, 'millilitre per kilogram')
 millimetre_of_mercury = Q(6859652, 'millimetre of mercury')
+millimolar = Q(105687351, 'millimolar')
 millimole = Q(56156859, 'millimole')
 millimole_per_kilogram = Q(107440662, 'millimole per kilogram')
 millimole_per_litre = Q(55435387, 'millimole per litre')
+millisievert = Q(2474258, 'millisievert')
 minute = Q(7727, 'minute')
 mole_per_litre = Q(21064845, 'mole per litre')
 Monte_Pascoal = Q(1499212, 'Monte Pascoal')
@@ -193,6 +207,7 @@ Regulation_EC_No_1272_2008 = Q(2005334, 'Regulation (EC) No. 1272/2008')
 report = Q(10870555, 'report')
 Rio_de_Janeiro = Q(8678, 'Rio de Janeiro')
 river = Q(4022, 'river')
+route_of_administration_ = Q(621636, 'route of administration')
 safety_data_sheet = Q(222067, 'safety data sheet')
 Salvador = Q(36947, 'Salvador')
 scholarly_article = Q(13442814, 'scholarly article')
@@ -203,8 +218,9 @@ skin_absorption = Q(4669896, 'skin absorption')
 slope = Q(944588, 'slope')
 sodium_bicarbonate = Q(179731, 'sodium bicarbonate')
 software = Q(7397, 'software')
+sourcing_circumstance_ = Q(104637420, 'sourcing circumstance')
 South_America = Q(18, 'South America')
-sovereign_state = Q(3624078, 'sovereign_state')
+sovereign_state = Q(3624078, 'sovereign state')
 Spanish = Q(1321, 'Spanish')
 species = Q(7432, 'species')
 state = Q(7275, 'state')
@@ -219,6 +235,7 @@ taxonomic_rank = Q(427626, 'taxonomic rank')
 theme = Q(1053916, 'theme')
 type_of_chemical_entity = Q(113145171, 'type of a chemical entity')
 unit_of_mass = Q(3647172, 'unit of mass')
+unit_of_measurement = Q(47574, 'unit of measurement')
 United_Kingdom = Q(145, 'United Kingdom')
 United_States_of_America = Q(30, 'United States of America')
 Uruguay = Q(77, 'Uruguay')
@@ -255,6 +272,7 @@ __all__ = (
     'algorithm',
     'Amazonas',
     'Americas',
+    'approximately',
     'Argentina',
     'aromatic_compound',
     'aromatic_hydrocarbon',
@@ -281,6 +299,7 @@ __all__ = (
     'ChemIDplus',
     'chemistry',
     'ChemSpider',
+    'chicken',
     'child_',
     'Chile',
     'class_',
@@ -339,7 +358,9 @@ __all__ = (
     'gram_per_cubic_centimetre',
     'gram_per_kilogram',
     'gram_per_mole',
-    'Guinea_pig',
+    'greater_than',
+    'greater_than_or_equal_to',
+    'guinea_pig',
     'Guyana',
     'Hazardous_Chemical_Information_System',
     'Hazardous_Substances_Data_Bank',
@@ -352,6 +373,8 @@ __all__ = (
     'IBM_AIX',
     'infant',
     'inhalation',
+    'injection',
+    'intramuscular_injection',
     'intraperitoneal_injection',
     'intravenous_infusion_and_defusion',
     'intravenous_injection',
@@ -363,6 +386,8 @@ __all__ = (
     'laboratory_mouse',
     'laboratory_rat',
     'Latin_America',
+    'less_than',
+    'less_than_or_equal_to',
     'lion',
     'liquid',
     'litre_per_kilogram',
@@ -374,22 +399,28 @@ __all__ = (
     'masculine',
     'mass_',
     'mathematics',
+    'megabecquerel',
     'methanol',
     'metre',
     'microgram_per_kilogram',
     'microlitre',
     'middleware',
+    'millibecquerel',
     'milligram',
     'milligram_per_cubic_metre',
     'milligram_per_day',
     'milligram_per_kilogram',
     'milligram_per_litre',
+    'milligram_per_minute',
+    'milligram_per_square_centimetre',
     'millilitre',
     'millilitre_per_kilogram',
     'millimetre_of_mercury',
+    'millimolar',
     'millimole',
     'millimole_per_kilogram',
     'millimole_per_litre',
+    'millisievert',
     'minute',
     'mole_per_litre',
     'Monte_Pascoal',
@@ -431,6 +462,7 @@ __all__ = (
     'report',
     'Rio_de_Janeiro',
     'river',
+    'route_of_administration_',
     'safety_data_sheet',
     'Salvador',
     'scholarly_article',
@@ -441,6 +473,7 @@ __all__ = (
     'slope',
     'sodium_bicarbonate',
     'software',
+    'sourcing_circumstance_',
     'South_America',
     'sovereign_state',
     'Spanish',
@@ -458,6 +491,7 @@ __all__ = (
     'type_of_a_chemical_entity',
     'type_of_chemical_entity',
     'unit_of_mass',
+    'unit_of_measurement',
     'United_Kingdom',
     'United_States_of_America',
     'Uruguay',

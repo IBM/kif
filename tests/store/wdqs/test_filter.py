@@ -82,8 +82,10 @@ class Test(StoreTestCase):
     def test_value_mask(self) -> None:
         xf, F = self.store_xfilter_assertion(self.KB())
         xf(F(subject=wd.Brazil, value_mask=F.IRI, snak_mask=F.VALUE_SNAK),
-           {wd.Mastodon_instance_URL(
-               wd.Brazil, 'https://masto.donte.com.br'),
+           {wd.Lemmy_instance_URL(
+               wd.Brazil, 'https://lemmy.eco.br/'),
+            wd.Mastodon_instance_URL(
+                   wd.Brazil, 'https://masto.donte.com.br'),
             wd.Mastodon_instance_URL(
                 wd.Brazil, 'https://mastodon.com.br', references=[[
                     wd.title(Text('Explorar - Mastodon Brasil', 'pt-br')),

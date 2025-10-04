@@ -3,7 +3,7 @@
 
 from __future__ import annotations
 
-from .prelude import P
+from .prelude import P, IRI
 
 afflicts = P(689)
 age_of_subject_at_event = P(3629)
@@ -151,6 +151,7 @@ language_of_work_or_name = P(407)
 last_update = P(5017)
 league_or_competition = P(118)
 legal_status_medicine = P(3493)
+Lemmy_instance_URL = P(13801, 'Lemmy instance URL', range=IRI)
 licensed_to_broadcast_to = P(1408)
 located_in_or_next_to_body_of_water = P(206)
 located_in_the_administrative_territorial_entity = P(131)
@@ -256,6 +257,7 @@ significant_person = P(3342)
 site_of_astronomical_discovery = P(65)
 solubility = P(2177)
 source_website_for_the_property = P(1896)
+sourcing_circumstances = P(1480)
 specific_heat_capacity = P(2056)
 speed_limit = P(3086)
 sponsor = P(859)
@@ -471,6 +473,7 @@ __all__ = (
     'LD50',
     'league_or_competition',
     'legal_status_medicine',
+    'Lemmy_instance_URL',
     'licensed_to_broadcast_to',
     'LOAEL',
     'located_in_or_next_to_body_of_water',
@@ -583,6 +586,7 @@ __all__ = (
     'site_of_astronomical_discovery',
     'solubility',
     'source_website_for_the_property',
+    'sourcing_circumstances',
     'specific_heat_capacity',
     'speed_limit',
     'sponsor',

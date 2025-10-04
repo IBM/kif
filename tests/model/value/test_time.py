@@ -50,7 +50,12 @@ class Test(DeepDataValueTestCase):
         self._test_check(
             Time,
             success=[
+                ('2024', Time('2024-01-01')),
+                ('2024-03', Time('2024-03-01')),
+                ('2024-03-01', Time('2024-03-01')),
                 ('2024-06-26', Time('2024-06-26')),
+                ('2024-06-26T', Time('2024-06-26')),
+                ('2024-06-26Z', Time('2024-06-26')),
                 (datetime.date(2024, 6, 26), Time('2024-06-26')),
                 (datetime.datetime(2024, 6, 26,
                  tzinfo=datetime.timezone.utc), Time('2024-06-26')),

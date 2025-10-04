@@ -902,7 +902,8 @@ class EntityRegistry(Registry):
             _wd_label: Property = LabelProperty(),
             _wd_alias: Property = AliasProperty(),
             _wd_description: Property = DescriptionProperty(),
-            _wd_inverse: Property = Property(NS.WD['P1696'], Property),
+            _wd_inverse: Property = Property(
+                NS.WD['P1696'], Property),  # type: ignore
             _wd_lemma: Property = LemmaProperty(),
             _wd_lexical_category: Property = LexicalCategoryProperty(),
             _wd_language: Property = LanguageProperty(),

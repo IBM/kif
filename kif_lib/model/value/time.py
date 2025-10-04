@@ -6,7 +6,7 @@ from __future__ import annotations
 import datetime
 import enum
 import math
-import sys
+import re
 
 from ...context import Context
 from ...typing import (
@@ -337,6 +337,53 @@ class Time(
         super().__init__(
             time, precision, timezone, calendar)  # type: ignore
 
+    @classmethod
+    def now(
+            cls,
+            precision: VTTimePrecisionContent | None = None,
+            timezone: VTTimeTimezoneContent | None = None,
+            calendar: VTItem | None = None
+    ) -> Self:
+        """Constructs a time object with the current date-time.
+
+        Parameters:
+           precision: Precision.
+           timezone: Time zone.
+           calendar: Calendar model.
+
+        Returns:
+           Time.
+        """
+        return cls(
+            datetime.datetime.now().replace(tzinfo=datetime.timezone.utc),
+            precision, timezone, calendar)
+
+    @classmethod
+    def _parse(
+            cls,
+            arg: str,
+            _re_split: re.Pattern[str] = re.compile(
+                r'^\s*[+-]?\s*'
+                r'(?:(\d+)\s*(?:-\s*(?:(\d+)\s*(?:-\s*(\d+))?))?)'
+                r'\s*T?(.*?)[zZ]?$')
+    ) -> datetime.datetime:
+        m = _re_split.match(arg)
+        if m:
+            ###
+            # FIXME (a): Python's fromisoformat() does not support the +/-
+            # sign used by Wikidata at the start of date-time literals.
+            #
+            # FIXME (b): Python < 3.11's fromisoformat() does not support
+            # the trailing "Z".
+            ###
+            y, m, d, rest = m.groups()  # type: ignore
+            arg = f'{y}-{m or "01"}-{d or "01"}{("T" + rest) if rest else ""}'
+        dt = datetime.datetime.fromisoformat(arg)
+        if dt.tzinfo is None:
+            return dt.replace(tzinfo=datetime.timezone.utc)
+        else:
+            return dt
+
     @override
     def _preprocess_arg(self, arg: Any, i: int) -> Any:
         return self._static_preprocess_arg(self, arg, i)
@@ -349,27 +396,11 @@ class Time(
             if isinstance(arg, Time):
                 return arg.time
             elif isinstance(arg, str):
-                ###
-                # FIXME: Python's fromisoformat() does not support the +/-
-                # sign used by Wikidata at the start of date-time literals.
-                ###
-                arg = arg[1:] if arg[0] == '+' or arg[0] == '-' else arg
-                if arg[-1] == 'Z' and sys.version_info < (3, 11):
-                    ###
-                    # FIXME: Python < 3.11's fromisoformat() does not
-                    # support the trailing "Z".  Move this hack to a
-                    # separate module.
-                    ###
-                    arg = arg[:-1]
                 try:
-                    dt = datetime.datetime.fromisoformat(arg)
+                    return Time._parse(arg)
                 except ValueError as err:
                     raise Time._check_error(
                         arg, type(self_), None, i, ValueError) from err
-                if dt.tzinfo is None:
-                    return dt.replace(tzinfo=datetime.timezone.utc)
-                else:
-                    return dt
             elif isinstance(arg, datetime.datetime):
                 return arg
             elif isinstance(arg, datetime.date):

@@ -15,6 +15,11 @@ The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.0.0/).
 - Added SPARQL mappings for https://data.europa.eu/.  Added `europa` SPARQL
   store.
 
+- Improved the parsing of time values.  Incomplete ISO-format strings (e.g.,
+  "2004", "1998-11", etc.) are now supported.  Also, the new call
+  `Time.now()` can be used to construct a time object with the current
+  wall-clock date-time.
+
 - Added `?` operator for specifying engine arguments using a glob pattern in
   KIF CLI.
 
@@ -23,8 +28,9 @@ The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.0.0/).
 - Added convenience encoder flags to KIF CLI, i.e., `--markdown`, `--repr`,
   etc.
 
-- Updated base reader to limit the number of parallel tasks.  It now creates
-  at most N parallel tasks, where N is two times the number CPUs.
+- Updated `reader` store plugin to limit the number of parallel tasks.  It
+  now creates at most N parallel tasks, where N is two times the number
+  CPUs.
 
 ## 0.12.0 (2025-08-08)
 

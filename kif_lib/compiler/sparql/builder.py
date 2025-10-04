@@ -18,7 +18,8 @@ from collections.abc import Iterator, MutableSequence, Sequence
 from types import TracebackType
 from typing import Callable, cast, Final, Optional, Union
 
-from rdflib import BNode, Literal, URIRef, Variable
+from rdflib import BNode, Literal, URIRef
+from rdflib import Variable as Variable_
 from rdflib.paths import Path
 from typing_extensions import Any, override, Self, TypeAlias, TypeVar
 
@@ -29,18 +30,18 @@ T_URI: TypeAlias = Union[URIRef, str]
 TBNode: TypeAlias = BNode
 TLiteral: TypeAlias =\
     Union[Literal, bool, datetime.datetime, decimal.Decimal, float, int, str]
-TVariable: TypeAlias = Union[Variable, str]
+TVariable: TypeAlias = Union[Variable_, str]
 
-TNumericLiteralContent: TypeAlias = Union[URIRef, TLiteral, Variable]
+TNumericLiteralContent: TypeAlias = Union[URIRef, TLiteral, Variable_]
 TNumericLiteral: TypeAlias =\
-    Union['NumericLiteral', URIRef, TLiteral, Variable]
+    Union['NumericLiteral', URIRef, TLiteral, Variable_]
 TNumericExpression: TypeAlias = Union['NumericExpression', TNumericLiteral]
 TNumExpr: TypeAlias = TNumericExpression
 TExpression: TypeAlias = Union['Expression', TNumericExpression]
 
 TComment: TypeAlias = Union['Comment', str]
 
-TSubject: TypeAlias = Union[URIRef, BNode, Variable]
+TSubject: TypeAlias = Union[URIRef, BNode, Variable_]
 TPredicate: TypeAlias = Union[TSubject, Path]
 TObject: TypeAlias = Union[TSubject, Literal]
 TTriple: TypeAlias = Union['Triple', tuple[TSubject, TPredicate, TObject]]
@@ -59,7 +60,7 @@ class Encodable(ABC):
     """Abstract base class for "encodable" objects."""
 
     @classmethod
-    def _n3(cls, v: URIRef | BNode | Literal | Path | Variable) -> str:
+    def _n3(cls, v: URIRef | BNode | Literal | Path | Variable_) -> str:
         if isinstance(v, Literal):
             return v._literal_n3(use_plain=True)
         else:
@@ -164,8 +165,8 @@ class Coerce:
             float, int, str)), lang=lang, datatype=datatype)
 
     @classmethod
-    def variable(cls, v: TVariable) -> Variable:
-        return cls._check(Variable(v) if isinstance(v, str) else v, Variable)
+    def variable(cls, v: TVariable) -> Variable_:
+        return cls._check(Variable_(v) if isinstance(v, str) else v, Variable_)
 
     @classmethod
     def expression(cls, v: TExpression) -> Expression:
@@ -192,23 +193,23 @@ class Coerce:
     def numeric_literal_content(
             cls,
             v: TNumericLiteralContent
-    ) -> URIRef | Literal | Variable:
-        if isinstance(v, (URIRef, Literal, Variable)):
+    ) -> URIRef | Literal | Variable_:
+        if isinstance(v, (URIRef, Literal, Variable_)):
             return v
         else:
             return cls.literal(v)
 
     @classmethod
     def subject(cls, v: TSubject, explain: str = 'bad subject') -> TSubject:
-        return cls._check(v, (URIRef, BNode, Variable))
+        return cls._check(v, (URIRef, BNode, Variable_))
 
     @classmethod
     def predicate(cls, v: TPredicate) -> TPredicate:
-        return cls._check(v, (URIRef, BNode, Variable, Path))
+        return cls._check(v, (URIRef, BNode, Variable_, Path))
 
     @classmethod
     def object(cls, v: TObject) -> TObject:
-        return cls._check(v, (URIRef, BNode, Literal, Variable))
+        return cls._check(v, (URIRef, BNode, Literal, Variable_))
 
     @classmethod
     def comment(
@@ -411,7 +412,7 @@ class NumericExpression(BooleanExpression):
 class NumericLiteral(NumericExpression):
     """Numeric literal."""
 
-    value: URIRef | Literal | Variable
+    value: URIRef | Literal | Variable_
 
     def __init__(self, value: TNumericLiteralContent) -> None:
         self.value = Coerce.numeric_literal_content(value)
@@ -640,7 +641,7 @@ class Bind(Pattern):
     """Bind pattern."""
 
     expression: Expression
-    variable: Variable
+    variable: Variable_
 
     def __init__(
             self,
@@ -911,7 +912,7 @@ class TriplesBlock(AtomicGraphPattern):
 class ValuesBlock(AtomicGraphPattern):
     """VALUES block."""
 
-    variables: Sequence[Variable]
+    variables: Sequence[Variable_]
     lines: MutableSequence[ValuesLine]
 
     def __init__(
@@ -1223,7 +1224,7 @@ class AskClause(Clause):
 class SelectClause(Clause):
     """SELECT clause."""
 
-    variables: Sequence[Variable | Bind]
+    variables: Sequence[Variable_ | Bind]
     distinct: bool
     reduced: bool
 
@@ -1235,7 +1236,7 @@ class SelectClause(Clause):
     ) -> None:
         super().__init__()
         self.variables = tuple(map(
-            lambda v: Bind(*v, self)
+            lambda v: Bind(*v, self)  # type: ignore
             if isinstance(v, tuple) else Coerce.variable(v),
             variables))
         self.distinct = distinct if distinct is not None else False
@@ -1256,7 +1257,7 @@ class SelectClause(Clause):
         else:
             for var in self.variables:
                 yield ' '
-                if isinstance(var, Variable):
+                if isinstance(var, Variable_):
                     yield self._n3(var)
                 elif isinstance(var, Bind):
                     yield from var._iterencode(omit_bind_symbol=True)
@@ -1352,7 +1353,7 @@ class Query(Encodable):
     _mk_bnode: Final[type[BNode]] = BNode
     _mk_literal: Final[type[Literal]] = Literal
     _mk_uri: Final[type[URIRef]] = URIRef
-    _mk_variable: Final[type[Variable]] = Variable
+    _mk_variable: Final[type[Variable_]] = Variable_
 
     BNode: TypeAlias = BNode
     Literal: TypeAlias = Literal
@@ -1360,14 +1361,14 @@ class Query(Encodable):
         Literal, bool, datetime.datetime, decimal.Decimal, float, int, _str]
     URI: TypeAlias = URIRef
     T_URI: TypeAlias = Union[URIRef, str]
-    Variable: TypeAlias = Variable
-    TVariable: TypeAlias = Union[Variable, _str]
+    Variable: TypeAlias = Variable_
+    TVariable: TypeAlias = Union[Variable_, _str]
     Term: TypeAlias = Union[BNode, Literal, URI]
 
-    V_BNode: TypeAlias = Union[BNode, Variable]
-    VLiteral: TypeAlias = Union[Literal, Variable]
-    V_URI: TypeAlias = Union[URIRef, Variable]
-    VTerm: TypeAlias = Union[Term, Variable]
+    V_BNode: TypeAlias = Union[BNode, Variable_]
+    VLiteral: TypeAlias = Union[Literal, Variable_]
+    V_URI: TypeAlias = Union[URIRef, Variable_]
+    VTerm: TypeAlias = Union[Term, Variable_]
 
     Path: TypeAlias = Path
     Clause: TypeAlias = Clause

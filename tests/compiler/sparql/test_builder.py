@@ -15,7 +15,7 @@ from kif_lib.compiler.sparql.builder import (
     STR,
     Symbol,
     URIRef,
-    Variable,
+    Variable_,
 )
 
 NL = NumericLiteral
@@ -29,12 +29,12 @@ class Test(TestCase):
             cls: type[Call],
             op: URIRef | str,
             *args: NumericExpression
-    ):
+    ) -> None:
         self.assertIsInstance(obj, cls)
         self.assertEqual(obj.operator, op)
         self.assertEqual(obj.args, args)
 
-    def assert_str(self, obj: Call, arg: NumericExpression):
+    def assert_str(self, obj: Call, arg: NumericExpression) -> None:
         self.assert_call(obj, STR, Symbol.STR, arg)
         self.assertEqual(str(obj), f'{Symbol.STR}({arg})')
 
@@ -44,7 +44,7 @@ class Test(TestCase):
         b = BNode()
         self.assert_str(q.str(b), NL(b))
         self.assert_str(q.str(Literal(0)), NL(Literal(0)))
-        self.assert_str(q.str(Variable('x')), NL(Variable('x')))
+        self.assert_str(q.str(Variable_('x')), NL(Variable_('x')))
         self.assert_str(q.str(0), NL(Literal(0)))
         self.assert_str(q.str(''), NL(Literal('')))
 

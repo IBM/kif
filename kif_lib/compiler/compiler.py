@@ -17,10 +17,10 @@ class Compiler(abc.ABC):
         """Base class for compiler errors."""
 
     #: Alias for :func:`error.missing_dependency`.
-    _missing_dependency = error.missing_dependency
+    _missing_dependency = error.missing_dependency  # type: ignore
 
     #: Alias for :func:`error.should_not_get_here`.
-    _should_not_get_here = error.should_not_get_here
+    _should_not_get_here = error.should_not_get_here  # type: ignore
 
     def _cannot_compile_error(self, obj) -> Compiler.Error:
         return self.Error(f'cannot compile {obj}')
