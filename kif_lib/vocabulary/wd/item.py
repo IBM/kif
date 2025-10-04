@@ -37,6 +37,7 @@ caffeine = Q(60235, 'caffeine')
 carbon = Q(623, 'carbon')
 carbonic_acid = Q(104334, 'carbonic acid')
 CAS_Common_Chemistry = Q(18907859, 'CAS Common Chemistry')
+cattle = Q(830, 'cattle')
 centipoise = Q(26162557, 'centipoise')
 characterization = Q(2165586, 'characterization')
 ChemExpo = Q(133818816, 'ChemExpo')
@@ -77,6 +78,8 @@ Endicott = Q(3459600, 'Endicott')
 English = Q(1860, 'English')
 English_Wikipedia = Q(328, 'English Wikipedia')
 entity = Q(35120, 'entity')
+Environmental_Protection_Agency = Q(460173, 'Environmental Protection Agency')
+estimate = Q(37113960, 'estimate')
 Europe = Q(46, 'Europe')
 Eve = Q(830183, 'Eve')
 exact_match_ = Q(39893449, 'exact match')
@@ -101,7 +104,9 @@ Global_Substance_Registration_System = Q(116031405, 'Global Substance Registrati
 GNU_General_Public_License = Q(7603, 'GNU General Public License')
 gram_per_100_gram_of_solvent = Q(21127659, 'gram per 100 gram of solvent')
 gram_per_cubic_centimetre = Q(13147228, 'gram per cubic centimetre')
+gram_per_decilitre = Q(55433914, 'gram per decilitre')
 gram_per_kilogram = Q(21061369, 'gram per kilogram')
+gram_per_litre = Q(834105, 'gram per litre')
 gram_per_mole = Q(28924752, 'gram per mole')
 greater_than = Q(47035128, 'greater than')
 greater_than_or_equal_to = Q(55935291, 'greater than or equal to')
@@ -110,21 +115,26 @@ Guyana = Q(734, 'Guyana')
 Hazardous_Chemical_Information_System = Q(65240840, 'Hazardous Chemical Information System')
 Hazardous_Substances_Data_Bank = Q(5687720, 'Hazardous Substances Data Bank')
 height_ = Q(208826, 'height')
+hour = Q(25235, 'hour')
 house_cat = Q(146, 'house cat')
+house_mouse = Q(83310, 'house mouse')
 human = Q(5, 'human')
 human_biblical_figure = Q(20643955, 'human biblical figure')
 hydrogen = Q(556, 'hydrogen')
 IBM = Q(37156, 'IBM')
 IBM_AIX = Q(269856, 'IBM AIX')
 infant = Q(998, 'infant')
+infusion_therapy = Q(6031679, 'infusion therapy')
 inhalation = Q(840343, 'inhalation')
 injection = Q(245359, 'injection')
 intramuscular_injection = Q(432083, 'intramuscular injection')
 intraperitoneal_injection = Q(1400536, 'intraperitoneal injection')
+intrathecal_administration = Q(1320251, 'intrathecal administration')
 intravenous_infusion_and_defusion = Q(640448, 'intravenous infusion and defusion')
 intravenous_injection = Q(1369403, 'intravenous injection')
 joule_per_mole_kelvin_difference = Q(69427692, 'joule per mole kelvin difference')
 kelvin = Q(11579, 'kelvin')
+kilobecquerel_per_kilogram = Q(106617579, 'kilobecquerel per kilogram')
 kilogram = Q(11570, 'kilogram')
 kind_of_quantity = Q(110653654, 'kind of quantity')
 kingdom = Q(36732, 'kingdom')
@@ -160,15 +170,19 @@ milligram_per_minute = Q(107210295, 'milligram per minute')
 milligram_per_square_centimetre = Q(107133667, 'milligram per square centimetre')
 millilitre = Q(2332346, 'millilitre')
 millilitre_per_kilogram = Q(106639777, 'millilitre per kilogram')
+millilitre_per_litre = Q(21075844, 'millilitre per litre')
 millimetre_of_mercury = Q(6859652, 'millimetre of mercury')
 millimolar = Q(105687351, 'millimolar')
 millimole = Q(56156859, 'millimole')
 millimole_per_kilogram = Q(107440662, 'millimole per kilogram')
 millimole_per_litre = Q(55435387, 'millimole per litre')
 millisievert = Q(2474258, 'millisievert')
+mink = Q(17700, 'mink')
 minute = Q(7727, 'minute')
 mole_per_litre = Q(21064845, 'mole per litre')
+monkey = Q(1367, 'monkey')
 Monte_Pascoal = Q(1499212, 'Monte Pascoal')
+month = Q(5151, 'month')
 Mount_Everest = Q(513, 'Mount Everest')
 mountain = Q(8502, 'mountain')
 musician = Q(639669, 'musician')
@@ -193,7 +207,9 @@ physics = Q(413, 'physics')
 Pico_31_de_Março = Q(1264913, 'Pico 31 de Março')
 Pico_da_Neblina = Q(739484, 'Pico da Neblina')
 picomole = Q(56157048, 'picomole')
+pig = Q(787, 'pig')
 Portuguese = Q(5146, 'Portuguese')
+primate = Q(7380, 'primate')
 product = Q(2424752, 'product')
 proleptic_Gregorian_calendar = Q(1985727, 'proleptic Gregorian calendar')
 proleptic_Julian_calendar = Q(1985786, 'proleptic Julian calendar')
@@ -214,6 +230,7 @@ scholarly_article = Q(13442814, 'scholarly article')
 scientist = Q(901, 'scientist')
 second = Q(11574, 'second')
 seculararchy = Q(859563, 'seculararchy')
+sheep = Q(7368, 'sheep')
 skin_absorption = Q(4669896, 'skin absorption')
 slope = Q(944588, 'slope')
 sodium_bicarbonate = Q(179731, 'sodium bicarbonate')
@@ -236,7 +253,9 @@ theme = Q(1053916, 'theme')
 type_of_chemical_entity = Q(113145171, 'type of a chemical entity')
 unit_of_mass = Q(3647172, 'unit of mass')
 unit_of_measurement = Q(47574, 'unit of measurement')
+unit_of_time = Q(1790144, 'unit of time')
 United_Kingdom = Q(145, 'United Kingdom')
+United_States_Geological_Survey = Q(193755, 'United States Geological Survey')
 United_States_of_America = Q(30, 'United States of America')
 Uruguay = Q(77, 'Uruguay')
 vendor = Q(1762621, 'vendor')
@@ -244,6 +263,7 @@ Venezuela = Q(717, 'Venezuela')
 verb = Q(24905, 'verb')
 water = Q(283, 'water')
 Watson = Q(12253, 'Watson')
+week = Q(23387, 'week')
 Wikidata = Q(2013, 'Wikidata')
 Wikidata_metaproperty_for_ontology_mapping = Q(42842547, 'Wikidata metaproperty for ontology mapping')
 Wikidata_property_for_an_identifier = Q(19847637, 'Wikidata property for an identifier')
@@ -256,10 +276,15 @@ Wikidata_property_related_to_medicine = Q(19887775, 'Wikidata property related t
 Wikidata_property_to_identify_substances = Q(19833835, 'Wikidata property to identify substances')
 Wilmslow = Q(2011497, 'Wilmslow')
 woman = Q(467, 'woman')
+World_Health_Organization = Q(7817, 'World Health Organization')
+year = Q(577, 'year')
 
 # Aliases:
 dataset = data_set
+EPA = Environmental_Protection_Agency
 type_of_a_chemical_entity = type_of_chemical_entity
+USGS = United_States_Geological_Survey
+WHO = World_Health_Organization
 
 __all__ = (
     '_1',
@@ -291,6 +316,7 @@ __all__ = (
     'carbon',
     'carbonic_acid',
     'CAS_Common_Chemistry',
+    'cattle',
     'centipoise',
     'characterization',
     'ChemExpo',
@@ -332,6 +358,9 @@ __all__ = (
     'English',
     'English_Wikipedia',
     'entity',
+    'Environmental_Protection_Agency',
+    'EPA',
+    'estimate',
     'Europe',
     'Eve',
     'exact_match_',
@@ -356,7 +385,9 @@ __all__ = (
     'GNU_General_Public_License',
     'gram_per_100_gram_of_solvent',
     'gram_per_cubic_centimetre',
+    'gram_per_decilitre',
     'gram_per_kilogram',
+    'gram_per_litre',
     'gram_per_mole',
     'greater_than',
     'greater_than_or_equal_to',
@@ -365,21 +396,26 @@ __all__ = (
     'Hazardous_Chemical_Information_System',
     'Hazardous_Substances_Data_Bank',
     'height_',
+    'hour',
     'house_cat',
+    'house_mouse',
     'human',
     'human_biblical_figure',
     'hydrogen',
     'IBM',
     'IBM_AIX',
     'infant',
+    'infusion_therapy',
     'inhalation',
     'injection',
     'intramuscular_injection',
     'intraperitoneal_injection',
+    'intrathecal_administration',
     'intravenous_infusion_and_defusion',
     'intravenous_injection',
     'joule_per_mole_kelvin_difference',
     'kelvin',
+    'kilobecquerel_per_kilogram',
     'kilogram',
     'kind_of_quantity',
     'kingdom',
@@ -415,15 +451,19 @@ __all__ = (
     'milligram_per_square_centimetre',
     'millilitre',
     'millilitre_per_kilogram',
+    'millilitre_per_litre',
     'millimetre_of_mercury',
     'millimolar',
     'millimole',
     'millimole_per_kilogram',
     'millimole_per_litre',
     'millisievert',
+    'mink',
     'minute',
     'mole_per_litre',
+    'monkey',
     'Monte_Pascoal',
+    'month',
     'Mount_Everest',
     'mountain',
     'musician',
@@ -448,7 +488,9 @@ __all__ = (
     'Pico_31_de_Março',
     'Pico_da_Neblina',
     'picomole',
+    'pig',
     'Portuguese',
+    'primate',
     'product',
     'proleptic_Gregorian_calendar',
     'proleptic_Julian_calendar',
@@ -469,6 +511,7 @@ __all__ = (
     'scientist',
     'second',
     'seculararchy',
+    'sheep',
     'skin_absorption',
     'slope',
     'sodium_bicarbonate',
@@ -492,14 +535,19 @@ __all__ = (
     'type_of_chemical_entity',
     'unit_of_mass',
     'unit_of_measurement',
+    'unit_of_time',
     'United_Kingdom',
+    'United_States_Geological_Survey',
     'United_States_of_America',
     'Uruguay',
+    'USGS',
     'vendor',
     'Venezuela',
     'verb',
     'water',
     'Watson',
+    'week',
+    'WHO',
     'Wikidata',
     'Wikidata_metaproperty_for_ontology_mapping',
     'Wikidata_property_for_an_identifier',
@@ -512,4 +560,6 @@ __all__ = (
     'Wikidata_property_to_identify_substances',
     'Wilmslow',
     'woman',
+    'World_Health_Organization',
+    'year',
 )
