@@ -104,6 +104,12 @@ class Test(ShallowDataValueTestCase):
             IRI('https://ex.org/abc#def').split(),
             (IRI('https://ex.org/abc#'), 'def'))
 
+    def test_validate(self) -> None:
+        assert_type(IRI('x').validate(), IRI)
+        self.assertRaises(ValueError, IRI('x').validate)
+        self.assertEqual(
+            IRI('http://abc.org').validate(), IRI('http://abc.org'))
+
     def test_describe(self) -> None:
         with Context():
             assert_type(IRI('x').describe(), Optional[IRI.Descriptor])

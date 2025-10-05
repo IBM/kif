@@ -85,7 +85,7 @@ class Test(StoreTestCase):
            {wd.Lemmy_instance_URL(
                wd.Brazil, 'https://lemmy.eco.br/'),
             wd.Mastodon_instance_URL(
-                   wd.Brazil, 'https://masto.donte.com.br'),
+                wd.Brazil, 'https://masto.donte.com.br'),
             wd.Mastodon_instance_URL(
                 wd.Brazil, 'https://mastodon.com.br', references=[[
                     wd.title(Text('Explorar - Mastodon Brasil', 'pt-br')),

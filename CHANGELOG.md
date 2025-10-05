@@ -20,6 +20,8 @@ The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.0.0/).
   `Time.now()` can be used to construct a time object with the current
   wall-clock date-time.
 
+- Added IRI.validate() to check whether IRI is valid.
+
 - Added `?` operator for specifying engine arguments using a glob pattern in
   KIF CLI.
 

@@ -5,7 +5,15 @@ from __future__ import annotations
 
 from typing import TYPE_CHECKING
 
-from ...typing import Any, ClassVar, override, TypeAlias, TypedDict, Union
+from ...typing import (
+    Any,
+    ClassVar,
+    override,
+    Self,
+    TypeAlias,
+    TypedDict,
+    Union,
+)
 from ..term import Variable
 from .shallow_data_value import (
     ShallowDataValue,
@@ -107,6 +115,23 @@ class IRI(
         from ...namespace import split_uri
         ns, name = split_uri(self.content)
         return IRI(ns), name
+
+    def validate(self) -> Self:
+        """Validates IRI.
+
+        Returns:
+           IRI.
+
+        Raises:
+           `ValueError`: IRI is invalid.
+        """
+        from ...namespace import validate_uri
+        try:
+            validate_uri(self.content)
+        except ValueError:
+            raise ValueError(self.content) from None
+        else:
+            return self
 
     def describe(self) -> IRI.Descriptor | None:
         """Gets the descriptor of IRI in KIF context.

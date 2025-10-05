@@ -3,7 +3,7 @@
 
 from __future__ import annotations
 
-from .prelude import P, IRI
+from .prelude import IRI, P
 
 afflicts = P(689)
 age_of_subject_at_event = P(3629)

@@ -7,7 +7,8 @@ import pathlib
 from urllib import parse as urllib_parse
 
 from .. import itertools
-from ..rdflib import DCT, FOAF, OWL, RDF, RDFS, SKOS, URIRef, XSD
+from ..rdflib import DCT, FOAF, OWL, RDF, RDFS, SKOS, XSD
+from ..typing import TypeVar
 from .ontolex import ONTOLEX
 from .prov import PROV
 from .schema import SCHEMA
@@ -82,9 +83,11 @@ PREFIXES: dict[str, object] = {
     **Wikidata.prefixes
 }
 
+_T = TypeVar('_T', bound=T_URI)
+
 
 def split_uri(
-        uri: str | URIRef,
+        uri: T_URI,
         _empty: urllib_parse.ParseResult = urllib_parse.urlparse('')
 ) -> tuple[str, str]:
     """Splits URI into namespace and name.
@@ -106,3 +109,22 @@ def split_uri(
             parent += '/'
         return urllib_parse.urlunparse(itertools.chain(
             t[:2], (parent,), _empty[3:])), path.name
+
+
+def validate_uri(uri: _T) -> _T:
+    """Validates URI.
+
+    Parameters:
+       uri: URI.
+
+    Returns:
+       The given URI.
+
+    Raises:
+       `ValueError`: `uri` is in valid.
+    """
+    t = urllib_parse.urlparse(str(uri))
+    if t.scheme and t.netloc:
+        return uri
+    else:
+        raise ValueError
