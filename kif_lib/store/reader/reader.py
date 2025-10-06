@@ -518,7 +518,7 @@ class Reader(
                 task.__qualname__, i, len(res[1]))
             return res
 
-        assert len(self._args) >= 3
+        assert len(self._args) >= 2, self._args
         pre, mid, pos = (self._args[0],), self._args[1:-1], (self._args[-1],)
         f = (lambda it: self._afilter_helper(list(map(parse, it)), task))
         return itertools.amix(
