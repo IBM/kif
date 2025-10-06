@@ -24,9 +24,9 @@ setuptools.setup(
     package_dir={'kif_lib': 'kif_lib'},
     install_requires=[ 'httpx', 'lark', 'more_itertools', 'networkx', 'rdflib', 'types-networkx', 'typing-extensions', ],
     extras_require={
-        'all': [*[ 'myst_nb', 'sphinx-rtd-theme', ],*[ 'click', 'ddgs', 'graphviz', 'jpype1', 'pandas', 'pandas-stubs', 'psutils', 'rich', 'types-click', 'types-psutils', ],*['flake8', 'isort', 'mypy', 'pylint', 'pyright', 'pytest', 'pytest-asyncio', 'pytest-cov', 'pytest-mypy', 'pyupgrade', 'setuptools', 'tox']],
+        'all': [*[ 'myst_nb', 'sphinx-rtd-theme', ],*[ 'click', 'ddgs', 'graphviz', 'jpype1', 'pandas', 'pandas-stubs', 'psutil', 'rich', 'types-click', 'types-psutil', ],*['flake8', 'isort', 'mypy', 'pylint', 'pyright', 'pytest', 'pytest-asyncio', 'pytest-cov', 'pytest-mypy', 'pyupgrade', 'setuptools', 'tox']],
         'docs': [ 'myst_nb', 'sphinx-rtd-theme', ],
-        'extra': [ 'click', 'ddgs', 'graphviz', 'jpype1', 'pandas', 'pandas-stubs', 'psutils', 'rich', 'types-click', 'types-psutils', ],
+        'extra': [ 'click', 'ddgs', 'graphviz', 'jpype1', 'pandas', 'pandas-stubs', 'psutil', 'rich', 'types-click', 'types-psutil', ],
         'tests': ['flake8', 'isort', 'mypy', 'pylint', 'pyright', 'pytest', 'pytest-asyncio', 'pytest-cov', 'pytest-mypy', 'pyupgrade', 'setuptools', 'tox'],
     },
     entry_points={'console_scripts': ['kif = kif_lib.cli:cli'], },
