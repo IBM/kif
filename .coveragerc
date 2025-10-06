@@ -10,8 +10,6 @@ exclude_lines =
     pragma: no cover
     raise AssertionError
     raise NotImplementedError
-    raise \w+\._must_be_implemented_in_subclass
     raise \w+\._should_not_get_here
-    raise MustBeImplementedInSubclass
     raise ShouldNotGetHere
 
