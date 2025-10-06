@@ -129,11 +129,7 @@ class HttpxSPARQL_Store(
                 query: str,
                 timeout: float | None = None
         ) -> SPARQL_Results:
-            try:
-                return self._http_post(query, timeout).json()
-            except httpx.HTTPStatusError as err:
-                _logger.exception(err.response.text)
-                raise err
+            return self._http_post(query, timeout).json()
 
         def _http_post(
                 self,
@@ -144,7 +140,11 @@ class HttpxSPARQL_Store(
                 self._iri.content,
                 content=self._http_post_encode_content(content),
                 timeout=httpx.Timeout(timeout))
-            res.raise_for_status()
+            try:
+                res.raise_for_status()
+            except httpx.HTTPStatusError as err:
+                _logger.debug(res.text)
+                raise err
             return res
 
         def _http_post_encode_content(self, content: str) -> bytes:
@@ -160,11 +160,7 @@ class HttpxSPARQL_Store(
                 query: str,
                 timeout: float | None = None
         ) -> SPARQL_Results:
-            try:
-                return (await self._http_apost(query, timeout)).json()
-            except httpx.HTTPStatusError as err:
-                _logger.exception(err.response.text)
-                raise err
+            return (await self._http_apost(query, timeout)).json()
 
         async def _http_apost(
                 self,
@@ -175,7 +171,11 @@ class HttpxSPARQL_Store(
                 self._iri.content,
                 content=self._http_post_encode_content(content),
                 timeout=httpx.Timeout(timeout))
-            res.raise_for_status()
+            try:
+                res.raise_for_status()
+            except httpx.HTTPStatusError as err:
+                _logger.debug(res.text)
+                raise err
             return res
 
     def __init__(
