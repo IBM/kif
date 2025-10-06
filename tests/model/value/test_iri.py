@@ -105,7 +105,6 @@ class Test(ShallowDataValueTestCase):
             (IRI('https://ex.org/abc#'), 'def'))
 
     def test_validate(self) -> None:
-        assert_type(IRI('x').validate(), IRI)
         self.assertRaises(ValueError, IRI('x').validate)
         self.assertEqual(
             IRI('http://abc.org').validate(), IRI('http://abc.org'))
