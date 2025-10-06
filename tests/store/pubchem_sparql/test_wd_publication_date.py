@@ -29,7 +29,7 @@ class Test(StoreTestCase):
         xf(F(pc.patent('AR-033431-A1'), wd.publication_date),
            {wd.publication_date(
                pc.patent('AR-033431-A1'),
-               Time('2003-12-17T04:00', 11, 0,
+               Time('2003-12-16T20:00', 11, 0,
                     wd.proleptic_Gregorian_calendar))})
 
 

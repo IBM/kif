@@ -358,27 +358,42 @@ class Time(
             datetime.datetime.now().replace(tzinfo=datetime.timezone.utc),
             precision, timezone, calendar)
 
+    _re_parse_isoformat: ClassVar[re.Pattern[str]] = re.compile(
+        r'^\s*[+-]?\s*'
+        r'(\d+)\s*(?:-\s*(?:(\d+)\s*(?:-\s*(\d+)\s*)?))?'
+        r'T?\s*'
+        r'(?:([+-])?\s*(?:(\d+)\s*(?::\s*(\d+)\s*(?::\s*(\d+)\s*)?)?))?'
+        r'[zZ]?$')
+
     @classmethod
-    def _parse(
-            cls,
-            arg: str,
-            _re_split: re.Pattern[str] = re.compile(
-                r'^\s*[+-]?\s*'
-                r'(?:(\d+)\s*(?:-\s*(?:(\d+)\s*(?:-\s*(\d+))?))?)'
-                r'\s*T?(.*?)[zZ]?$')
-    ) -> datetime.datetime:
-        m = _re_split.match(arg)
+    def _parse(cls, arg: str) -> datetime.datetime:
+        m = cls._re_parse_isoformat.match(arg)
         if m:
             ###
             # FIXME (a): Python's fromisoformat() does not support the +/-
-            # sign used by Wikidata at the start of date-time literals.
+            # sign used by Wikidata at the start of date-time literals.  It
+            # also does not support the +/- sign used after the date to
+            # indicate a delta from UTC.
             #
             # FIXME (b): Python < 3.11's fromisoformat() does not support
             # the trailing "Z".
             ###
-            y, m, d, rest = m.groups()  # type: ignore
-            arg = f'{y}-{m or "01"}-{d or "01"}{("T" + rest) if rest else ""}'
-        dt = datetime.datetime.fromisoformat(arg)
+            year, month, day, signal, hour, min, sec = m.groups()
+            dt = datetime.datetime(
+                int(year or 1),
+                int(month or 1),
+                int(day or 1))
+            if hour or min or sec:
+                delta = datetime.timedelta(
+                    hours=int(hour or 0),
+                    minutes=int(min or 0),
+                    seconds=int(sec or 0))
+                if signal and signal == '-':
+                    dt -= delta
+                else:
+                    dt += delta
+        else:
+            dt = datetime.datetime.fromisoformat(arg)
         if dt.tzinfo is None:
             return dt.replace(tzinfo=datetime.timezone.utc)
         else:
