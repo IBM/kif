@@ -505,20 +505,8 @@ class Filter(KObj):
             return _cache[rank_class]
 
         @classmethod
-        def _from_rank(
-                cls,
-                rank: Rank,
-                _cache: dict[Rank, Filter.RankMask] = {}
-        ) -> Filter.RankMask:
-            ###
-            # IMPORTANT: functools.cache doesn't work with classmethods of
-            # enum.Flags subclasses.
-            ###
-            if not _cache:
-                _cache[PreferredRank()] = cls.PREFERRED
-                _cache[NormalRank()] = cls.NORMAL
-                _cache[DeprecatedRank()] = cls.DEPRECATED
-            return _cache[rank]
+        def _from_rank(cls, rank: Rank) -> Filter.RankMask:
+            return cls._from_rank_class(type(rank))
 
         def match(self, rank: TRank) -> bool:
             """Tests whether rank mask matches `rank`.
