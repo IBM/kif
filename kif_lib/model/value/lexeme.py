@@ -95,6 +95,18 @@ class Lexeme(
         language: Item
 
     @classmethod
+    def _descriptor_to_repr(
+            cls,
+            descriptor: Descriptor
+    ) -> Iterator[str]:
+        if 'lemma' in descriptor:
+            yield 'lemma=' + repr(descriptor['lemma'])
+        if 'category' in descriptor:
+            yield 'category=' + descriptor['category'].describe_using_repr()
+        if 'language' in descriptor:
+            yield 'language=' + descriptor['language'].describe_using_repr()
+
+    @classmethod
     def descriptor_to_snaks(
             cls,
             descriptor: Descriptor,
@@ -168,6 +180,37 @@ class Lexeme(
         return self.get_context(context).describe(
             self, resolve=resolve, resolver=resolver,
             force=force, function=self.describe)
+
+    def describe_using_repr(
+            self,
+            resolve: bool | None = None,
+            resolver: Store | None = None,
+            force: bool | None = None,
+            context: Context | None = None
+    ) -> str:
+        """Describes lexeme in KIF context using repr. format.
+
+        If `resolve` is ``True``, resolves lexeme data.
+
+        If `resolver` is given, uses it to resolve lexeme data.
+        Otherwise, uses the resolver registered in context (if any).
+
+        If `force` is given, forces resolution.
+
+        Parameters:
+           language: Language.
+           resolve: Whether to resolve descriptor.
+           resolver: Resolver store.
+           force: Whether to force resolution.
+           context: Context.
+
+        Returns:
+           Repr. string.
+        """
+        return self._describe_using_repr(
+            self, functools.partial(
+                self.describe, resolve, resolver, force, context),
+            self._descriptor_to_repr)
 
     def describe_using_statements(
             self,

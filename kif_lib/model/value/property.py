@@ -7,7 +7,7 @@ from typing import TYPE_CHECKING
 
 from typing_extensions import overload
 
-from ... import functools
+from ... import functools, itertools
 from ...context import Context
 from ...typing import (
     Any,
@@ -554,6 +554,25 @@ class Property(
         inverse: Property
 
     @classmethod
+    def _descriptor_to_repr(
+            cls,
+            descriptor: Descriptor
+    ) -> Iterator[str]:
+        if 'labels' in descriptor:
+            yield 'labels=' + repr(list(sorted(
+                descriptor['labels'].values())))
+        if 'aliases' in descriptor:
+            yield 'aliases=' + repr(list(sorted(
+                itertools.chain(*descriptor['aliases'].values()))))
+        if 'descriptions' in descriptor:
+            yield 'descriptions=' + repr(list(sorted(
+                descriptor['descriptions'].values())))
+        if 'range' in descriptor:
+            yield 'range=' + repr(descriptor['range'])
+        if 'inverse' in descriptor:
+            yield 'inverse=' + repr(descriptor['inverse'])
+
+    @classmethod
     def descriptor_to_snaks(
             cls,
             descriptor: Descriptor,
@@ -850,6 +869,41 @@ class Property(
         return self.get_context(context).describe(
             self, language=language, resolve=resolve, resolver=resolver,
             force=force, function=self.describe)
+
+    def describe_using_repr(
+            self,
+            language: TTextLanguage | None = None,
+            resolve: bool | None = None,
+            resolver: Store | None = None,
+            force: bool | None = None,
+            context: Context | None = None
+    ) -> str:
+        """Describes property in KIF context using repr. format.
+
+        If `language` is given, resolves only text in `language`.
+        Otherwise, resolves text in all languages.
+
+        If `resolve` is ``True``, resolves property data.
+
+        If `resolver` is given, uses it to resolve property data.
+        Otherwise, uses the resolver registered in context (if any).
+
+        If `force` is given, forces resolution.
+
+        Parameters:
+           language: Language.
+           resolve: Whether to resolve descriptor.
+           resolver: Resolver store.
+           force: Whether to force resolution.
+           context: Context.
+
+        Returns:
+           Repr. string.
+        """
+        return self._describe_using_repr(
+            self, functools.partial(
+                self.describe, language, resolve, resolver, force, context),
+            self._descriptor_to_repr)
 
     def describe_using_statements(
             self,

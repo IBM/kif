@@ -88,6 +88,20 @@ class Entity(
     variable_class: ClassVar[type[EntityVariable]]  # pyright: ignore
 
     @classmethod
+    def _describe_using_repr(
+            cls,
+            entity: Entity,
+            describe_fn: Callable[[], T | None],
+            descriptor_to_repr: Callable[[T], Iterator[str]]
+    ) -> str:
+        desc = describe_fn()
+        if desc is not None:
+            return (f'{repr(entity)}.register'
+                    f'({", ".join(descriptor_to_repr(desc))})')
+        else:
+            return repr(entity)
+
+    @classmethod
     def _describe_using_statements(
             cls,
             entity: Entity,

@@ -5,6 +5,7 @@ from __future__ import annotations
 
 import enum
 import itertools
+import keyword
 import re
 import string
 import typing as ty
@@ -18,7 +19,7 @@ class Str2Id:
         UTC = enum.auto()
         ALL = OPERATORS | UTC
 
-    _dash: str = '-–—'
+    _dash: str = '-–—‑'
 
     _punctuation: str = string.punctuation.translate(str.maketrans(
         dict(zip('_+-/=%&', itertools.repeat('')))))  # type: ignore
@@ -56,7 +57,7 @@ class Str2Id:
         '⅒': 'one-tenth',
     }
 
-    _whitespace: str = string.whitespace
+    _whitespace: str = string.whitespace + ' '
 
     __slots__ = (
         'preprocess',
@@ -131,6 +132,8 @@ class Str2Id:
         t = _re.sub('_', t).strip('_')
         if t[0].isdigit():
             t = '_' + t
+        if keyword.iskeyword(t):
+            t = t + '_'
         assert str.isidentifier(t), (s, t)
         return t
 

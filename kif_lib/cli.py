@@ -1538,6 +1538,7 @@ def filter(
             _output_filter_page,
             console,
             encoder=encoder,
+            language=language,
             resolve=resolve,
             vocabulary_dump=vocabulary_dump,
             context=context)
@@ -1580,6 +1581,7 @@ def _output_filter_page(
         console: Console,
         page: Iterable[Term],
         encoder: Encoder | None = None,
+        language: str | None = None,
         resolve: bool | None = None,
         vocabulary_dump: bool | None = None,
         context: Context | None = None
@@ -1587,9 +1589,14 @@ def _output_filter_page(
     if resolve or vocabulary_dump:
         assert context is not None
         resolved_page: Iterable[Term] = list(context.resolve(
-            page, language='en', label=True,
+            page,
+            language=language,
+            label=True,
+            aliases=bool(vocabulary_dump),
             description=bool(vocabulary_dump),
-            lemma=True, category=True, lexeme_language=True))
+            lemma=True,
+            category=True,
+            lexeme_language=True))
         ###
         # TODO: Make sure we also resolve the category and language of any
         # lexemes occurring in resolved page.  Should Context.resolve()
@@ -1601,7 +1608,7 @@ def _output_filter_page(
             *((x.get_category(resolve=False),
                x.get_language(resolve=False))
               for x in lexemes)),
-            language='en', label=True)
+            language=language, label=True)
     else:
         resolved_page = page
     if vocabulary_dump:
@@ -1614,20 +1621,8 @@ def _output_filter_page(
             for e in entities
             if isinstance(e, (Item, Property)) and e.label is not None)
         for var, entity in var_entity_pairs:
-            assert isinstance(entity, (Item, Property))
-            assert entity.label
-            label = (
-                "label='"
-                + entity.label.content.replace("'", r"\'")
-                + "'")
-            if entity.description:
-                description = (
-                    ", description='"
-                    + entity.description.content.replace("'", r"\'")
-                    + "'")
-            else:
-                description = ''
-            print(f"{var} = {entity}.register({label}{description})")
+            assert isinstance(entity, (Item, Property, Lexeme))
+            print(var, '=', entity.describe_using_repr(), flush=True)
     else:
         if encoder is None:
             it = map(Term.to_markdown, resolved_page)

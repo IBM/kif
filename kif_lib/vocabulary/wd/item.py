@@ -7,7 +7,6 @@ from .prelude import Q
 
 # autopep8: off
 # flake8: noqa
-
 _1 = Q(199, '1')
 acetone = Q(49546, 'acetone')
 Adam = Q(70899, 'Adam')
@@ -267,6 +266,7 @@ Watson = Q(12253, 'Watson')
 week = Q(23387, 'week')
 Wikidata = Q(2013, 'Wikidata')
 Wikidata_metaproperty_for_ontology_mapping = Q(42842547, 'Wikidata metaproperty for ontology mapping')
+Wikidata_property_ = Q(18616576, 'Wikidata property')
 Wikidata_property_for_an_identifier = Q(19847637, 'Wikidata property for an identifier')
 Wikidata_property_for_ontology_mapping = Q(30249126, 'Wikidata property for ontology mapping')
 Wikidata_property_for_physical_quantities = Q(21077852, 'Wikidata property for physical quantities')
@@ -554,6 +554,7 @@ __all__ = (
     'WHO',
     'Wikidata',
     'Wikidata_metaproperty_for_ontology_mapping',
+    'Wikidata_property_',
     'Wikidata_property_for_an_identifier',
     'Wikidata_property_for_ontology_mapping',
     'Wikidata_property_for_physical_quantities',
