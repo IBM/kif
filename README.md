@@ -144,8 +144,14 @@ See [examples](./examples) for more examples.
 
 ## Citation
 
-Guilherme Lima, João M. B. Rodrigues, Marcelo Machado, Elton Soares, Sandro R. Fiorini, Raphael Thiago, Leonardo G. Azevedo, Viviane T. da Silva, Renato Cerqueira. ["KIF: A Wikidata-Based Framework for Integrating Heterogeneous
-Knowledge Sources"](https://arxiv.org/abs/2403.10304), arXiv:2403.10304, 2024.
+Guilherme Lima, João M. B. Rodrigues, Marcelo Machado, Elton Soares, Sandro R. Fiorini, Raphael Thiago, Leonardo G. Azevedo, Viviane T. da Silva, Renato Cerqueira.  2024.  ["KIF: A Wikidata-Based Framework for Integrating Heterogeneous Knowledge Sources"](https://arxiv.org/abs/2403.10304), arXiv:2403.10304, 2024.
+
+### Related Papers
+
+Marcelo Machado, João P. P. Campos, Guilherme Lima, Viviane T. da Silva.  2025.  "KIF-QA: Using Off-the-shelf LLMs to Answer Simple Questions over Heterogeneous Knowledge Bases".  In Proc. 5th Wikidata Workshop co-located with the 24th Semantic Web Conference (ISWC 2025), Nara, Japan, November 2-6, 2025. (To be published)
+
+Marcelo Machado, João M. B. Rodrigues, Guilherme Lima, Sandro R. Fiorini, Viviane T. da Silva. 2024. ["LLM Store: Leveraging Large Language Models as Sources of Wikidata-Structured Knowledge"](https://ceur-ws.org/Vol-3853/paper6.pdf). In Joint Proc. 2nd Workshop on Knowledge Base Construction from Pre-Trained Language Models (KBC-LM 2024) and the 3rd Challenge on Language Models for Knowledge Base Construction (LM-KBC 2024) co-located with the 23nd International Semantic Web Conference (ISWC 2024), Baltimore, USA, November 12, 2024.  (Best paper)
+
 
 ## License
 
