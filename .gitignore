@@ -3,6 +3,7 @@
 .coverage
 .idea
 .tox
+/.cache
 /.docs
 /.mypy_cache
 /build

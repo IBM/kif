@@ -48,7 +48,7 @@ ChemSpider = Q(2311683, 'ChemSpider')
 chicken = Q(780, 'chicken')
 child_ = Q(7569, 'child')
 Chile = Q(298, 'Chile')
-class_ = Q(37517, 'class')
+class__ = Q(37517, 'class')
 coffee = Q(8486, 'coffee')
 Colombia = Q(739, 'Colombia')
 comma_separated_values = Q(935809, 'comma-separated values')
@@ -108,7 +108,7 @@ gram_per_decilitre = Q(55433914, 'gram per decilitre')
 gram_per_kilogram = Q(21061369, 'gram per kilogram')
 gram_per_litre = Q(834105, 'gram per litre')
 gram_per_mole = Q(28924752, 'gram per mole')
-greater_than = Q(47035128, 'greater than')
+greater_than_ = Q(47035128, 'greater than')
 greater_than_or_equal_to = Q(55935291, 'greater than or equal to')
 guinea_pig = Q(79803, 'guinea pig')
 Guyana = Q(734, 'Guyana')
@@ -141,7 +141,7 @@ kingdom = Q(36732, 'kingdom')
 laboratory_mouse = Q(2842787, 'laboratory mouse')
 laboratory_rat = Q(3089676, 'laboratory rat')
 Latin_America = Q(12585, 'Latin America')
-less_than = Q(52834024, 'less than')
+less_than_ = Q(52834024, 'less than')
 less_than_or_equal_to = Q(55935272, 'less than or equal to')
 lion = Q(140, 'lion')
 liquid = Q(11435, 'liquid')
@@ -330,7 +330,7 @@ __all__ = (
     'chicken',
     'child_',
     'Chile',
-    'class_',
+    'class__',
     'coffee',
     'Colombia',
     'comma_separated_values',
@@ -393,7 +393,7 @@ __all__ = (
     'gram_per_kilogram',
     'gram_per_litre',
     'gram_per_mole',
-    'greater_than',
+    'greater_than_',
     'greater_than_or_equal_to',
     'guinea_pig',
     'Guyana',
@@ -426,7 +426,7 @@ __all__ = (
     'laboratory_mouse',
     'laboratory_rat',
     'Latin_America',
-    'less_than',
+    'less_than_',
     'less_than_or_equal_to',
     'lion',
     'liquid',

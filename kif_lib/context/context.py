@@ -15,6 +15,7 @@ from ..typing import (
     cast,
     ClassVar,
     Iterable,
+    Iterator,
     Location,
     Optional,
     Sequence,
@@ -668,6 +669,7 @@ class Context:
             self,
             objects: Iterable[T],
             resolver: Store | None = None,
+            batch_size: int | None = None,
             label: bool = False,
             aliases: bool = False,
             description: bool = False,
@@ -697,6 +699,7 @@ class Context:
         Parameters:
            objects: Objects.
            resolver: Resolver store.
+           batch_size: Batch size for resolver calls.
            label: Whether to resolve labels.
            aliases: Whether to resolve aliases.
            description: Whether to resolve descriptions.
@@ -708,6 +711,7 @@ class Context:
            lexeme_language: Whether to resolve lexeme languages.
            all: Whether to resolve all data.
            force: Whether to force resolve.
+           batch_size: Batch size.
            function: Function or function name.
 
         Returns:
@@ -718,20 +722,35 @@ class Context:
         function = function or self.resolve
         resolver = KIF_Object._check_optional_arg_isinstance(
             resolver, Store, None, function, 'resolver')
-        it1, it2 = itertools.tee(objects, 2)
-        entities: Iterable[Entity] = itertools.chain(*map(
-            lambda o: cast(KIF_Object, o).traverse(
-                Entity[Unpack[tuple]].test), filter(
-                    KIF_Object.test, it1)))
-        pairs = cast(Iterable[tuple[Entity, Store]], filter(
-            lambda t: t[1] is not None, map(
-                lambda e: (
-                    e, resolver
-                    if resolver is not None else self.iris.lookup_resolver(e)),
-                entities)))
-        self.entities.resolve(
-            pairs, label=label, aliases=aliases, description=description,
-            language=language, range=range, inverse=inverse,
-            lemma=lemma, category=category, lexeme_language=lexeme_language,
-            all=all, force=bool(force))
-        return it2
+
+        def it() -> Iterator[Iterable[T]]:
+            for batch in (
+                    itertools.batched(objects, batch_size)
+                    if batch_size else (objects,)):
+                it1, it2 = itertools.tee(batch, 2)
+                entities: Iterable[Entity] = itertools.chain(*map(
+                    lambda o: cast(KIF_Object, o).traverse(
+                        Entity[Unpack[tuple]].test), filter(
+                            KIF_Object.test, it1)))
+                pairs = cast(Iterable[tuple[Entity, Store]], filter(
+                    lambda t: t[1] is not None, map(
+                        lambda e: (
+                            e, resolver
+                            if resolver is not None
+                            else self.iris.lookup_resolver(e)),
+                        entities)))
+                self.entities.resolve(
+                    pairs,
+                    label=label,
+                    aliases=aliases,
+                    description=description,
+                    language=language,
+                    range=range,
+                    inverse=inverse,
+                    lemma=lemma,
+                    category=category,
+                    lexeme_language=lexeme_language,
+                    all=all,
+                    force=bool(force))
+                yield it2
+        return itertools.chain(*it())

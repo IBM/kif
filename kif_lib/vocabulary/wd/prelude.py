@@ -232,8 +232,8 @@ def reload(
        force: Force reload.
        context: KIF context.
     """
-    if load_property_cache:
-        _load_property_cache(context=context)
+    # if load_property_cache:
+    #     _load_property_cache(context=context)
     if install_resolver:
         _install_resolver(context=context)
     if install_schema:

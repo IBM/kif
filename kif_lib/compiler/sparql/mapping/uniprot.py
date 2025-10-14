@@ -154,7 +154,7 @@ class UniProtMapping(M):
 
     _taxon_rank_repl: Final[dict[str, str]] = {
         k: v.iri.content for k, v in {
-            UNIPROT.Taxonomic_Rank_Class: wd.class_,
+            UNIPROT.Taxonomic_Rank_Class: wd.class__,
             UNIPROT.Taxonomic_Rank_Domain: wd.domain,
             UNIPROT.Taxonomic_Rank_Genus: wd.genus,
             UNIPROT.Taxonomic_Rank_Kingdom: wd.kingdom,

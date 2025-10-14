@@ -148,7 +148,6 @@ def cli(
 def _run(command: Callable[[], None]) -> None:
     if _PROFILE:
         import cProfile
-        import pathlib
         import shutil
         import subprocess
         import tempfile
@@ -617,36 +616,36 @@ class FilterParam:
         help='Maximum number of results.',
         envvar='LIMIT')
 
-    no_async = click.option(
-        '--no-async',
+    async_ = click.option(
+        '--async / --no-async',
         'async_',
         is_flag=True,
         default=True,
-        help='Do not use the asynchronous API.',
+        help='Use the asynchronous API.',
         envvar='ASYNC')
 
-    no_distinct = click.option(
-        '--no-distinct',
+    distinct = click.option(
+        '--distinct / --no-distinct',
         'distinct',
         is_flag=True,
         default=True,
-        help='Do not suppress duplicates.',
+        help='Suppress duplicates.',
         envvar='DISTINCT')
 
-    no_resolve = click.option(
-        '--no-resolve',
+    resolve = click.option(
+        '--resolve / --no-resolve',
         'resolve',
         is_flag=True,
         default=True,
-        help='Do not resolve entity labels.',
+        help='Resolve entity labels.',
         envvar='RESOLVE')
 
-    non_best_ranked = click.option(
-        '--non-best-ranked',
+    best_ranked = click.option(
+        '--best-ranked / --non-best-ranked',
         'best_ranked',
         is_flag=True,
         default=True,
-        help='Match non-best ranked statements.',
+        help='Match best-ranked statements.',
         envvar='BEST_RANKED')
 
     omega = click.option(
@@ -1068,29 +1067,28 @@ class FilterParam:
 @FilterParam.subject
 @FilterParam.property
 @FilterParam.value
+@FilterParam.async_
+@FilterParam.best_ranked
+@FilterParam.distinct
 @FilterParam.dry_run
 @FilterParam.encoder
 @FilterParam.language
-@FilterParam.no_async
-@FilterParam.no_distinct
-@FilterParam.no_resolve
-@FilterParam.non_best_ranked
 @FilterParam.omega
-@FilterParam.property_option
 @FilterParam.property_mask
+@FilterParam.property_option
 @FilterParam.rank_mask
+@FilterParam.resolve
 @FilterParam.snak_is_no_value
 @FilterParam.snak_is_some_value
 @FilterParam.snak_is_value
 @FilterParam.snak_mask
 @FilterParam.store
-@FilterParam.subject_option
 @FilterParam.subject_is_item
 @FilterParam.subject_is_lexeme
 @FilterParam.subject_is_property
 @FilterParam.subject_mask
+@FilterParam.subject_option
 @FilterParam.timeout
-@FilterParam.value_option
 @FilterParam.value_is_data_value
 @FilterParam.value_is_deep_data_value
 @FilterParam.value_is_entity
@@ -1106,6 +1104,7 @@ class FilterParam:
 @FilterParam.value_is_time
 @FilterParam.value_is_value
 @FilterParam.value_mask
+@FilterParam.value_option
 def ask(
         store: Sequence[Store],
         subject: Fingerprint | None = None,
@@ -1209,30 +1208,29 @@ def ask(
 @FilterParam.property
 @FilterParam.value
 @FilterParam.annotated
+@FilterParam.async_
+@FilterParam.best_ranked
+@FilterParam.distinct
 @FilterParam.dry_run
 @FilterParam.encoder
 @FilterParam.language
-@FilterParam.no_async
-@FilterParam.no_distinct
-@FilterParam.no_resolve
-@FilterParam.non_best_ranked
 @FilterParam.omega
-@FilterParam.property_option
 @FilterParam.property_mask
+@FilterParam.property_option
 @FilterParam.rank_mask
+@FilterParam.resolve
 @FilterParam.select
 @FilterParam.snak_is_no_value
 @FilterParam.snak_is_some_value
 @FilterParam.snak_is_value
 @FilterParam.snak_mask
 @FilterParam.store
-@FilterParam.subject_option
 @FilterParam.subject_is_item
 @FilterParam.subject_is_lexeme
 @FilterParam.subject_is_property
 @FilterParam.subject_mask
+@FilterParam.subject_option
 @FilterParam.timeout
-@FilterParam.value_option
 @FilterParam.value_is_data_value
 @FilterParam.value_is_deep_data_value
 @FilterParam.value_is_entity
@@ -1248,6 +1246,7 @@ def ask(
 @FilterParam.value_is_time
 @FilterParam.value_is_value
 @FilterParam.value_mask
+@FilterParam.value_option
 def count(
         store: Sequence[Store],
         subject: Fingerprint | None = None,
@@ -1369,39 +1368,38 @@ def count(
 @FilterParam.property
 @FilterParam.value
 @FilterParam.annotated
-@FilterParam.encoder_dot
+@FilterParam.async_
+@FilterParam.best_ranked
+@FilterParam.distinct
 @FilterParam.dry_run
 @FilterParam.encoder
+@FilterParam.encoder_dot
 @FilterParam.encoder_json
+@FilterParam.encoder_markdown
+@FilterParam.encoder_rdf
+@FilterParam.encoder_repr
+@FilterParam.encoder_sexp
 @FilterParam.language
 @FilterParam.limit
 @FilterParam.lookahead
-@FilterParam.encoder_markdown
-@FilterParam.no_async
-@FilterParam.no_distinct
-@FilterParam.no_resolve
-@FilterParam.non_best_ranked
 @FilterParam.omega
 @FilterParam.page_size
-@FilterParam.property_option
 @FilterParam.property_mask
+@FilterParam.property_option
 @FilterParam.rank_mask
-@FilterParam.encoder_rdf
-@FilterParam.encoder_repr
+@FilterParam.resolve
 @FilterParam.select
-@FilterParam.encoder_sexp
 @FilterParam.snak_is_no_value
 @FilterParam.snak_is_some_value
 @FilterParam.snak_is_value
 @FilterParam.snak_mask
 @FilterParam.store
-@FilterParam.subject_option
 @FilterParam.subject_is_item
 @FilterParam.subject_is_lexeme
 @FilterParam.subject_is_property
 @FilterParam.subject_mask
+@FilterParam.subject_option
 @FilterParam.timeout
-@FilterParam.value_option
 @FilterParam.value_is_data_value
 @FilterParam.value_is_deep_data_value
 @FilterParam.value_is_entity
@@ -1417,6 +1415,7 @@ def count(
 @FilterParam.value_is_time
 @FilterParam.value_is_value
 @FilterParam.value_mask
+@FilterParam.value_option
 @FilterParam.vocabulary_dump
 def filter(
         store: Sequence[Store],
@@ -1554,12 +1553,13 @@ def filter(
 
             async def afilter():
                 assert select is not None
-                it = af[select]()
+                it, i = af[select](), 1
                 while True:
                     page = await itertools.atake(target.page_size, it)
                     if not page:
                         break
-                    output(page)
+                    output(page, i)
+                    i += 1
             asyncio.run(afilter())
         else:
             f: dict[str, Callable[[], Iterator[Term]]] = {
@@ -1572,28 +1572,32 @@ def filter(
                 'spv': (lambda: target.filter(filter=fr))}
             assert select is not None
             batches = itertools.batched(f[select](), target.page_size)
-            for page in batches:
-                output(page)
+            for i, page in enumerate(batches, 1):
+                output(page, i)
     _run(_filter)
 
 
 def _output_filter_page(
         console: Console,
         page: Iterable[Term],
+        pageno: int,
         encoder: Encoder | None = None,
         language: str | None = None,
         resolve: bool | None = None,
         vocabulary_dump: bool | None = None,
         context: Context | None = None
 ) -> None:
+    _LOGGER.info('outputting page %d', pageno)
     if resolve or vocabulary_dump:
         assert context is not None
         resolved_page: Iterable[Term] = list(context.resolve(
             page,
+            batch_size=100,
             language=language,
             label=True,
-            aliases=bool(vocabulary_dump),
-            description=bool(vocabulary_dump),
+            aliases=False,
+            description=False,
+            inverse=True,
             lemma=True,
             category=True,
             lexeme_language=True))
@@ -1616,10 +1620,12 @@ def _output_filter_page(
         entities = set(itertools.chain(
             *(term.traverse(Entity.test) for term in resolved_page)))
         as_id = Str2Id()
-        var_entity_pairs = (
+        var_entity_pairs = list(
             (as_id(e.label.content), e)
             for e in entities
             if isinstance(e, (Item, Property)) and e.label is not None)
+        _LOGGER.info('collected %d var-entity pairs in page %d',
+                     len(var_entity_pairs), pageno)
         for var, entity in var_entity_pairs:
             assert isinstance(entity, (Item, Property, Lexeme))
             print(var, '=', entity.describe_using_repr(), flush=True)
@@ -1731,15 +1737,13 @@ class SearchParam:
         help='Type specification.',
         envvar='TYPE')
 
+    async_ = FilterParam.async_
+
     encoder = FilterParam.encoder
 
     limit = FilterParam.limit
 
     lookahead = FilterParam.lookahead
-
-    no_async = FilterParam.no_async
-
-    no_resolve = FilterParam.no_resolve
 
     page_size = FilterParam.page_size
 
@@ -1751,6 +1755,8 @@ class SearchParam:
         multiple=True,
         help='Target search.',
         envvar='SEARCH')
+
+    resolve = FilterParam.resolve
 
     timeout = FilterParam.timeout
 
@@ -1790,6 +1796,7 @@ class SearchParam:
 
 @cli.command(help='Searches for entities matching text.')
 @SearchParam.text
+@SearchParam.async_
 @SearchParam.encoder
 @SearchParam.item
 @SearchParam.item_data
@@ -1798,12 +1805,11 @@ class SearchParam:
 @SearchParam.lexeme_data
 @SearchParam.lexeme_descriptor
 @SearchParam.limit
+@SearchParam.page_size
 @SearchParam.property
 @SearchParam.property_data
 @SearchParam.property_descriptor
-@SearchParam.no_async
-@SearchParam.no_resolve
-@SearchParam.page_size
+@SearchParam.resolve
 @SearchParam.search
 @SearchParam.timeout
 @SearchParam.type
@@ -1883,12 +1889,13 @@ def search(
 
             async def asearch():
                 assert type is not None
-                it = as_[type]()
+                it, i = as_[type](), 1
                 while True:
                     page = await itertools.atake(target.page_size, it)
                     if not page:
                         break
-                    output(type=type, page=page)  # type: ignore
+                    output(type=type, page=page, pageno=i)  # type: ignore
+                    i += 1
             asyncio.run(asearch())
         else:
             s: dict[str, Callable[[], Union[
@@ -1912,8 +1919,8 @@ def search(
                 'property-data': (lambda: target.property_data(text))}
             assert type is not None
             batches = itertools.batched(s[type](), target.page_size)
-            for page in batches:
-                output(type=type, page=page)  # type: ignore
+            for page, i in enumerate(batches, 1):
+                output(type=type, page=page, pageno=i)  # type: ignore
     _run(_search)
 
 
@@ -1928,6 +1935,7 @@ def _output_search_page(
             Iterable[tuple[Lexeme, Lexeme.Descriptor]],
             Iterable[tuple[Property, Property.Descriptor]],
             Iterable[Search.TData]],
+        pageno: int,
         encoder: Encoder | None = None,
         resolve: bool | None = None,
         context: Context | None = None
@@ -1939,8 +1947,8 @@ def _output_search_page(
     else:
         output = functools.partial(
             _output_filter_page,
-            console=console, encoder=encoder,
-            resolve=resolve, context=context)
+            console=console, pageno=pageno,
+            encoder=encoder, resolve=resolve, context=context)
         if type.endswith('descriptor'):
             it = itertools.chain(*(
                 (entity, SnakSet(

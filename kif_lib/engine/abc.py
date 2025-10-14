@@ -1108,7 +1108,7 @@ class Engine(Generic[TOptions]):
         Returns:
            Maximum page size.
         """
-        return self.get_default_options().max_page_size
+        return self.options.max_page_size
 
     @property
     def default_page_size(self) -> int:
@@ -1176,7 +1176,7 @@ class Engine(Generic[TOptions]):
         Returns:
            Maximum timeout (in seconds).
         """
-        return self.get_default_options().max_timeout
+        return self.options.max_timeout
 
     @property
     def default_timeout(self) -> float | None:

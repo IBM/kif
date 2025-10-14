@@ -1098,7 +1098,7 @@ class Store(Engine[TOptions]):
         Returns:
            Maximum distinct window-size.
         """
-        return self.get_default_options().max_distinct_window_size
+        return self.options.max_distinct_window_size
 
     @at_property
     def default_distinct_window_size(self) -> int:
