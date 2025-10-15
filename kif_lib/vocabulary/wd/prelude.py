@@ -3,13 +3,10 @@
 
 from __future__ import annotations
 
-import pathlib
-
 from ... import namespace as NS
 from ...context import Context
 from ...model import (
     AliasProperty,
-    Datatype,
     DescriptionProperty,
     IRI,
     Item,
@@ -44,65 +41,6 @@ __all__ = (
     'subtype',
     'type',
 )
-
-
-def _get_vocabulary_wd_dir() -> pathlib.Path:
-    from importlib import util
-    spec = util.find_spec(__name__)
-    assert spec is not None
-    assert spec.origin is not None
-    return pathlib.Path(cast(str, spec.origin)).parent
-
-
-def _get_item_cache(context: Context | None = None) -> pathlib.Path | None:
-    ctx = Context.top(context)
-    path = ctx.options.vocabulary.wd.item_cache
-    if path is not None:
-        assert isinstance(path, pathlib.Path)
-        if path.is_absolute():
-            return path
-        else:
-            return _get_vocabulary_wd_dir() / path
-    else:
-        return None
-
-
-def _get_property_cache(
-        context: Context | None = None
-) -> pathlib.Path | None:
-    ctx = Context.top(context)
-    path = ctx.options.vocabulary.wd.property_cache
-    if path is not None:
-        assert isinstance(path, pathlib.Path)
-        if path.is_absolute():
-            return path
-        else:
-            return _get_vocabulary_wd_dir() / path
-    else:
-        return None
-
-
-def _load_property_cache(
-        path: pathlib.Path | None = None,
-        context: Context | None = None
-) -> None:
-    ctx = Context.top(context)
-    try:
-        path = path or _get_property_cache()
-        if path is None:
-            return
-        assert path is not None
-        with open(path, encoding='utf-8') as fp:
-            for line in fp.readlines():
-                _, uri, datatype_uri, label_en, inverse_uri = (
-                    line[:-1].split('\t'))
-                dt = Datatype.check(datatype_uri)
-                iprop = Property(inverse_uri, dt) if inverse_uri else None
-                prop = Property(uri, dt)
-                assert ctx.entities.register(
-                    prop, range=dt, label=label_en, inverse=iprop) == prop
-    except FileNotFoundError:
-        pass
 
 
 def _install_resolver(context: Context | None = None) -> None:
@@ -220,7 +158,6 @@ lexical_category = LexicalCategoryProperty()
 
 
 def reload(
-        load_property_cache: bool = True,
         install_resolver: bool = True,
         install_schema: bool = True,
         force: bool = True,
@@ -232,8 +169,6 @@ def reload(
        force: Force reload.
        context: KIF context.
     """
-    # if load_property_cache:
-    #     _load_property_cache(context=context)
     if install_resolver:
         _install_resolver(context=context)
     if install_schema:
