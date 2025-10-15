@@ -232,7 +232,7 @@ second = Q(11574, 'second')
 seculararchy = Q(859563, 'seculararchy')
 sheep = Q(7368, 'sheep')
 skin_absorption = Q(4669896, 'skin absorption')
-slope = Q(944588, 'slope')
+slope_ = Q(944588, 'slope')
 sodium_bicarbonate = Q(179731, 'sodium bicarbonate')
 software = Q(7397, 'software')
 sourcing_circumstance_ = Q(104637420, 'sourcing circumstance')
@@ -517,7 +517,7 @@ __all__ = (
     'seculararchy',
     'sheep',
     'skin_absorption',
-    'slope',
+    'slope_',
     'sodium_bicarbonate',
     'software',
     'sourcing_circumstance_',

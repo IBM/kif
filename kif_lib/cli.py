@@ -1590,45 +1590,34 @@ def _output_filter_page(
     _LOGGER.info('outputting page %d', pageno)
     if resolve or vocabulary_dump:
         assert context is not None
-        resolved_page: Iterable[Term] = list(context.resolve(
-            page,
-            batch_size=100,
-            language=language,
-            label=True,
-            aliases=False,
-            description=False,
-            inverse=True,
-            lemma=True,
-            category=True,
-            lexeme_language=True))
-        ###
-        # TODO: Make sure we also resolve the category and language of any
-        # lexemes occurring in resolved page.  Should Context.resolve()
-        # handle this?
-        ###
-        lexemes = itertools.chain(
-            *(x.traverse(Lexeme.test) for x in resolved_page))
-        context.resolve(itertools.chain(
-            *((x.get_category(resolve=False),
-               x.get_language(resolve=False))
-              for x in lexemes)),
-            language=language, label=True)
+        resolved_page = _output_filter_resolve_page(context, page, language)
     else:
         resolved_page = page
     if vocabulary_dump:
         from .str2id import Str2Id
+        as_id = Str2Id()
+        assert context is not None
         entities = set(itertools.chain(
             *(term.traverse(Entity.test) for term in resolved_page)))
-        as_id = Str2Id()
-        var_entity_pairs = list(
-            (as_id(e.label.content), e)
-            for e in entities
-            if isinstance(e, (Item, Property)) and e.label is not None)
-        _LOGGER.info('collected %d var-entity pairs in page %d',
-                     len(var_entity_pairs), pageno)
-        for var, entity in var_entity_pairs:
-            assert isinstance(entity, (Item, Property, Lexeme))
-            print(var, '=', entity.describe_using_repr(), flush=True)
+        while True:
+            var_entity_pairs = list(
+                (as_id(e.label.content), e)
+                for e in entities
+                if isinstance(e, (Item, Property)) and e.label is not None)
+            _LOGGER.info('collected %d var-entity pairs in page %d',
+                         len(var_entity_pairs), pageno)
+            for var, entity in var_entity_pairs:
+                assert isinstance(entity, (Item, Property, Lexeme))
+                print(var, '=', entity.describe_using_repr(), flush=True)
+                entities.remove(entity)
+            if not entities:
+                break
+            _LOGGER.info('%d unresolved entities, retrying', len(entities))
+            entities = set(_output_filter_resolve_page(
+                context,
+                (e.replace(range=None)
+                 if isinstance(e, Property) else e for e in entities),
+                language))
     else:
         if encoder is None:
             it = map(Term.to_markdown, resolved_page)
@@ -1636,6 +1625,37 @@ def _output_filter_page(
         else:
             for term in resolved_page:
                 print(encoder.encode(term).rstrip(), flush=True)
+
+
+def _output_filter_resolve_page(
+        context: Context,
+        page: Iterable[Term],
+        language: str | None = None
+) -> Iterable[Term]:
+    resolved_page: Iterable[Term] = list(context.resolve(
+        page,
+        batch_size=100,
+        language=language,
+        label=True,
+        aliases=False,
+        description=False,
+        inverse=True,
+        lemma=True,
+        category=True,
+        lexeme_language=True))
+    ###
+    # TODO: Make sure we also resolve the category and language of any
+    # lexemes occurring in resolved page.  Should Context.resolve()
+    # handle this?
+    ###
+    lexemes = itertools.chain(
+        *(x.traverse(Lexeme.test) for x in resolved_page))
+    context.resolve(itertools.chain(
+        *((x.get_category(resolve=False),
+           x.get_language(resolve=False))
+          for x in lexemes)),
+        language=language, label=True)
+    return resolved_page
 
 
 class SearchParam:
