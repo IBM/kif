@@ -1,5 +1,5 @@
 {
-  "exclude": ["tests/model/test_object.py"],
+  "exclude": ["kif_lib/vocabulary/wd/property.py", "tests/model/test_object.py"],
   "reportMissingImports": true,
   "reportMissingTypeStubs": true
 }

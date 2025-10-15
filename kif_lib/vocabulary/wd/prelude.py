@@ -243,7 +243,7 @@ def reload(
 
         from . import item, property
         importlib.reload(item)
-        importlib.reload(property)
+        importlib.reload(property)  # type: ignore
 
 
 reload(force=False)

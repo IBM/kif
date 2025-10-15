@@ -29,6 +29,6 @@ setuptools.setup(
         'extra': [ 'click', 'ddgs', 'graphviz', 'jpype1', 'pandas', 'pandas-stubs', 'psutil', 'rich', 'types-click', 'types-psutil', ],
         'tests': ['flake8', 'isort', 'mypy', 'pylint', 'pyright', 'pytest', 'pytest-asyncio', 'pytest-cov', 'pytest-mypy', 'pyupgrade', 'setuptools', 'tox'],
     },
-    entry_points={'console_scripts': ['kif = kif_lib.cli:cli'], },
+    entry_points={ 'console_scripts': ['kif = kif_lib.cli:cli'], },
     zip_safe=False,
 )

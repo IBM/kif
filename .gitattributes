@@ -4,4 +4,5 @@ kif_lib/model/object.py ident
 kif_lib/store/sparql/jena_jpype.py ident
 kif_lib/store/sparql/qlever_process.py ident
 kif_lib/store/sparql/rdfox_pipe.py ident
+kif_lib/vocabulary/wd/property.py ident
 Makefile ident
