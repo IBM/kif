@@ -10,5 +10,5 @@
 /dist
 /kif_lib/vocabulary/wd/wikidata_items.tsv
 /Makefile_local.conf
-/venv
+/venv*
 __pycache__
