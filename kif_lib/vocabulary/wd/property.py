@@ -816,7 +816,7 @@ arXiv_ID = Property(IRI('http://www.wikidata.org/entity/P818'), ExternalIdDataty
 ASC_Leiden_Thesaurus_ID = Property(IRI('http://www.wikidata.org/entity/P5198'), ExternalIdDatatype()).register(labels=[Text('ASC Leiden Thesaurus ID', 'en')], range=ExternalIdDatatype())
 ASCCEG_2019_ID = Property(IRI('http://www.wikidata.org/entity/P8488'), ExternalIdDatatype()).register(labels=[Text('ASCCEG 2019 ID', 'en')], range=ExternalIdDatatype())
 ASCE_Historical_Civil_Engineering_Landmark_ID = Property(IRI('http://www.wikidata.org/entity/P5904'), ExternalIdDatatype()).register(labels=[Text('ASCE Historical Civil Engineering Landmark ID', 'en')], range=ExternalIdDatatype())
-ascending_scale = Property(IRI('http://www.wikidata.org/entity/P7598'), None).register(labels=[Text('ascending scale', 'en')], range=StringDatatype())
+ascending_scale = Property(IRI('http://www.wikidata.org/entity/P7598'), StringDatatype()).register(labels=[Text('ascending scale', 'en')], range=StringDatatype())
 AScom_athlete_ID = Property(IRI('http://www.wikidata.org/entity/P3427'), ExternalIdDatatype()).register(labels=[Text('AS.com athlete ID', 'en')], range=ExternalIdDatatype())
 ASCRG_2016_ID = Property(IRI('http://www.wikidata.org/entity/P8456'), ExternalIdDatatype()).register(labels=[Text('ASCRG 2016 ID', 'en')], range=ExternalIdDatatype())
 ASEE_person_ID = Property(IRI('http://www.wikidata.org/entity/P9791'), ExternalIdDatatype()).register(labels=[Text('ASEE person ID', 'en')], range=ExternalIdDatatype())
@@ -1803,6 +1803,7 @@ Catalogo_Nazionale_Dati_ID = Property(IRI('http://www.wikidata.org/entity/P12171
 Catalogo_storico_ragionato_degli_scrittori_sardi_dal_IV_al_XXI_secolo_ID = Property(IRI('http://www.wikidata.org/entity/P11455'), ExternalIdDatatype()).register(labels=[Text('Catalogo storico ragionato degli scrittori sardi dal IV al XXI secolo ID', 'en')], range=ExternalIdDatatype())
 Catalogue_of_Illuminated_Manuscripts_ID = Property(IRI('http://www.wikidata.org/entity/P3702'), ExternalIdDatatype()).register(labels=[Text('Catalogue of Illuminated Manuscripts ID', 'en')], range=ExternalIdDatatype())
 Catalogue_of_Life_ID = Property(IRI('http://www.wikidata.org/entity/P10585'), ExternalIdDatatype()).register(labels=[Text('Catalogue of Life ID', 'en')], range=ExternalIdDatatype())
+Catalogue_of_sundials_ID = Property(IRI('http://www.wikidata.org/entity/P13845'), ExternalIdDatatype()).register(labels=[Text('Catalogue of sundials ID', 'en')], range=ExternalIdDatatype())
 Catalogue_of_the_Capitular_Library_of_Verona_author_ID = Property(IRI('http://www.wikidata.org/entity/P9282'), ExternalIdDatatype()).register(labels=[Text('Catalogue of the Capitular Library of Verona author ID', 'en')], range=ExternalIdDatatype())
 Catalogue_of_the_General_State_Archives_ID = Property(IRI('http://www.wikidata.org/entity/P9482'), ExternalIdDatatype()).register(labels=[Text('Catalogue of the General State Archives ID', 'en')], range=ExternalIdDatatype())
 catalogue_raisonné = Property(IRI('http://www.wikidata.org/entity/P9969'), ItemDatatype()).register(labels=[Text('catalogue raisonné', 'en')], range=ItemDatatype())
@@ -2926,7 +2927,7 @@ derived_from_organism_type = Property(IRI('http://www.wikidata.org/entity/P9072'
 Dermaptera_Species_File_taxon_ID = Property(IRI('http://www.wikidata.org/entity/P12750'), ExternalIdDatatype()).register(labels=[Text('Dermaptera Species File taxon ID', 'en')], range=ExternalIdDatatype())
 Derrieux_agency_person_ID = Property(IRI('http://www.wikidata.org/entity/P10034'), ExternalIdDatatype()).register(labels=[Text('Derrieux agency person ID', 'en')], range=ExternalIdDatatype())
 Desaparecidos_Políticos_ID = Property(IRI('http://www.wikidata.org/entity/P6674'), ExternalIdDatatype()).register(labels=[Text('Desaparecidos Políticos ID', 'en')], range=ExternalIdDatatype())
-descending_scale = Property(IRI('http://www.wikidata.org/entity/P7599'), None).register(labels=[Text('descending scale', 'en')], range=StringDatatype())
+descending_scale = Property(IRI('http://www.wikidata.org/entity/P7599'), StringDatatype()).register(labels=[Text('descending scale', 'en')], range=StringDatatype())
 Described_and_Captioned_Media_Program_producer_ID = Property(IRI('http://www.wikidata.org/entity/P8481'), ExternalIdDatatype()).register(labels=[Text('Described and Captioned Media Program producer ID', 'en')], range=ExternalIdDatatype())
 described_at_URL = Property(IRI('http://www.wikidata.org/entity/P973'), IRI_Datatype()).register(labels=[Text('described at URL', 'en')], range=IRI_Datatype())
 described_by_source = Property(IRI('http://www.wikidata.org/entity/P1343'), ItemDatatype()).register(labels=[Text('described by source', 'en')], range=ItemDatatype(), inverse=Property(IRI('http://www.wikidata.org/entity/P921'), ItemDatatype()))
@@ -4166,7 +4167,6 @@ Film_Indonesia_ID = Property(IRI('http://www.wikidata.org/entity/P5820'), Extern
 Film_Indonesia_person_ID = Property(IRI('http://www.wikidata.org/entity/P5941'), ExternalIdDatatype()).register(labels=[Text('Film Indonesia person ID', 'en')], range=ExternalIdDatatype())
 film_poster = Property(IRI('http://www.wikidata.org/entity/P3383'), StringDatatype()).register(labels=[Text('film poster', 'en')], range=StringDatatype())
 film_script = Property(IRI('http://www.wikidata.org/entity/P3816'), ItemDatatype()).register(labels=[Text('film script', 'en')], range=ItemDatatype())
-Film_w_prasie_polskiej_press_collection_ID = Property(IRI('http://www.wikidata.org/entity/P8796'), ExternalIdDatatype()).register(labels=[Text('Film w prasie polskiej press collection ID', 'en')], range=ExternalIdDatatype())
 FilmAffinity_film_ID = Property(IRI('http://www.wikidata.org/entity/P480'), ExternalIdDatatype()).register(labels=[Text('FilmAffinity film ID', 'en')], range=ExternalIdDatatype())
 FilmAffinity_person_and_company_ID = Property(IRI('http://www.wikidata.org/entity/P12153'), ExternalIdDatatype()).register(labels=[Text('FilmAffinity person and company ID', 'en')], range=ExternalIdDatatype())
 filmaslv_film_ID = Property(IRI('http://www.wikidata.org/entity/P12814'), ExternalIdDatatype()).register(labels=[Text('filmas.lv film ID', 'en')], range=ExternalIdDatatype())
@@ -4281,8 +4281,8 @@ Flanders_Music_Centre_person_ID = Property(IRI('http://www.wikidata.org/entity/P
 flash_point = Property(IRI('http://www.wikidata.org/entity/P2128'), QuantityDatatype()).register(labels=[Text('flash point', 'en')], range=QuantityDatatype())
 Flashback_lexicon_ID = Property(IRI('http://www.wikidata.org/entity/P12377'), ExternalIdDatatype()).register(labels=[Text('Flashback lexicon ID', 'en')], range=ExternalIdDatatype())
 Flashpoint_Database_ID = Property(IRI('http://www.wikidata.org/entity/P11875'), ExternalIdDatatype()).register(labels=[Text('Flashpoint Database ID', 'en')], range=ExternalIdDatatype())
+Flashscore_player_ID = Property(IRI('http://www.wikidata.org/entity/P8259'), ExternalIdDatatype()).register(labels=[Text('Flashscore player ID', 'en')], range=ExternalIdDatatype())
 Flashscorecom_match_ID = Property(IRI('http://www.wikidata.org/entity/P7460'), ExternalIdDatatype()).register(labels=[Text('Flashscore.com match ID', 'en')], range=ExternalIdDatatype())
-Flashscorecom_player_ID = Property(IRI('http://www.wikidata.org/entity/P8259'), ExternalIdDatatype()).register(labels=[Text('Flashscore.com player ID', 'en')], range=ExternalIdDatatype())
 Flashscorecom_team_ID = Property(IRI('http://www.wikidata.org/entity/P7876'), ExternalIdDatatype()).register(labels=[Text('Flashscore.com team ID', 'en')], range=ExternalIdDatatype())
 Flathub_ID = Property(IRI('http://www.wikidata.org/entity/P4655'), ExternalIdDatatype()).register(labels=[Text('Flathub ID', 'en')], range=ExternalIdDatatype())
 flattening = Property(IRI('http://www.wikidata.org/entity/P1102'), QuantityDatatype()).register(labels=[Text('flattening', 'en')], range=QuantityDatatype())
@@ -5465,6 +5465,7 @@ iDAIgazetteer_ID = Property(IRI('http://www.wikidata.org/entity/P8217'), Externa
 Identifiant_Les_Recteurs_dAcadémie_en_France = Property(IRI('http://www.wikidata.org/entity/P10721'), ExternalIdDatatype()).register(labels=[Text("Identifiant Les Recteurs d'Académie en France", 'en')], range=ExternalIdDatatype())
 identification_code_for_Japanese_universities_and_colleges = Property(IRI('http://www.wikidata.org/entity/P7251'), ExternalIdDatatype()).register(labels=[Text('identification code for Japanese universities and colleges', 'en')], range=ExternalIdDatatype())
 identified_in_image_by = Property(IRI('http://www.wikidata.org/entity/P7380'), StringDatatype()).register(labels=[Text('identified in image by', 'en')], range=StringDatatype())
+identifier_in_filmpolski_movie_database = Property(IRI('http://www.wikidata.org/entity/P8796'), ExternalIdDatatype()).register(labels=[Text('identifier in filmpolski movie database', 'en')], range=ExternalIdDatatype())
 identifier_shared_with = Property(IRI('http://www.wikidata.org/entity/P4070'), ItemDatatype()).register(labels=[Text('identifier shared with', 'en')], range=ItemDatatype())
 identifier_shared_with_lexeme = Property(IRI('http://www.wikidata.org/entity/P9531'), LexemeDatatype()).register(labels=[Text('identifier shared with lexeme', 'en')], range=LexemeDatatype())
 identifiersorg_prefix = Property(IRI('http://www.wikidata.org/entity/P4793'), ExternalIdDatatype()).register(labels=[Text('identifiers.org prefix', 'en')], range=ExternalIdDatatype())
@@ -6794,7 +6795,7 @@ Likee_username = Property(IRI('http://www.wikidata.org/entity/P9812'), ExternalI
 likes_of_fictional_character = Property(IRI('http://www.wikidata.org/entity/P13518'), ItemDatatype()).register(labels=[Text('likes of fictional character', 'en')], range=ItemDatatype())
 LiLa_Linking_Latin_URI = Property(IRI('http://www.wikidata.org/entity/P11033'), ExternalIdDatatype()).register(labels=[Text('LiLa Linking Latin URI', 'en')], range=ExternalIdDatatype())
 Lille_norske_leksikon_ID = Property(IRI('http://www.wikidata.org/entity/P12721'), ExternalIdDatatype()).register(labels=[Text('Lille norske leksikon ID', 'en')], range=ExternalIdDatatype())
-LilyPond_notation = Property(IRI('http://www.wikidata.org/entity/P6883'), None).register(labels=[Text('LilyPond notation', 'en')], range=StringDatatype())
+LilyPond_notation = Property(IRI('http://www.wikidata.org/entity/P6883'), StringDatatype()).register(labels=[Text('LilyPond notation', 'en')], range=StringDatatype())
 LIMA_media_artist_ID = Property(IRI('http://www.wikidata.org/entity/P9468'), ExternalIdDatatype()).register(labels=[Text('LIMA media artist ID', 'en')], range=ExternalIdDatatype())
 LIMIS_person_ID = Property(IRI('http://www.wikidata.org/entity/P8805'), ExternalIdDatatype()).register(labels=[Text('LIMIS person ID', 'en')], range=ExternalIdDatatype())
 Limited_Liability_Partnership_Identification_Number = Property(IRI('http://www.wikidata.org/entity/P12792'), ExternalIdDatatype()).register(labels=[Text('Limited Liability Partnership Identification Number', 'en')], range=ExternalIdDatatype())
@@ -7745,8 +7746,8 @@ Musica_Brasilis_score_ID = Property(IRI('http://www.wikidata.org/entity/P9116'),
 musicacom_artist_ID = Property(IRI('http://www.wikidata.org/entity/P7196'), ExternalIdDatatype()).register(labels=[Text('musica.com artist ID', 'en')], range=ExternalIdDatatype())
 musical_bars_shown = Property(IRI('http://www.wikidata.org/entity/P7141'), StringDatatype()).register(labels=[Text('musical bars shown', 'en')], range=StringDatatype())
 musical_conductor = Property(IRI('http://www.wikidata.org/entity/P3300'), ItemDatatype()).register(labels=[Text('musical conductor', 'en')], range=ItemDatatype())
-musical_motif = Property(IRI('http://www.wikidata.org/entity/P6686'), None).register(labels=[Text('musical motif', 'en')], range=StringDatatype())
-musical_quotation_or_excerpt = Property(IRI('http://www.wikidata.org/entity/P6670'), None).register(labels=[Text('musical quotation or excerpt', 'en')], range=StringDatatype())
+musical_motif = Property(IRI('http://www.wikidata.org/entity/P6686'), StringDatatype()).register(labels=[Text('musical motif', 'en')], range=StringDatatype())
+musical_quotation_or_excerpt = Property(IRI('http://www.wikidata.org/entity/P6670'), StringDatatype()).register(labels=[Text('musical quotation or excerpt', 'en')], range=StringDatatype())
 Musicalics_composer_ID = Property(IRI('http://www.wikidata.org/entity/P6925'), ExternalIdDatatype()).register(labels=[Text('Musicalics composer ID', 'en')], range=ExternalIdDatatype())
 MusicBrainz_area_ID = Property(IRI('http://www.wikidata.org/entity/P982'), ExternalIdDatatype()).register(labels=[Text('MusicBrainz area ID', 'en')], range=ExternalIdDatatype())
 MusicBrainz_artist_ID = Property(IRI('http://www.wikidata.org/entity/P434'), ExternalIdDatatype()).register(labels=[Text('MusicBrainz artist ID', 'en')], range=ExternalIdDatatype())
@@ -11455,6 +11456,7 @@ TechnoMusicWorld_artist_ID = Property(IRI('http://www.wikidata.org/entity/P13774
 TechnoMusicWorld_release_ID = Property(IRI('http://www.wikidata.org/entity/P13815'), ExternalIdDatatype()).register(labels=[Text('TechnoMusicWorld release ID', 'en')], range=ExternalIdDatatype())
 TechnoMusicWorld_track_ID = Property(IRI('http://www.wikidata.org/entity/P13775'), ExternalIdDatatype()).register(labels=[Text('TechnoMusicWorld track ID', 'en')], range=ExternalIdDatatype())
 Techopedia_ID = Property(IRI('http://www.wikidata.org/entity/P6009'), ExternalIdDatatype()).register(labels=[Text('Techopedia ID', 'en')], range=ExternalIdDatatype())
+TechPowerUp_CPU_Specs_Database_ID = Property(IRI('http://www.wikidata.org/entity/P13844'), ExternalIdDatatype()).register(labels=[Text('TechPowerUp CPU Specs Database ID', 'en')], range=ExternalIdDatatype())
 TechPowerUp_GPU_Specs_Database_ID = Property(IRI('http://www.wikidata.org/entity/P13418'), ExternalIdDatatype()).register(labels=[Text('TechPowerUp GPU Specs Database ID', 'en')], range=ExternalIdDatatype())
 TechRaptor_company_ID = Property(IRI('http://www.wikidata.org/entity/P13340'), ExternalIdDatatype()).register(labels=[Text('TechRaptor company ID', 'en')], range=ExternalIdDatatype())
 TechRaptor_game_ID = Property(IRI('http://www.wikidata.org/entity/P13339'), ExternalIdDatatype()).register(labels=[Text('TechRaptor game ID', 'en')], range=ExternalIdDatatype())
@@ -14750,6 +14752,7 @@ __all__ = (
 "Catalogo_storico_ragionato_degli_scrittori_sardi_dal_IV_al_XXI_secolo_ID",
 "Catalogue_of_Illuminated_Manuscripts_ID",
 "Catalogue_of_Life_ID",
+"Catalogue_of_sundials_ID",
 "Catalogue_of_the_Capitular_Library_of_Verona_author_ID",
 "Catalogue_of_the_General_State_Archives_ID",
 "catalogue_raisonné",
@@ -17113,7 +17116,6 @@ __all__ = (
 "Film_Indonesia_person_ID",
 "film_poster",
 "film_script",
-"Film_w_prasie_polskiej_press_collection_ID",
 "FilmAffinity_film_ID",
 "FilmAffinity_person_and_company_ID",
 "filmaslv_film_ID",
@@ -17228,8 +17230,8 @@ __all__ = (
 "flash_point",
 "Flashback_lexicon_ID",
 "Flashpoint_Database_ID",
+"Flashscore_player_ID",
 "Flashscorecom_match_ID",
-"Flashscorecom_player_ID",
 "Flashscorecom_team_ID",
 "Flathub_ID",
 "flattening",
@@ -18412,6 +18414,7 @@ __all__ = (
 "Identifiant_Les_Recteurs_dAcadémie_en_France",
 "identification_code_for_Japanese_universities_and_colleges",
 "identified_in_image_by",
+"identifier_in_filmpolski_movie_database",
 "identifier_shared_with",
 "identifier_shared_with_lexeme",
 "identifiersorg_prefix",
@@ -24402,6 +24405,7 @@ __all__ = (
 "TechnoMusicWorld_release_ID",
 "TechnoMusicWorld_track_ID",
 "Techopedia_ID",
+"TechPowerUp_CPU_Specs_Database_ID",
 "TechPowerUp_GPU_Specs_Database_ID",
 "TechRaptor_company_ID",
 "TechRaptor_game_ID",

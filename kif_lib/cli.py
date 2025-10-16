@@ -894,7 +894,8 @@ class FilterParam:
     vocabulary_dump = click.option(
         '--vocabulary-dump',
         'vocabulary_dump',
-        is_flag=True,
+        type=click.Choice(['label', 'name']),
+        required=False,
         help='Dump entities using vocabulary module format.')
 
     @classmethod
@@ -1470,7 +1471,7 @@ def filter(
         resolve: bool | None = None,
         select: str | None = None,
         timeout: float | None = None,
-        vocabulary_dump: bool | None = None
+        vocabulary_dump: str | None = None
 ) -> None:
     def _filter() -> None:
         console = Console()
@@ -1584,40 +1585,52 @@ def _output_filter_page(
         encoder: Encoder | None = None,
         language: str | None = None,
         resolve: bool | None = None,
-        vocabulary_dump: bool | None = None,
+        vocabulary_dump: str | None = None,
         context: Context | None = None
 ) -> None:
     _LOGGER.info('outputting page %d', pageno)
-    if resolve or vocabulary_dump:
+    if resolve:
         assert context is not None
         resolved_page = _output_filter_resolve_page(context, page, language)
     else:
         resolved_page = page
-    if vocabulary_dump:
+    if vocabulary_dump is not None:
         from .str2id import Str2Id
         as_id = Str2Id()
         assert context is not None
-        entities = set(itertools.chain(
+        entities: set[Entity] = set(itertools.chain(
             *(term.traverse(Entity.test) for term in resolved_page)))
-        while True:
-            var_entity_pairs = list(
-                (as_id(e.label.content), e)
-                for e in entities
-                if isinstance(e, (Item, Property)) and e.label is not None)
-            _LOGGER.info('collected %d var-entity pairs in page %d',
+        entity: Entity
+        var_entity_pairs: list[tuple[str, Entity]]
+        if vocabulary_dump == 'label':
+            for retry in range(3):  # max retries
+                var_entity_pairs = list(itertools.filter(functools.fst, (
+                    (as_id(e.label.content, ''), e) for e in entities
+                    if isinstance(e, (Item, Property)) and e.label)))
+                _LOGGER.info('collected %d var-entity pairs in page %d',
+                             len(var_entity_pairs), pageno)
+                for var, entity in var_entity_pairs:
+                    assert isinstance(entity, (Item, Property, Lexeme))
+                    print(var, '=', entity.describe_using_repr(), flush=True)
+                    entities.remove(entity)
+                if not entities or not resolve:
+                    break
+                _LOGGER.info(
+                    '%d unresolved entities, retrying (%d)',
+                    len(entities), retry + 1)
+                entities = cast(set[Entity], set(_output_filter_resolve_page(
+                    context,
+                    (e.replace(range=None)
+                     if isinstance(e, Property) else e for e in entities),
+                    language)))
+        if entities:
+            var_entity_pairs = list(itertools.filter(functools.fst, (
+                (as_id(e.iri.split()[1], ''), e) for e in entities)))
+            _LOGGER.info('collected %d var-unresolved entity pairs in page %d',
                          len(var_entity_pairs), pageno)
             for var, entity in var_entity_pairs:
                 assert isinstance(entity, (Item, Property, Lexeme))
                 print(var, '=', entity.describe_using_repr(), flush=True)
-                entities.remove(entity)
-            if not entities:
-                break
-            _LOGGER.info('%d unresolved entities, retrying', len(entities))
-            entities = set(_output_filter_resolve_page(
-                context,
-                (e.replace(range=None)
-                 if isinstance(e, Property) else e for e in entities),
-                language))
     else:
         if encoder is None:
             it = map(Term.to_markdown, resolved_page)
@@ -1639,6 +1652,7 @@ def _output_filter_resolve_page(
         label=True,
         aliases=False,
         description=False,
+        range=True,
         inverse=True,
         lemma=True,
         category=True,

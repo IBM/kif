@@ -14,6 +14,8 @@ import typing as ty
 class Str2Id:
     """Converts arbitrary string to a Python-like identifier."""
 
+    _NONE = object()
+
     class Preprocess(enum.Flag):
         OPERATORS = enum.auto()
         UTC = enum.auto()
@@ -123,6 +125,7 @@ class Str2Id:
     def __call__(
             self,
             s: str,
+            default: str | object = _NONE,
             _re: re.Pattern[str] = re.compile(r'_+')
     ) -> str:
         t = s
@@ -134,8 +137,14 @@ class Str2Id:
             t = '_' + t
         if keyword.iskeyword(t):
             t = t + '_'
-        assert str.isidentifier(t), (s, t)
-        return t
+        if str.isidentifier(t):
+            return t
+        elif default != self._NONE:
+            assert isinstance(default, str), default
+            return default
+        else:
+            raise ValueError(
+                f'"{t}" obtained from "{s}" is not an identifier')
 
     def _preprocess_operators(
             self,
