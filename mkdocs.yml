@@ -1,0 +1,59 @@
+site_name: KIF
+site_description: A knowledge integration framework based on Wikidata.
+site_url: https://ibm.github.io/kif/
+
+theme:
+    name: 'material'
+    font:
+      text: IBM Plex
+      code: IBM Plex Mono
+    palette:
+      - scheme: 'default'
+        media: '(prefers-color-scheme: light)'
+        primary: 'custom'
+        toggle:
+          icon: 'material/lightbulb'
+          name: "Switch to dark mode"
+      - scheme: 'slate'
+        media: '(prefers-color-scheme: dark)'
+        primary: 'custom'
+        toggle:
+          icon: 'material/lightbulb-outline'
+          name: 'Switch to light mode'
+
+repo_name: ibm/kif
+repo_url: https://github.com/ibm/kif/
+# edit_uri: ""
+
+nav:
+  - Introduction: 'index.md'
+  - Quickstart: 'quickstart.md'
+  - API Reference:
+    - Model: 'api/model.md'
+    - Store: 'api/store.md'
+
+markdown_extensions:
+  - admonition
+  - codehilite:
+      css_class: highlight
+  - md_in_html
+
+extra_css:
+  - css/custom.css
+
+plugins:
+  - mkdocstrings:
+      handlers:
+        python:
+          inventories:
+            - https://docs.python.org/3/objects.inv
+          options:
+            docstring_section_style: list
+            show_root_heading: true
+            show_source: false
+
+validation:
+  omitted_files: warn
+  absolute_links: warn
+  unrecognized_links: warn
+  anchors: warn

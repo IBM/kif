@@ -1,235 +1,64 @@
----
-jupytext:
-  text_representation:
-    extension: .md
-    format_name: myst
-    format_version: 0.13
-    jupytext_version: 1.13.1
-kernelspec:
-  display_name: Python 3 (ipykernel)
-  language: python
-  name: python3
----
-
 # Quickstart
 
-KIF is a Wikidata-based framework for integrating knowledge sources.
+We start by importing the [Store][kif_lib.Store] class from the KIF library:
 
-This quickstart guide presents the basic API of KIF.
-
-## Hello world!
-
-We start by importing the `kif_lib` namespace:
-
-```{code-cell}
-from kif_lib import *
+```pycon
+>>> from kif_lib import Store
 ```
 
 We'll also need the Wikidata vocabulary module `wd`:
 
-```{code-cell}
-from kif_lib.vocabulary import wd
+```pycon
+>>> from kif_lib.vocabulary import wd
 ```
 
-Let us no we create a SPARQL store pointing to the official Wikidata query
-service:
+Now, let's create a KIF store pointing to the official [Wikidata query service](https://query.wikidata.org/):
 
-```{code-cell}
-kb = Store('wdqs')
+```pycon
+>>> kb = Store('wikidata')
 ```
 
-A KIF store is an inteface to a knowledge source.  It allows us to view the
-source as a set of Wikidata-like statements.
+A KIF **store** is an interface to a knowledge source.  It allows us to view the source as a set of Wikidata-like statements.
 
-The store `kb` we just created is an interface to Wikidata itself. We can
-use it, for example, to fetch from Wikidata three statements about Brazil:
+The store `kb` we just created is an interface to [Wikidata](https://www.wikidata.org/) itself.  We can use it, for example, to fetch from Wikidata three statements about Brazil:
 
-```{code-cell}
-it = kb.filter(subject=wd.Brazil, limit=3)
-for stmt in it:
-    display(stmt)
+```pycon
+>>> it = kb.filter(subject=wd.Brazil, limit=3)
+>>> for stmt in it:
+>>>    print(stmt)
+Statement(Item(IRI('http://www.wikidata.org/entity/Q155')), ValueSnak(Property(IRI('http://www.wikidata.org/entity/P47'), ItemDatatype()), Item(IRI('http://www.wikidata.org/entity/Q414'))))
+Statement(Item(IRI('http://www.wikidata.org/entity/Q155')), ValueSnak(Property(IRI('http://www.wikidata.org/entity/P571'), TimeDatatype()), Time(datetime.datetime(1822, 9, 7, 0, 0, tzinfo=datetime.timezone.utc), 11, 0, Item(IRI('http://www.wikidata.org/entity/Q1985727')))))
+Statement(Item(IRI('http://www.wikidata.org/entity/Q155')), ValueSnak(Property(IRI('http://www.wikidata.org/entity/P37'), ItemDatatype()), Item(IRI('http://www.wikidata.org/entity/Q5146'))))
 ```
+
+!!! note
+
+    If you run the above code in Jupyter and use `display()` instead of `print()`, then the three statements will be pretty-printed as follows:
+    > (**Statement** (**Item** [Brazil](http://www.wikidata.org/entity/Q155)) (**ValueSnak** (**Property** [shares border with](http://www.wikidata.org/entity/P47)) (**Item** [Argentina](http://www.wikidata.org/entity/Q414))))<br>
+    > (**Statement** (**Item** [Brazil](http://www.wikidata.org/entity/Q155)) (**ValueSnak** (**Property** [inception](http://www.wikidata.org/entity/P571)) 7 September 1822))<br>
+    > (**Statement** (**Item** [Brazil](http://www.wikidata.org/entity/Q155)) (**ValueSnak** (**Property** [official language](http://www.wikidata.org/entity/P37)) (**Item** [Portuguese](http://www.wikidata.org/entity/Q5146))))
+
+    From now on, we'll use the pretty-printed format to display statements.
+
+A KIF **statement** stands for an assertion and consists of a subject and a snak.  The **subject** is the entity about which the assertion is made, while the **snak** (or predication) is what is asserted about the subject.  In KIF, the snak associates a property with either a specific value, some value, or no value.
+
+Consider the first statement obtained from the store `kb` above:
+
+> (**Statement** (**Item** [Brazil](http://www.wikidata.org/entity/Q155)) (**ValueSnak** (**Property** [shares border with](http://www.wikidata.org/entity/P47)) (**Item** [Argentina](http://www.wikidata.org/entity/Q414))))<br>
+
+Its subject is the item [Brazil (Q155)](http://www.wikidata.org/entity/Q155) and its snak is a value snak which associates the property [shares border with (P47)](http://www.wikidata.org/entity/Q47) with the value [Argentina (Q414)](http://www.wikidata.org/entity/Q414).  This particular statement stands thus for the assertion "Brazil shares border with Argentina".
 
 ## Filters
 
-The `kb.filter(...)` call searches for statements in `kb` matching the
-restrictions `...`.
+The [`kb.filter(...)`][kif_lib.Store.filter] call searches for statements in `kb` such that `...`.  The result is a (lazy) iterator which when advanced produces the matched statements:
 
-The result of a filter call is a (lazy) iterator `it` of statements:
-
-```{code-cell}
-it = kb.filter(subject=wd.Brazil)
+```pycon
+>>> it = kb.filter(subject=wd.Alan_Turing)
+>>> next(it)
 ```
 
-We can advance `it` to obtain statements:
+> (**Statement** (**Item** [Alan Turing](http://www.wikidata.org/entity/Q7251)) (**ValueSnak** (**Property** [doctoral advisor](http://www.wikidata.org/entity/P184)) (**Item** [Alonzo Church](http://www.wikidata.org/entity/Q92741))))
 
-```{code-cell}
-next(it)
-```
+If not `limit` argument is given to `kb.filter()`, the returned iterator will contains all matching statements.  For instance, if advanced indefinitely, iterator `it` above will eventually produce every statement about [Alan Turing (Q7251)](http://www.wikidata.org/entity/Q7251) in Wikidata.
 
-If no `limit` argument is given to `kb.filter()`, the returned iterator
-contains all matching statements.
-
-## Basic filters
-
-We can filter statements by any combination of *subject*, *property*, and
-*value*.
-
-For example:
-
-*match any statement*
-
-```{code-cell}
-next(kb.filter())
-```
-
-*match statements with subject "Brazil" and property "official website"*
-
-```{code-cell}
-next(kb.filter(subject=wd.Brazil, property=wd.official_website))
-```
-
-*match statements with property "official website" and value "https://www.ibm.com/"*
-
-```{code-cell}
-next(kb.filter(property=wd.official_website, value=IRI('https://www.ibm.com/')))
-```
-
-*match statements with value "78.046950192 dalton"*
-```{code-cell}
-next(kb.filter(value=Quantity('78.046950192', unit=wd.dalton)))
-```
-
-We can also match statements having *some* (unknown) value:
-
-```{code-cell}
-next(kb.filter(snak=wd.date_of_birth.some_value()))
-```
-
-Or *no* value:
-
-```{code-cell}
-next(kb.filter(snak=wd.date_of_death.no_value()))
-```
-
-## Fingerprints (indirect ids)
-
-So far, we have been using the symbolic aliases defined in the `wd` module to
-specify entities in filters:
-
-```{code-cell}
-display(wd.Brazil)
-display(wd.continent)
-```
-
-Alternatively, we can use their numeric Wikidata ids:
-
-*match statements with subject Q155 (Brazil) and property P30 (continent)*
-
-```{code-cell}
-next(kb.filter(subject=wd.Q(155), property=wd.P(30)))
-```
-
-Sometimes, however, ids are not enough.  We might need to specify an entity
-indirectly by giving not its id but a property it satisfies.
-
-In cases like this, we can use a *fingerprint*:
-
-*match statemets whose subject "is a dog" and value "is a human"*
-
-```{code-cell}
-next(kb.filter(subject=wd.instance_of(wd.dog), value=wd.instance_of(wd.human)))
-```
-
-Properties themselves can also be specified using fingerprints:
-
-*match statements whose property is "equivalent to Schema.org's 'weight'"*
-
-```{code-cell}
-next(kb.filter(property=wd.equivalent_property('https://schema.org/weight')))
-```
-
-The `-` (unary minus) operator can be used to invert the direction of the
-property used in the fingerprint:
-
-*match statements whose subject is "the continent of Brazil"*
-
-```{code-cell}
-next(kb.filter(subject=-(wd.continent(wd.Brazil))))
-```
-
-## And-ing and or-ing fingeprints
-
-Entity ids and fingerpints can be combined using the operators `&` (and) and
-`|` (or).
-
-For example:
-
-*match three statements such that:*
-- *subject is "Brazil" or "Argentina"*
-- *property is "continent" or "highest point"*
-
-```{code-cell}
-it = kb.filter(
-        subject=wd.Brazil | wd.Argentina,
-        property=wd.continent | wd.highest_point,
-        limit=3)
-for stmt in it:
-    display(stmt)
-```
-
-*match three statements such that:*
-- *subject "has continent South America" and "official language is Portuguese"*
-- *value "is a river" or "is a mountain"*
-
-```{code-cell}
-it = kb.filter(
-        subject=wd.continent(wd.South_America) & wd.official_language(wd.Portuguese),
-        value=wd.instance_of(wd.river) | wd.instance_of(wd.mountain),
-        limit=3)
-for stmt in it:
-    display(stmt)
-```
-
-*match three statements such that:*
-- *subject "is a female" and ("was born in NYC" or "was born in Rio")*
-- *property is "field of work" or "is equivalent to Schema.org's 'hasOccupation'"*
-
-```{code-cell}
-it = kb.filter(
-        subject=wd.sex_or_gender(wd.female)\
-        & (wd.place_of_birth(wd.New_York_City) | wd.place_of_birth(wd.Rio_de_Janeiro)),
-        property=wd.field_of_work\
-        | wd.equivalent_property(IRI('https://schema.org/hasOccupation')),
-        limit=3)
-for stmt in it:
-    display(stmt)
-```
-
-## Count and contains
-
-A variant of the filter call is `kb.count(...)` which, instead of
-statements, counts the number of statements matching restrictions `...`:
-
-```{code-cell}
-kb.count(subject=wd.Brazil, property=wd.population | wd.official_language)
-```
-
-The `kb.contains()` call tests whether a given statement occurs in `kb`.
-
-```{code-cell}
-stmt1 = wd.official_language(wd.Brazil, wd.Portuguese)
-kb.contains(stmt1)
-```
-
-```{code-cell}
-stmt2 = wd.official_language(wd.Brazil, wd.Spanish)
-kb.contains(stmt2)
-```
-
-## Final remarks
-
-This concludes the quickstart guide.
-
-There are many other calls in the Store API of KIF.  For more information
-see, the [API Reference](<reference/index>).
+### Basic filters
