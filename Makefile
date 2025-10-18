@@ -92,6 +92,7 @@ PYTEST_SETENV?=
 PYTHON?= python
 PYUPGRADE?= ${PYTHON} -m pyupgrade
 PYUPGRADE_OPTIONS?= --exit-zero-even-if-changed --py39-plus
+SED?= sed
 SETUP_PY?= setup.py
 SETUP_PY_CLASSIFIERS?= []
 SETUP_PY_ENTRY_POINTS?= {}
@@ -130,7 +131,7 @@ CHECK_DEPS+= $(if $(filter yes,${CHECK_SYNTAX}),check-syntax)
 PYTEST_OPTIONS+= $(if $(filter yes,${CHECK_MYPY}),--mypy)
 
 ECHO:= printf '%s\n'
-ECHO_SPLIT= ${ECHO} '$(2)' | sed -e 's/\s*<line>/$(1)/g' -e 's,</line>,\n,g'
+ECHO_SPLIT= ${ECHO} '$(2)' | ${SED} -e 's/\s*<line>/$(1)/g' -e 's,</line>,\n,g'
 
 P:= @${ECHO}
 P_SPLIT:= @$(call ECHO_SPLIT,$(1),$(2))
