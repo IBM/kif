@@ -28,18 +28,29 @@ repo_url: https://github.com/ibm/kif/
 nav:
   - Introduction: 'index.md'
   - Quickstart: 'quickstart.md'
+  - Guides:
+    - Data Model: 'guides/data_model.md'
+    - RDF: 'guides/rdf.md'
   - API Reference:
-    - Model: 'api/model.md'
+    - Model:
+      - Statement: 'api/model/statement.md'
+      - Statement Annotations: 'api/model/statement_annotations.md'
     - Store: 'api/store.md'
+    - Vocabulary:
+      - Wikidata: 'api/vocabulary/wd.md'
+
+exclude_docs: |
+  #*
+  *~
+
+extra_css:
+  - css/custom.css
 
 markdown_extensions:
   - admonition
   - codehilite:
       css_class: highlight
   - md_in_html
-
-extra_css:
-  - css/custom.css
 
 plugins:
   - mkdocstrings:
@@ -49,8 +60,11 @@ plugins:
             - https://docs.python.org/3/objects.inv
           options:
             docstring_section_style: list
+            group_by_category: true
             show_root_heading: true
+            show_root_full_path: false
             show_source: false
+            show_symbol_type_toc: true
 
 validation:
   omitted_files: warn

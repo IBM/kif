@@ -7,6 +7,7 @@ from .prelude import Q
 
 # autopep8: off
 # flake8: noqa
+
 _1 = Q(199, '1')
 acetone = Q(49546, 'acetone')
 Adam = Q(70899, 'Adam')
@@ -96,6 +97,7 @@ French_Guiana = Q(3769, 'French Guiana')
 frog = Q(3116510, 'frog')
 Garden_of_Eden = Q(19014, 'Garden of Eden')
 Garden_of_Eden = Q(19014, 'Garden of Eden')
+Geneva = Q(71, 'Geneva')
 genus = Q(34740, 'genus')
 Germany = Q(183, 'Germany')
 ginga = Q(1411420, 'ginga')
@@ -196,6 +198,7 @@ OECD_Product_Use_Categories = Q(134113538, 'OECD Product Use Categories')
 oral_administration = Q(285166, 'oral administration')
 order = Q(36602, 'order')
 Paraguay = Q(733, 'Paraguay')
+Paris = Q(90, 'Paris')
 part = Q(15989253, 'part')
 parts_per_million = Q(21006887, 'parts per million')
 patent = Q(253623, 'patent')
@@ -381,6 +384,7 @@ __all__ = (
     'frog',
     'Garden_of_Eden',
     'Garden_of_Eden',
+    'Geneva',
     'genus',
     'Germany',
     'ginga',
@@ -481,6 +485,7 @@ __all__ = (
     'oral_administration',
     'order',
     'Paraguay',
+    'Paris',
     'part',
     'parts_per_million',
     'patent',

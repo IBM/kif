@@ -332,7 +332,7 @@ class AnnotatedStatementTemplate(StatementTemplate):
     """Annotated statement template.
 
     Parameters:
-       entity: Entity.
+       subject: Entity.
        snak: Snak.
        qualifiers: Qualifier record.
        references: Reference record set.
@@ -466,7 +466,7 @@ class AnnotatedStatement(
     """Annotated statement.
 
     Parameters:
-       entity: Entity.
+       subject: Entity.
        snak: Snak.
        qualifiers: Qualifier record.
        references: Reference record set.

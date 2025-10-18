@@ -1,15 +1,18 @@
-# Model
+# Statement
 
 ::: kif_lib.Statement
     options:
       members:
         - annotate
-        - subject
         - snak
+        - subject
+        - unannotate
 
 ::: kif_lib.AnnotatedStatement
     options:
       members:
-        - annotate
-        - subject
+        - qualifiers
+        - rank
+        - references
         - snak
+        - subject

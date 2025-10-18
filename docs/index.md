@@ -5,7 +5,7 @@
 
 # Knowledge Integration Framework
 
-KIF is a knowledge integration framework from [IBM Research](https://research.ibm.com/).
+KIF is a Python framework for knowledge integration from [IBM Research](https://research.ibm.com/).
 
 It is based on [Wikidata](https://www.wikidata.org/) and licensed under the
 [Apache-2.0
@@ -42,7 +42,7 @@ $ kif filter --subject=wd.Alan_Turing --property=wd.doctoral_advisor
 
 > (**Statement** (**Item** [Alan Turing](http://www.wikidata.org/entity/Q7251)) (**ValueSnak** (**Property** [doctoral advisor](http://www.wikidata.org/entity/P184)) (**Item** [Alonzo Church](http://www.wikidata.org/entity/Q92741))))
 
-Here is a similar query over [DBpedia](https://www.dbpedia.org/):
+KIF can also be used to query other knowledge sources.  Here is a similar query over [DBpedia](https://www.dbpedia.org/) (note the `-s dbpedia` switch):
 
 ```shell
 $ kif filter -s dbpedia --subject=db.Alan_Turing --property=wd.doctoral_advisor
@@ -54,19 +54,19 @@ The result is a stream of Wikidata-like statements containing DBpedia entities.
 
 ## Features
 
-* KIF is an interface to query knowledge sources as if they were Wikidata.
+* KIF allows one to query knowledge sources as if they were Wikidata.
 
-* KIF queries are written as simple, high-level filters using entities of the [Wikidata data model](https://www.wikidata.org/wiki/Wikidata:Data_model), such as items, properties, quantities, snaks, etc.
+* KIF queries are written as simple, high-level filters using entities of the [Wikidata data model](https://www.wikidata.org/wiki/Wikidata:Data_model), such as items, properties, quantities, snaks, statements, etc.
 
 * KIF can be used to query Wikidata itself or other knowledge sources, provided proper mappings are given.
 
-* KIF comes with built-in mappings for [DBpedia](https://www.dbpedia.org/), [FactGrid](https://database.factgrid.de/), [PubChem](https://pubchem.ncbi.nlm.nih.gov/), and [UniProt](https://www.uniprot.org/), among others.  New mappings can be added programmatically.
+* KIF comes with built-in mappings for [DBpedia](https://www.dbpedia.org/), [FactGrid](https://database.factgrid.de/), [PubChem](https://pubchem.ncbi.nlm.nih.gov/), and [UniProt](https://www.uniprot.org/), among others; new mappings can be added programmatically.
 
 * KIF has full support for [asyncio](https://docs.python.org/3/library/asyncio.html).  KIF async API can be used run queries asynchronously, without blocking waiting on their results.
 
 ## Installation
 
-Install the KIF library:
+To install the KIF library, use:
 
 ```shell
 $ pip install kif-lib
@@ -85,6 +85,10 @@ $ pip install kif-lib[extra]
 ```
 
 ## Documentation
+
+KIF documentation is available at [https://ibm.github.io/kif/](https://ibm.github.io/kif/).
+
+For a primer on KIF, see the [quickstart guide](quickstart.md).
 
 ## Dependencies
 
