@@ -1,5 +1,5 @@
-![KIF](https://raw.githubusercontent.com/IBM/kif/refs/heads/main/docs/_static/kif-b.svg#only-light)
-![KIF](https://raw.githubusercontent.com/IBM/kif/refs/heads/main/docs/_static/kif-w.svg#only-dark)
+![KIF](img/kif-b.svg#only-light)
+![KIF](img/kif-w.svg#only-dark)
 
 ---
 
