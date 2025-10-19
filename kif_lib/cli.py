@@ -1590,16 +1590,16 @@ def _output_filter_page(
 ) -> None:
     _LOGGER.info('outputting page %d', pageno)
     if resolve:
+        context = Context.top(context)
         if not vocabulary_dump:
             language = language or context.options.language
-        assert context is not None
         resolved_page = _output_filter_resolve_page(context, page, language)
     else:
         resolved_page = page
     if vocabulary_dump is not None:
         from .str2id import Str2Id
         as_id = Str2Id()
-        assert context is not None
+        context = Context.top(context)
         entities: set[Entity] = set(itertools.chain(
             *(term.traverse(Entity.test) for term in resolved_page)))
         entity: Entity
