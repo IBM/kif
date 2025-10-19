@@ -1,11 +1,5 @@
 # Quickstart
 
-KIF is a knowledge integration framework based on [Wikidata](https://www.wikidata.org/).  The idea behind it is to use Wikidata to standardize the syntax and possibly the vocabulary of the integrated sources.  Users can then query the sources through filter patterns described in terms of the [Wikidata data model](https://www.wikidata.org/wiki/Wikidata:Data_model).
-
-The integration done by KIF is *virtual* in the sense that syntax and vocabulary translations happen dynamically, at query time, guided by built-in or user-provided mappings.
-
-## Hello world!
-
 We start by importing the [Store][kif_lib.Store] class from the KIF library:
 
 ```pycon

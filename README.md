@@ -17,13 +17,19 @@ First time here? Check out the [quickstart guide](quickstart.md).
 
 ---
 
+KIF is a knowledge integration framework based on [Wikidata](https://www.wikidata.org/).  The idea behind it is to use Wikidata to standardize the syntax and (whenever possible) the vocabulary of the integrated knowledge sources.  Users can then query the sources through filter patterns described in terms of the [Wikidata data model](https://www.wikidata.org/wiki/Wikidata:Data_model).
+
+The integration done by KIF is *virtual* in the sense that syntax and vocabulary translations happen at query time, guided by user-provided mappings.
+
+## Hello world!
+
 Install KIF using pip:
 
 ```shell
 $ pip install kif-lib
 ```
 
-We can use KIF to query [Wikidata](https://www.wikidata.org/):
+Use KIF to query [Wikidata](https://www.wikidata.org/):
 
 ```pycon
 >>> from kif_lib import Store
@@ -42,7 +48,7 @@ $ kif filter --subject=wd.Alan_Turing --property=wd.doctoral_advisor
 
 > (**Statement** (**Item** [Alan Turing](http://www.wikidata.org/entity/Q7251)) (**ValueSnak** (**Property** [doctoral advisor](http://www.wikidata.org/entity/P184)) (**Item** [Alonzo Church](http://www.wikidata.org/entity/Q92741))))
 
-We can also use KIF to query other knowledge sources.  Here is a similar query over [DBpedia](https://www.dbpedia.org/) (notice the `-s dbpedia` switch):
+KIF can also be used query other knowledge sources.  Here is a similar query over [DBpedia](https://www.dbpedia.org/) (notice the `-s dbpedia` switch):
 
 ```shell
 $ kif filter -s dbpedia --subject=db.Alan_Turing --property=wd.doctoral_advisor
@@ -52,7 +58,7 @@ $ kif filter -s dbpedia --subject=db.Alan_Turing --property=wd.doctoral_advisor
 
 The result is a stream of Wikidata-like statements containing DBpedia entities.
 
-## Features
+## Highlights
 
 * KIF allows one to query knowledge sources as if they were Wikidata.
 
