@@ -121,13 +121,13 @@ The [wd][kif_lib.vocabulary.wd] vocabulary module defines symbolic aliases for s
 
 Let's now return to the [Store][kif_lib.Store] API.
 
-As we said before, a KIF store is an interface to a knowledge source (typically but not necessarily a knowledge graph).  The [Store][kif_lib.Store] constructor is used to create a store.  The first argument to [Store][kif_lib.Store] is the name of the store plugin.  The remaining arguments are passed to the store plugin during instantiation.  For instance:
+As we said before, a KIF store is an interface to a knowledge source (typically but not necessarily a knowledge graph).  The [Store][kif_lib.Store] constructor is used to create a store.  It takes as first argument the name of the store plugin to instantiate, and any remaining arguments are passed unmodified to the store plugin during instantiation.  For instance:
 
 ```pycon
 >>> kb = Store('wikidata')
 ```
 
-Here we are instantiating a new store using the plugin `wikidata`, which creates a [SPARQL store](kif_lib.store.SPARQL_Store) loaded with the Wikidata SPARQL mappings and points it to the official Wikidata SPARQL endpoint.
+Here we are instantiating a new store using the plugin `wikidata`, which creates a [SPARQL store][kif_lib.store.SPARQL_Store] loaded with the Wikidata SPARQL mappings and points it to the official Wikidata SPARQL endpoint.
 
 Alternatively, we could have specified the target endpoint explicitly, as the second argument to the [Store()][kif_lib.Store] call:
 

@@ -297,7 +297,7 @@ class SPARQL_Store(
 
     @property
     def skolemize(self) -> bool:
-        """The skolemize flag of mixer."""
+        """The skolemize flag of SPARQL store."""
         return self.get_skolemize()
 
     @skolemize.setter
@@ -305,7 +305,7 @@ class SPARQL_Store(
         self.set_skolemize(skolemize)
 
     def get_skolemize(self) -> bool:
-        """Gets the skolemize flag of mixer.
+        """Gets the skolemize flag of SPARQL store.
 
         Returns:
            skolemize flag.
@@ -313,7 +313,7 @@ class SPARQL_Store(
         return self.options.skolemize
 
     def set_skolemize(self, skolemize: bool | None = None) -> None:
-        """Sets the skolemize flag of mixer.
+        """Sets the skolemize flag of SPARQL store.
 
         If `skolemize` is ``None``, resets it to the default.
 

@@ -36,8 +36,9 @@ nav:
       - Statement: 'api/model/statement.md'
       - Statement Annotations: 'api/model/statement_annotations.md'
     - Store:
-      - Store: 'api/store/store.md'
-      - SPARQL Store: 'api/store/sparql_store.md'
+      - Store: 'api/store/abc.md'
+      - Mixer Store: 'api/store/mixer.md'
+      - SPARQL Store: 'api/store/sparql.md'
     - Vocabulary:
       - DBpedia: 'api/vocabulary/db.md'
       - European Data Portal: 'api/vocabulary/eu.md'
@@ -74,6 +75,7 @@ plugins:
             show_source: false
             show_symbol_type_heading: true
             show_symbol_type_toc: true
+            signature_crossrefs: true
 
 validation:
   omitted_files: warn
