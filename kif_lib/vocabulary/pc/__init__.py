@@ -3,6 +3,8 @@
 #
 # flake8: noqa
 
+"""The [PubChem](https://pubchem.ncbi.nlm.nih.gov/) vocabulary module."""
+
 from __future__ import annotations
 
 from .item import *

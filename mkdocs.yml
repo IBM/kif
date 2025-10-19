@@ -35,8 +35,15 @@ nav:
     - Model:
       - Statement: 'api/model/statement.md'
       - Statement Annotations: 'api/model/statement_annotations.md'
-    - Store: 'api/store.md'
+    - Store:
+      - Store: 'api/store/store.md'
+      - SPARQL Store: 'api/store/sparql_store.md'
     - Vocabulary:
+      - DBpedia: 'api/vocabulary/db.md'
+      - European Data Portal: 'api/vocabulary/eu.md'
+      - FactGrid: 'api/vocabulary/fg.md'
+      - PubChem: 'api/vocabulary/pc.md'
+      - UniProt: 'api/vocabulary/up.md'
       - Wikidata: 'api/vocabulary/wd.md'
 
 exclude_docs: |
@@ -54,6 +61,7 @@ markdown_extensions:
 
 plugins:
   - mkdocstrings:
+      enabled: !ENV [MKDOCSTRINGS, true]
       handlers:
         python:
           inventories:
@@ -61,9 +69,10 @@ plugins:
           options:
             docstring_section_style: list
             group_by_category: true
-            show_root_heading: true
             show_root_full_path: false
+            show_root_heading: true
             show_source: false
+            show_symbol_type_heading: true
             show_symbol_type_toc: true
 
 validation:

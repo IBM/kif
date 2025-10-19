@@ -3,6 +3,8 @@
 #
 # flake8: noqa
 
+"""The [DBpedia](https://www.dbpedia.org/) vocabulary module."""
+
 from __future__ import annotations
 
 from .item import *

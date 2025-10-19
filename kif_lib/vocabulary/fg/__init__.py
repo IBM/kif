@@ -3,6 +3,8 @@
 #
 # flake8: noqa
 
+"""The [FactGrid](https://database.factgrid.de/) vocabulary module."""
+
 from __future__ import annotations
 
 from .item import *
