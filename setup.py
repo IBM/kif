@@ -1,10 +1,11 @@
-# ** GENERATED FILE, DO NOT EDIT! **
+# ** GENERATED FILE: DO NOT EDIT! **
+import itertools
 import re
 import setuptools
-with open('kif_lib/__version__.py', 'r') as fp:
+with open('kif_lib/__version__.py') as fp:
     text = fp.read()
     VERSION, = re.findall(r"__version__\s*=\s*'(.*)'", text)
-with open('README.md', 'r') as fp:
+with open('README.md') as fp:
     README = fp.read()
 setuptools.setup(
     name='kif-lib',
@@ -23,12 +24,7 @@ setuptools.setup(
     include_package_data=True,
     package_dir={'kif_lib': 'kif_lib'},
     install_requires=[ 'httpx', 'lark', 'more_itertools', 'networkx', 'rdflib', 'types-networkx', 'typing-extensions', ],
-    extras_require={
-        'all': [*[ 'myst_nb', 'sphinx-rtd-theme', ],*[ 'click', 'ddgs', 'graphviz', 'jpype1', 'pandas', 'pandas-stubs', 'psutil', 'rich', 'types-click', 'types-psutil', ],*['flake8', 'isort', 'mypy', 'pylint', 'pyright', 'pytest', 'pytest-asyncio', 'pytest-cov', 'pytest-mypy', 'pyupgrade', 'setuptools', 'tox']],
-        'docs': [ 'myst_nb', 'sphinx-rtd-theme', ],
-        'extra': [ 'click', 'ddgs', 'graphviz', 'jpype1', 'pandas', 'pandas-stubs', 'psutil', 'rich', 'types-click', 'types-psutil', ],
-        'tests': ['flake8', 'isort', 'mypy', 'pylint', 'pyright', 'pytest', 'pytest-asyncio', 'pytest-cov', 'pytest-mypy', 'pyupgrade', 'setuptools', 'tox'],
-    },
+    extras_require={'all': [*['mkdocs'], *['flake8', 'isort', 'mypy', 'pylint', 'pyright', 'pytest', 'pytest-asyncio', 'pytest-cov', 'pytest-mypy', 'pyupgrade', 'setuptools', 'tox'], *itertools.chain(*{ 'cli': [ 'click', 'rich', ], 'extra': [ 'ddgs', 'graphviz', 'jpype1', 'pandas', 'pandas-stubs', 'psutil', 'types-click', 'types-psutil', ], }.values())], 'dev': ['build', 'twine', *[*['mkdocs'], *['flake8', 'isort', 'mypy', 'pylint', 'pyright', 'pytest', 'pytest-asyncio', 'pytest-cov', 'pytest-mypy', 'pyupgrade', 'setuptools', 'tox'], *itertools.chain(*{ 'cli': [ 'click', 'rich', ], 'extra': [ 'ddgs', 'graphviz', 'jpype1', 'pandas', 'pandas-stubs', 'psutil', 'types-click', 'types-psutil', ], }.values())]], 'docs': ['mkdocs'], 'tests': ['flake8', 'isort', 'mypy', 'pylint', 'pyright', 'pytest', 'pytest-asyncio', 'pytest-cov', 'pytest-mypy', 'pyupgrade', 'setuptools', 'tox'], **{ 'cli': [ 'click', 'rich', ], 'extra': [ 'ddgs', 'graphviz', 'jpype1', 'pandas', 'pandas-stubs', 'psutil', 'types-click', 'types-psutil', ], }},
     entry_points={ 'console_scripts': ['kif = kif_lib.cli:cli'], },
     zip_safe=False,
 )

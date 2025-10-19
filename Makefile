@@ -96,9 +96,10 @@ SED?= sed
 SETUP_PY?= setup.py
 SETUP_PY_CLASSIFIERS?= []
 SETUP_PY_ENTRY_POINTS?= {}
-SETUP_PY_EXTRAS_REQUIRE_ALL?= [*${SETUP_PY_EXTRAS_REQUIRE_DOCS},*${SETUP_PY_EXTRAS_REQUIRE_EXTRA},*${SETUP_PY_EXTRAS_REQUIRE_TESTS}]
-SETUP_PY_EXTRAS_REQUIRE_DOCS?= []
-SETUP_PY_EXTRAS_REQUIRE_EXTRA?= []
+SETUP_PY_EXTRAS_REQUIRE_?= {'all': ${SETUP_PY_EXTRAS_REQUIRE_ALL}, 'dev': ${SETUP_PY_EXTRAS_REQUIRE_DEV}, 'docs': ${SETUP_PY_EXTRAS_REQUIRE_DOCS}, 'tests': ${SETUP_PY_EXTRAS_REQUIRE_TESTS}, **${SETUP_PY_EXTRAS_REQUIRE}}
+SETUP_PY_EXTRAS_REQUIRE_ALL= [*${SETUP_PY_EXTRAS_REQUIRE_DOCS}, *${SETUP_PY_EXTRAS_REQUIRE_TESTS}, *itertools.chain(*${SETUP_PY_EXTRAS_REQUIRE}.values())]
+SETUP_PY_EXTRAS_REQUIRE_DEV?= ['build', 'twine', *${SETUP_PY_EXTRAS_REQUIRE_ALL}]
+SETUP_PY_EXTRAS_REQUIRE_DOCS?= ['mkdocs']
 SETUP_PY_EXTRAS_REQUIRE_TESTS?= ['flake8', 'isort', 'mypy', 'pylint', 'pyright', 'pytest', 'pytest-asyncio', 'pytest-cov', 'pytest-mypy', 'pyupgrade', 'setuptools', 'tox']
 SETUP_PY_FIND_PACKAGES_EXCLUDE?= ['tests', 'tests.*']
 SETUP_PY_INCLUDE_PACKAGE_DATA?= True
@@ -427,13 +428,14 @@ GEN_ALL_TARGETS+= gen-setup-py
 .PHONY: gen-setup-py
 gen-setup-py:
 	$P 'generating ${SETUP_PY}'
-	$P '# ** GENERATED FILE, DO NOT EDIT! **' >${SETUP_PY}
+	$P '# ** GENERATED FILE: DO NOT EDIT! **' >${SETUP_PY}
+	$P 'import itertools' >>${SETUP_PY}
 	$P 'import re' >>${SETUP_PY}
 	$P 'import setuptools' >>${SETUP_PY}
-	$P "with open('${PACKAGE}/__version__.py', 'r') as fp:" >>${SETUP_PY}
+	$P "with open('${PACKAGE}/__version__.py') as fp:" >>${SETUP_PY}
 	$P '    text = fp.read()' >>${SETUP_PY}
 	$P "    VERSION, = re.findall(r\"__version__\s*=\s*'(.*)'\", text)" >>${SETUP_PY}
-	$P "with open('README.md', 'r') as fp:" >>${SETUP_PY}
+	$P "with open('README.md') as fp:" >>${SETUP_PY}
 	$P '    README = fp.read()' >>${SETUP_PY}
 	$P 'setuptools.setup(' >>${SETUP_PY}
 	$P "    name='${NAME}'," >>${SETUP_PY}
@@ -452,12 +454,7 @@ gen-setup-py:
 	$P '    include_package_data=True,' >>${SETUP_PY}
 	$P "    package_dir=${SETUP_PY_PACKAGE_DIR}," >>${SETUP_PY}
 	$P "    install_requires=${SETUP_PY_INSTALL_REQUIRES}," >>${SETUP_PY}
-	$P '    extras_require={' >>${SETUP_PY}
-	$P "        'all': ${SETUP_PY_EXTRAS_REQUIRE_ALL}," >>${SETUP_PY}
-	$P "        'docs': ${SETUP_PY_EXTRAS_REQUIRE_DOCS}," >>${SETUP_PY}
-	$P "        'extra': ${SETUP_PY_EXTRAS_REQUIRE_EXTRA}," >>${SETUP_PY}
-	$P "        'tests': ${SETUP_PY_EXTRAS_REQUIRE_TESTS}," >>${SETUP_PY}
-	$P '    },' >>${SETUP_PY}
+	$P "    extras_require=${SETUP_PY_EXTRAS_REQUIRE_}," >>${SETUP_PY}
 	$P "    entry_points=${SETUP_PY_ENTRY_POINTS}," >>${SETUP_PY}
 	$P "    zip_safe=${SETUP_PY_ZIP_SAFE}," >>${SETUP_PY}
 	$P ')' >>${SETUP_PY}
@@ -494,12 +491,12 @@ ident:
 # install package
 .PHONY: install
 install:
-	${PIP} install -e '.[extra]'
+	${PIP} install --upgrade -e .
 
-# install doc-build, publish, and test dependencies
-.PHONY: install-deps
-install-deps:
-	${PIP} install --upgrade '.[docs]' '.[tests]' build twine
+# install development dependencies
+.PHONY: install-dev
+install-dev:
+	${PIP} install --upgrade '.[dev]'
 
 # run tox
 .PHONY: tox
@@ -514,7 +511,7 @@ tox-debug:
 # uninstall package
 .PHONY: uninstall
 uninstall:
-	${PYTHON} setup.py develop -u
+	${PIP} uninstall ${NAME}
 
 # publish package
 .PHONY: publish
