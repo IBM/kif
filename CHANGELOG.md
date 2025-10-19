@@ -6,6 +6,9 @@ The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.0.0/).
 
 ## 0.12.1 (?)
 
+- Replaced Sphinx by mkdocs to generate the documentation.  Updated the
+  docs.
+
 - Added `factgrid` SPARQL store which uses custom Wikidata mappings and a
   custom namespace.  See https://database.factgrid.de/.
 
@@ -25,7 +28,9 @@ The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.0.0/).
 - Added `?` operator for specifying engine arguments using a glob pattern in
   KIF CLI.
 
-- Added `--vocabulary-dump` option to KIF CLI filter command.
+- Added `--vocabulary-dump` option to KIF CLI filter command.  The new
+  Makefile.conf targets `dump-*-property` use this option to generate parts
+  of the vocabulary modules of DBpedia, FactGrid, Wikidata.
 
 - Added convenience encoder flags to KIF CLI, i.e., `--markdown`, `--repr`,
   etc.
