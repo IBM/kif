@@ -59,6 +59,8 @@ markdown_extensions:
   - codehilite:
       css_class: highlight
   - md_in_html
+  - pymdownx.details
+  - pymdownx.superfences
 
 plugins:
   - mkdocstrings:

@@ -6,12 +6,6 @@ We start by importing the [Store][kif_lib.Store] constructor from the KIF librar
 >>> from kif_lib import Store
 ```
 
-We'll also need the [Wikidata](https://www.wikidata.org/) vocabulary module [wd][kif_lib.vocabulary.wd]:
-
-```pycon
->>> from kif_lib.vocabulary import wd
-```
-
 Now, let's create a KIF store pointing to the official [Wikidata query service](https://query.wikidata.org/):
 
 ```pycon
@@ -20,10 +14,11 @@ Now, let's create a KIF store pointing to the official [Wikidata query service](
 
 A KIF **store** is an interface to a knowledge source.  It allows us to query the source as if it were Wikidata and obtain Wikidata-like statements as a result.
 
-The store `kb` we just created, in particular, is an interface to Wikidata itself.  We can use it, for example, to fetch from Wikidata three statements about Brazil:
+The store `kb` we just created is an interface to Wikidata itself.  We can use it, for example, to fetch from Wikidata three statements about [Brazil (Q155)](http://www.wikidata.org/entity/Q155):
 
 ```pycon
->>> it = kb.filter(subject=wd.Brazil, limit=3)
+>>> from kif_lib import Item
+>>> it = kb.filter(subject=Item('http://www.wikidata.org/entity/Q155'), limit=3)
 >>> for stmt in it:
 >>>    print(stmt)
 Statement(Item(IRI('http://www.wikidata.org/entity/Q155')), ValueSnak(Property(IRI('http://www.wikidata.org/entity/P47'), ItemDatatype()), Item(IRI('http://www.wikidata.org/entity/Q414'))))
@@ -35,8 +30,8 @@ Statement(Item(IRI('http://www.wikidata.org/entity/Q155')), ValueSnak(Property(I
 
     If you run the above code in Jupyter and use `display()` instead of `print()`, then the three statements will be pretty-printed as follows:
 
-    > (**Statement** (**Item** [Brazil](http://www.wikidata.org/entity/Q155)) (**ValueSnak** (**Property** [shares border with](http://www.wikidata.org/entity/P47)) (**Item** [Argentina](http://www.wikidata.org/entity/Q414))))<br>
-    > (**Statement** (**Item** [Brazil](http://www.wikidata.org/entity/Q155)) (**ValueSnak** (**Property** [inception](http://www.wikidata.org/entity/P571)) 7 September 1822))<br>
+    > (**Statement** (**Item** [Brazil](http://www.wikidata.org/entity/Q155)) (**ValueSnak** (**Property** [shares border with](http://www.wikidata.org/entity/P47)) (**Item** [Argentina](http://www.wikidata.org/entity/Q414))))<br/>
+    > (**Statement** (**Item** [Brazil](http://www.wikidata.org/entity/Q155)) (**ValueSnak** (**Property** [inception](http://www.wikidata.org/entity/P571)) 7 September 1822))<br/>
     > (**Statement** (**Item** [Brazil](http://www.wikidata.org/entity/Q155)) (**ValueSnak** (**Property** [official language](http://www.wikidata.org/entity/P37)) (**Item** [Portuguese](http://www.wikidata.org/entity/Q5146))))
 
     From now on, we'll use the pretty-printed ([S-expression](https://en.wikipedia.org/wiki/S-expression)) format to display statements.
@@ -47,11 +42,11 @@ Consider the first statement obtained from the store `kb` above:
 
 > (**Statement** (**Item** [Brazil](http://www.wikidata.org/entity/Q155)) (**ValueSnak** (**Property** [shares border with](http://www.wikidata.org/entity/P47)) (**Item** [Argentina](http://www.wikidata.org/entity/Q414))))
 
-Its subject is the item [Brazil (Q155)](http://www.wikidata.org/entity/Q155) and its snak is a value snak which associates the property [shares border with (P47)](http://www.wikidata.org/entity/P47) with the value [Argentina (Q414)](http://www.wikidata.org/entity/Q414).  This statement stands for the assertion "Brazil shares border with Argentina".
+This statement stands for the assertion "Brazil shares border with Argentina".  Its subject is the item [Brazil (Q155)](http://www.wikidata.org/entity/Q155) and its snak is a value snak which associates the property [shares border with (P47)](http://www.wikidata.org/entity/P47) with the value [Argentina (Q414)](http://www.wikidata.org/entity/Q414).
 
 ## Data model
 
-KIF data-model objects, such as statements and their components, are immutable and are built using the data-model constructors (see the [data model guide](guides/data_model.md)).  For instance, we can construct the statement "Brazil shares border with Argentina" as follows:
+KIF data-model objects, such as statements and their components, are immutable and are built using the data-model object constructors (see the [data model guide](guides/data_model.md)).  For instance, we can construct the statement "Brazil shares border with Argentina" as follows:
 
 ```pycon
 >>> from kif_lib import Item, Property, Statement, ValueSnak
@@ -75,7 +70,7 @@ Alternatively, we can apply the property object `shares_border_with` as if it we
 
 !!! note
 
-    Data-model object identity is completely determined by the object contents.  That is, two data-model objects constructed from the same arguments will always test equal.  Hence, `(stmt == stmt_alt) == True` above.
+    Data-model object identity is completely determined by the objects' contents.  That is, two data-model objects constructed from the same arguments are equal.  Thus, `(stmt == stmt_alt) == True` above.
 
 ### Vocabulary
 
@@ -111,7 +106,7 @@ As before, we can apply `shares_border_with` to `Brazil` and `Argentina` to obta
 
 > (**Statement** (**Item** [Brazil](http://www.wikidata.org/entity/Q155)) (**ValueSnak** (**Property** [shares border with](http://www.wikidata.org/entity/P47)) (**Item** [Argentina](http://www.wikidata.org/entity/Q414))))
 
-The [wd][kif_lib.vocabulary.wd] vocabulary module defines symbolic aliases for some popular entities.  For instance, instead of writing `wd.Q(155)` and `wd.Q(414)` for Brazil and Argentina, we can write `wd.Brazil` and `wd.Argentina`.  Similarly, instead of writing `wd.P(47)` for "shares border with", we can write `wd.shares_border_with`.  In the case of Wikidata properties, most have symbolic aliases defined in [wd][kif_lib.vocabulary.wd].
+The [wd][kif_lib.vocabulary.wd] vocabulary module defines symbolic aliases for some popular entities.  For instance, instead of writing `wd.Q(155)` and `wd.Q(414)` for Brazil and Argentina, we can write `wd.Brazil` and `wd.Argentina`.  Similarly, instead of writing `wd.P(47)` for "shares border with", we can write `wd.shares_border_with`.  Almost all Wikidata properties have symbolic aliases defined in [wd][kif_lib.vocabulary.wd].
 
 !!! note
 
@@ -119,15 +114,15 @@ The [wd][kif_lib.vocabulary.wd] vocabulary module defines symbolic aliases for s
 
 ## Store
 
-Let's now return to the [Store][kif_lib.Store] API.
+Let's now turn to the [Store][kif_lib.Store] API.
 
-As we said before, a KIF store is an interface to a knowledge source (typically but not necessarily a knowledge graph).  The [Store][kif_lib.Store] constructor is used to create a store.  It takes as first argument the name of the store plugin to instantiate, and any remaining arguments are passed unmodified to the store plugin during instantiation.  For instance:
+As we said before, a KIF store is an interface to a knowledge source (typically but not necessarily a knowledge graph).  The [Store][kif_lib.Store] constructor is used to create a store.  It takes as first argument the name of the store plugin to instantiate.  The remaining arguments are passed to the store plugin unmodified.  For instance:
 
 ```pycon
 >>> kb = Store('wikidata')
 ```
 
-Here we are instantiating a new store using the plugin `wikidata`, which creates a [SPARQL store][kif_lib.store.SPARQL_Store] loaded with the Wikidata SPARQL mappings and points it to the official Wikidata SPARQL endpoint.
+This instantiates and assigns to `kb` a new store using the plugin `wikidata`, which creates a [SPARQL store][kif_lib.store.SPARQL_Store] loaded with the Wikidata SPARQL mappings and targeted at the official Wikidata SPARQL endpoint.  ([SPARQL](https://en.wikipedia.org/wiki/SPARQL) is the query language of [RDF](https://en.wikipedia.org/wiki/Resource_Description_Framework), a standard format for knowledge graphs.)
 
 Alternatively, we could have specified the target endpoint explicitly, as the second argument to the [Store()][kif_lib.Store] call:
 
@@ -157,51 +152,98 @@ The call [`kb.filter(...)`][kif_lib.Store.filter] searches for statements in `kb
 
 > (**Statement** (**Item** [Alan Turing](http://www.wikidata.org/entity/Q7251)) (**ValueSnak** (**Property** [doctoral advisor](http://www.wikidata.org/entity/P184)) (**Item** [Alonzo Church](http://www.wikidata.org/entity/Q92741))))
 
-If no `limit` argument is given to `kb.filter()`, the returned iterator will eventually produce all matching statements.  For instance, iterator `it` above will produce every statement about [Alan Turing (Q7251)](http://www.wikidata.org/entity/Q7251) in Wikidata if advanced indefinitely.
+If no `limit` argument is given to `kb.filter()`, the returned iterator will eventually produce all matching statements.  For instance, iterator `it` above will produce every statement about [Alan Turing (Q7251)](http://www.wikidata.org/entity/Q7251) in Wikidata before it is exhausted.
 
 ### Basic filters
 
-We can filter statements by specifying a subject or snak (property-value) to match.  Neither of these are required though.
+We can filter statements by specifying any combination of subject and snak (property/value) to match.  Neither of these are required though.
 
-(1) Match any statement whatsoever:
+!!! example
 
-```pycon
->>> next(kb.filter())
-```
+    (1) Match any statement whatsoever:
 
-> (**Statement** (**Item** [lion](http://www.wikidata.org/entity/Q140)) (**ValueSnak** (**Property** [parent taxon](http://www.wikidata.org/entity/P171)) (**Item** [Panthera](http://www.wikidata.org/entity/Q127960))))
+    ```pycon
+    >>> next(kb.filter())
+    ```
 
-(2) Match a statement with subject "water":
+    > (**Statement** (**Item** [lion](http://www.wikidata.org/entity/Q140)) (**ValueSnak** (**Property** [parent taxon](http://www.wikidata.org/entity/P171)) (**Item** [Panthera](http://www.wikidata.org/entity/Q127960))))
 
-```pycon
->>> next(kb.filter(subject=wd.water))
-```
+    <br/>
+    (2) Match any statement with subject "water":
 
-> (**Statement** (**Item** [water](http://www.wikidata.org/entity/Q283)) (**ValueSnak** (**Property** [chemical formula](http://www.wikidata.org/entity/P274)) "H₂O"))
+    ```pycon
+    >>> next(kb.filter(subject=wd.water))
+    ```
 
-(3) Match statement with snak "place of birth is Geneva":
+    > (**Statement** (**Item** [water](http://www.wikidata.org/entity/Q283)) (**ValueSnak** (**Property** [chemical formula](http://www.wikidata.org/entity/P274)) "H₂O"))
 
-```pycon
->>> next(kb.filter(snak=wd.place_of_birth(wd.Geneva))
-```
+    <br/>
+    (3) Match any statement with snak "place of birth is Geneva":
 
-> (**Statement** (**Item** [Jean-Jacques Rousseau](http://www.wikidata.org/entity/Q6527)) (**ValueSnak** (**Property** [place of birth](http://www.wikidata.org/entity/P19)) (**Item** [Geneva](http://www.wikidata.org/entity/Q71))))
+    ```pycon
+    >>> next(kb.filter(snak=wd.place_of_birth(wd.Geneva))
+    ```
 
-(4) Match statements property "official language":
+    > (**Statement** (**Item** [Jean-Jacques Rousseau](http://www.wikidata.org/entity/Q6527)) (**ValueSnak** (**Property** [place of birth](http://www.wikidata.org/entity/P19)) (**Item** [Geneva](http://www.wikidata.org/entity/Q71))))
 
-```pycon
->>> next(kb.filter(property=wd.official_language))
-```
+    <br/>
+    (4) Match any statement with property "official language":
 
-> (**Statement** (**Item** [Peru](http://www.wikidata.org/entity/Q419)) (**ValueSnak** (**Property** [official language](http://www.wikidata.org/entity/P37)) (**Item** [Spanish](http://www.wikidata.org/entity/Q1321))))
+    ```pycon
+    >>> next(kb.filter(property=wd.official_language))
+    ```
 
-(5) Match a statement with value "733 kilograms":
+    > (**Statement** (**Item** [Peru](http://www.wikidata.org/entity/Q419)) (**ValueSnak** (**Property** [official language](http://www.wikidata.org/entity/P37)) (**Item** [Spanish](http://www.wikidata.org/entity/Q1321))))
 
-```pycon
->>> next(kb.filter(value=733@wd.kilogram))
-```
+    <br/>
+    (5) Match any statement with value "733 kilograms":
 
-> (**Statement** (**Item** [Voyager 1](http://www.wikidata.org/entity/Q48469)) (**ValueSnak** (**Property** [mass](http://www.wikidata.org/entity/P2067)) 733 [kilogram](http://www.wikidata.org/entity/Q11570)))
+    ```pycon
+    >>> next(kb.filter(value=733@wd.kilogram))
+    ```
+
+    > (**Statement** (**Item** [Voyager 1](http://www.wikidata.org/entity/Q48469)) (**ValueSnak** (**Property** [mass](http://www.wikidata.org/entity/P2067)) 733 [kilogram](http://www.wikidata.org/entity/Q11570)))
+
+    <br/>
+    (6) Match any statement with subject "Brazil" and snak "shares border with Argentina":
+
+    ```pycon
+    >>> next(kb.filter(subject=wd.Brazil, snak=wd.shares_border_with(wd.Argentina)))
+    ```
+
+    > (**Statement** (**Item** [Brazil](http://www.wikidata.org/entity/Q155)) (**ValueSnak** (**Property** [shares border with](http://www.wikidata.org/entity/P47)) (**Item** [Argentina](http://www.wikidata.org/entity/Q414))))
+
+    <br/>
+    (7) Match any statement with subject "Brazil" and snak "shares border with Chile":
+
+    ```pycon
+    >>> next(kb.filter(subject=wd.Brazil, snak=wd.shares_border_with(wd.Chile)))
+    StopIteration # *** error: iterator is empty (i.e., no such statement)
+    ```
+
+Alternative values can be specified through the bitwise "or" operator (`|`).
+
+!!! example "Example"
+
+    (1) Match any statement such that the subject is "Socrates" or "Plato":
+
+    ```pycon
+    >>> next(kb.filter(subject=wd.Socrates|wd.Plato))
+    ```
+
+    > (**Statement** (**Item** [Plato](http://www.wikidata.org/entity/Q859)) (**ValueSnak** (**Property** [notable work](http://www.wikidata.org/entity/P800)) (**Item** [The Republic](http://www.wikidata.org/entity/Q123397))))
 
 
 ### More complex filters
+
+So far, we have used simple values to match the components of statements in filters.  In KIF, we can also specify the desired subject, property, or value indirectly, by giving a constraint that it must satisfy.
+
+!!! example "Example"
+
+    (1) Match any statement such that (i) the subject "shares border with Argentina" and (ii) the property is "official language":
+
+    ```pycon
+    >>> next(kb.filter(subject=wd.shares_border_with(wd.Argentina), property=wd.official_language))
+    ```
+
+    > (**Statement** (**Item** [Brazil](http://www.wikidata.org/entity/Q155)) (**ValueSnak** (**Property** [official language](http://www.wikidata.org/entity/P37)) (**Item** [Portuguese](http://www.wikidata.org/entity/Q5146))))

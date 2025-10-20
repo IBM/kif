@@ -211,6 +211,7 @@ Pico_31_de_Março = Q(1264913, 'Pico 31 de Março')
 Pico_da_Neblina = Q(739484, 'Pico da Neblina')
 picomole = Q(56157048, 'picomole')
 pig = Q(787, 'pig')
+Plato = Q(859, 'Plato')
 Portuguese = Q(5146, 'Portuguese')
 primate = Q(7380, 'primate')
 product = Q(2424752, 'product')
@@ -236,6 +237,7 @@ seculararchy = Q(859563, 'seculararchy')
 sheep = Q(7368, 'sheep')
 skin_absorption = Q(4669896, 'skin absorption')
 slope_ = Q(944588, 'slope')
+Socrates = Q(913, 'Socrates')
 sodium_bicarbonate = Q(179731, 'sodium bicarbonate')
 software = Q(7397, 'software')
 sourcing_circumstance_ = Q(104637420, 'sourcing circumstance')
@@ -498,6 +500,7 @@ __all__ = (
     'Pico_da_Neblina',
     'picomole',
     'pig',
+    'Plato',
     'Portuguese',
     'primate',
     'product',
@@ -523,6 +526,7 @@ __all__ = (
     'sheep',
     'skin_absorption',
     'slope_',
+    'Socrates',
     'sodium_bicarbonate',
     'software',
     'sourcing_circumstance_',
