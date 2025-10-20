@@ -18,8 +18,7 @@ class Test(StoreTestCase):
             'tests/data/adam.ttl',
             'tests/data/andar.ttl',
             'tests/data/benzene.ttl',
-            'tests/data/brazil.ttl',
-            'tests/data/instance_of.ttl')
+            'tests/data/brazil.ttl')
 
     def test_empty(self) -> None:
         xf, F = self.store_xfilter_assertion(self.KB())

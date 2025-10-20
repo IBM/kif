@@ -25,9 +25,10 @@ class Test(StoreTestCase):
 
     def test_property(self) -> None:
         xf, F = self.store_xfilter_assertion(self.KB())
-        s = wd.instance_of
+        s = wd.InChIKey
         xf(F(subject=s, property=wd.label),
-           {wd.label(s, 'instance of')})
+           {wd.label(s, Text('InChIKey', 'en')),
+            wd.label(s, Text('InChIKey', 'es'))})
 
     def test_lexeme(self) -> None:
         xf, F = self.store_xfilter_assertion(self.KB())
