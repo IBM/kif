@@ -217,7 +217,6 @@ class IRI(
            prefix: Whether to remove prefix.
            resolver: Whether to remove resolver.
            schema: Whether to remove property schema.
-           all: Whether to remove all data.
 
         Returns:
            ``True`` if successful; ``False`` otherwise.

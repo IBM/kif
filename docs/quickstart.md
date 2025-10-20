@@ -6,6 +6,12 @@ We start by importing the [Store][kif_lib.Store] constructor from the KIF librar
 >>> from kif_lib import Store
 ```
 
+We'll also need the [Wikidata](https://www.wikidata.org/) vocabulary module [wd][kif_lib.vocabulary.wd]:
+
+```pycon
+>>> from kif_lib.vocabulary import wd
+```
+
 Now, let's create a KIF store pointing to the official [Wikidata query service](https://query.wikidata.org/):
 
 ```pycon
@@ -17,8 +23,7 @@ A KIF **store** is an interface to a knowledge source.  It allows us to query th
 The store `kb` we just created is an interface to Wikidata itself.  We can use it, for example, to fetch from Wikidata three statements about [Brazil (Q155)](http://www.wikidata.org/entity/Q155):
 
 ```pycon
->>> from kif_lib import Item
->>> it = kb.filter(subject=Item('http://www.wikidata.org/entity/Q155'), limit=3)
+>>> it = kb.filter(subject=wd.Brazil, limit=3)
 >>> for stmt in it:
 >>>    print(stmt)
 Statement(Item(IRI('http://www.wikidata.org/entity/Q155')), ValueSnak(Property(IRI('http://www.wikidata.org/entity/P47'), ItemDatatype()), Item(IRI('http://www.wikidata.org/entity/Q414'))))
@@ -152,87 +157,85 @@ The call [`kb.filter(...)`][kif_lib.Store.filter] searches for statements in `kb
 
 > (**Statement** (**Item** [Alan Turing](http://www.wikidata.org/entity/Q7251)) (**ValueSnak** (**Property** [doctoral advisor](http://www.wikidata.org/entity/P184)) (**Item** [Alonzo Church](http://www.wikidata.org/entity/Q92741))))
 
-If no `limit` argument is given to `kb.filter()`, the returned iterator will eventually produce all matching statements.  For instance, iterator `it` above will produce every statement about [Alan Turing (Q7251)](http://www.wikidata.org/entity/Q7251) in Wikidata before it is exhausted.
+If no `limit` argument is given to [kb.filter()][kif_lib.Store.filter], the returned iterator will eventually produce all matching statements.  For instance, iterator `it` above will produce every statement about [Alan Turing (Q7251)](http://www.wikidata.org/entity/Q7251) in Wikidata before it is exhausted.
 
 ### Basic filters
 
-We can filter statements by specifying any combination of subject and snak (property/value) to match.  Neither of these are required though.
+We can filter statements by specifying any combination of *subject*, *property*, *value* (or *snak*) to match.  None of these are required though.  For example:
 
-!!! example
+```pycon
+>>> # (1) Match any statement whatsoever:
+>>> next(kb.filter())
 
-    (1) Match any statement whatsoever:
+>>> # (2) Match statements with subject "water":
+>>> next(kb.filter(subject=wd.water))
 
-    ```pycon
-    >>> next(kb.filter())
-    ```
+>>> # (3) Match statements with snak "place of birth is Athens":
+>>> next(kb.filter(snak=wd.place_of_birth(wd.Athens))
 
-    > (**Statement** (**Item** [lion](http://www.wikidata.org/entity/Q140)) (**ValueSnak** (**Property** [parent taxon](http://www.wikidata.org/entity/P171)) (**Item** [Panthera](http://www.wikidata.org/entity/Q127960))))
+>>> # (4) Match statements with property "official language":
+>>> next(kb.filter(property=wd.official_language))
 
-    <br/>
-    (2) Match any statement with subject "water":
+>>> # (5) Match statements with value "733 kilograms":
+>>> next(kb.filter(value=733@wd.kilogram))
 
-    ```pycon
-    >>> next(kb.filter(subject=wd.water))
-    ```
+>>> # (6) Match statements with subject "Brazil" and
+>>> #     snak "shares border with Argentina":
+>>> next(kb.filter(subject=wd.Brazil, snak=wd.shares_border_with(wd.Argentina)))
 
-    > (**Statement** (**Item** [water](http://www.wikidata.org/entity/Q283)) (**ValueSnak** (**Property** [chemical formula](http://www.wikidata.org/entity/P274)) "H₂O"))
+>>> # (7) Match statements with subject "Brazil" and
+>>> #     snak "shares border with Chile":
+>>> next(kb.filter(subject=wd.Brazil, snak=wd.shares_border_with(wd.Chile)))
+StopIteration # *** ERROR: iterator is empty (no such statement)
+```
 
-    <br/>
-    (3) Match any statement with snak "place of birth is Geneva":
+> `(1)` (**Statement** (**Item** [lion](http://www.wikidata.org/entity/Q140)) (**ValueSnak** (**Property** [parent taxon](http://www.wikidata.org/entity/P171)) (**Item** [Panthera](http://www.wikidata.org/entity/Q127960))))<br/>
+> `(2)` (**Statement** (**Item** [water](http://www.wikidata.org/entity/Q283)) (**ValueSnak** (**Property** [chemical formula](http://www.wikidata.org/entity/P274)) "H₂O"))<br/>
+> `(3)` (**Statement** (**Item** [Socrates](http://www.wikidata.org/entity/Q913)) (**ValueSnak** (**Property** [place of birth](http://www.wikidata.org/entity/P19)) (**Item** [Athens](http://www.wikidata.org/entity/Q1524))))<br/>
+> `(4)` (**Statement** (**Item** [Peru](http://www.wikidata.org/entity/Q419)) (**ValueSnak** (**Property** [official language](http://www.wikidata.org/entity/P37)) (**Item** [Spanish](http://www.wikidata.org/entity/Q1321))))<br/>
+> `(5)` (**Statement** (**Item** [Voyager 1](http://www.wikidata.org/entity/Q48469)) (**ValueSnak** (**Property** [mass](http://www.wikidata.org/entity/P2067)) 733 [kilogram](http://www.wikidata.org/entity/Q11570)))<br/>
+> `(6)` (**Statement** (**Item** [Brazil](http://www.wikidata.org/entity/Q155)) (**ValueSnak** (**Property** [shares border with](http://www.wikidata.org/entity/P47)) (**Item** [Argentina](http://www.wikidata.org/entity/Q414))))
 
-    ```pycon
-    >>> next(kb.filter(snak=wd.place_of_birth(wd.Geneva))
-    ```
+!!! note
 
-    > (**Statement** (**Item** [Jean-Jacques Rousseau](http://www.wikidata.org/entity/Q6527)) (**ValueSnak** (**Property** [place of birth](http://www.wikidata.org/entity/P19)) (**Item** [Geneva](http://www.wikidata.org/entity/Q71))))
+    In example (3) above, `wd.place_of_birth(wd.Athens)` is another way of constructing `ValueSnak(wd.place_of_birth, wd.Athens)`, that is, the [ValueSnak][kif_lib.ValueSnak] object with property [place of birth (P19)](http://www.wikidata.org/entity/P19) and value [Athens (Q1524)](http://www.wikidata.org/entity/Q1524).  In example (5), `733@wd.kilogram` is another way of constructing `Quantity(733, wd.kilogram)`, that is, the [Quantity][kif_lib.Quantity] object with amount 733 and unit [kilogram (Q11570)](http://www.wikidata.org/entity/Q11570).  See the [data model guide](guides/data_model.md) for details.
 
-    <br/>
-    (4) Match any statement with property "official language":
+Alternative subjects, properties, and values can be specified using bitwise "or" operator (`|`):
 
-    ```pycon
-    >>> next(kb.filter(property=wd.official_language))
-    ```
+```pycon
+>>> # (1) Match statements with subject "Socrates" or "Plato":
+>>> next(kb.filter(subject=wd.Socrates|wd.Plato))
 
-    > (**Statement** (**Item** [Peru](http://www.wikidata.org/entity/Q419)) (**ValueSnak** (**Property** [official language](http://www.wikidata.org/entity/P37)) (**Item** [Spanish](http://www.wikidata.org/entity/Q1321))))
+>>> # (2) Match statements with subject "caffeine" and
+>>> #     property "density" or "mass" or "pKa":
+>>> next(kb.filter(subject=wd.caffeine, property=wd.density|wd.mass|wd.pKa))
 
-    <br/>
-    (5) Match any statement with value "733 kilograms":
+>>> # (3) Match statements with subject "IBM" and
+>>> #     value "16 June 1911" or "https://www.ibm.com/":
+>>> from kif_lib import IRI, Time
+>>> for stmt in.filter(
+...     subject=wd.IBM, value=Time('1911-06-16')|IRI('https://www.ibm.com/')):
+...     print(stmt)
+```
 
-    ```pycon
-    >>> next(kb.filter(value=733@wd.kilogram))
-    ```
+> `(1)` (**Statement** (**Item** [Plato](http://www.wikidata.org/entity/Q859)) (**ValueSnak** (**Property** [notable work](http://www.wikidata.org/entity/P800)) (**Item** [The Republic](http://www.wikidata.org/entity/Q123397))))<br/>
+> `(2)` (**Statement** (**Item** [caffeine](http://www.wikidata.org/entity/Q60235)) (**ValueSnak** (**Property** [mass](http://www.wikidata.org/entity/P2067)) 194.08037556 [dalton](http://www.wikidata.org/entity/Q483261)))<br/>
+> `(3.1)` (**Statement** (**Item** [IBM](http://www.wikidata.org/entity/Q37156)) (**ValueSnak** (**Property** [official website](http://www.wikidata.org/entity/P856)) https://www.ibm.com/))<br/>
+> `(3.2)` (**Statement** (**Item** [IBM](http://www.wikidata.org/entity/Q37156)) (**ValueSnak** (**Property** [inception](http://www.wikidata.org/entity/P571)) 16 June 1911))
 
-    > (**Statement** (**Item** [Voyager 1](http://www.wikidata.org/entity/Q48469)) (**ValueSnak** (**Property** [mass](http://www.wikidata.org/entity/P2067)) 733 [kilogram](http://www.wikidata.org/entity/Q11570)))
+The [Or][kif_lib.Or] constructor can be used to build alternatives more conveniently from large lists of values.  For example:
 
-    <br/>
-    (6) Match any statement with subject "Brazil" and snak "shares border with Argentina":
+```pycon
+>>> south_america_countries = [wd.Brazil, wd.Argentina, wd.Uruguay, ...]
+>>> for stmt in kb.filter(
+>>>     subject=Or(*south_america_countries), property=wd.capital)):
+>>>     print(stmt)
+```
 
-    ```pycon
-    >>> next(kb.filter(subject=wd.Brazil, snak=wd.shares_border_with(wd.Argentina)))
-    ```
-
-    > (**Statement** (**Item** [Brazil](http://www.wikidata.org/entity/Q155)) (**ValueSnak** (**Property** [shares border with](http://www.wikidata.org/entity/P47)) (**Item** [Argentina](http://www.wikidata.org/entity/Q414))))
-
-    <br/>
-    (7) Match any statement with subject "Brazil" and snak "shares border with Chile":
-
-    ```pycon
-    >>> next(kb.filter(subject=wd.Brazil, snak=wd.shares_border_with(wd.Chile)))
-    StopIteration # *** error: iterator is empty (i.e., no such statement)
-    ```
-
-Alternative values can be specified through the bitwise "or" operator (`|`).
-
-!!! example "Example"
-
-    (1) Match any statement such that the subject is "Socrates" or "Plato":
-
-    ```pycon
-    >>> next(kb.filter(subject=wd.Socrates|wd.Plato))
-    ```
-
-    > (**Statement** (**Item** [Plato](http://www.wikidata.org/entity/Q859)) (**ValueSnak** (**Property** [notable work](http://www.wikidata.org/entity/P800)) (**Item** [The Republic](http://www.wikidata.org/entity/Q123397))))
-
+> (**Statement** (**Item** [Argentina](http://www.wikidata.org/entity/Q414)) (**ValueSnak** (**Property** [capital](http://www.wikidata.org/entity/P36)) (**Item** [Buenos Aires](http://www.wikidata.org/entity/Q1486))))<br/>
+> (**Statement** (**Item** [Uruguay](http://www.wikidata.org/entity/Q77)) (**ValueSnak** (**Property** [capital](http://www.wikidata.org/entity/P36)) (**Item** [Montevideo](http://www.wikidata.org/entity/Q1335))))<br/>
+> (**Statement** (**Item** [Brazil](http://www.wikidata.org/entity/Q155)) (**ValueSnak** (**Property** [capital](http://www.wikidata.org/entity/P36)) (**Item** [Brasília](http://www.wikidata.org/entity/Q2844))))<br/>
+> ⋮
 
 ### More complex filters
 

@@ -168,7 +168,6 @@ class Lexeme(
         If `force` is given, forces resolution.
 
         Parameters:
-           language: Language.
            resolve: Whether to resolve descriptor.
            resolver: Resolver store.
            force: Whether to force resolution.
@@ -198,7 +197,6 @@ class Lexeme(
         If `force` is given, forces resolution.
 
         Parameters:
-           language: Language.
            resolve: Whether to resolve descriptor.
            resolver: Resolver store.
            force: Whether to force resolution.
@@ -229,7 +227,6 @@ class Lexeme(
         If `force` is given, forces resolution.
 
         Parameters:
-           language: Language.
            resolve: Whether to resolve descriptor.
            resolver: Resolver store.
            force: Whether to force resolution.

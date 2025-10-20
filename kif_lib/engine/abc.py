@@ -818,7 +818,6 @@ class Engine(Generic[TOptions]):
         Initializes :class:`Engine`.
 
         Parameters:
-           plugin_name: Name of the engine plugin to instantiate.
            args: Arguments.
            debug: Whether to enable debugging mode.
            context: Context.

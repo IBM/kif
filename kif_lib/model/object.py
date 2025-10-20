@@ -470,7 +470,7 @@ class Object(Generic[Unpack[Ts]], metaclass=ObjectMeta):
             cls,
             stream: IO[Any],
             format: str | None = None,
-            **kwargs
+            **kwargs: Any
     ) -> Self:
         """Decodes `stream` and returns the resulting object.
 
@@ -489,7 +489,7 @@ class Object(Generic[Unpack[Ts]], metaclass=ObjectMeta):
             cls,
             input: str,
             format: str | None = None,
-            **kwargs
+            **kwargs: Any
     ) -> Self:
         """Decodes string and returns the resulting object.
 

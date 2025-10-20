@@ -1205,7 +1205,7 @@ class Store(Engine[TOptions]):
         If `extra_references` is ``None``, resets it to the default.
 
         Parameters:
-           references: Reference record set.
+           extra_references: Reference record set.
         """
         self._set_option_with_hooks(
             extra_references,

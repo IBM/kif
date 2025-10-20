@@ -37,7 +37,7 @@ class Variable(OpenTerm):
 
     Parameters:
        name: Name or ``None`` (fresh name).
-       variable_class: Variable class.
+       term_class: Term class.
     """
 
     def __new__(
@@ -91,7 +91,7 @@ class Variable(OpenTerm):
     def __init__(
             self,
             name: str | None = None,
-            object_class: type[Term] | None = None
+            term_class: type[Term] | None = None
     ) -> None:
         super().__init__(name)
 

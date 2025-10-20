@@ -4,6 +4,8 @@ site_url: https://ibm.github.io/kif/
 
 theme:
     name: 'material'
+    features:
+      - content.code.annotate
     font:
       text: IBM Plex
       code: IBM Plex Mono
@@ -32,13 +34,24 @@ nav:
     - Data Model: 'guides/data_model.md'
     - RDF: 'guides/rdf.md'
   - API Reference:
+    - Context: 'api/context.md'
+    - Engine:
+      - Engine: 'api/engine.md'
+      - Search:
+        - Search: 'api/search/abc.md'
+      - Store:
+        - Store: 'api/store/abc.md'
+        - Mixer Store: 'api/store/mixer.md'
+        - SPARQL Store: 'api/store/sparql.md'
     - Model:
+      - KIF Object: 'api/model/kif_object.md'
+      - Term: 'api/model/term.md'
+      - Value: 'api/model/value.md'
+      - Snak: 'api/model/snak.md'
       - Statement: 'api/model/statement.md'
       - Statement Annotations: 'api/model/statement_annotations.md'
-    - Store:
-      - Store: 'api/store/abc.md'
-      - Mixer Store: 'api/store/mixer.md'
-      - SPARQL Store: 'api/store/sparql.md'
+      - Graph: 'api/model/graph.md'
+      - Filter: 'api/model/filter.md'
     - Vocabulary:
       - DBpedia: 'api/vocabulary/db.md'
       - European Data Portal: 'api/vocabulary/eu.md'
@@ -56,9 +69,6 @@ extra_css:
 
 markdown_extensions:
   - admonition
-  - codehilite:
-      css_class: highlight
-  - md_in_html
   - pymdownx.details
   - pymdownx.superfences
 
