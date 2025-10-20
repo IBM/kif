@@ -41,17 +41,17 @@ Statement(Item(IRI('http://www.wikidata.org/entity/Q155')), ValueSnak(Property(I
 
     From now on, we'll use the pretty-printed ([S-expression](https://en.wikipedia.org/wiki/S-expression)) format to display statements.
 
-The **statement** is the basic unit of information in KIF.  It stands for an assertion and consists of two parts: a subject and a snak.  The **subject** is the entity about which the assertion is made, while the **snak** (or predication) is what is asserted about the subject.  The snak associates a property with a specific value, some value, or no value.
+A KIF **statement** represents an assertion and consists of two parts: a subject and a snak.  The **subject** is the entity about which the assertion is made, while the **snak** (or predication) is what is asserted about the subject.  The snak associates a property with a specific value, some value, or no value.
 
 Consider the first statement obtained from the store `kb` above:
 
 > (**Statement** (**Item** [Brazil](http://www.wikidata.org/entity/Q155)) (**ValueSnak** (**Property** [shares border with](http://www.wikidata.org/entity/P47)) (**Item** [Argentina](http://www.wikidata.org/entity/Q414))))
 
-This statement stands for the assertion "Brazil shares border with Argentina".  Its subject is the item [Brazil (Q155)](http://www.wikidata.org/entity/Q155) and its snak is a value snak which associates the property [shares border with (P47)](http://www.wikidata.org/entity/P47) with the value [Argentina (Q414)](http://www.wikidata.org/entity/Q414).
+This statement stands for the assertion "Brazil shares border with Argentina".  Its subject is the item [Brazil (Q155)](http://www.wikidata.org/entity/Q155) and its snak is a value snak which associates property [shares border with (P47)](http://www.wikidata.org/entity/P47) with value [Argentina (Q414)](http://www.wikidata.org/entity/Q414).
 
 ## Data model
 
-KIF data-model objects, such as statements and their components, are immutable and are built using the data-model object constructors (see the [data model guide](guides/data_model.md)).  For instance, we can construct the statement "Brazil shares border with Argentina" as follows:
+KIF data-model objects, such as statements and their components, are built using the data-model object constructors (see the [data model guide](guides/data_model.md)).  For instance, we can construct the statement "Brazil shares border with Argentina" as follows:
 
 ```pycon
 >>> from kif_lib import Item, Property, Statement, ValueSnak
@@ -75,11 +75,11 @@ Alternatively, we can apply the property object `shares_border_with` as if it we
 
 !!! note
 
-    Data-model object identity is completely determined by the objects' contents.  That is, two data-model objects constructed from the same arguments are equal.  Thus, `(stmt == stmt_alt) == True` above.
+    KIF data-model objects are immutable: once constructed, they cannot be changed.  Also, data-model object identity is completely determined by the objects' contents: two data-model objects constructed from the same arguments are equal.  Thus, `(stmt == stmt_alt) == True` above.
 
 ### Vocabulary
 
-KIF comes with built-in vocabulary modules that ease the construction of entities in a given namespace.  For instance, instead of writing their full IRIs, we can use the convenience functions [wd.Q][kif_lib.vocabulary.wd.Q] and [wd.P][kif_lib.vocabulary.wd] available in the Wikidata vocabulary module [wd][kif_lib.vocabulary.wd] to construct the items [Brazil (Q155)](http://www.wikidata.org/entity/) and [Argentina (Q414)](http://www.wikidata.org/entity/Q414) and the property [shares border with (P47)](http://www.wikidata.org/entity/P47) more succinctly as follows:
+KIF comes with built-in vocabulary modules that ease the construction of entities in certain namespaces.  For instance, instead of writing their full IRIs, we can use the convenience functions [wd.Q][kif_lib.vocabulary.wd.Q] and [wd.P][kif_lib.vocabulary.wd] from the Wikidata vocabulary module [wd][kif_lib.vocabulary.wd] to construct the items [Brazil (Q155)](http://www.wikidata.org/entity/) and [Argentina (Q414)](http://www.wikidata.org/entity/Q414) and the property [shares border with (P47)](http://www.wikidata.org/entity/P47) more succinctly as follows:
 
 ```pycon
 >>> from kif_lib.vocabulary import wd
@@ -111,7 +111,7 @@ As before, we can apply `shares_border_with` to `Brazil` and `Argentina` to obta
 
 > (**Statement** (**Item** [Brazil](http://www.wikidata.org/entity/Q155)) (**ValueSnak** (**Property** [shares border with](http://www.wikidata.org/entity/P47)) (**Item** [Argentina](http://www.wikidata.org/entity/Q414))))
 
-The [wd][kif_lib.vocabulary.wd] vocabulary module defines symbolic aliases for some popular entities.  For instance, instead of writing `wd.Q(155)` and `wd.Q(414)` for Brazil and Argentina, we can write `wd.Brazil` and `wd.Argentina`.  Similarly, instead of writing `wd.P(47)` for "shares border with", we can write `wd.shares_border_with`.  Almost all Wikidata properties have symbolic aliases defined in [wd][kif_lib.vocabulary.wd].
+The [wd][kif_lib.vocabulary.wd] vocabulary module also defines symbolic aliases for popular entities.  For instance, instead of writing `wd.Q(155)` and `wd.Q(414)` for Brazil and Argentina, we can write `wd.Brazil` and `wd.Argentina`.  Similarly, instead of writing `wd.P(47)` for "shares border with", we can write `wd.shares_border_with`.  Most Wikidata properties have symbolic aliases defined in [wd][kif_lib.vocabulary.wd].
 
 !!! note
 
@@ -119,9 +119,9 @@ The [wd][kif_lib.vocabulary.wd] vocabulary module defines symbolic aliases for s
 
 ## Store
 
-Let's now turn to the [Store][kif_lib.Store] API.
+We now turn to the [Store][kif_lib.Store] API.
 
-As we said before, a KIF store is an interface to a knowledge source (typically but not necessarily a knowledge graph).  The [Store][kif_lib.Store] constructor is used to create a store.  It takes as first argument the name of the store plugin to instantiate.  The remaining arguments are passed to the store plugin unmodified.  For instance:
+As we said, a KIF store is an interface to a knowledge source (typically but not necessarily a knowledge graph).  The [Store][kif_lib.Store] constructor is used to create a store.  It takes as first argument the name of the store plugin to instantiate.  The remaining arguments are passed to the store plugin unmodified.  For instance:
 
 ```pycon
 >>> kb = Store('wikidata')
