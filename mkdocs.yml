@@ -45,11 +45,40 @@ nav:
         - SPARQL Store: 'api/store/sparql.md'
     - Model:
       - KIF Object: 'api/model/kif_object.md'
-      - Term: 'api/model/term.md'
-      - Value: 'api/model/value.md'
-      - Snak: 'api/model/snak.md'
-      - Statement: 'api/model/statement.md'
-      - Statement Annotations: 'api/model/statement_annotations.md'
+      - Term:
+        - Term: 'api/model/term/term.md'
+        - Closed Term: 'api/model/term/closed_term.md'
+        - Open Term:
+          - Open Term: 'api/model/term/open_term/open_term.md'
+          - Template: 'api/model/term/open_term/template.md'
+          - Variable: 'api/model/term/open_term/variable.md'
+      - Value:
+        - Value: 'api/model/value/value.md'
+        - Entity:
+          - Entity: 'api/model/value/entity/entity.md'
+          - Item: 'api/model/value/entity/item.md'
+          - Property: 'api/model/value/entity/property.md'
+          - Lexeme: 'api/model/value/entity/lexeme.md'
+        - Data Value:
+          - Data Value: 'api/model/value/data_value/data_value.md'
+          - IRI: 'api/model/value/data_value/iri.md'
+          - Text: 'api/model/value/data_value/text.md'
+          - String: 'api/model/value/data_value/string.md'
+          - External Id: 'api/model/value/data_value/external_id.md'
+          - Quantity: 'api/model/value/data_value/quantity.md'
+          - Time: 'api/model/value/data_value/time.md'
+      - Snak:
+        - Snak: 'api/model/snak/snak.md'
+        - Value Snak: 'api/model/snak/value_snak.md'
+        - Some Value Snak: 'api/model/snak/some_value_snak.md'
+        - No Value Snak: 'api/model/snak/no_value_snak.md'
+      - Statement:
+        - Statement: 'api/model/statement/statement.md'
+        - Annotated Statement: 'api/model/statement/annotated_statement.md'
+      - Statement Annotations:
+        - Qualifier Record: 'api/model/statement_annotations/qualifier_record.md'
+        - Reference Record: 'api/model/statement_annotations/reference_record.md'
+        - Rank: 'api/model/statement_annotations/rank.md'
       - Graph: 'api/model/graph.md'
       - Filter: 'api/model/filter.md'
     - Vocabulary:
