@@ -26,14 +26,14 @@ class Test(StoreTestCase):
         raise self.TODO()
 
     def test_time(self) -> None:
-        xf, F = self.store_xfilter_assertion(self.KB())
+        f, F = self.store_filter_assertion(self.KB())
         s = wd.Brazil
-        xf(F(s, value=(
+        f(F(s, value=(
             Time('1822-09-07')|Time('4003-01-01')|Time('1500-05-02'))),
-           {wd.inception(
-               s, '1822-09-07', 11, 0, wd.proleptic_Gregorian_calendar),
-            wd.time_of_discovery_or_invention(
-                s, '1500-05-02', 11, 0, wd.proleptic_Gregorian_calendar)})
+           {wd.inception(s, Time(
+               '1822-09-07', 11, 0, wd.proleptic_Gregorian_calendar)),
+            wd.time_of_discovery_or_invention(s, Time(
+                '1500-05-02', 11, 0, wd.proleptic_Julian_calendar))})
 
 
 if __name__ == '__main__':
