@@ -45,6 +45,7 @@ from .model import (
     String,
     Term,
     Text,
+    Time,
     Value,
     ValueSnak,
 )
@@ -322,6 +323,7 @@ class KIF_ParamType(click.ParamType):
             'SUBTYPE': Filter.SUBTYPE,
             'TEXT': Filter.TEXT,
             'Text': Text,
+            'Time': Time,
             'TYPE': Filter.TYPE,
             'up': up,
             'VALUE': Filter.VALUE,

@@ -3,7 +3,8 @@
 
 from __future__ import annotations
 
-from kif_lib import Store
+from kif_lib import Store, Time
+from kif_lib.vocabulary import wd
 
 from ....tests import StoreTestCase
 
@@ -24,23 +25,15 @@ class Test(StoreTestCase):
     def test_lexeme(self) -> None:
         raise self.TODO()
 
-    def test_iri(self) -> None:
-        raise self.TODO()
-
-    def test_text(self) -> None:
-        raise self.TODO()
-
-    def test_string(self) -> None:
-        raise self.TODO()
-
-    def test_external_id(self) -> None:
-        raise self.TODO()
-
-    def test_quantity(self) -> None:
-        raise self.TODO()
-
     def test_time(self) -> None:
-        raise self.TODO()
+        xf, F = self.store_xfilter_assertion(self.KB())
+        s = wd.Brazil
+        xf(F(s, value=(
+            Time('1822-09-07')|Time('4003-01-01')|Time('1500-05-02'))),
+           {wd.inception(
+               s, '1822-09-07', 11, 0, wd.proleptic_Gregorian_calendar),
+            wd.time_of_discovery_or_invention(
+                s, '1500-05-02', 11, 0, wd.proleptic_Gregorian_calendar)})
 
 
 if __name__ == '__main__':

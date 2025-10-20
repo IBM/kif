@@ -23,6 +23,7 @@ Argentina = Q(414, 'Argentina')
 aromatic_compound = Q(19834818, 'aromatic compound')
 aromatic_hydrocarbon = Q(230731, 'aromatic hydrocarbon')
 Asia = Q(48, 'Asia')
+Athens = Q(1524, 'Athens')
 Atlantic_Ocean = Q(97, 'Atlantic Ocean')
 Australia = Q(408, 'Australia')
 autobahn_in_Germany = Q(313301, 'autobahn in Germany')
@@ -309,6 +310,7 @@ __all__ = (
     'aromatic_compound',
     'aromatic_hydrocarbon',
     'Asia',
+    'Athens',
     'Atlantic_Ocean',
     'Australia',
     'autobahn_in_Germany',

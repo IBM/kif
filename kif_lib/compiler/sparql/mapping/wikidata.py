@@ -155,6 +155,8 @@ class WikidataMapping(M):
         def __call__(self, m: M, c: C, arg: Arg) -> Arg:
             assert isinstance(m, WikidataMapping), m
             return m.CheckURI(
+                optional=self.optional,
+                coerce=self.coerce,
                 replace=m._repl_item_uri,
                 match=m._re_item_uri if m.options.strict else None)(
                 m, c, arg)
@@ -165,6 +167,8 @@ class WikidataMapping(M):
         def __call__(self, m: M, c: C, arg: Arg) -> Arg:
             assert isinstance(m, WikidataMapping), m
             return m.CheckURI(
+                optional=self.optional,
+                coerce=self.coerce,
                 replace=m._repl_property_uri,
                 match=m._re_property_uri if m.options.strict else None)(
                 m, c, arg)
@@ -175,6 +179,8 @@ class WikidataMapping(M):
         def __call__(self, m: M, c: C, arg: Arg) -> Arg:
             assert isinstance(m, WikidataMapping), m
             return m.CheckURI(
+                optional=self.optional,
+                coerce=self.coerce,
                 replace=m._repl_lexeme_uri,
                 match=m._re_lexeme_uri if m.options.strict else None)(
                 m, c, arg)
@@ -1506,7 +1512,9 @@ class WikidataMapping(M):
              v, v0@Item, v1, v2))).annotate(As, Rs, r)],
         {s: CheckItem(),
          p: CheckProperty(),
-         v0: CheckItem()},
+         v0: CheckItem(optional=True),
+         v1: M.CheckDecimal(optional=True),
+         v2: M.CheckDecimal(optional=True)},
         defaults={v0: None, v1: None, v2: None})
     def p_item_quantity(
             self,
@@ -1528,7 +1536,9 @@ class WikidataMapping(M):
              v, v0@Item, v1, v2))).annotate(As, Rs, r)],
         {s: CheckLexeme(),
          p: CheckProperty(),
-         v0: CheckItem()},
+         v0: CheckItem(optional=True),
+         v1: M.CheckDecimal(optional=True),
+         v2: M.CheckDecimal(optional=True)},
         defaults={v0: None, v1: None, v2: None},
         priority=M.VERY_LOW_PRIORITY)
     def p_lexeme_quantity(
@@ -1552,7 +1562,9 @@ class WikidataMapping(M):
         {s: CheckProperty(),
          s0: CheckDatatype(),
          p: CheckProperty(),
-         v0: CheckItem()},
+         v0: CheckItem(optional=True),
+         v1: M.CheckDecimal(optional=True),
+         v2: M.CheckDecimal(optional=True)},
         defaults={v0: None, v1: None, v2: None})
     def p_property_quantity(
             self,
@@ -1618,9 +1630,9 @@ class WikidataMapping(M):
              As, Rs, r)],
         {s: CheckItem(),
          p: CheckProperty(),
-         v0: M.CheckInt(),
-         v1: M.CheckInt(),
-         v2: CheckItem()},
+         v0: M.CheckInt(optional=True),
+         v1: M.CheckInt(optional=True),
+         v2: CheckItem(optional=True)},
         defaults={v0: None, v1: None, v2: None})
     def p_item_time(
             self,
@@ -1642,9 +1654,9 @@ class WikidataMapping(M):
              As, Rs, r)],
         {s: CheckLexeme(),
          p: CheckProperty(),
-         v0: M.CheckInt(),
-         v1: M.CheckInt(),
-         v2: CheckItem()},
+         v0: M.CheckInt(optional=True),
+         v1: M.CheckInt(optional=True),
+         v2: CheckItem(optional=True)},
         defaults={v0: None, v1: None, v2: None},
         priority=M.VERY_LOW_PRIORITY)
     def p_lexeme_time(
@@ -1668,9 +1680,9 @@ class WikidataMapping(M):
         {s: CheckProperty(),
          s0: CheckDatatype(),
          p: CheckProperty(),
-         v0: M.CheckInt(),
-         v1: M.CheckInt(),
-         v2: CheckItem()},
+         v0: M.CheckInt(optional=True),
+         v1: M.CheckInt(optional=True),
+         v2: CheckItem(optional=True)},
         defaults={v0: None, v1: None, v2: None})
     def p_property_time(
             self,

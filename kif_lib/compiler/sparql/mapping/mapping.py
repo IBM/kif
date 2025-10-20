@@ -5,6 +5,7 @@ from __future__ import annotations
 
 import copy
 import dataclasses
+import decimal
 import re
 from typing import TYPE_CHECKING
 
@@ -889,6 +890,23 @@ class SPARQL_Mapping(Sequence[_Entry]):
             if self.set_datatype is not None:
                 arg = c.Query.Literal(arg, datatype=self.set_datatype)
             return arg
+
+    class CheckDecimal(CheckLiteral):
+        """Checks decimal argument."""
+
+        @override
+        def __call__(
+                self,
+                m: SPARQL_Mapping,
+                c: Compiler,
+                arg: SPARQL_Mapping.EntryCallbackArg
+        ) -> SPARQL_Mapping.EntryCallbackArg:
+            arg = super().__call__(m, c, arg)
+            assert isinstance(arg, c.Query.Literal)
+            try:
+                return c.Query.Literal(decimal.Decimal(arg))
+            except ValueError:
+                raise m.Skip
 
     class CheckInt(CheckLiteral):
         """Checks int argument."""

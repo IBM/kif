@@ -4,6 +4,7 @@
 from __future__ import annotations
 
 from kif_lib import Store
+from kif_lib.vocabulary import wd
 
 from ....tests import StoreTestCase
 
@@ -24,23 +25,12 @@ class Test(StoreTestCase):
     def test_lexeme(self) -> None:
         raise self.TODO()
 
-    def test_iri(self) -> None:
-        raise self.TODO()
-
-    def test_text(self) -> None:
-        raise self.TODO()
-
-    def test_string(self) -> None:
-        raise self.TODO()
-
-    def test_external_id(self) -> None:
-        raise self.TODO()
-
-    def test_quantity(self) -> None:
-        raise self.TODO()
-
     def test_time(self) -> None:
-        raise self.TODO()
+        xf, F = self.store_xfilter_assertion(self.KB())
+        xf(F(wd.inception('1822-09-07')
+             & wd.instance_of(wd.country_),
+             wd.part_of, wd.Latin_America),
+           {wd.part_of(wd.Brazil, wd.Latin_America)})
 
 
 if __name__ == '__main__':
