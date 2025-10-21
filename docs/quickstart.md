@@ -121,13 +121,13 @@ The [wd][kif_lib.vocabulary.wd] vocabulary module also defines symbolic aliases 
 
 We now turn to the [Store][kif_lib.Store] API.
 
-As we said, a KIF store is an interface to a knowledge source (typically but not necessarily a knowledge graph).  The [Store][kif_lib.Store] constructor is used to create a store.  It takes as first argument the name of the store plugin to instantiate.  The remaining arguments are passed to the store plugin unmodified.  For instance:
+As we said earlier, a KIF store is an interface to a knowledge source, typically but not necessarily a knowledge graph.  A store is created using the [Store][kif_lib.Store] constructor which takes as arguments the name of the store plugin to instantiate followed by zero or more arguments to be passed to plugin.  For instance:
 
 ```pycon
 >>> kb = Store('wikidata')
 ```
 
-This instantiates and assigns to `kb` a new store using the plugin `wikidata`, which creates a [SPARQL store][kif_lib.store.SPARQL_Store] loaded with the Wikidata SPARQL mappings and targeted at the official Wikidata SPARQL endpoint.  ([SPARQL](https://en.wikipedia.org/wiki/SPARQL) is the query language of [RDF](https://en.wikipedia.org/wiki/Resource_Description_Framework), a standard format for knowledge graphs.)
+This instantiates and assigns to `kb` a new store using the plugin `wikidata`, which creates a [SPARQL store][kif_lib.store.SPARQL_Store] loaded with the Wikidata SPARQL mappings and targeted at the official Wikidata SPARQL endpoint.  ([SPARQL](https://en.wikipedia.org/wiki/SPARQL) is the query language of [RDF](https://en.wikipedia.org/wiki/Resource_Description_Framework), a standard format for knowledge graphs—see the [RDF guide](guides/rdf.md).)
 
 Alternatively, we could have specified the target endpoint explicitly, as the second argument to the [Store()][kif_lib.Store] call:
 
@@ -139,7 +139,7 @@ Alternatively, we could have specified the target endpoint explicitly, as the se
 
     The available store plugins can be shown using KIF CLI:
 
-    ```
+    ```shell
     $ kif --show-pluings --store
     ```
 
@@ -198,7 +198,9 @@ StopIteration # *** ERROR: iterator is empty (no such statement)
 
 !!! note
 
-    In example (3) above, `wd.place_of_birth(wd.Athens)` is another way of constructing `ValueSnak(wd.place_of_birth, wd.Athens)`, that is, the [ValueSnak][kif_lib.ValueSnak] object with property [place of birth (P19)](http://www.wikidata.org/entity/P19) and value [Athens (Q1524)](http://www.wikidata.org/entity/Q1524).  In example (5), `733@wd.kilogram` is another way of constructing `Quantity(733, wd.kilogram)`, that is, the [Quantity][kif_lib.Quantity] object with amount 733 and unit [kilogram (Q11570)](http://www.wikidata.org/entity/Q11570).  See the [data model guide](guides/data_model.md) for details.
+    In example (3) above, `wd.place_of_birth(wd.Athens)` is another way of construcing the snak `ValueSnak(wd.place_of_birth, wd.Athens)`, while in example (5), `733@wd.kilogram` is another way of constructing the quantity value `Quantity(733, wd.kilogram)`. (See the [data model guide](guides/data_model.md).)
+
+    In example (7), the filter failed to match any statement in Wikidata, as Brazil does not share a border with Chile.  So, the returned iterator is empty and we get a `StopIteration` exception when we try to advance it.
 
 Alternative subjects, properties, and values can be specified using bitwise "or" operator (`|`):
 
@@ -218,12 +220,12 @@ Alternative subjects, properties, and values can be specified using bitwise "or"
 ...     print(stmt)
 ```
 
-> `(1)` (**Statement** (**Item** [Plato](http://www.wikidata.org/entity/Q859)) (**ValueSnak** (**Property** [notable work](http://www.wikidata.org/entity/P800)) (**Item** [The Republic](http://www.wikidata.org/entity/Q123397))))<br/>
-> `(2)` (**Statement** (**Item** [caffeine](http://www.wikidata.org/entity/Q60235)) (**ValueSnak** (**Property** [mass](http://www.wikidata.org/entity/P2067)) 194.08037556 [dalton](http://www.wikidata.org/entity/Q483261)))<br/>
-> `(3.1)` (**Statement** (**Item** [IBM](http://www.wikidata.org/entity/Q37156)) (**ValueSnak** (**Property** [official website](http://www.wikidata.org/entity/P856)) https://www.ibm.com/))<br/>
-> `(3.2)` (**Statement** (**Item** [IBM](http://www.wikidata.org/entity/Q37156)) (**ValueSnak** (**Property** [inception](http://www.wikidata.org/entity/P571)) 16 June 1911))
+> `(1 )` (**Statement** (**Item** [Plato](http://www.wikidata.org/entity/Q859)) (**ValueSnak** (**Property** [notable work](http://www.wikidata.org/entity/P800)) (**Item** [The Republic](http://www.wikidata.org/entity/Q123397))))<br/>
+> `(2 )` (**Statement** (**Item** [caffeine](http://www.wikidata.org/entity/Q60235)) (**ValueSnak** (**Property** [mass](http://www.wikidata.org/entity/P2067)) 194.08037556 [dalton](http://www.wikidata.org/entity/Q483261)))<br/>
+> `(3a)` (**Statement** (**Item** [IBM](http://www.wikidata.org/entity/Q37156)) (**ValueSnak** (**Property** [official website](http://www.wikidata.org/entity/P856)) https://www.ibm.com/))<br/>
+> `(3b)` (**Statement** (**Item** [IBM](http://www.wikidata.org/entity/Q37156)) (**ValueSnak** (**Property** [inception](http://www.wikidata.org/entity/P571)) 16 June 1911))
 
-The [Or][kif_lib.Or] constructor can be used to build alternatives more conveniently from large lists of values.  For example:
+The [Or][kif_lib.Or] constructor can be used to build value alternatives more conveniently from large collection of values.  For example:
 
 ```pycon
 >>> south_america_countries = [wd.Brazil, wd.Argentina, wd.Uruguay, ...]
@@ -239,14 +241,94 @@ The [Or][kif_lib.Or] constructor can be used to build alternatives more convenie
 
 ### More complex filters
 
-So far, we have used simple values to match the components of statements in filters.  In KIF, we can also specify the desired subject, property, or value indirectly, by giving a constraint that it must satisfy.
+Suppose we want to match statements whose subjects are any items that "share border with Argentina".  If we know the subjects beforehand, we can specify them explicitly using the `|` operator:
 
-!!! example "Example"
+```pycon
+>>> it = kb.filter(subject=wd.Brazil|wd.Uruguay|wd.Chile|...))
+```
 
-    (1) Match any statement such that (i) the subject "shares border with Argentina" and (ii) the property is "official language":
+Sometimes, however, we do not know the subjects beforehand.  In such cases, a more convenient approach is to use as the subject a snak that specifies the desired constraint.  For example:
 
-    ```pycon
-    >>> next(kb.filter(subject=wd.shares_border_with(wd.Argentina), property=wd.official_language))
-    ```
+```pycon
+>>> wd.shares_border_with(wd.Argentina)
+```
 
-    > (**Statement** (**Item** [Brazil](http://www.wikidata.org/entity/Q155)) (**ValueSnak** (**Property** [official language](http://www.wikidata.org/entity/P37)) (**Item** [Portuguese](http://www.wikidata.org/entity/Q5146))))
+> (**ValueSnak** (**Property** [shares border with](http://www.wikidata.org/entity/P47)) (**Item** [Argentina](http://www.wikidata.org/entity/Q414)))
+
+The filter below matches statements such that the subject is any item that "shares border with Argentina", that is, any item `x` such that there is a statement `wd.shares_border_with(x, wd.Argentina)` in the store `kb`.
+
+```pycon
+>>> it = kb.filter(subject=wd.shares_border_with(wd.Argentina))
+```
+
+**Snak constraints** such as `wd.shares_border_with(wd.Argentina)` can be given as subject, property, or value arguments to the [`kb.filter()`][kif_lib.Store.filter] method.  Moreover, they can be combined with other constraints using the bitwise "and" (`&`) and "or" (`|`) operators (or the convenience constructors [And][kif_lib.And] and [Or][kif_lib.Or]).  For example:
+
+```pycon
+>>> # (1) Subject's "anthem is La Marseillaise" and property is "capital":
+>>> next(kb.filter(subject=wd.anthem(wd.La_Marseillaise), property=wd.capital))
+
+>>> # (2) Subject is "water" and property is a "property related to chemistry":
+>>> next(kb.filter(
+...     subject=wd.water,
+...     property=wd.instance_of(wd.Wikidata_property_related_to_chemistry)))
+
+>>> # (3) Property is "place of birth" and value is the "capital of Poland":
+>>> next(kb.filter(property=wd.place_of_birth, value=wd.capital_of(wd.Poland)))
+
+>>> # (4) Subject's "language is Portuguese" & "shares border with Argentina";
+>>> #     Property is "highest point" | "driving side":
+>>> it = kb.filter(
+>>>     subject=(wd.official_language(wd.Portuguese)&
+...              kb.shares_border_with(wd.Argentina)),
+...     property=wd.highest_point|wd.driving_side); print(*it)
+```
+
+> `(1 )` (**Statement** (**Item** [France](http://www.wikidata.org/entity/Q142)) (**ValueSnak** (**Property** [capital](http://www.wikidata.org/entity/P36)) (**Item** [Paris](http://www.wikidata.org/entity/Q90))))<br/>
+> `(2 )` (**Statement** (**Item** [water](http://www.wikidata.org/entity/Q283)) (**ValueSnak** (**Property** [chemical formula](http://www.wikidata.org/entity/P274)) "H₂O"))<br/>
+> `(3 )` (**Statement** (**Item** [Marie Curie](http://www.wikidata.org/entity/Q7186)) (**ValueSnak** (**Property** [place of birth](http://www.wikidata.org/entity/P19)) (**Item** [Warsaw](http://www.wikidata.org/entity/Q270))))
+> `(4a)` (**Statement** (**Item** [Brazil](http://www.wikidata.org/entity/Q155)) (**ValueSnak** (**Property** [highest point](http://www.wikidata.org/entity/P610)) (**Item** [Pico da Neblina](http://www.wikidata.org/entity/Q739484))))<br/>
+> `(4b)` (**Statement** (**Item** [Brazil](http://www.wikidata.org/entity/Q155)) (**ValueSnak** (**Property** [driving side](http://www.wikidata.org/entity/P1622)) (**Item** [right](http://www.wikidata.org/entity/Q14565199))))
+
+Constraints that require traversing paths of length greater than one can be specified using the property **sequencing operator** `/`.  For example, the filter below matches statements such that:
+
+- the subject "has some notable work in a collection which is part of the Louvre"; and
+
+- the property is "handedness".
+
+```pycon
+>>> next(kb.filter(
+...     subject=(wd.notable_work/wd.collection/wd.part_of)(wd.Louvre_Museum),
+...     property=wd.handedness))
+```
+
+> (**Statement** (**Item** [Leonardo da Vinci](http://www.wikidata.org/entity/Q762)) (**ValueSnak** (**Property** [handedness](http://www.wikidata.org/entity/P552)) (**Item** [left-handedness](http://www.wikidata.org/entity/Q789447))))
+
+### Masks and language
+
+The parameters ending in `*_mask` of [`kb.filter()`][kif_lib.Store.filter] specify **masks** that restrict the matched subjects, properties, and values to certain kinds.  The parameter `language` can be used to restrict the **language** of any returned text values. For instance:
+
+```pycon
+>>> # (1) Subject is "Louvre Museum" and value is an IRI:
+>>> next(kb.filter(subject=wd.Wikidata, value_mask=Filter.IRI))
+
+>>> # (2) Subject is a property and value is a property:
+>>> next(kb.filter(subject_mask=Filter.PROPERTY, value_mask=Filter.PROPERTY))
+
+>>> # (3) Subject is "El Capitan" and value is an external id or quantity:
+>>> it = kb.filter(
+...     subject=wd.El_Capitan,
+...     value_mask=Filter.EXTERNAL_ID|Filter.QUANTITY); print(*it)
+
+>>> # (4) Subject is "Mario", property is "catchphrase", value is in Italian:
+>>> next(kb.filter(subject=wd.Mario, property=wd.catchphrase, language='it'))
+```
+
+> `(1 )` (**Statement** (**Item** [Louvre Museum](http://www.wikidata.org/entity/Q19675)) (**ValueSnak** (**Property** [official website](http://www.wikidata.org/entity/P856)) https://www.louvre.fr/))<br/>
+> `(2 )` (**Statement** (**Property** [part of the series](http://www.wikidata.org/entity/P179)) (**ValueSnak** (**Property** [subproperty of](http://www.wikidata.org/entity/P1647)) (**Property** [part of](http://www.wikidata.org/entity/P361))))<br/>
+> `(3a)` (**Statement** (**Item** [El Capitan](http://www.wikidata.org/entity/Q1124852)) (**ValueSnak** (**Property** [GeoNames ID](http://www.wikidata.org/entity/P1566)) "5334090"))<br/>
+> `(3b)` (**Statement** (**Item** [El Capitan](http://www.wikidata.org/entity/Q1124852)) (**ValueSnak** (**Property** [elevation above sea level](http://www.wikidata.org/entity/P2044)) 2307 [metre](http://www.wikidata.org/entity/Q11573)))<br/>
+> `(4 )` (**Statement** (**Item** [Mario](http://www.wikidata.org/entity/Q12379)) (**ValueSnak** (**Property** [catchphrase](http://www.wikidata.org/entity/P6251)) "Mamma mia!"@it))
+
+!!! note
+
+    As illustrated in example (3) above, masks can be operated through the usual bitwise operations.  See [Filter][kif_lib.Filter] for the available mask values.

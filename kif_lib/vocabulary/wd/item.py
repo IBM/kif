@@ -141,19 +141,25 @@ kilobecquerel_per_kilogram = Q(106617579, 'kilobecquerel per kilogram')
 kilogram = Q(11570, 'kilogram')
 kind_of_quantity = Q(110653654, 'kind of quantity')
 kingdom = Q(36732, 'kingdom')
+La_Marseillaise = Q(41180, 'La Marseillaise')
 laboratory_mouse = Q(2842787, 'laboratory mouse')
 laboratory_rat = Q(3089676, 'laboratory rat')
 Latin_America = Q(12585, 'Latin America')
+left_handedness = Q(789447, 'left-handedness')
+Leonardo_da_Vinci = Q(762, 'Leonardo da Vinci')
 less_than_ = Q(52834024, 'less than')
 less_than_or_equal_to = Q(55935272, 'less than or equal to')
 lion = Q(140, 'lion')
 liquid = Q(11435, 'liquid')
 litre_per_kilogram = Q(57175557, 'litre per kilogram')
+Louvre_Museum = Q(19675, 'Louvre Museum')
 machine_learning = Q(2539, 'machine learning')
 male = Q(6581097, 'male')
 male_human = Q(84048850, 'male human')
 mammal = Q(7377, 'mammal')
 man = Q(8441, 'man')
+Marie_Curie = Q(7186, 'Marie Curie')
+Mario = Q(12379, 'Mario')
 masculine = Q(499327, 'masculine')
 mass_ = Q(11423, 'mass')
 mathematics = Q(395, 'mathematics')
@@ -183,6 +189,7 @@ millisievert = Q(2474258, 'millisievert')
 mink = Q(17700, 'mink')
 minute = Q(7727, 'minute')
 mole_per_litre = Q(21064845, 'mole per litre')
+Mona_Lisa = Q(12418, 'Mona Lisa')
 monkey = Q(1367, 'monkey')
 Monte_Pascoal = Q(1499212, 'Monte Pascoal')
 month = Q(5151, 'month')
@@ -213,6 +220,7 @@ Pico_da_Neblina = Q(739484, 'Pico da Neblina')
 picomole = Q(56157048, 'picomole')
 pig = Q(787, 'pig')
 Plato = Q(859, 'Plato')
+Poland = Q(36, 'Poland')
 Portuguese = Q(5146, 'Portuguese')
 primate = Q(7380, 'primate')
 product = Q(2424752, 'product')
@@ -226,6 +234,7 @@ Raul_Seixas = Q(1392583, 'Raul Seixas')
 rectal_administration = Q(419892, 'rectal administration')
 Regulation_EC_No_1272_2008 = Q(2005334, 'Regulation (EC) No. 1272/2008')
 report = Q(10870555, 'report')
+right_handedness = Q(3039938, 'right-handedness')
 Rio_de_Janeiro = Q(8678, 'Rio de Janeiro')
 river = Q(4022, 'river')
 route_of_administration_ = Q(621636, 'route of administration')
@@ -267,6 +276,7 @@ Uruguay = Q(77, 'Uruguay')
 vendor = Q(1762621, 'vendor')
 Venezuela = Q(717, 'Venezuela')
 verb = Q(24905, 'verb')
+Warsaw = Q(270, 'Warsaw')
 water = Q(283, 'water')
 Watson = Q(12253, 'Watson')
 week = Q(23387, 'week')
@@ -431,19 +441,25 @@ __all__ = (
     'kilogram',
     'kind_of_quantity',
     'kingdom',
+    'La_Marseillaise',
     'laboratory_mouse',
     'laboratory_rat',
     'Latin_America',
+    'left_handedness',
+    'Leonardo_da_Vinci',
     'less_than_',
     'less_than_or_equal_to',
     'lion',
     'liquid',
     'litre_per_kilogram',
+    'Louvre_Museum',
     'machine_learning',
     'male',
     'male_human',
     'mammal',
     'man',
+    'Marie_Curie',
+    'Mario',
     'masculine',
     'mass_',
     'mathematics',
@@ -473,6 +489,7 @@ __all__ = (
     'mink',
     'minute',
     'mole_per_litre',
+    'Mona_Lisa',
     'monkey',
     'Monte_Pascoal',
     'month',
@@ -503,6 +520,7 @@ __all__ = (
     'picomole',
     'pig',
     'Plato',
+    'Poland',
     'Portuguese',
     'primate',
     'product',
@@ -516,6 +534,7 @@ __all__ = (
     'rectal_administration',
     'Regulation_EC_No_1272_2008',
     'report',
+    'right_handedness',
     'Rio_de_Janeiro',
     'river',
     'route_of_administration_',
@@ -559,6 +578,7 @@ __all__ = (
     'vendor',
     'Venezuela',
     'verb',
+    'Warsaw',
     'water',
     'Watson',
     'week',

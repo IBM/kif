@@ -18,9 +18,9 @@ The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.0.0/).
 - Added SPARQL mappings for https://data.europa.eu/.  Added `europa` SPARQL
   store.
 
-- Fixed bug in the compilation of disjunctions of time values in Wikidata
-  SPARQL mapping.  This bug was causing time entries to discarded during
-  compilation.
+- Fixed bug in the compilation of disjunctions of text and time values in
+  Wikidata SPARQL mapping.  This bug was causing text and time entries to
+  discarded during compilation.
 
 - Improved the parsing of time values.  Incomplete ISO-format strings (e.g.,
   "2004", "1998-11", etc.) are now supported.  Also, the new call
