@@ -991,7 +991,7 @@ class WikidataMapping(M):
         ###
         # FIXME: We use the `lexeme_language_hack` here to avoid filtering
         # out lemmas with a language different from the one that was passed
-        # expclititly in the filter.  We need to find a better way to do
+        # explicitly in the filter.  We need to find a better way to do
         # this.
         ###
         self._p_text_tail(

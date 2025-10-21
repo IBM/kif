@@ -43,6 +43,7 @@ from ...model import (
     SubtypeProperty,
     Term,
     Text,
+    TextTemplate,
     Theta,
     Time,
     TypeProperty,
@@ -65,11 +66,13 @@ from ...typing import (
     Iterable,
     Iterator,
     Mapping,
+    Optional,
     override,
     Self,
     Sequence,
     TypedDict,
     TypeVar,
+    Union,
 )
 from .builder import Query
 from .compiler import SPARQL_Compiler
@@ -896,7 +899,21 @@ class SPARQL_FilterCompiler(SPARQL_Compiler):
             raise SPARQL_Mapping.Skip
         assert lines
         vars = list(sorted(lines[0].keys()))
-        vals = map(lambda line: tuple(map(lambda k: line[k], vars)), lines)
+        vals = cast(
+            Iterable[Sequence[Optional[Union[Query.URI, Query.Literal]]]],
+            list(map(lambda line: tuple(map(lambda k: line[k], vars)), lines)))
+        if isinstance(value, TextTemplate):
+            ###
+            # IMPORTANT: If value is a text template, we need to combine the
+            # text content and language into a single literal value.
+            ###
+            vars = vars[:1]
+            if isinstance(value.language, Variable):
+                vals = ((self.literal(s, l),)  # type: ignore
+                        for s, l in vals)
+            else:
+                vals = ((self.literal(s, value.language),)  # type: ignore
+                        for (s,) in vals)
         self.q.values(*vars)(*vals)
 
     class Projection(enum.Flag):

@@ -86,6 +86,7 @@ class Symbol:
     BIND: Final[str] = 'BIND'
     BNODE: Final[str] = 'BNODE'
     BOUND: Final[str] = 'BOUND'
+    COALESCE: Final[str] = 'COALESCE'
     COMMENT: Final[str] = '#'
     COUNT: Final[str] = 'COUNT'
     DISTINCT: Final[str] = 'DISTINCT'
@@ -526,6 +527,19 @@ class BOUND(UnaryBuiltInCall):
     See <https://www.w3.org/TR/sparql11-query/#func-bound>.
     """
     operator: str = Symbol.BOUND
+
+
+class COALESCE(BuiltInCall):
+    """The COALESCE built-in.
+
+    See <https://www.w3.org/TR/sparql11-query/#func-coalesce>.
+    """
+
+    operator: str = Symbol.COALESCE
+
+    def __init__(self, arg: TNumExpr, *args: TNumExpr) -> None:
+        self.args = tuple(map(
+            Coerce.numeric_expression, itertools.chain((arg,), args)))
 
 
 class COUNT(Aggregate):
@@ -1617,6 +1631,9 @@ class Query(Encodable):
 
     def call(self, op: T_URI, *args: TNumExpr) -> URI_Call:
         return URI_Call(op, *args)
+
+    def coalesce(self, arg: TNumExpr, *args: TNumExpr) -> COALESCE:
+        return COALESCE(arg, *args)
 
     def count(self, arg1: TNumExpr | None = None) -> COUNT:
         if arg1 is None:
