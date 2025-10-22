@@ -71,6 +71,7 @@ A_Dictionary_of_Cultural_Anthropology_entry_ID = Property(IRI('http://www.wikida
 A_Dictionary_of_Dentistry_entry_ID = Property(IRI('http://www.wikidata.org/entity/P13757'), ExternalIdDatatype()).register(labels=[Text('A Dictionary of Dentistry entry ID', 'en')], range=ExternalIdDatatype())
 A_Dictionary_of_Education_entry_ID = Property(IRI('http://www.wikidata.org/entity/P13431'), ExternalIdDatatype()).register(labels=[Text('A Dictionary of Education entry ID', 'en')], range=ExternalIdDatatype())
 A_Dictionary_of_Environment_and_Conservation_entry_ID = Property(IRI('http://www.wikidata.org/entity/P13760'), ExternalIdDatatype()).register(labels=[Text('A Dictionary of Environment and Conservation entry ID', 'en')], range=ExternalIdDatatype())
+A_Dictionary_of_Food_and_Nutrition_entry_ID = Property(IRI('http://www.wikidata.org/entity/P13846'), ExternalIdDatatype()).register(labels=[Text('A Dictionary of Food and Nutrition entry ID', 'en')], range=ExternalIdDatatype())
 A_Dictionary_of_Gandhari_ID = Property(IRI('http://www.wikidata.org/entity/P12522'), ExternalIdDatatype()).register(labels=[Text('A Dictionary of Gandhari ID', 'en')], range=ExternalIdDatatype())
 A_Dictionary_of_Genetics_entry_ID = Property(IRI('http://www.wikidata.org/entity/P13735'), ExternalIdDatatype()).register(labels=[Text('A Dictionary of Genetics entry ID', 'en')], range=ExternalIdDatatype())
 A_Dictionary_of_Geography_entry_ID = Property(IRI('http://www.wikidata.org/entity/P13276'), ExternalIdDatatype()).register(labels=[Text('A Dictionary of Geography entry ID', 'en')], range=ExternalIdDatatype())
@@ -217,6 +218,7 @@ ADAGP_artist_ID = Property(IRI('http://www.wikidata.org/entity/P3901'), External
 adapted_by = Property(IRI('http://www.wikidata.org/entity/P5202'), ItemDatatype()).register(labels=[Text('adapted by', 'en')], range=ItemDatatype())
 addonsmozillaorg_user = Property(IRI('http://www.wikidata.org/entity/P11530'), ExternalIdDatatype()).register(labels=[Text('addons.mozilla.org user', 'en')], range=ExternalIdDatatype())
 addressee = Property(IRI('http://www.wikidata.org/entity/P1817'), ItemDatatype()).register(labels=[Text('addressee', 'en')], range=ItemDatatype())
+Adebiportal_author_ID = Property(IRI('http://www.wikidata.org/entity/P13875'), ExternalIdDatatype()).register(labels=[Text('Adebiportal author ID', 'en')], range=ExternalIdDatatype())
 Adelphi_author_ID = Property(IRI('http://www.wikidata.org/entity/P5859'), ExternalIdDatatype()).register(labels=[Text('Adelphi author ID', 'en')], range=ExternalIdDatatype())
 Adelsvapen_ID = Property(IRI('http://www.wikidata.org/entity/P7931'), ExternalIdDatatype()).register(labels=[Text('Adelsvapen ID', 'en')], range=ExternalIdDatatype())
 Adelung_lemma_ID = Property(IRI('http://www.wikidata.org/entity/P9384'), ExternalIdDatatype()).register(labels=[Text('Adelung lemma ID', 'en')], range=ExternalIdDatatype())
@@ -701,6 +703,7 @@ Archivio_digitale_Fondo_Edifici_di_Culto_ID = Property(IRI('http://www.wikidata.
 Archivio_storico_artisti_lucchesi_ID = Property(IRI('http://www.wikidata.org/entity/P12128'), ExternalIdDatatype()).register(labels=[Text('Archivio storico artisti lucchesi ID', 'en')], range=ExternalIdDatatype())
 Archivio_Storico_dellUniversità_degli_Studi_di_Cagliari_person_ID = Property(IRI('http://www.wikidata.org/entity/P10226'), ExternalIdDatatype()).register(labels=[Text("Archivio Storico dell'Università degli Studi di Cagliari person ID", 'en')], range=ExternalIdDatatype())
 Archivio_Storico_Ricordi_opera_ID = Property(IRI('http://www.wikidata.org/entity/P8732'), ExternalIdDatatype()).register(labels=[Text('Archivio Storico Ricordi opera ID', 'en')], range=ExternalIdDatatype())
+Archivio_Storico_Ricordi_partiture_ID = Property(IRI('http://www.wikidata.org/entity/P13864'), ExternalIdDatatype()).register(labels=[Text('Archivio Storico Ricordi partiture ID', 'en')], range=ExternalIdDatatype())
 Archivio_Storico_Ricordi_person_ID = Property(IRI('http://www.wikidata.org/entity/P8290'), ExternalIdDatatype()).register(labels=[Text('Archivio Storico Ricordi person ID', 'en')], range=ExternalIdDatatype())
 Archivo_Histórico_de_diputados_de_España_ID = Property(IRI('http://www.wikidata.org/entity/P9033'), ExternalIdDatatype()).register(labels=[Text('Archivo Histórico de diputados de España ID', 'en')], range=ExternalIdDatatype())
 Archivo_Linz_de_la_Transición_Española_ID = Property(IRI('http://www.wikidata.org/entity/P9231'), ExternalIdDatatype()).register(labels=[Text('Archivo Linz de la Transición Española ID', 'en')], range=ExternalIdDatatype())
@@ -905,6 +908,7 @@ audio_transcription = Property(IRI('http://www.wikidata.org/entity/P9533'), Text
 Audiomack_album_ID = Property(IRI('http://www.wikidata.org/entity/P13528'), ExternalIdDatatype()).register(labels=[Text('Audiomack album ID', 'en')], range=ExternalIdDatatype())
 Audiomack_artist_ID = Property(IRI('http://www.wikidata.org/entity/P13527'), ExternalIdDatatype()).register(labels=[Text('Audiomack artist ID', 'en')], range=ExternalIdDatatype())
 Audiomack_song_ID = Property(IRI('http://www.wikidata.org/entity/P13532'), ExternalIdDatatype()).register(labels=[Text('Audiomack song ID', 'en')], range=ExternalIdDatatype())
+Audiovisual_Identity_Database_page = Property(IRI('http://www.wikidata.org/entity/P13879'), ExternalIdDatatype()).register(labels=[Text('Audiovisual Identity Database page', 'en')], range=ExternalIdDatatype())
 Augustins_de_lAssomption_ID = Property(IRI('http://www.wikidata.org/entity/P8233'), ExternalIdDatatype()).register(labels=[Text("Augustins de l'Assomption ID", 'en')], range=ExternalIdDatatype())
 AUR_package = Property(IRI('http://www.wikidata.org/entity/P4162'), ExternalIdDatatype()).register(labels=[Text('AUR package', 'en')], range=ExternalIdDatatype())
 Auschwitz_Prisoners_Database_ID = Property(IRI('http://www.wikidata.org/entity/P9520'), ExternalIdDatatype()).register(labels=[Text('Auschwitz Prisoners Database ID', 'en')], range=ExternalIdDatatype())
@@ -1081,7 +1085,6 @@ ballots_cast = Property(IRI('http://www.wikidata.org/entity/P1868'), QuantityDat
 Balochistan_EMIS_code = Property(IRI('http://www.wikidata.org/entity/P6956'), ExternalIdDatatype()).register(labels=[Text('Balochistan EMIS code', 'en')], range=ExternalIdDatatype())
 Baloncesto_Superior_Nacional_ID_archived = Property(IRI('http://www.wikidata.org/entity/P5725'), ExternalIdDatatype()).register(labels=[Text('Baloncesto Superior Nacional ID (archived)', 'en')], range=ExternalIdDatatype())
 BAMID_film_rating = Property(IRI('http://www.wikidata.org/entity/P9086'), ItemDatatype()).register(labels=[Text('BAMID film rating', 'en')], range=ItemDatatype())
-BAN_ID = Property(IRI('http://www.wikidata.org/entity/P12053'), ExternalIdDatatype()).register(labels=[Text('BAN ID', 'en')], range=ExternalIdDatatype())
 band_number = Property(IRI('http://www.wikidata.org/entity/P2865'), ExternalIdDatatype()).register(labels=[Text('band number', 'en')], range=ExternalIdDatatype())
 Bandcamp_profile_ID = Property(IRI('http://www.wikidata.org/entity/P3283'), ExternalIdDatatype()).register(labels=[Text('Bandcamp profile ID', 'en')], range=ExternalIdDatatype())
 Bandcamp_release_ID = Property(IRI('http://www.wikidata.org/entity/P11354'), ExternalIdDatatype()).register(labels=[Text('Bandcamp release ID', 'en')], range=ExternalIdDatatype())
@@ -1347,8 +1350,8 @@ Bilibili_UID = Property(IRI('http://www.wikidata.org/entity/P6455'), ExternalIdD
 Bilibili_video_ID = Property(IRI('http://www.wikidata.org/entity/P6456'), ExternalIdDatatype()).register(labels=[Text('Bilibili video ID', 'en')], range=ExternalIdDatatype())
 bill_number = Property(IRI('http://www.wikidata.org/entity/P10703'), StringDatatype()).register(labels=[Text('bill number', 'en')], range=StringDatatype())
 Billboard_artist_ID = Property(IRI('http://www.wikidata.org/entity/P4208'), ExternalIdDatatype()).register(labels=[Text('Billboard artist ID', 'en')], range=ExternalIdDatatype())
-Billie_Jean_King_Cup_player_ID_before_2024_archived = Property(IRI('http://www.wikidata.org/entity/P2642'), ExternalIdDatatype()).register(labels=[Text('Billie Jean King Cup player ID before 2024 (archived)', 'en')], range=ExternalIdDatatype())
 Billie_Jean_King_Cup_player_ID_since_2024 = Property(IRI('http://www.wikidata.org/entity/P13539'), ExternalIdDatatype()).register(labels=[Text('Billie Jean King Cup player ID since 2024', 'en')], range=ExternalIdDatatype())
+Billie_Jean_King_Cup_player_ID_until_2024_archived = Property(IRI('http://www.wikidata.org/entity/P2642'), ExternalIdDatatype()).register(labels=[Text('Billie Jean King Cup player ID until 2024 (archived)', 'en')], range=ExternalIdDatatype())
 BillionGraves_cemetery_ID = Property(IRI('http://www.wikidata.org/entity/P4352'), ExternalIdDatatype()).register(labels=[Text('BillionGraves cemetery ID', 'en')], range=ExternalIdDatatype())
 BillionGraves_grave_ID = Property(IRI('http://www.wikidata.org/entity/P10554'), ExternalIdDatatype()).register(labels=[Text('BillionGraves grave ID', 'en')], range=ExternalIdDatatype())
 binding_energy = Property(IRI('http://www.wikidata.org/entity/P2154'), QuantityDatatype()).register(labels=[Text('binding energy', 'en')], range=QuantityDatatype())
@@ -1369,6 +1372,7 @@ Biografiskt_Lexikon_för_Finland_ID = Property(IRI('http://www.wikidata.org/enti
 Biografiskt_Lexikon_för_Finland_ID_urnfi = Property(IRI('http://www.wikidata.org/entity/P10713'), ExternalIdDatatype()).register(labels=[Text('Biografiskt Lexikon för Finland ID (urn.fi)', 'en')], range=ExternalIdDatatype())
 Biographia_Benedictina_ID = Property(IRI('http://www.wikidata.org/entity/P9455'), ExternalIdDatatype()).register(labels=[Text('Biographia Benedictina ID', 'en')], range=ExternalIdDatatype())
 Biographical_Archive_of_Psychiatry_ID = Property(IRI('http://www.wikidata.org/entity/P9048'), ExternalIdDatatype()).register(labels=[Text('Biographical Archive of Psychiatry ID', 'en')], range=ExternalIdDatatype())
+Biographical_Dictionary_of_Almería_identifier = Property(IRI('http://www.wikidata.org/entity/P13851'), ExternalIdDatatype()).register(labels=[Text('Biographical Dictionary of Almería identifier', 'en')], range=ExternalIdDatatype())
 Biographical_Dictionary_of_Architects_in_Canada_1800_1950_ID = Property(IRI('http://www.wikidata.org/entity/P8098'), ExternalIdDatatype()).register(labels=[Text('Biographical Dictionary of Architects in Canada 1800-1950 ID', 'en')], range=ExternalIdDatatype())
 Biographical_Dictionary_of_Chinese_Christianity_ID = Property(IRI('http://www.wikidata.org/entity/P9564'), ExternalIdDatatype()).register(labels=[Text('Biographical Dictionary of Chinese Christianity ID', 'en')], range=ExternalIdDatatype())
 Biographical_Dictionary_of_Emigrants_of_Georgia_ID = Property(IRI('http://www.wikidata.org/entity/P11628'), ExternalIdDatatype()).register(labels=[Text('Biographical Dictionary of Emigrants of Georgia ID', 'en')], range=ExternalIdDatatype())
@@ -1384,6 +1388,7 @@ Biographical_Directory_of_Federal_Judges_numeric_ID = Property(IRI('http://www.w
 Biographical_Encyclopedia_of_Astronomers_ID = Property(IRI('http://www.wikidata.org/entity/P9626'), ExternalIdDatatype()).register(labels=[Text('Biographical Encyclopedia of Astronomers ID', 'en')], range=ExternalIdDatatype())
 Biographical_Memoirs_of_Fellows_of_the_Royal_Society_ID = Property(IRI('http://www.wikidata.org/entity/P10704'), ExternalIdDatatype()).register(labels=[Text('Biographical Memoirs of Fellows of the Royal Society ID', 'en')], range=ExternalIdDatatype())
 Biographie_nationale_de_Belgique_ID = Property(IRI('http://www.wikidata.org/entity/P6234'), ExternalIdDatatype()).register(labels=[Text('Biographie nationale de Belgique ID', 'en')], range=ExternalIdDatatype())
+Biographische_Lexikon_zur_Geschichte_der_böhmischen_Länder_ID = Property(IRI('http://www.wikidata.org/entity/P13876'), ExternalIdDatatype()).register(labels=[Text('Biographische Lexikon zur Geschichte der böhmischen Länder ID', 'en')], range=ExternalIdDatatype())
 Biographisches_Archiv_der_Psychiatrie_ID = Property(IRI('http://www.wikidata.org/entity/P5450'), ExternalIdDatatype()).register(labels=[Text('Biographisches Archiv der Psychiatrie  ID', 'en')], range=ExternalIdDatatype())
 Biographisches_Portal_der_Rabbiner_ID = Property(IRI('http://www.wikidata.org/entity/P10405'), ExternalIdDatatype()).register(labels=[Text('Biographisches Portal der Rabbiner ID', 'en')], range=ExternalIdDatatype())
 biography_at_the_Bundestag_of_Germany_URL = Property(IRI('http://www.wikidata.org/entity/P1713'), IRI_Datatype()).register(labels=[Text('biography at the Bundestag of Germany URL', 'en')], range=IRI_Datatype())
@@ -1671,6 +1676,7 @@ CageMatch_worker_ID = Property(IRI('http://www.wikidata.org/entity/P2728'), Exte
 CageMatch_wrestling_stable_ID = Property(IRI('http://www.wikidata.org/entity/P3042'), ExternalIdDatatype()).register(labels=[Text('CageMatch wrestling stable ID', 'en')], range=ExternalIdDatatype())
 Cairn_author_ID = Property(IRI('http://www.wikidata.org/entity/P4369'), ExternalIdDatatype()).register(labels=[Text('Cairn author ID', 'en')], range=ExternalIdDatatype())
 Cairn_publication_ID = Property(IRI('http://www.wikidata.org/entity/P4700'), ExternalIdDatatype()).register(labels=[Text('Cairn publication ID', 'en')], range=ExternalIdDatatype())
+Caixin_company_ID = Property(IRI('http://www.wikidata.org/entity/P13861'), ExternalIdDatatype()).register(labels=[Text('Caixin company ID', 'en')], range=ExternalIdDatatype())
 Cal_IPC_ID = Property(IRI('http://www.wikidata.org/entity/P6176'), ExternalIdDatatype()).register(labels=[Text('Cal-IPC ID', 'en')], range=ExternalIdDatatype())
 Calaméo_ID = Property(IRI('http://www.wikidata.org/entity/P9038'), ExternalIdDatatype()).register(labels=[Text('Calaméo ID', 'en')], range=ExternalIdDatatype())
 calculated_from = Property(IRI('http://www.wikidata.org/entity/P4934'), ItemDatatype()).register(labels=[Text('calculated from', 'en')], range=ItemDatatype())
@@ -1689,6 +1695,7 @@ calligraphy = Property(IRI('http://www.wikidata.org/entity/P13814'), StringDatat
 callsign_of_airline = Property(IRI('http://www.wikidata.org/entity/P432'), ExternalIdDatatype()).register(labels=[Text('callsign of airline', 'en')], range=ExternalIdDatatype())
 CalPhotos_taxon_ID = Property(IRI('http://www.wikidata.org/entity/P12554'), ExternalIdDatatype()).register(labels=[Text('CalPhotos taxon ID', 'en')], range=ExternalIdDatatype())
 CALS_Encyclopedia_of_Arkansas_ID = Property(IRI('http://www.wikidata.org/entity/P7685'), ExternalIdDatatype()).register(labels=[Text('CALS Encyclopedia of Arkansas ID', 'en')], range=ExternalIdDatatype())
+Cambodian_company_ID = Property(IRI('http://www.wikidata.org/entity/P13859'), ExternalIdDatatype()).register(labels=[Text('Cambodian company ID', 'en')], range=ExternalIdDatatype())
 Cambridge_Alumni_Database_ID = Property(IRI('http://www.wikidata.org/entity/P1599'), ExternalIdDatatype()).register(labels=[Text('Cambridge Alumni Database ID', 'en')], range=ExternalIdDatatype())
 Cambridge_Dictionary_entry_American_English = Property(IRI('http://www.wikidata.org/entity/P11423'), ExternalIdDatatype()).register(labels=[Text('Cambridge Dictionary entry (American English)', 'en')], range=ExternalIdDatatype())
 Cambridge_Dictionary_entry_British_English = Property(IRI('http://www.wikidata.org/entity/P11422'), ExternalIdDatatype()).register(labels=[Text('Cambridge Dictionary entry (British English)', 'en')], range=ExternalIdDatatype())
@@ -2457,6 +2464,7 @@ Corporate_Identification_Number_CIN_in_India = Property(IRI('http://www.wikidata
 Corporate_Number_Japan = Property(IRI('http://www.wikidata.org/entity/P3225'), ExternalIdDatatype()).register(labels=[Text('Corporate Number (Japan)', 'en')], range=ExternalIdDatatype())
 Corporate_Number_South_Korea = Property(IRI('http://www.wikidata.org/entity/P6859'), ExternalIdDatatype()).register(labels=[Text('Corporate Number (South Korea)', 'en')], range=ExternalIdDatatype())
 corporate_officer = Property(IRI('http://www.wikidata.org/entity/P2828'), ItemDatatype()).register(labels=[Text('corporate officer', 'en')], range=ItemDatatype())
+Corporation_Number_in_Canada = Property(IRI('http://www.wikidata.org/entity/P13850'), ExternalIdDatatype()).register(labels=[Text('Corporation Number in Canada', 'en')], range=ExternalIdDatatype())
 Corpus_Corporum_author_ID = Property(IRI('http://www.wikidata.org/entity/P7935'), ExternalIdDatatype()).register(labels=[Text('Corpus Corporum author ID', 'en')], range=ExternalIdDatatype())
 Corpus_typographique_français_ID = Property(IRI('http://www.wikidata.org/entity/P6165'), ExternalIdDatatype()).register(labels=[Text('Corpus typographique français ID', 'en')], range=ExternalIdDatatype())
 corresponding_HTML_autocomplete_attribute = Property(IRI('http://www.wikidata.org/entity/P7964'), StringDatatype()).register(labels=[Text('corresponding HTML autocomplete attribute', 'en')], range=StringDatatype())
@@ -2733,6 +2741,7 @@ Danskefilm_person_ID = Property(IRI('http://www.wikidata.org/entity/P3786'), Ext
 danskefilm_silent_film_ID = Property(IRI('http://www.wikidata.org/entity/P3787'), ExternalIdDatatype()).register(labels=[Text('danskefilm silent film ID', 'en')], range=ExternalIdDatatype())
 danskefilm_TV_Christmas_calendar = Property(IRI('http://www.wikidata.org/entity/P4111'), ExternalIdDatatype()).register(labels=[Text('danskefilm TV Christmas calendar', 'en')], range=ExternalIdDatatype())
 danskefilm_TV_series_ID = Property(IRI('http://www.wikidata.org/entity/P4022'), ExternalIdDatatype()).register(labels=[Text('danskefilm TV series ID', 'en')], range=ExternalIdDatatype())
+Danskefilmstemmerdk_character_ID = Property(IRI('http://www.wikidata.org/entity/P13878'), ExternalIdDatatype()).register(labels=[Text('Danskefilmstemmer.dk character ID', 'en')], range=ExternalIdDatatype())
 Danskefilmstemmerdk_person_ID = Property(IRI('http://www.wikidata.org/entity/P6777'), ExternalIdDatatype()).register(labels=[Text('Danskefilmstemmer.dk person ID', 'en')], range=ExternalIdDatatype())
 Danskefilmstemmerdk_work_or_dubbing_ID = Property(IRI('http://www.wikidata.org/entity/P13506'), ExternalIdDatatype()).register(labels=[Text('Danskefilmstemmer.dk work or dubbing ID', 'en')], range=ExternalIdDatatype())
 danskfilmogtv_person_ID = Property(IRI('http://www.wikidata.org/entity/P4112'), ExternalIdDatatype()).register(labels=[Text('danskfilmogtv person ID', 'en')], range=ExternalIdDatatype())
@@ -2804,7 +2813,7 @@ Daum_Encyclopedia_ID = Property(IRI('http://www.wikidata.org/entity/P5184'), Ext
 Daum_movie_ID = Property(IRI('http://www.wikidata.org/entity/P4277'), ExternalIdDatatype()).register(labels=[Text('Daum movie ID', 'en')], range=ExternalIdDatatype())
 Daum_TV_series_ID = Property(IRI('http://www.wikidata.org/entity/P4270'), ExternalIdDatatype()).register(labels=[Text('Daum TV series ID', 'en')], range=ExternalIdDatatype())
 DAV_hut_ID = Property(IRI('http://www.wikidata.org/entity/P5757'), ExternalIdDatatype()).register(labels=[Text('DAV hut ID', 'en')], range=ExternalIdDatatype())
-Davis_Cup_player_ID = Property(IRI('http://www.wikidata.org/entity/P2641'), ExternalIdDatatype()).register(labels=[Text('Davis Cup player ID', 'en')], range=ExternalIdDatatype())
+Davis_Cup_player_ID_archived = Property(IRI('http://www.wikidata.org/entity/P2641'), ExternalIdDatatype()).register(labels=[Text('Davis Cup player ID (archived)', 'en')], range=ExternalIdDatatype())
 day_in_year_for_periodic_occurrence = Property(IRI('http://www.wikidata.org/entity/P837'), ItemDatatype()).register(labels=[Text('day in year for periodic occurrence', 'en')], range=ItemDatatype())
 day_of_regular_release = Property(IRI('http://www.wikidata.org/entity/P6437'), ItemDatatype()).register(labels=[Text('day of regular release', 'en')], range=ItemDatatype())
 day_of_week = Property(IRI('http://www.wikidata.org/entity/P2894'), ItemDatatype()).register(labels=[Text('day of week', 'en')], range=ItemDatatype())
@@ -2905,6 +2914,7 @@ denkXweb_object_ID = Property(IRI('http://www.wikidata.org/entity/P1769'), Exter
 denomination = Property(IRI('http://www.wikidata.org/entity/P12949'), ItemDatatype()).register(labels=[Text('denomination', 'en')], range=ItemDatatype())
 Densho_Encyclopedia_ID = Property(IRI('http://www.wikidata.org/entity/P9938'), ExternalIdDatatype()).register(labels=[Text('Densho Encyclopedia ID', 'en')], range=ExternalIdDatatype())
 density = Property(IRI('http://www.wikidata.org/entity/P2054'), QuantityDatatype()).register(labels=[Text('density', 'en')], range=QuantityDatatype())
+Deník_tag_ID = Property(IRI('http://www.wikidata.org/entity/P13873'), ExternalIdDatatype()).register(labels=[Text('Deník tag ID', 'en')], range=ExternalIdDatatype())
 Department_of_Defense_Identification_Code = Property(IRI('http://www.wikidata.org/entity/P13122'), ExternalIdDatatype()).register(labels=[Text('Department of Defense Identification Code', 'en')], range=ExternalIdDatatype())
 Department_of_Education_and_Skills_roll_number = Property(IRI('http://www.wikidata.org/entity/P4331'), ExternalIdDatatype()).register(labels=[Text('Department of Education and Skills roll number', 'en')], range=ExternalIdDatatype())
 departure_angle = Property(IRI('http://www.wikidata.org/entity/P6708'), QuantityDatatype()).register(labels=[Text('departure angle', 'en')], range=QuantityDatatype())
@@ -3739,6 +3749,7 @@ English_Irish_Dictionary_ID = Property(IRI('http://www.wikidata.org/entity/P1283
 English_Italian_Dictionary_ID = Property(IRI('http://www.wikidata.org/entity/P12892'), ExternalIdDatatype()).register(labels=[Text('English-Italian Dictionary ID', 'en')], range=ExternalIdDatatype())
 English_Placenames_MADS_ID = Property(IRI('http://www.wikidata.org/entity/P9200'), ExternalIdDatatype()).register(labels=[Text('English Placenames MADS ID', 'en')], range=ExternalIdDatatype())
 English_Short_Title_Catalogue_ID = Property(IRI('http://www.wikidata.org/entity/P3939'), ExternalIdDatatype()).register(labels=[Text('English Short Title Catalogue ID', 'en')], range=ExternalIdDatatype())
+English_solicitors_ID = Property(IRI('http://www.wikidata.org/entity/P13860'), ExternalIdDatatype()).register(labels=[Text('English solicitors ID', 'en')], range=ExternalIdDatatype())
 English_Spanish_Dictionary_ID = Property(IRI('http://www.wikidata.org/entity/P12799'), ExternalIdDatatype()).register(labels=[Text('English-Spanish Dictionary ID', 'en')], range=ExternalIdDatatype())
 ENI_number = Property(IRI('http://www.wikidata.org/entity/P5910'), ExternalIdDatatype()).register(labels=[Text('ENI number', 'en')], range=ExternalIdDatatype())
 Ensembl_gene_ID = Property(IRI('http://www.wikidata.org/entity/P594'), ExternalIdDatatype()).register(labels=[Text('Ensembl gene ID', 'en')], range=ExternalIdDatatype())
@@ -4031,6 +4042,7 @@ FanGraphs_player_ID = Property(IRI('http://www.wikidata.org/entity/P3574'), Exte
 Fanlore_article_ID = Property(IRI('http://www.wikidata.org/entity/P13687'), ExternalIdDatatype()).register(labels=[Text('Fanlore article ID', 'en')], range=ExternalIdDatatype())
 fanqie = Property(IRI('http://www.wikidata.org/entity/P5523'), ItemDatatype()).register(labels=[Text('fanqie', 'en')], range=ItemDatatype())
 Fansly_ID = Property(IRI('http://www.wikidata.org/entity/P12039'), ExternalIdDatatype()).register(labels=[Text('Fansly ID', 'en')], range=ExternalIdDatatype())
+Fantacalcio_ID = Property(IRI('http://www.wikidata.org/entity/P13865'), ExternalIdDatatype()).register(labels=[Text('Fantacalcio ID', 'en')], range=ExternalIdDatatype())
 Fantastic_Fiction_author_ID = Property(IRI('http://www.wikidata.org/entity/P5408'), ExternalIdDatatype()).register(labels=[Text('Fantastic Fiction author ID', 'en')], range=ExternalIdDatatype())
 FantLab_artist_ID = Property(IRI('http://www.wikidata.org/entity/P13018'), ExternalIdDatatype()).register(labels=[Text('FantLab artist ID', 'en')], range=ExternalIdDatatype())
 FantLab_author_ID = Property(IRI('http://www.wikidata.org/entity/P7433'), ExternalIdDatatype()).register(labels=[Text('FantLab author ID', 'en')], range=ExternalIdDatatype())
@@ -4885,6 +4897,7 @@ Google_Scholar_case_ID = Property(IRI('http://www.wikidata.org/entity/P8008'), E
 Google_Scholar_organization_ID = Property(IRI('http://www.wikidata.org/entity/P11961'), ExternalIdDatatype()).register(labels=[Text('Google Scholar organization ID', 'en')], range=ExternalIdDatatype())
 Google_Scholar_paper_ID = Property(IRI('http://www.wikidata.org/entity/P4028'), ExternalIdDatatype()).register(labels=[Text('Google Scholar paper ID', 'en')], range=ExternalIdDatatype())
 Goratings_ID = Property(IRI('http://www.wikidata.org/entity/P2805'), ExternalIdDatatype()).register(labels=[Text('Goratings ID', 'en')], range=ExternalIdDatatype())
+gosfilmofondru_ID = Property(IRI('http://www.wikidata.org/entity/P13858'), ExternalIdDatatype()).register(labels=[Text('gosfilmofond.ru ID', 'en')], range=ExternalIdDatatype())
 GOST_7_67_cyrillic = Property(IRI('http://www.wikidata.org/entity/P2988'), ExternalIdDatatype()).register(labels=[Text('GOST 7.67 cyrillic', 'en')], range=ExternalIdDatatype())
 GOST_7_75_97_code = Property(IRI('http://www.wikidata.org/entity/P278'), ExternalIdDatatype()).register(labels=[Text('GOST 7.75–97 code', 'en')], range=ExternalIdDatatype())
 Gotlands_museum_entity_ID = Property(IRI('http://www.wikidata.org/entity/P7068'), ExternalIdDatatype()).register(labels=[Text('Gotlands museum entity ID', 'en')], range=ExternalIdDatatype())
@@ -4897,6 +4910,7 @@ GovTrack_person_ID = Property(IRI('http://www.wikidata.org/entity/P12644'), Exte
 govuk_person_ID = Property(IRI('http://www.wikidata.org/entity/P10874'), ExternalIdDatatype()).register(labels=[Text('gov.uk person ID', 'en')], range=ExternalIdDatatype())
 GPnotebook_ID = Property(IRI('http://www.wikidata.org/entity/P3720'), ExternalIdDatatype()).register(labels=[Text('GPnotebook ID', 'en')], range=ExternalIdDatatype())
 GPU = Property(IRI('http://www.wikidata.org/entity/P2560'), ItemDatatype()).register(labels=[Text('GPU', 'en')], range=ItemDatatype())
+GPUZoo_ID = Property(IRI('http://www.wikidata.org/entity/P13848'), ExternalIdDatatype()).register(labels=[Text('GPUZoo ID', 'en')], range=ExternalIdDatatype())
 GrabFood_restaurant_ID = Property(IRI('http://www.wikidata.org/entity/P10471'), ExternalIdDatatype()).register(labels=[Text('GrabFood restaurant ID', 'en')], range=ExternalIdDatatype())
 GRAC_rating = Property(IRI('http://www.wikidata.org/entity/P9866'), ItemDatatype()).register(labels=[Text('GRAC rating', 'en')], range=ItemDatatype())
 grace_period = Property(IRI('http://www.wikidata.org/entity/P4445'), QuantityDatatype()).register(labels=[Text('grace period', 'en')], range=QuantityDatatype())
@@ -5787,6 +5801,7 @@ intended_subject_of_deprecated_statement = Property(IRI('http://www.wikidata.org
 interaction = Property(IRI('http://www.wikidata.org/entity/P517'), ItemDatatype()).register(labels=[Text('interaction', 'en')], range=ItemDatatype())
 interactive_elements = Property(IRI('http://www.wikidata.org/entity/P8428'), ItemDatatype()).register(labels=[Text('interactive elements', 'en')], range=ItemDatatype())
 Interactive_Fiction_Database_ID = Property(IRI('http://www.wikidata.org/entity/P6748'), ExternalIdDatatype()).register(labels=[Text('Interactive Fiction Database ID', 'en')], range=ExternalIdDatatype())
+Interaktionsdatabasen_ID = Property(IRI('http://www.wikidata.org/entity/P13874'), ExternalIdDatatype()).register(labels=[Text('Interaktionsdatabasen ID', 'en')], range=ExternalIdDatatype())
 Interbibly_author_ID = Property(IRI('http://www.wikidata.org/entity/P5557'), ExternalIdDatatype()).register(labels=[Text('Interbibly author ID', 'en')], range=ExternalIdDatatype())
 interchange_station = Property(IRI('http://www.wikidata.org/entity/P833'), ItemDatatype()).register(labels=[Text('interchange station', 'en')], range=ItemDatatype())
 Intercontinental_Dictionary_Series_unit_ID = Property(IRI('http://www.wikidata.org/entity/P11512'), ExternalIdDatatype()).register(labels=[Text('Intercontinental Dictionary Series unit ID', 'en')], range=ExternalIdDatatype())
@@ -5981,7 +5996,6 @@ Irkipedia_ID = Property(IRI('http://www.wikidata.org/entity/P10154'), ExternalId
 IRMNG_ID = Property(IRI('http://www.wikidata.org/entity/P5055'), ExternalIdDatatype()).register(labels=[Text('IRMNG ID', 'en')], range=ExternalIdDatatype())
 IRS_Employer_Identification_Number = Property(IRI('http://www.wikidata.org/entity/P1297'), ExternalIdDatatype()).register(labels=[Text('IRS Employer Identification Number', 'en')], range=ExternalIdDatatype())
 is_a_list_of = Property(IRI('http://www.wikidata.org/entity/P360'), ItemDatatype()).register(labels=[Text('is a list of', 'en')], range=ItemDatatype(), inverse=Property(IRI('http://www.wikidata.org/entity/P2354'), ItemDatatype()))
-is_member_of = Property(IRI('http://www.wikidata.org/entity/P463'), ItemDatatype()).register(labels=[Text('is member of', 'en')], range=ItemDatatype())
 is_metaclass_for = Property(IRI('http://www.wikidata.org/entity/P8225'), ItemDatatype()).register(labels=[Text('is metaclass for', 'en')], range=ItemDatatype())
 is_pollinated_by = Property(IRI('http://www.wikidata.org/entity/P1703'), ItemDatatype()).register(labels=[Text('is pollinated by', 'en')], range=ItemDatatype(), inverse=Property(IRI('http://www.wikidata.org/entity/P1704'), ItemDatatype()))
 is_pollinator_of = Property(IRI('http://www.wikidata.org/entity/P1704'), ItemDatatype()).register(labels=[Text('is pollinator of', 'en')], range=ItemDatatype(), inverse=Property(IRI('http://www.wikidata.org/entity/P1703'), ItemDatatype()))
@@ -6018,6 +6032,7 @@ Islamic_Art_and_Architecture_ID = Property(IRI('http://www.wikidata.org/entity/P
 Islamic_Philosophy_ID = Property(IRI('http://www.wikidata.org/entity/P13254'), ExternalIdDatatype()).register(labels=[Text('Islamic Philosophy ID', 'en')], range=ExternalIdDatatype())
 islamway_authority_ID = Property(IRI('http://www.wikidata.org/entity/P12887'), ExternalIdDatatype()).register(labels=[Text('islamway authority ID', 'en')], range=ExternalIdDatatype())
 island_code_of_Indonesia = Property(IRI('http://www.wikidata.org/entity/P11163'), ExternalIdDatatype()).register(labels=[Text('island code of Indonesia', 'en')], range=ExternalIdDatatype())
+ISLRN = Property(IRI('http://www.wikidata.org/entity/P13877'), ExternalIdDatatype()).register(labels=[Text('ISLRN', 'en')], range=ExternalIdDatatype())
 ISMN = Property(IRI('http://www.wikidata.org/entity/P1208'), ExternalIdDatatype()).register(labels=[Text('ISMN', 'en')], range=ExternalIdDatatype())
 ISNI = Property(IRI('http://www.wikidata.org/entity/P213'), ExternalIdDatatype()).register(labels=[Text('ISNI', 'en')], range=ExternalIdDatatype())
 ISO_15919_transliteration = Property(IRI('http://www.wikidata.org/entity/P5825'), StringDatatype()).register(labels=[Text('ISO 15919 transliteration', 'en')], range=StringDatatype())
@@ -6159,6 +6174,7 @@ JAAF_athlete_ID = Property(IRI('http://www.wikidata.org/entity/P5073'), External
 JAANUS_ID = Property(IRI('http://www.wikidata.org/entity/P9080'), ExternalIdDatatype()).register(labels=[Text('JAANUS ID', 'en')], range=ExternalIdDatatype())
 JAD_ID = Property(IRI('http://www.wikidata.org/entity/P8993'), ExternalIdDatatype()).register(labels=[Text('JAD ID', 'en')], range=ExternalIdDatatype())
 JAHIS_Law_Database_ID = Property(IRI('http://www.wikidata.org/entity/P12498'), ExternalIdDatatype()).register(labels=[Text('JAHIS Law Database ID', 'en')], range=ExternalIdDatatype())
+Jamaica_company_ID = Property(IRI('http://www.wikidata.org/entity/P13855'), ExternalIdDatatype()).register(labels=[Text('Jamaica company ID', 'en')], range=ExternalIdDatatype())
 Jamendo_album_ID = Property(IRI('http://www.wikidata.org/entity/P2513'), ExternalIdDatatype()).register(labels=[Text('Jamendo album ID', 'en')], range=ExternalIdDatatype())
 Jamendo_artist_ID = Property(IRI('http://www.wikidata.org/entity/P2514'), ExternalIdDatatype()).register(labels=[Text('Jamendo artist ID', 'en')], range=ExternalIdDatatype())
 Jamendo_track_ID = Property(IRI('http://www.wikidata.org/entity/P13378'), ExternalIdDatatype()).register(labels=[Text('Jamendo track ID', 'en')], range=ExternalIdDatatype())
@@ -6337,6 +6353,7 @@ Keybase_username = Property(IRI('http://www.wikidata.org/entity/P6837'), Externa
 KFCB_classification_Kenya = Property(IRI('http://www.wikidata.org/entity/P10994'), ItemDatatype()).register(labels=[Text('KFCB classification (Kenya)', 'en')], range=ItemDatatype())
 Khyber_Pakhtunkhwa_EMIS_code = Property(IRI('http://www.wikidata.org/entity/P6957'), ExternalIdDatatype()).register(labels=[Text('Khyber Pakhtunkhwa EMIS code', 'en')], range=ExternalIdDatatype())
 Kialo_ID = Property(IRI('http://www.wikidata.org/entity/P12400'), ExternalIdDatatype()).register(labels=[Text('Kialo ID', 'en')], range=ExternalIdDatatype())
+Kick_username = Property(IRI('http://www.wikidata.org/entity/P13863'), ExternalIdDatatype()).register(labels=[Text('Kick username', 'en')], range=ExternalIdDatatype())
 Kicker_team_ID = Property(IRI('http://www.wikidata.org/entity/P12312'), ExternalIdDatatype()).register(labels=[Text('Kicker team ID', 'en')], range=ExternalIdDatatype())
 Kickerde_player_ID = Property(IRI('http://www.wikidata.org/entity/P8912'), ExternalIdDatatype()).register(labels=[Text('Kicker.de player ID', 'en')], range=ExternalIdDatatype())
 Kickstarter_project_ID = Property(IRI('http://www.wikidata.org/entity/P8019'), ExternalIdDatatype()).register(labels=[Text('Kickstarter project ID', 'en')], range=ExternalIdDatatype())
@@ -6672,6 +6689,7 @@ Les_Échos_journalist_ID = Property(IRI('http://www.wikidata.org/entity/P10574')
 LesBiographiescom_ID = Property(IRI('http://www.wikidata.org/entity/P4434'), ExternalIdDatatype()).register(labels=[Text('LesBiographies.com ID', 'en')], range=ExternalIdDatatype())
 less_than = Property(IRI('http://www.wikidata.org/entity/P5136'), ItemDatatype()).register(labels=[Text('less than', 'en')], range=ItemDatatype(), inverse=Property(IRI('http://www.wikidata.org/entity/P5135'), ItemDatatype()))
 Letecká_badatelna_accident_ID = Property(IRI('http://www.wikidata.org/entity/P9433'), ExternalIdDatatype()).register(labels=[Text('Letecká badatelna accident ID', 'en')], range=ExternalIdDatatype())
+Letopis_of_MSU_person_ID = Property(IRI('http://www.wikidata.org/entity/P13853'), ExternalIdDatatype()).register(labels=[Text('Letopis of MSU person ID', 'en')], range=ExternalIdDatatype())
 Letteraturaitaliananet_author_ID = Property(IRI('http://www.wikidata.org/entity/P7331'), ExternalIdDatatype()).register(labels=[Text('Letteraturaitaliana.net author ID', 'en')], range=ExternalIdDatatype())
 Letterboxd_actor_ID = Property(IRI('http://www.wikidata.org/entity/P6119'), ExternalIdDatatype()).register(labels=[Text('Letterboxd actor ID', 'en')], range=ExternalIdDatatype())
 Letterboxd_director_ID = Property(IRI('http://www.wikidata.org/entity/P12383'), ExternalIdDatatype()).register(labels=[Text('Letterboxd director ID', 'en')], range=ExternalIdDatatype())
@@ -6831,6 +6849,7 @@ list_of_monuments = Property(IRI('http://www.wikidata.org/entity/P1456'), ItemDa
 list_of_works = Property(IRI('http://www.wikidata.org/entity/P1455'), ItemDatatype()).register(labels=[Text('list of works', 'en')], range=ItemDatatype())
 list_related_to_category = Property(IRI('http://www.wikidata.org/entity/P1753'), ItemDatatype()).register(labels=[Text('list related to category', 'en')], range=ItemDatatype(), inverse=Property(IRI('http://www.wikidata.org/entity/P1754'), ItemDatatype()))
 Listal_ID = Property(IRI('http://www.wikidata.org/entity/P11386'), ExternalIdDatatype()).register(labels=[Text('Listal ID', 'en')], range=ExternalIdDatatype())
+Liste_unique_des_décorés_ID = Property(IRI('http://www.wikidata.org/entity/P13872'), ExternalIdDatatype()).register(labels=[Text('Liste unique des décorés ID', 'en')], range=ExternalIdDatatype())
 Listen_Notes_podcast_ID = Property(IRI('http://www.wikidata.org/entity/P10213'), ExternalIdDatatype()).register(labels=[Text('Listen Notes podcast ID', 'en')], range=ExternalIdDatatype())
 Liszt_Academy_Lexikon_person_ID = Property(IRI('http://www.wikidata.org/entity/P8281'), ExternalIdDatatype()).register(labels=[Text('Liszt Academy Lexikon person ID', 'en')], range=ExternalIdDatatype())
 Litchfield_Ledger_ID = Property(IRI('http://www.wikidata.org/entity/P6362'), ExternalIdDatatype()).register(labels=[Text('Litchfield Ledger ID', 'en')], range=ExternalIdDatatype())
@@ -7013,6 +7032,7 @@ Lyrics007_artist_ID = Property(IRI('http://www.wikidata.org/entity/P7206'), Exte
 LyricsTranslate_ID = Property(IRI('http://www.wikidata.org/entity/P7212'), ExternalIdDatatype()).register(labels=[Text('LyricsTranslate ID', 'en')], range=ExternalIdDatatype())
 Léonore_ID = Property(IRI('http://www.wikidata.org/entity/P640'), ExternalIdDatatype()).register(labels=[Text('Léonore ID', 'en')], range=ExternalIdDatatype())
 Léonore_Web_ID = Property(IRI('http://www.wikidata.org/entity/P11152'), ExternalIdDatatype()).register(labels=[Text('Léonore Web ID', 'en')], range=ExternalIdDatatype())
+LÉquipe_athlete_ID = Property(IRI('http://www.wikidata.org/entity/P13867'), ExternalIdDatatype()).register(labels=[Text("L'Équipe athlete ID", 'en')], range=ExternalIdDatatype())
 LÉquipe_basketball_player_ID = Property(IRI('http://www.wikidata.org/entity/P13101'), ExternalIdDatatype()).register(labels=[Text("L'Équipe basketball player ID", 'en')], range=ExternalIdDatatype())
 LÉquipe_basketball_team_ID = Property(IRI('http://www.wikidata.org/entity/P13085'), ExternalIdDatatype()).register(labels=[Text("L'Équipe basketball team ID", 'en')], range=ExternalIdDatatype())
 LÉquipe_football_player_ID = Property(IRI('http://www.wikidata.org/entity/P3665'), ExternalIdDatatype()).register(labels=[Text("L'Équipe football player ID", 'en')], range=ExternalIdDatatype())
@@ -7281,6 +7301,7 @@ Megogo_ID = Property(IRI('http://www.wikidata.org/entity/P2826'), ExternalIdData
 Meine_Abgeordneten_ID = Property(IRI('http://www.wikidata.org/entity/P13350'), ExternalIdDatatype()).register(labels=[Text('Meine Abgeordneten ID', 'en')], range=ExternalIdDatatype())
 MEK_ID = Property(IRI('http://www.wikidata.org/entity/P2623'), ExternalIdDatatype()).register(labels=[Text('MEK ID', 'en')], range=ExternalIdDatatype())
 MEL_residence_ID = Property(IRI('http://www.wikidata.org/entity/P11782'), ExternalIdDatatype()).register(labels=[Text('MEL residence ID', 'en')], range=ExternalIdDatatype())
+Mellopedia_ID = Property(IRI('http://www.wikidata.org/entity/P13871'), ExternalIdDatatype()).register(labels=[Text('Mellopedia ID', 'en')], range=ExternalIdDatatype())
 Melon_album_ID = Property(IRI('http://www.wikidata.org/entity/P4518'), ExternalIdDatatype()).register(labels=[Text('Melon album ID', 'en')], range=ExternalIdDatatype())
 Melon_artist_ID = Property(IRI('http://www.wikidata.org/entity/P4473'), ExternalIdDatatype()).register(labels=[Text('Melon artist ID', 'en')], range=ExternalIdDatatype())
 Melon_music_video_ID = Property(IRI('http://www.wikidata.org/entity/P10548'), ExternalIdDatatype()).register(labels=[Text('Melon music video ID', 'en')], range=ExternalIdDatatype())
@@ -7289,6 +7310,7 @@ MELPA_package_ID = Property(IRI('http://www.wikidata.org/entity/P6888'), Externa
 melting_point = Property(IRI('http://www.wikidata.org/entity/P2101'), QuantityDatatype()).register(labels=[Text('melting point', 'en')], range=QuantityDatatype())
 member_category = Property(IRI('http://www.wikidata.org/entity/P6365'), ItemDatatype()).register(labels=[Text('member category', 'en')], range=ItemDatatype())
 member_count = Property(IRI('http://www.wikidata.org/entity/P2124'), QuantityDatatype()).register(labels=[Text('member count', 'en')], range=QuantityDatatype())
+member_of = Property(IRI('http://www.wikidata.org/entity/P463'), ItemDatatype()).register(labels=[Text('member of', 'en')], range=ItemDatatype())
 member_of_cabinet = Property(IRI('http://www.wikidata.org/entity/P5054'), ItemDatatype()).register(labels=[Text('member of cabinet', 'en')], range=ItemDatatype())
 member_of_political_party = Property(IRI('http://www.wikidata.org/entity/P102'), ItemDatatype()).register(labels=[Text('member of political party', 'en')], range=ItemDatatype())
 member_of_Roman_tribe = Property(IRI('http://www.wikidata.org/entity/P11491'), ItemDatatype()).register(labels=[Text('member of Roman tribe', 'en')], range=ItemDatatype())
@@ -7668,6 +7690,7 @@ MuIS_collection_ID = Property(IRI('http://www.wikidata.org/entity/P5656'), Exter
 MuIS_object_ID = Property(IRI('http://www.wikidata.org/entity/P4525'), ExternalIdDatatype()).register(labels=[Text('MuIS object ID', 'en')], range=ExternalIdDatatype())
 MuIS_person_or_group_ID = Property(IRI('http://www.wikidata.org/entity/P4889'), ExternalIdDatatype()).register(labels=[Text('MuIS person or group ID', 'en')], range=ExternalIdDatatype())
 multi_channel_network = Property(IRI('http://www.wikidata.org/entity/P6540'), ItemDatatype()).register(labels=[Text('multi-channel network', 'en')], range=ItemDatatype())
+MultimediaWiki_page_ID = Property(IRI('http://www.wikidata.org/entity/P13852'), ExternalIdDatatype()).register(labels=[Text('MultimediaWiki page ID', 'en')], range=ExternalIdDatatype())
 Multiplayer_ID = Property(IRI('http://www.wikidata.org/entity/P6267'), ExternalIdDatatype()).register(labels=[Text('Multiplayer ID', 'en')], range=ExternalIdDatatype())
 multiplier_of_normal_graduation_time = Property(IRI('http://www.wikidata.org/entity/P12471'), QuantityDatatype()).register(labels=[Text('multiplier of normal graduation time', 'en')], range=QuantityDatatype())
 municipal_affiliation_of_a_Swiss_national = Property(IRI('http://www.wikidata.org/entity/P1321'), ItemDatatype()).register(labels=[Text('municipal affiliation of a Swiss national', 'en')], range=ItemDatatype())
@@ -7901,6 +7924,7 @@ Nation_Ranking_secondary = Property(IRI('http://www.wikidata.org/entity/P13552')
 National_Academy_of_Engineering_member_ID = Property(IRI('http://www.wikidata.org/entity/P13408'), ExternalIdDatatype()).register(labels=[Text('National Academy of Engineering member ID', 'en')], range=ExternalIdDatatype())
 National_Academy_of_Medicine_France_member_ID = Property(IRI('http://www.wikidata.org/entity/P3956'), ExternalIdDatatype()).register(labels=[Text('National Academy of Medicine (France) member ID', 'en')], range=ExternalIdDatatype())
 National_Academy_of_Sciences_member_ID = Property(IRI('http://www.wikidata.org/entity/P5380'), ExternalIdDatatype()).register(labels=[Text('National Academy of Sciences member ID', 'en')], range=ExternalIdDatatype())
+National_Address_Base_ID = Property(IRI('http://www.wikidata.org/entity/P12053'), ExternalIdDatatype()).register(labels=[Text('National Address Base ID', 'en')], range=ExternalIdDatatype())
 National_Archives_of_Australia_entity_ID = Property(IRI('http://www.wikidata.org/entity/P10856'), ExternalIdDatatype()).register(labels=[Text('National Archives of Australia entity ID', 'en')], range=ExternalIdDatatype())
 National_Assembly_of_Nigeria_ID = Property(IRI('http://www.wikidata.org/entity/P4139'), ExternalIdDatatype()).register(labels=[Text('National Assembly of Nigeria ID', 'en')], range=ExternalIdDatatype())
 National_Association_of_Teachers_of_Singing_member_ID = Property(IRI('http://www.wikidata.org/entity/P9517'), ExternalIdDatatype()).register(labels=[Text('National Association of Teachers of Singing member ID', 'en')], range=ExternalIdDatatype())
@@ -8094,6 +8118,7 @@ NDL_Bib_ID = Property(IRI('http://www.wikidata.org/entity/P1054'), ExternalIdDat
 NDL_earlier_law_ID = Property(IRI('http://www.wikidata.org/entity/P9986'), ExternalIdDatatype()).register(labels=[Text('NDL earlier law ID', 'en')], range=ExternalIdDatatype())
 NDL_law_ID = Property(IRI('http://www.wikidata.org/entity/P8635'), ExternalIdDatatype()).register(labels=[Text('NDL law ID', 'en')], range=ExternalIdDatatype())
 NDL_Persistent_ID = Property(IRI('http://www.wikidata.org/entity/P9836'), ExternalIdDatatype()).register(labels=[Text('NDL Persistent ID', 'en')], range=ExternalIdDatatype())
+Nebraska_Authors_author_ID = Property(IRI('http://www.wikidata.org/entity/P13862'), ExternalIdDatatype()).register(labels=[Text('Nebraska Authors author ID', 'en')], range=ExternalIdDatatype())
 Nebraska_Invasive_Species_Program_species_ID = Property(IRI('http://www.wikidata.org/entity/P11092'), ExternalIdDatatype()).register(labels=[Text('Nebraska Invasive Species Program species ID', 'en')], range=ExternalIdDatatype())
 Nebula_channel_ID = Property(IRI('http://www.wikidata.org/entity/P12337'), ExternalIdDatatype()).register(labels=[Text('Nebula channel ID', 'en')], range=ExternalIdDatatype())
 NEC_Retro_ID = Property(IRI('http://www.wikidata.org/entity/P7669'), ExternalIdDatatype()).register(labels=[Text('NEC Retro ID', 'en')], range=ExternalIdDatatype())
@@ -8125,6 +8150,7 @@ net_profit = Property(IRI('http://www.wikidata.org/entity/P2295'), QuantityDatat
 net_tonnage = Property(IRI('http://www.wikidata.org/entity/P2790'), QuantityDatatype()).register(labels=[Text('net tonnage', 'en')], range=QuantityDatatype())
 net_worth = Property(IRI('http://www.wikidata.org/entity/P2218'), QuantityDatatype()).register(labels=[Text('net worth', 'en')], range=QuantityDatatype())
 NetBSD_package_ID = Property(IRI('http://www.wikidata.org/entity/P7966'), ExternalIdDatatype()).register(labels=[Text('NetBSD package ID', 'en')], range=ExternalIdDatatype())
+NetEase_Music_album_ID = Property(IRI('http://www.wikidata.org/entity/P13849'), ExternalIdDatatype()).register(labels=[Text('NetEase Music album ID', 'en')], range=ExternalIdDatatype())
 NetEase_Music_artist_ID = Property(IRI('http://www.wikidata.org/entity/P10445'), ExternalIdDatatype()).register(labels=[Text('NetEase Music artist ID', 'en')], range=ExternalIdDatatype())
 Netflix_ID = Property(IRI('http://www.wikidata.org/entity/P1874'), ExternalIdDatatype()).register(labels=[Text('Netflix ID', 'en')], range=ExternalIdDatatype())
 Netflix_maturity_rating = Property(IRI('http://www.wikidata.org/entity/P8652'), ItemDatatype()).register(labels=[Text('Netflix maturity rating', 'en')], range=ItemDatatype())
@@ -8375,6 +8401,7 @@ NPR_station_ID = Property(IRI('http://www.wikidata.org/entity/P8561'), ExternalI
 NPSN_Indonesian_school_ID = Property(IRI('http://www.wikidata.org/entity/P4128'), ExternalIdDatatype()).register(labels=[Text('NPSN Indonesian school ID', 'en')], range=ExternalIdDatatype())
 NRHP_reference_number = Property(IRI('http://www.wikidata.org/entity/P649'), ExternalIdDatatype()).register(labels=[Text('NRHP reference number', 'en')], range=ExternalIdDatatype())
 NRJ_artist_ID = Property(IRI('http://www.wikidata.org/entity/P5292'), ExternalIdDatatype()).register(labels=[Text('NRJ artist ID', 'en')], range=ExternalIdDatatype())
+NRK_topic_ID = Property(IRI('http://www.wikidata.org/entity/P13869'), ExternalIdDatatype()).register(labels=[Text('NRK topic ID', 'en')], range=ExternalIdDatatype())
 NRK_TV_ID = Property(IRI('http://www.wikidata.org/entity/P9979'), ExternalIdDatatype()).register(labels=[Text('NRK TV ID', 'en')], range=ExternalIdDatatype())
 NSC_number = Property(IRI('http://www.wikidata.org/entity/P2840'), ExternalIdDatatype()).register(labels=[Text('NSC number', 'en')], range=ExternalIdDatatype())
 NSDAP_membership_number_1925_1945 = Property(IRI('http://www.wikidata.org/entity/P2298'), ExternalIdDatatype()).register(labels=[Text('NSDAP membership number (1925–1945)', 'en')], range=ExternalIdDatatype())
@@ -8746,6 +8773,7 @@ OpenEdition_journal_ID = Property(IRI('http://www.wikidata.org/entity/P4741'), E
 OpenEdition_text_ID = Property(IRI('http://www.wikidata.org/entity/P6676'), ExternalIdDatatype()).register(labels=[Text('OpenEdition text ID', 'en')], range=ExternalIdDatatype())
 OpenHistoricalMap_relation_ID = Property(IRI('http://www.wikidata.org/entity/P8424'), ExternalIdDatatype()).register(labels=[Text('OpenHistoricalMap relation ID', 'en')], range=ExternalIdDatatype())
 opening_time = Property(IRI('http://www.wikidata.org/entity/P8626'), ItemDatatype()).register(labels=[Text('opening time', 'en')], range=ItemDatatype())
+OpenITI_author_ID = Property(IRI('http://www.wikidata.org/entity/P13870'), ExternalIdDatatype()).register(labels=[Text('OpenITI author ID', 'en')], range=ExternalIdDatatype())
 OpenMath_ID = Property(IRI('http://www.wikidata.org/entity/P5610'), ExternalIdDatatype()).register(labels=[Text('OpenMath ID', 'en')], range=ExternalIdDatatype())
 OpenML_dataset_ID = Property(IRI('http://www.wikidata.org/entity/P11238'), ExternalIdDatatype()).register(labels=[Text('OpenML dataset ID', 'en')], range=ExternalIdDatatype())
 openMLOL_author_ID = Property(IRI('http://www.wikidata.org/entity/P3762'), ExternalIdDatatype()).register(labels=[Text('openMLOL author ID', 'en')], range=ExternalIdDatatype())
@@ -8830,6 +8858,7 @@ org_idguide_ID = Property(IRI('http://www.wikidata.org/entity/P4824'), ExternalI
 organisation_tax_status = Property(IRI('http://www.wikidata.org/entity/P13210'), ItemDatatype()).register(labels=[Text('organisation tax status', 'en')], range=ItemDatatype())
 organization_code_or_unit_code = Property(IRI('http://www.wikidata.org/entity/P13517'), StringDatatype()).register(labels=[Text('organization code or unit code', 'en')], range=StringDatatype())
 organization_directed_by_the_office_or_position = Property(IRI('http://www.wikidata.org/entity/P2389'), ItemDatatype()).register(labels=[Text('organization directed by the office or position', 'en')], range=ItemDatatype(), inverse=Property(IRI('http://www.wikidata.org/entity/P2388'), ItemDatatype()))
+organizational_chart = Property(IRI('http://www.wikidata.org/entity/P13847'), None).register(labels=[Text('organizational chart', 'en')], range=StringDatatype())
 organizational_divisions = Property(IRI('http://www.wikidata.org/entity/P199'), ItemDatatype()).register(labels=[Text('organizational divisions', 'en')], range=ItemDatatype())
 organized_response_related_to_outbreak = Property(IRI('http://www.wikidata.org/entity/P8045'), ItemDatatype()).register(labels=[Text('organized response related to outbreak', 'en')], range=ItemDatatype())
 organizer = Property(IRI('http://www.wikidata.org/entity/P664'), ItemDatatype()).register(labels=[Text('organizer', 'en')], range=ItemDatatype())
@@ -9198,7 +9227,7 @@ Phishnet_venue_ID = Property(IRI('http://www.wikidata.org/entity/P13149'), Exter
 phone_number = Property(IRI('http://www.wikidata.org/entity/P1329'), StringDatatype()).register(labels=[Text('phone number', 'en')], range=StringDatatype())
 phonetic_value = Property(IRI('http://www.wikidata.org/entity/P12436'), StringDatatype()).register(labels=[Text('phonetic value', 'en')], range=StringDatatype())
 phonographic_copyright = Property(IRI('http://www.wikidata.org/entity/P12456'), ItemDatatype()).register(labels=[Text('phonographic copyright', 'en')], range=ItemDatatype())
-Photographers_Identities_Catalog_ID = Property(IRI('http://www.wikidata.org/entity/P2750'), ExternalIdDatatype()).register(labels=[Text('Photographers’ Identities Catalog ID', 'en')], range=ExternalIdDatatype())
+Photographers_Identities_Catalog_ID = Property(IRI('http://www.wikidata.org/entity/P2750'), ExternalIdDatatype()).register(labels=[Text("Photographers' Identities Catalog ID", 'en')], range=ExternalIdDatatype())
 photoLondon_ID = Property(IRI('http://www.wikidata.org/entity/P8657'), ExternalIdDatatype()).register(labels=[Text('photoLondon ID', 'en')], range=ExternalIdDatatype())
 physically_interacts_with = Property(IRI('http://www.wikidata.org/entity/P129'), ItemDatatype()).register(labels=[Text('physically interacts with', 'en')], range=ItemDatatype())
 Physicians_of_Georgia_Biographical_Dictionary_ID = Property(IRI('http://www.wikidata.org/entity/P13641'), ExternalIdDatatype()).register(labels=[Text('Physicians of Georgia Biographical Dictionary ID', 'en')], range=ExternalIdDatatype())
@@ -9264,6 +9293,7 @@ Plant_Illustrations_artist_ID = Property(IRI('http://www.wikidata.org/entity/P66
 Plant_Illustrations_species_ID = Property(IRI('http://www.wikidata.org/entity/P12368'), ExternalIdDatatype()).register(labels=[Text('Plant Illustrations species ID', 'en')], range=ExternalIdDatatype())
 Plant_Illustrations_taxon_ID = Property(IRI('http://www.wikidata.org/entity/P12367'), ExternalIdDatatype()).register(labels=[Text('Plant Illustrations taxon ID', 'en')], range=ExternalIdDatatype())
 Plant_List_ID_Royal_Botanic_Gardens_Kew = Property(IRI('http://www.wikidata.org/entity/P1070'), ExternalIdDatatype()).register(labels=[Text('Plant List ID (Royal Botanic Gardens, Kew)', 'en')], range=ExternalIdDatatype())
+Plant_Ontology_ID = Property(IRI('http://www.wikidata.org/entity/P13866'), ExternalIdDatatype()).register(labels=[Text('Plant Ontology ID', 'en')], range=ExternalIdDatatype())
 Plant_Parasites_of_Europe_ID = Property(IRI('http://www.wikidata.org/entity/P6061'), ExternalIdDatatype()).register(labels=[Text('Plant Parasites of Europe ID', 'en')], range=ExternalIdDatatype())
 Plantarium_ID = Property(IRI('http://www.wikidata.org/entity/P3102'), ExternalIdDatatype()).register(labels=[Text('Plantarium ID', 'en')], range=ExternalIdDatatype())
 PlantFiles_taxon_ID = Property(IRI('http://www.wikidata.org/entity/P10791'), ExternalIdDatatype()).register(labels=[Text('PlantFiles taxon ID', 'en')], range=ExternalIdDatatype())
@@ -9690,8 +9720,10 @@ PyPI_username = Property(IRI('http://www.wikidata.org/entity/P11534'), ExternalI
 PZLA_athlete_ID = Property(IRI('http://www.wikidata.org/entity/P5075'), ExternalIdDatatype()).register(labels=[Text('PZLA athlete ID', 'en')], range=ExternalIdDatatype())
 PZS_hut_ID = Property(IRI('http://www.wikidata.org/entity/P5758'), ExternalIdDatatype()).register(labels=[Text('PZS hut ID', 'en')], range=ExternalIdDatatype())
 Q_Codes_ID = Property(IRI('http://www.wikidata.org/entity/P7387'), ExternalIdDatatype()).register(labels=[Text('Q-Codes ID', 'en')], range=ExternalIdDatatype())
+Qalamgerkz_author_ID = Property(IRI('http://www.wikidata.org/entity/P13882'), ExternalIdDatatype()).register(labels=[Text('Qalamger.kz author ID', 'en')], range=ExternalIdDatatype())
 qamusinoorir_entry_ID = Property(IRI('http://www.wikidata.org/entity/P13807'), ExternalIdDatatype()).register(labels=[Text('qamus.inoor.ir entry ID', 'en')], range=ExternalIdDatatype())
 Qantas_hotel_ID = Property(IRI('http://www.wikidata.org/entity/P12387'), ExternalIdDatatype()).register(labels=[Text('Qantas hotel ID', 'en')], range=ExternalIdDatatype())
+QCC_Code = Property(IRI('http://www.wikidata.org/entity/P13854'), ExternalIdDatatype()).register(labels=[Text('QCC Code', 'en')], range=ExternalIdDatatype())
 QEdu_ID = Property(IRI('http://www.wikidata.org/entity/P4344'), ExternalIdDatatype()).register(labels=[Text('QEdu ID', 'en')], range=ExternalIdDatatype())
 Qichacha_firm_ID = Property(IRI('http://www.wikidata.org/entity/P10439'), ExternalIdDatatype()).register(labels=[Text('Qichacha firm ID', 'en')], range=ExternalIdDatatype())
 QLIT_ID = Property(IRI('http://www.wikidata.org/entity/P11852'), ExternalIdDatatype()).register(labels=[Text('QLIT ID', 'en')], range=ExternalIdDatatype())
@@ -10065,6 +10097,7 @@ Rheinland_Pfälzische_Personendatenbank_GND_ID = Property(IRI('http://www.wikida
 Rhineland_Palatinate_protected_area_ID = Property(IRI('http://www.wikidata.org/entity/P6602'), ExternalIdDatatype()).register(labels=[Text('Rhineland-Palatinate protected area ID', 'en')], range=ExternalIdDatatype())
 Rhineland_Palatinate_school_ID = Property(IRI('http://www.wikidata.org/entity/P12274'), ExternalIdDatatype()).register(labels=[Text('Rhineland-Palatinate school ID', 'en')], range=ExternalIdDatatype())
 RI_National_Register_Search_ID = Property(IRI('http://www.wikidata.org/entity/P8250'), ExternalIdDatatype()).register(labels=[Text('RI National Register Search ID', 'en')], range=ExternalIdDatatype())
+RIA_Novosti_person_ID = Property(IRI('http://www.wikidata.org/entity/P13880'), ExternalIdDatatype()).register(labels=[Text('RIA Novosti person ID', 'en')], range=ExternalIdDatatype())
 RIA_Novosti_reference = Property(IRI('http://www.wikidata.org/entity/P6081'), ExternalIdDatatype()).register(labels=[Text('RIA Novosti reference', 'en')], range=ExternalIdDatatype())
 RIAA_artist_ID = Property(IRI('http://www.wikidata.org/entity/P6882'), ExternalIdDatatype()).register(labels=[Text('RIAA artist ID', 'en')], range=ExternalIdDatatype())
 Ricochet_author_ID = Property(IRI('http://www.wikidata.org/entity/P5413'), ExternalIdDatatype()).register(labels=[Text('Ricochet author ID', 'en')], range=ExternalIdDatatype())
@@ -10198,6 +10231,7 @@ RSL_ID_person = Property(IRI('http://www.wikidata.org/entity/P947'), ExternalIdD
 RSL_scanned_publication_ID = Property(IRI('http://www.wikidata.org/entity/P1815'), ExternalIdDatatype()).register(labels=[Text('RSL scanned publication ID', 'en')], range=ExternalIdDatatype())
 RSPA_ancient_author_ID = Property(IRI('http://www.wikidata.org/entity/P10536'), ExternalIdDatatype()).register(labels=[Text('RSPA ancient author ID', 'en')], range=ExternalIdDatatype())
 RSPA_modern_author_ID = Property(IRI('http://www.wikidata.org/entity/P10535'), ExternalIdDatatype()).register(labels=[Text('RSPA modern author ID', 'en')], range=ExternalIdDatatype())
+RSQV_ID = Property(IRI('http://www.wikidata.org/entity/P13868'), ExternalIdDatatype()).register(labels=[Text('RSQV ID', 'en')], range=ExternalIdDatatype())
 RTC_film_rating = Property(IRI('http://www.wikidata.org/entity/P3834'), ItemDatatype()).register(labels=[Text('RTC film rating', 'en')], range=ItemDatatype())
 RTE_substation_ID = Property(IRI('http://www.wikidata.org/entity/P12583'), ExternalIdDatatype()).register(labels=[Text('RTE substation ID', 'en')], range=ExternalIdDatatype())
 RTECS_number = Property(IRI('http://www.wikidata.org/entity/P657'), ExternalIdDatatype()).register(labels=[Text('RTECS number', 'en')], range=ExternalIdDatatype())
@@ -10420,6 +10454,9 @@ Scopus_author_ID = Property(IRI('http://www.wikidata.org/entity/P1153'), Externa
 Scopus_EID = Property(IRI('http://www.wikidata.org/entity/P1154'), ExternalIdDatatype()).register(labels=[Text('Scopus EID', 'en')], range=ExternalIdDatatype())
 Scopus_source_ID = Property(IRI('http://www.wikidata.org/entity/P1156'), ExternalIdDatatype()).register(labels=[Text('Scopus source ID', 'en')], range=ExternalIdDatatype())
 score_method = Property(IRI('http://www.wikidata.org/entity/P1443'), ItemDatatype()).register(labels=[Text('score method', 'en')], range=ItemDatatype())
+Scorebar_Soccerway_match_ID = Property(IRI('http://www.wikidata.org/entity/P7494'), ExternalIdDatatype()).register(labels=[Text('Scorebar / Soccerway match ID', 'en')], range=ExternalIdDatatype())
+Scorebar_Soccerway_person_ID = Property(IRI('http://www.wikidata.org/entity/P2369'), ExternalIdDatatype()).register(labels=[Text('Scorebar / Soccerway person ID', 'en')], range=ExternalIdDatatype())
+Scorebar_Soccerway_team_ID = Property(IRI('http://www.wikidata.org/entity/P6131'), ExternalIdDatatype()).register(labels=[Text('Scorebar / Soccerway team ID', 'en')], range=ExternalIdDatatype())
 Scoresway_baseball_person_ID_archived = Property(IRI('http://www.wikidata.org/entity/P6062'), ExternalIdDatatype()).register(labels=[Text('Scoresway baseball person ID (archived)', 'en')], range=ExternalIdDatatype())
 Scoresway_basketball_person_ID_archived = Property(IRI('http://www.wikidata.org/entity/P6063'), ExternalIdDatatype()).register(labels=[Text('Scoresway basketball person ID (archived)', 'en')], range=ExternalIdDatatype())
 Scoresway_handball_person_ID_archived = Property(IRI('http://www.wikidata.org/entity/P4451'), ExternalIdDatatype()).register(labels=[Text('Scoresway handball person ID (archived)', 'en')], range=ExternalIdDatatype())
@@ -10468,6 +10505,7 @@ season_of_club_or_team = Property(IRI('http://www.wikidata.org/entity/P5138'), I
 season_starts = Property(IRI('http://www.wikidata.org/entity/P4794'), ItemDatatype()).register(labels=[Text('season starts', 'en')], range=ItemDatatype())
 Seattle_Art_Museum_artwork_ID = Property(IRI('http://www.wikidata.org/entity/P8598'), ExternalIdDatatype()).register(labels=[Text('Seattle Art Museum artwork ID', 'en')], range=ExternalIdDatatype())
 SEC_Kerala_code = Property(IRI('http://www.wikidata.org/entity/P11817'), ExternalIdDatatype()).register(labels=[Text('SEC Kerala code', 'en')], range=ExternalIdDatatype())
+SEC_Number = Property(IRI('http://www.wikidata.org/entity/P13856'), ExternalIdDatatype()).register(labels=[Text('SEC Number', 'en')], range=ExternalIdDatatype())
 second_family_name_in_Spanish_name = Property(IRI('http://www.wikidata.org/entity/P1950'), ItemDatatype()).register(labels=[Text('second family name in Spanish name', 'en')], range=ItemDatatype())
 Secondary_Archive_artist_ID = Property(IRI('http://www.wikidata.org/entity/P9539'), ExternalIdDatatype()).register(labels=[Text('Secondary Archive artist ID', 'en')], range=ExternalIdDatatype())
 secondary_note = Property(IRI('http://www.wikidata.org/entity/P7601'), ItemDatatype()).register(labels=[Text('secondary note', 'en')], range=ItemDatatype())
@@ -10790,9 +10828,6 @@ Soccerdonna_coach_ID = Property(IRI('http://www.wikidata.org/entity/P8134'), Ext
 Soccerdonna_player_ID = Property(IRI('http://www.wikidata.org/entity/P4381'), ExternalIdDatatype()).register(labels=[Text('Soccerdonna player ID', 'en')], range=ExternalIdDatatype())
 Soccerdonna_team_ID = Property(IRI('http://www.wikidata.org/entity/P7878'), ExternalIdDatatype()).register(labels=[Text('Soccerdonna team ID', 'en')], range=ExternalIdDatatype())
 SoccerPuntercom_player_ID = Property(IRI('http://www.wikidata.org/entity/P10158'), ExternalIdDatatype()).register(labels=[Text('SoccerPunter.com player ID', 'en')], range=ExternalIdDatatype())
-Soccerway_match_ID = Property(IRI('http://www.wikidata.org/entity/P7494'), ExternalIdDatatype()).register(labels=[Text('Soccerway match ID', 'en')], range=ExternalIdDatatype())
-Soccerway_player_ID = Property(IRI('http://www.wikidata.org/entity/P2369'), ExternalIdDatatype()).register(labels=[Text('Soccerway player ID', 'en')], range=ExternalIdDatatype())
-Soccerway_team_ID = Property(IRI('http://www.wikidata.org/entity/P6131'), ExternalIdDatatype()).register(labels=[Text('Soccerway team ID', 'en')], range=ExternalIdDatatype())
 Soccerway_venue_ID = Property(IRI('http://www.wikidata.org/entity/P8775'), ExternalIdDatatype()).register(labels=[Text('Soccerway venue ID', 'en')], range=ExternalIdDatatype())
 social_classification = Property(IRI('http://www.wikidata.org/entity/P3716'), ItemDatatype()).register(labels=[Text('social classification', 'en')], range=ItemDatatype())
 social_media_followers = Property(IRI('http://www.wikidata.org/entity/P8687'), QuantityDatatype()).register(labels=[Text('social media followers', 'en')], range=QuantityDatatype())
@@ -11059,7 +11094,7 @@ statement_supported_by = Property(IRI('http://www.wikidata.org/entity/P3680'), I
 Stathletics_ID = Property(IRI('http://www.wikidata.org/entity/P7489'), ExternalIdDatatype()).register(labels=[Text('Stathletics ID', 'en')], range=ExternalIdDatatype())
 station_code = Property(IRI('http://www.wikidata.org/entity/P296'), StringDatatype()).register(labels=[Text('station code', 'en')], range=StringDatatype())
 statistical_leader = Property(IRI('http://www.wikidata.org/entity/P3279'), ItemDatatype()).register(labels=[Text('statistical leader', 'en')], range=ItemDatatype())
-Statistical_Service_of_Cyprus_Geocode = Property(IRI('http://www.wikidata.org/entity/P4812'), ExternalIdDatatype()).register(labels=[Text('Statistical Service of Cyprus Geocode', 'en')], range=ExternalIdDatatype())
+Statistical_Service_of_Cyprus_geocode = Property(IRI('http://www.wikidata.org/entity/P4812'), ExternalIdDatatype()).register(labels=[Text('Statistical Service of Cyprus geocode', 'en')], range=ExternalIdDatatype())
 statistical_unit_used = Property(IRI('http://www.wikidata.org/entity/P2353'), ItemDatatype()).register(labels=[Text('statistical unit used', 'en')], range=ItemDatatype())
 Statistics_Canada_Geographic_code = Property(IRI('http://www.wikidata.org/entity/P3012'), ExternalIdDatatype()).register(labels=[Text('Statistics Canada Geographic code', 'en')], range=ExternalIdDatatype())
 Statistics_Denmarks_classification_of_occupation_DISCO_08 = Property(IRI('http://www.wikidata.org/entity/P1069'), ExternalIdDatatype()).register(labels=[Text('Statistics Denmarks classification of occupation (DISCO-08)', 'en')], range=ExternalIdDatatype())
@@ -11237,7 +11272,7 @@ Swedish_Academy_member_ID = Property(IRI('http://www.wikidata.org/entity/P5325')
 Swedish_Anbytarforum_ID = Property(IRI('http://www.wikidata.org/entity/P6303'), ExternalIdDatatype()).register(labels=[Text('Swedish Anbytarforum ID', 'en')], range=ExternalIdDatatype())
 Swedish_civil_parish_code_ATA_code = Property(IRI('http://www.wikidata.org/entity/P777'), ExternalIdDatatype()).register(labels=[Text('Swedish civil parish code/ATA code', 'en')], range=ExternalIdDatatype())
 Swedish_county_code = Property(IRI('http://www.wikidata.org/entity/P507'), ExternalIdDatatype()).register(labels=[Text('Swedish county code', 'en')], range=ExternalIdDatatype())
-Swedish_county_letter = Property(IRI('http://www.wikidata.org/entity/P2898'), ExternalIdDatatype()).register(labels=[Text('Swedish county letter', 'en')], range=ExternalIdDatatype())
+Swedish_county_letters = Property(IRI('http://www.wikidata.org/entity/P2898'), ExternalIdDatatype()).register(labels=[Text('Swedish county letter(s)', 'en')], range=ExternalIdDatatype())
 Swedish_district_code = Property(IRI('http://www.wikidata.org/entity/P1841'), ExternalIdDatatype()).register(labels=[Text('Swedish district code', 'en')], range=ExternalIdDatatype())
 Swedish_Film_Database_company_ID = Property(IRI('http://www.wikidata.org/entity/P2335'), ExternalIdDatatype()).register(labels=[Text('Swedish Film Database company ID', 'en')], range=ExternalIdDatatype())
 Swedish_Film_Database_group_ID = Property(IRI('http://www.wikidata.org/entity/P2337'), ExternalIdDatatype()).register(labels=[Text('Swedish Film Database group ID', 'en')], range=ExternalIdDatatype())
@@ -11526,6 +11561,7 @@ TGbus_ID = Property(IRI('http://www.wikidata.org/entity/P10996'), ExternalIdData
 Thai_cultural_heritage_ID = Property(IRI('http://www.wikidata.org/entity/P1626'), ExternalIdDatatype()).register(labels=[Text('Thai cultural heritage ID', 'en')], range=ExternalIdDatatype())
 Thaifilm_ID = Property(IRI('http://www.wikidata.org/entity/P6134'), ExternalIdDatatype()).register(labels=[Text('Thaifilm ID', 'en')], range=ExternalIdDatatype())
 Thailand_central_administrative_unit_code = Property(IRI('http://www.wikidata.org/entity/P1067'), ExternalIdDatatype()).register(labels=[Text('Thailand central administrative unit code', 'en')], range=ExternalIdDatatype())
+Thailand_company_ID = Property(IRI('http://www.wikidata.org/entity/P13857'), ExternalIdDatatype()).register(labels=[Text('Thailand company ID', 'en')], range=ExternalIdDatatype())
 The_American_Heritage_Dictionary_of_the_English_Language_entry_ID = Property(IRI('http://www.wikidata.org/entity/P13163'), ExternalIdDatatype()).register(labels=[Text('The American Heritage Dictionary of the English Language entry ID', 'en')], range=ExternalIdDatatype())
 The_Arabidopsis_Information_Resource_Accession = Property(IRI('http://www.wikidata.org/entity/P4018'), ExternalIdDatatype()).register(labels=[Text('The Arabidopsis Information Resource Accession', 'en')], range=ExternalIdDatatype())
 The_Armory_Show_at_100_ID = Property(IRI('http://www.wikidata.org/entity/P6301'), ExternalIdDatatype()).register(labels=[Text('The Armory Show at 100 ID', 'en')], range=ExternalIdDatatype())
@@ -11591,6 +11627,7 @@ The_Oxford_Dictionary_of_Architecture_entry_ID = Property(IRI('http://www.wikida
 The_Oxford_Dictionary_of_Islam_ID = Property(IRI('http://www.wikidata.org/entity/P12628'), ExternalIdDatatype()).register(labels=[Text('The Oxford Dictionary of Islam ID', 'en')], range=ExternalIdDatatype())
 The_Oxford_Dictionary_of_Music_entry_ID = Property(IRI('http://www.wikidata.org/entity/P13509'), ExternalIdDatatype()).register(labels=[Text('The Oxford Dictionary of Music entry ID', 'en')], range=ExternalIdDatatype())
 The_Oxford_Dictionary_of_Phrase_and_Fable_ID = Property(IRI('http://www.wikidata.org/entity/P12675'), ExternalIdDatatype()).register(labels=[Text('The Oxford Dictionary of Phrase and Fable ID', 'en')], range=ExternalIdDatatype())
+The_Oxford_Dictionary_of_the_Jewish_Religion_entry_ID = Property(IRI('http://www.wikidata.org/entity/P13881'), ExternalIdDatatype()).register(labels=[Text('The Oxford Dictionary of the Jewish Religion entry ID', 'en')], range=ExternalIdDatatype())
 The_Oxford_Encyclopedia_of_Islam_and_Women_ID = Property(IRI('http://www.wikidata.org/entity/P12637'), ExternalIdDatatype()).register(labels=[Text('The Oxford Encyclopedia of Islam and Women ID', 'en')], range=ExternalIdDatatype())
 The_Oxford_Encyclopedia_of_the_Islamic_World_ID = Property(IRI('http://www.wikidata.org/entity/P12631'), ExternalIdDatatype()).register(labels=[Text('The Oxford Encyclopedia of the Islamic World ID', 'en')], range=ExternalIdDatatype())
 The_Oxford_Essential_Dictionary_of_Foreign_Terms_in_English_ID = Property(IRI('http://www.wikidata.org/entity/P12678'), ExternalIdDatatype()).register(labels=[Text('The Oxford Essential Dictionary of Foreign Terms in English ID', 'en')], range=ExternalIdDatatype())
@@ -13020,6 +13057,7 @@ __all__ = (
 "A_Dictionary_of_Dentistry_entry_ID",
 "A_Dictionary_of_Education_entry_ID",
 "A_Dictionary_of_Environment_and_Conservation_entry_ID",
+"A_Dictionary_of_Food_and_Nutrition_entry_ID",
 "A_Dictionary_of_Gandhari_ID",
 "A_Dictionary_of_Genetics_entry_ID",
 "A_Dictionary_of_Geography_entry_ID",
@@ -13166,6 +13204,7 @@ __all__ = (
 "adapted_by",
 "addonsmozillaorg_user",
 "addressee",
+"Adebiportal_author_ID",
 "Adelphi_author_ID",
 "Adelsvapen_ID",
 "Adelung_lemma_ID",
@@ -13650,6 +13689,7 @@ __all__ = (
 "Archivio_storico_artisti_lucchesi_ID",
 "Archivio_Storico_dellUniversità_degli_Studi_di_Cagliari_person_ID",
 "Archivio_Storico_Ricordi_opera_ID",
+"Archivio_Storico_Ricordi_partiture_ID",
 "Archivio_Storico_Ricordi_person_ID",
 "Archivo_Histórico_de_diputados_de_España_ID",
 "Archivo_Linz_de_la_Transición_Española_ID",
@@ -13854,6 +13894,7 @@ __all__ = (
 "Audiomack_album_ID",
 "Audiomack_artist_ID",
 "Audiomack_song_ID",
+"Audiovisual_Identity_Database_page",
 "Augustins_de_lAssomption_ID",
 "AUR_package",
 "Auschwitz_Prisoners_Database_ID",
@@ -14030,7 +14071,6 @@ __all__ = (
 "Balochistan_EMIS_code",
 "Baloncesto_Superior_Nacional_ID_archived",
 "BAMID_film_rating",
-"BAN_ID",
 "band_number",
 "Bandcamp_profile_ID",
 "Bandcamp_release_ID",
@@ -14296,8 +14336,8 @@ __all__ = (
 "Bilibili_video_ID",
 "bill_number",
 "Billboard_artist_ID",
-"Billie_Jean_King_Cup_player_ID_before_2024_archived",
 "Billie_Jean_King_Cup_player_ID_since_2024",
+"Billie_Jean_King_Cup_player_ID_until_2024_archived",
 "BillionGraves_cemetery_ID",
 "BillionGraves_grave_ID",
 "binding_energy",
@@ -14318,6 +14358,7 @@ __all__ = (
 "Biografiskt_Lexikon_för_Finland_ID_urnfi",
 "Biographia_Benedictina_ID",
 "Biographical_Archive_of_Psychiatry_ID",
+"Biographical_Dictionary_of_Almería_identifier",
 "Biographical_Dictionary_of_Architects_in_Canada_1800_1950_ID",
 "Biographical_Dictionary_of_Chinese_Christianity_ID",
 "Biographical_Dictionary_of_Emigrants_of_Georgia_ID",
@@ -14333,6 +14374,7 @@ __all__ = (
 "Biographical_Encyclopedia_of_Astronomers_ID",
 "Biographical_Memoirs_of_Fellows_of_the_Royal_Society_ID",
 "Biographie_nationale_de_Belgique_ID",
+"Biographische_Lexikon_zur_Geschichte_der_böhmischen_Länder_ID",
 "Biographisches_Archiv_der_Psychiatrie_ID",
 "Biographisches_Portal_der_Rabbiner_ID",
 "biography_at_the_Bundestag_of_Germany_URL",
@@ -14620,6 +14662,7 @@ __all__ = (
 "CageMatch_wrestling_stable_ID",
 "Cairn_author_ID",
 "Cairn_publication_ID",
+"Caixin_company_ID",
 "Cal_IPC_ID",
 "Calaméo_ID",
 "calculated_from",
@@ -14638,6 +14681,7 @@ __all__ = (
 "callsign_of_airline",
 "CalPhotos_taxon_ID",
 "CALS_Encyclopedia_of_Arkansas_ID",
+"Cambodian_company_ID",
 "Cambridge_Alumni_Database_ID",
 "Cambridge_Dictionary_entry_American_English",
 "Cambridge_Dictionary_entry_British_English",
@@ -15406,6 +15450,7 @@ __all__ = (
 "Corporate_Number_Japan",
 "Corporate_Number_South_Korea",
 "corporate_officer",
+"Corporation_Number_in_Canada",
 "Corpus_Corporum_author_ID",
 "Corpus_typographique_français_ID",
 "corresponding_HTML_autocomplete_attribute",
@@ -15682,6 +15727,7 @@ __all__ = (
 "danskefilm_silent_film_ID",
 "danskefilm_TV_Christmas_calendar",
 "danskefilm_TV_series_ID",
+"Danskefilmstemmerdk_character_ID",
 "Danskefilmstemmerdk_person_ID",
 "Danskefilmstemmerdk_work_or_dubbing_ID",
 "danskfilmogtv_person_ID",
@@ -15753,7 +15799,7 @@ __all__ = (
 "Daum_movie_ID",
 "Daum_TV_series_ID",
 "DAV_hut_ID",
-"Davis_Cup_player_ID",
+"Davis_Cup_player_ID_archived",
 "day_in_year_for_periodic_occurrence",
 "day_of_regular_release",
 "day_of_week",
@@ -15854,6 +15900,7 @@ __all__ = (
 "denomination",
 "Densho_Encyclopedia_ID",
 "density",
+"Deník_tag_ID",
 "Department_of_Defense_Identification_Code",
 "Department_of_Education_and_Skills_roll_number",
 "departure_angle",
@@ -16688,6 +16735,7 @@ __all__ = (
 "English_Italian_Dictionary_ID",
 "English_Placenames_MADS_ID",
 "English_Short_Title_Catalogue_ID",
+"English_solicitors_ID",
 "English_Spanish_Dictionary_ID",
 "ENI_number",
 "Ensembl_gene_ID",
@@ -16980,6 +17028,7 @@ __all__ = (
 "Fanlore_article_ID",
 "fanqie",
 "Fansly_ID",
+"Fantacalcio_ID",
 "Fantastic_Fiction_author_ID",
 "FantLab_artist_ID",
 "FantLab_author_ID",
@@ -17834,6 +17883,7 @@ __all__ = (
 "Google_Scholar_organization_ID",
 "Google_Scholar_paper_ID",
 "Goratings_ID",
+"gosfilmofondru_ID",
 "GOST_7_67_cyrillic",
 "GOST_7_75_97_code",
 "Gotlands_museum_entity_ID",
@@ -17846,6 +17896,7 @@ __all__ = (
 "govuk_person_ID",
 "GPnotebook_ID",
 "GPU",
+"GPUZoo_ID",
 "GrabFood_restaurant_ID",
 "GRAC_rating",
 "grace_period",
@@ -18736,6 +18787,7 @@ __all__ = (
 "interaction",
 "interactive_elements",
 "Interactive_Fiction_Database_ID",
+"Interaktionsdatabasen_ID",
 "Interbibly_author_ID",
 "interchange_station",
 "Intercontinental_Dictionary_Series_unit_ID",
@@ -18930,7 +18982,6 @@ __all__ = (
 "IRMNG_ID",
 "IRS_Employer_Identification_Number",
 "is_a_list_of",
-"is_member_of",
 "is_metaclass_for",
 "is_pollinated_by",
 "is_pollinator_of",
@@ -18967,6 +19018,7 @@ __all__ = (
 "Islamic_Philosophy_ID",
 "islamway_authority_ID",
 "island_code_of_Indonesia",
+"ISLRN",
 "ISMN",
 "ISNI",
 "ISO_15919_transliteration",
@@ -19108,6 +19160,7 @@ __all__ = (
 "JAANUS_ID",
 "JAD_ID",
 "JAHIS_Law_Database_ID",
+"Jamaica_company_ID",
 "Jamendo_album_ID",
 "Jamendo_artist_ID",
 "Jamendo_track_ID",
@@ -19286,6 +19339,7 @@ __all__ = (
 "KFCB_classification_Kenya",
 "Khyber_Pakhtunkhwa_EMIS_code",
 "Kialo_ID",
+"Kick_username",
 "Kicker_team_ID",
 "Kickerde_player_ID",
 "Kickstarter_project_ID",
@@ -19621,6 +19675,7 @@ __all__ = (
 "LesBiographiescom_ID",
 "less_than",
 "Letecká_badatelna_accident_ID",
+"Letopis_of_MSU_person_ID",
 "Letteraturaitaliananet_author_ID",
 "Letterboxd_actor_ID",
 "Letterboxd_director_ID",
@@ -19780,6 +19835,7 @@ __all__ = (
 "list_of_works",
 "list_related_to_category",
 "Listal_ID",
+"Liste_unique_des_décorés_ID",
 "Listen_Notes_podcast_ID",
 "Liszt_Academy_Lexikon_person_ID",
 "Litchfield_Ledger_ID",
@@ -19962,6 +20018,7 @@ __all__ = (
 "LyricsTranslate_ID",
 "Léonore_ID",
 "Léonore_Web_ID",
+"LÉquipe_athlete_ID",
 "LÉquipe_basketball_player_ID",
 "LÉquipe_basketball_team_ID",
 "LÉquipe_football_player_ID",
@@ -20230,6 +20287,7 @@ __all__ = (
 "Meine_Abgeordneten_ID",
 "MEK_ID",
 "MEL_residence_ID",
+"Mellopedia_ID",
 "Melon_album_ID",
 "Melon_artist_ID",
 "Melon_music_video_ID",
@@ -20238,6 +20296,7 @@ __all__ = (
 "melting_point",
 "member_category",
 "member_count",
+"member_of",
 "member_of_cabinet",
 "member_of_political_party",
 "member_of_Roman_tribe",
@@ -20617,6 +20676,7 @@ __all__ = (
 "MuIS_object_ID",
 "MuIS_person_or_group_ID",
 "multi_channel_network",
+"MultimediaWiki_page_ID",
 "Multiplayer_ID",
 "multiplier_of_normal_graduation_time",
 "municipal_affiliation_of_a_Swiss_national",
@@ -20850,6 +20910,7 @@ __all__ = (
 "National_Academy_of_Engineering_member_ID",
 "National_Academy_of_Medicine_France_member_ID",
 "National_Academy_of_Sciences_member_ID",
+"National_Address_Base_ID",
 "National_Archives_of_Australia_entity_ID",
 "National_Assembly_of_Nigeria_ID",
 "National_Association_of_Teachers_of_Singing_member_ID",
@@ -21043,6 +21104,7 @@ __all__ = (
 "NDL_earlier_law_ID",
 "NDL_law_ID",
 "NDL_Persistent_ID",
+"Nebraska_Authors_author_ID",
 "Nebraska_Invasive_Species_Program_species_ID",
 "Nebula_channel_ID",
 "NEC_Retro_ID",
@@ -21074,6 +21136,7 @@ __all__ = (
 "net_tonnage",
 "net_worth",
 "NetBSD_package_ID",
+"NetEase_Music_album_ID",
 "NetEase_Music_artist_ID",
 "Netflix_ID",
 "Netflix_maturity_rating",
@@ -21324,6 +21387,7 @@ __all__ = (
 "NPSN_Indonesian_school_ID",
 "NRHP_reference_number",
 "NRJ_artist_ID",
+"NRK_topic_ID",
 "NRK_TV_ID",
 "NSC_number",
 "NSDAP_membership_number_1925_1945",
@@ -21695,6 +21759,7 @@ __all__ = (
 "OpenEdition_text_ID",
 "OpenHistoricalMap_relation_ID",
 "opening_time",
+"OpenITI_author_ID",
 "OpenMath_ID",
 "OpenML_dataset_ID",
 "openMLOL_author_ID",
@@ -21779,6 +21844,7 @@ __all__ = (
 "organisation_tax_status",
 "organization_code_or_unit_code",
 "organization_directed_by_the_office_or_position",
+"organizational_chart",
 "organizational_divisions",
 "organized_response_related_to_outbreak",
 "organizer",
@@ -22213,6 +22279,7 @@ __all__ = (
 "Plant_Illustrations_species_ID",
 "Plant_Illustrations_taxon_ID",
 "Plant_List_ID_Royal_Botanic_Gardens_Kew",
+"Plant_Ontology_ID",
 "Plant_Parasites_of_Europe_ID",
 "Plantarium_ID",
 "PlantFiles_taxon_ID",
@@ -22639,8 +22706,10 @@ __all__ = (
 "PZLA_athlete_ID",
 "PZS_hut_ID",
 "Q_Codes_ID",
+"Qalamgerkz_author_ID",
 "qamusinoorir_entry_ID",
 "Qantas_hotel_ID",
+"QCC_Code",
 "QEdu_ID",
 "Qichacha_firm_ID",
 "QLIT_ID",
@@ -23014,6 +23083,7 @@ __all__ = (
 "Rhineland_Palatinate_protected_area_ID",
 "Rhineland_Palatinate_school_ID",
 "RI_National_Register_Search_ID",
+"RIA_Novosti_person_ID",
 "RIA_Novosti_reference",
 "RIAA_artist_ID",
 "Ricochet_author_ID",
@@ -23147,6 +23217,7 @@ __all__ = (
 "RSL_scanned_publication_ID",
 "RSPA_ancient_author_ID",
 "RSPA_modern_author_ID",
+"RSQV_ID",
 "RTC_film_rating",
 "RTE_substation_ID",
 "RTECS_number",
@@ -23369,6 +23440,9 @@ __all__ = (
 "Scopus_EID",
 "Scopus_source_ID",
 "score_method",
+"Scorebar_Soccerway_match_ID",
+"Scorebar_Soccerway_person_ID",
+"Scorebar_Soccerway_team_ID",
 "Scoresway_baseball_person_ID_archived",
 "Scoresway_basketball_person_ID_archived",
 "Scoresway_handball_person_ID_archived",
@@ -23417,6 +23491,7 @@ __all__ = (
 "season_starts",
 "Seattle_Art_Museum_artwork_ID",
 "SEC_Kerala_code",
+"SEC_Number",
 "second_family_name_in_Spanish_name",
 "Secondary_Archive_artist_ID",
 "secondary_note",
@@ -23739,9 +23814,6 @@ __all__ = (
 "Soccerdonna_player_ID",
 "Soccerdonna_team_ID",
 "SoccerPuntercom_player_ID",
-"Soccerway_match_ID",
-"Soccerway_player_ID",
-"Soccerway_team_ID",
 "Soccerway_venue_ID",
 "social_classification",
 "social_media_followers",
@@ -24008,7 +24080,7 @@ __all__ = (
 "Stathletics_ID",
 "station_code",
 "statistical_leader",
-"Statistical_Service_of_Cyprus_Geocode",
+"Statistical_Service_of_Cyprus_geocode",
 "statistical_unit_used",
 "Statistics_Canada_Geographic_code",
 "Statistics_Denmarks_classification_of_occupation_DISCO_08",
@@ -24186,7 +24258,7 @@ __all__ = (
 "Swedish_Anbytarforum_ID",
 "Swedish_civil_parish_code_ATA_code",
 "Swedish_county_code",
-"Swedish_county_letter",
+"Swedish_county_letters",
 "Swedish_district_code",
 "Swedish_Film_Database_company_ID",
 "Swedish_Film_Database_group_ID",
@@ -24475,6 +24547,7 @@ __all__ = (
 "Thai_cultural_heritage_ID",
 "Thaifilm_ID",
 "Thailand_central_administrative_unit_code",
+"Thailand_company_ID",
 "The_American_Heritage_Dictionary_of_the_English_Language_entry_ID",
 "The_Arabidopsis_Information_Resource_Accession",
 "The_Armory_Show_at_100_ID",
@@ -24540,6 +24613,7 @@ __all__ = (
 "The_Oxford_Dictionary_of_Islam_ID",
 "The_Oxford_Dictionary_of_Music_entry_ID",
 "The_Oxford_Dictionary_of_Phrase_and_Fable_ID",
+"The_Oxford_Dictionary_of_the_Jewish_Religion_entry_ID",
 "The_Oxford_Encyclopedia_of_Islam_and_Women_ID",
 "The_Oxford_Encyclopedia_of_the_Islamic_World_ID",
 "The_Oxford_Essential_Dictionary_of_Foreign_Terms_in_English_ID",
