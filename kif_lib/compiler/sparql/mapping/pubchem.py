@@ -221,11 +221,15 @@ class PubChemMapping(M):
         priority=M.LOW_PRIORITY,
         rank=Normal)
     def wd_label_compound(self, c: C, s: V_URI, v: VLiteral) -> None:
-        chebi_ty = c.bnode()
-        c.q.triples()(
-            (s, RDF.type, chebi_ty),
-            (chebi_ty, GO.inSubset, c.uri(str(OBO) + 'chebi#3_STAR')),
-            (chebi_ty, RDFS.label, v))
+        with c.q.union():
+            with c.q.group():
+                self.wd_IUPAC_name(c, s, v)
+            with c.q.group():
+                chebi_ty = c.bnode()
+                c.q.triples()(
+                    (s, RDF.type, chebi_ty),
+                    (chebi_ty, GO.inSubset, c.uri(str(OBO) + 'chebi#3_STAR')),
+                    (chebi_ty, RDFS.label, v))
 
     @M.register(
         [wd.alias(Item(s), Text(v, 'en'))],
@@ -430,11 +434,21 @@ class PubChemMapping(M):
         {s: CheckCompound()},
         rank=Normal)
     def wd_IUPAC_name(self, c: C, s: V_URI, v: VLiteral) -> None:
-        attr = c.bnode()
-        c.q.triples()(
-            (attr, SIO.is_attribute_of, s),
-            (attr, RDF.type, CHEMINF.IUPAC_Name_generated_by_LexiChem),
-            (attr, SIO.has_value, v))
+        with c.q.union():
+            with c.q.group():
+                attr1 = c.bnode()
+                c.q.triples()(
+                    (s, SIO.has_attribute, attr1),
+                    (attr1, RDF.type,
+                     CHEMINF.IUPAC_Name_generated_by_LexiChem),
+                    (attr1, SIO.has_value, v))
+            with c.q.group():
+                attr2 = c.bnode()
+                c.q.triples()(
+                    (attr2, SIO.is_attribute_of, s),
+                    (attr2, RDF.type,
+                     CHEMINF.IUPAC_Name_generated_by_LexiChem),
+                    (attr2, SIO.has_value, v))
 
     @M.register(
         [wd.legal_status_medicine(Item(s), wd.FDA_approved)],

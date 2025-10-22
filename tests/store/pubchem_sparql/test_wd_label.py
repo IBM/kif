@@ -22,7 +22,7 @@ class Test(StoreTestCase):
 
     def test_count(self) -> None:
         c, F = self.store_count_assertion(self.KB())
-        c(2, F(pc.isotope_atom_count | pc.CID(241), wd.label))
+        c(4, F(pc.isotope_atom_count | pc.CID(241), wd.label))
 
     def test_filter(self) -> None:
         xf, F = self.store_xfilter_assertion(self.KB())
@@ -34,6 +34,7 @@ class Test(StoreTestCase):
             | pc.source('ID25790'),
             wd.label),
            {wd.label(pc.CID(241), 'benzene'),
+            wd.label(pc.CID(241), '[6]annulene'),
             wd.label(pc.isotope_atom_count, 'isotope atom count'),
             wd.label(pc.IUPAC_name, 'IUPAC name'),
             wd.label(

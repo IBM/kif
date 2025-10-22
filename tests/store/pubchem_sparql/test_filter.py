@@ -60,6 +60,8 @@ class Test(StoreTestCase):
         s = pc.CID(12196274)
         f(F(subject=s),
           {pc.isotope_atom_count(s, 4),
+           wd.label(s, '1,2,3,4-tetradeuteriobenzene'),
+           pc.IUPAC_name(s, '1,2,3,4-tetradeuteriobenzene'),
            wd.canonical_SMILES(s, 'C1=CC=CC=C1'),
            wd.chemical_formula(s, 'C₆H₆'),
            wd.described_by_source(s, pc.patent('BR-PI0720756-A2')),

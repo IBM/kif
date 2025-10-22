@@ -22,12 +22,13 @@ class Test(StoreTestCase):
 
     def test_count(self) -> None:
         c, F = self.store_count_assertion(self.KB())
-        c(1, F(pc.CID(241), pc.IUPAC_name))
+        c(2, F(pc.CID(241), pc.IUPAC_name))
 
     def test_filter(self) -> None:
         xf, F = self.store_xfilter_assertion(self.KB())
         xf(F(pc.CID(241), pc.IUPAC_name),
-           {pc.IUPAC_name(pc.CID(241), '[6]annulene')})
+           {pc.IUPAC_name(pc.CID(241), '[6]annulene'),
+            pc.IUPAC_name(pc.CID(241), 'benzene')})
 
 
 if __name__ == '__main__':
