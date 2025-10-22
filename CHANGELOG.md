@@ -22,6 +22,9 @@ The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.0.0/).
   Wikidata SPARQL mapping.  This bug was causing text and time entries to
   discarded during compilation.
 
+- Expanded the mapping of wd.label in PubChem to cover IUPAC names when
+  these are available.
+
 - Improved the parsing of time values.  Incomplete ISO-format strings (e.g.,
   "2004", "1998-11", etc.) are now supported.  Also, the new call
   `Time.now()` can be used to construct a time object with the current
@@ -33,7 +36,7 @@ The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.0.0/).
   KIF CLI.
 
 - Added `--vocabulary-dump` option to KIF CLI filter command.  The new
-  Makefile.conf targets `dump-*-property` use this option to generate parts
+  Makefile.conf targets `dump-*` use this option to generate parts
   of the vocabulary modules of DBpedia, FactGrid, Wikidata.
 
 - Added convenience encoder flags to KIF CLI, i.e., `--markdown`, `--repr`,

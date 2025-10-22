@@ -1,5 +1,15 @@
 # Tutorial
 
+Create a Python virtual environment, activate it, and use [pip](https://pypi.org/project/pip/) to install the latest release of [kif-lib](https://pypi.org/project/kif-lib/) (with KIF CLI included):
+
+```shell
+$ python -m env tutorial
+$ source tutorial/bin/activate
+(tutorial) $ pip install kif-lib[cli]
+```
+
+The rest of the tutorial assumes this environment.
+
 We start by importing the [Store][kif_lib.Store] constructor from the KIF library:
 
 ```py
@@ -42,7 +52,7 @@ The store `kb` we just created is an interface to Wikidata itself.  We can use i
 
 !!! note
 
-    Most Python examples shown in this tutorial can be reproduced on the command-line using [KIF CLI](guides/cli.md).  Click on the "CLI" tab above to see the KIF CLI invocation corresponding to the Python code.
+    Most Python examples shown in this tutorial can be reproduced on the command-line using [KIF CLI](guides/cli.md).  Click on the "CLI" tab above to see the equivalent KIF CLI shell invocation.
 
 If you run the previous Python code in Jupyter and use `display()` instead of `print()`, then the three statements will be pretty-printed in [S-expression](https://en.wikipedia.org/wiki/S-expression) format as follows:
 
@@ -90,7 +100,7 @@ print(stmt_alt)
 
 ### Vocabulary
 
-KIF comes with built-in vocabulary modules that ease the construction of entities in certain namespaces.  For instance, instead of writing their full IRIs, we can use the convenience functions [`wd.Q`][kif_lib.vocabulary.wd.Q] and [`wd.P`][kif_lib.vocabulary.wd] from the Wikidata vocabulary module [wd][kif_lib.vocabulary.wd] to construct the items [Brazil (Q155)](http://www.wikidata.org/entity/) and [Argentina (Q414)](http://www.wikidata.org/entity/Q414) and the property [shares border with (P47)](http://www.wikidata.org/entity/P47) more succinctly as follows:
+KIF comes with built-in vocabulary modules that ease the construction of entities in certain namespaces.  For instance, instead of writing their full IRIs, we can use the convenience functions [`wd.Q`][kif_lib.vocabulary.wd.Q] and [`wd.P`][kif_lib.vocabulary.wd] from the Wikidata vocabulary module [wd][kif_lib.vocabulary.wd] to construct the items [Brazil (Q155)](http://www.wikidata.org/entity/) and [Argentina (Q414)](http://www.wikidata.org/entity/Q414) and the property [shares border with (P47)](http://www.wikidata.org/entity/P47) as follows:
 
 ```py
 from kif_lib.vocabulary import wd
@@ -187,29 +197,34 @@ We can filter statements by specifying any combination of *subject*, *property*,
 
     ```py
     # (1) Match any statement whatsoever:
-    print(next(kb.filter()))
+    it = kb.filter()
+    print(next(it))
 
     # (2) Match statements with subject "water":
-    print(next(kb.filter(subject=wd.water)))
+    it = kb.filter(subject=wd.water)
+    print(next(it))
 
     # (3) Match statements with snak "place of birth is Athens":
-    print(next(kb.filter(snak=wd.place_of_birth(wd.Athens)))
+    it = kb.filter(snak=wd.place_of_birth(wd.Athens))
+    print(next(it))
 
     # (4) Match statements with property "official language":
-    print(next(kb.filter(property=wd.official_language)))
+    it = kb.filter(property=wd.official_language)
+    print(next(it))
 
     # (5) Match statements with value "733 kilograms":
-    print(next(kb.filter(value=733@wd.kilogram)))
+    it = kb.filter(value=733@wd.kilogram)
+    print(next(it))
 
     # (6) Match statements with subject "Brazil" and
     #     snak "shares border with Argentina":
-    print(next(kb.filter(
-        subject=wd.Brazil, snak=wd.shares_border_with(wd.Argentina))))
+    it = kb.filter(subject=wd.Brazil, snak=wd.shares_border_with(wd.Argentina))
+    print(next(it))
 
     # (7) Match statements with subject "Brazil" and
     #     snak "shares border with Chile":
-    print(next(kb.filter(subject=wd.Brazil, snak=wd.shares_border_with(wd.Chile))))
-    # *** ERROR: StopIteration: iterator is empty (no such statement)
+    it = kb.filter(subject=wd.Brazil, snak=wd.shares_border_with(wd.Chile))
+    print(next(it)) # *** ERROR: iterator is empty (no such statement) ***
     ```
 
 === "CLI"
@@ -255,23 +270,26 @@ We can filter statements by specifying any combination of *subject*, *property*,
 
     In example (7), the filter failed to match any statement in Wikidata, as Brazil does not share a border with Chile.  So, the returned iterator is empty and we get a `StopIteration` exception when we try to advance it.
 
-Alternative subjects, properties, and values can be specified using bitwise "or" operator (`|`):
+Alternative subjects, properties, and values can be specified using Python's bitwise "or" operator (`|`):
 
 === "Python"
 
     ```py
     # (1) Match statements with subject "Socrates" or "Plato":
-    print(next(kb.filter(subject=wd.Socrates|wd.Plato)))
+    it = kb.filter(subject=wd.Socrates|wd.Plato)
+    print(next(it))
 
     # (2) Match statements with subject "caffeine" and
     #     property "density" or "mass" or "pKa":
-    print(next(kb.filter(subject=wd.caffeine, property=wd.density|wd.mass|wd.pKa)))
+    it = kb.filter(subject=wd.caffeine, property=wd.density|wd.mass|wd.pKa)
+    print(next(it))
 
     # (3) Match statements with subject "IBM" and
     #     value "16 June 1911" or "https://www.ibm.com/":
     from kif_lib import IRI, Time
-    for stmt in.filter(
-        subject=wd.IBM, value=Time('1911-06-16')|IRI('https://www.ibm.com/')):
+    it = kb.filter(
+        subject=wd.IBM, value=Time('1911-06-16')|IRI('https://www.ibm.com/'))
+    for stmt in it:
         print(stmt)
     ```
 
@@ -301,8 +319,8 @@ The [Or][kif_lib.Or] constructor can be used to build value alternatives more co
 
 ```py
 south_america_countries = [wd.Brazil, wd.Argentina, wd.Uruguay, ...]
-for stmt in kb.filter(
-    subject=Or(*south_america_countries), property=wd.capital)):
+it = kb.filter(subject=Or(*south_america_countries), property=wd.capital)
+for stmt in it:
     print(stmt)
 ```
 
@@ -319,7 +337,7 @@ Suppose we want to match statements whose subjects are any items that "share bor
 it = kb.filter(subject=wd.Brazil|wd.Uruguay|wd.Chile|...))
 ```
 
-Sometimes, however, we do not know the subjects beforehand.  In such cases, a more convenient approach is to use as the subject a snak that captures the desired constraint.  For example:
+Sometimes, however, we do not know the subjects beforehand.  In such cases, a more convenient approach is to use a snak that captures the desired constraint.  For example:
 
 ```py
 snak = wd.shares_border_with(wd.Argentina)
@@ -334,7 +352,7 @@ The filter below matches statements such that the subject is any item that "shar
 it = kb.filter(subject=wd.shares_border_with(wd.Argentina))
 ```
 
-**Snak constraints** such as `wd.shares_border_with(wd.Argentina)` can be given as subject, property, or value arguments to the [`kb.filter()`][kif_lib.Store.filter] method.  Moreover, they can be combined with other constraints using the bitwise "and" (`&`) and "or" (`|`) operators (or the convenience constructors [And][kif_lib.And] and [Or][kif_lib.Or]).  For example:
+**Snak constraints** such as `wd.shares_border_with(wd.Argentina)` can be given as subject, property, or value arguments to [`kb.filter()`][kif_lib.Store.filter].  Moreover, they can be combined with other constraints using the bitwise "and" (`&`) and "or" (`|`) operators (or the convenience constructors [And][kif_lib.And] and [Or][kif_lib.Or]).  For example:
 
 === "Python"
 
@@ -390,7 +408,7 @@ it = kb.filter(subject=wd.shares_border_with(wd.Argentina))
 > `(4a)` (**Statement** (**Item** [Brazil](http://www.wikidata.org/entity/Q155)) (**ValueSnak** (**Property** [highest point](http://www.wikidata.org/entity/P610)) (**Item** [Pico da Neblina](http://www.wikidata.org/entity/Q739484))))<br/>
 > `(4b)` (**Statement** (**Item** [Brazil](http://www.wikidata.org/entity/Q155)) (**ValueSnak** (**Property** [driving side](http://www.wikidata.org/entity/P1622)) (**Item** [right](http://www.wikidata.org/entity/Q14565199))))
 
-Constraints that require traversing paths of length greater than one can be specified using the property **sequencing operator** `/`.  For example, the filter below matches statements such that:
+Constraints that require traversing paths of length greater than one can be specified using the **sequencing operator** `/`.  For example, the filter below matches statements such that:
 
 - the subject "has some notable work in a collection which is part of the Louvre"; and
 
@@ -415,30 +433,152 @@ Constraints that require traversing paths of length greater than one can be spec
 
 ### Masks and language
 
-The parameters ending in `*_mask` of [`kb.filter()`][kif_lib.Store.filter] specify **masks** that restrict the matched subjects, properties, and values to certain kinds.  The parameter `language` can be used to restrict the **language** of any returned text values. For instance:
+The mask parameters *subject_mask*, *property_mask*, and *value_mask* of [`kb.filter()`][kif_lib.Store.filter] can be used to restrict the kinds of entities, properties, and values to be matched. For example:
 
-```pycon
->>> # (1) Subject is "Louvre Museum" and value is an IRI:
->>> next(kb.filter(subject=wd.Wikidata, value_mask=Filter.IRI))
+=== "Python"
 
->>> # (2) Subject is a property and value is a property:
->>> next(kb.filter(subject_mask=Filter.PROPERTY, value_mask=Filter.PROPERTY))
+    ```py
+    from kif_lib import Filter
 
->>> # (3) Subject is "El Capitan" and value is an external id or quantity:
->>> it = kb.filter(
-...     subject=wd.El_Capitan,
-...     value_mask=Filter.EXTERNAL_ID|Filter.QUANTITY); print(*it)
+    # (1) Subject is "Louvre Museum" and value is an IRI:
+    it = kb.filter(subject=wd.Wikidata, value_mask=Filter.IRI)
+    print(next(it))
 
->>> # (4) Subject is "Mario", property is "catchphrase", value is in Italian:
->>> next(kb.filter(subject=wd.Mario, property=wd.catchphrase, language='it'))
-```
+    # (2) Subject is a property and value is a property:
+    it = kb.filter(subject_mask=Filter.PROPERTY, value_mask=Filter.PROPERTY)
+    print(next(it))
+
+    # (3) Subject is "El Capitan" and value is an external id or quantity:
+    it = kb.filter(
+        subject=wd.El_Capitan, value_mask=Filter.EXTERNAL_ID|Filter.QUANTITY)
+    print(next(it))
+    ```
+
+=== "CLI"
+
+    ```sh
+    # (1) Subject is "Louvre Museum" and value is an IRI:
+    $ kif filter --subject=wd.Wikidata, value-mask=Filter.IRI
+
+    # (2) Subject is a property and value is a property:
+    $ kif filter --subject-mask=Filter.PROPERTY --value-mask=Filter.PROPERTY
+
+    # (3) Subject is "El Capitan" and value is an external id or quantity:
+    $ kif filter --subject=wd.El_Capitan\
+        --value-mask="Filter.EXTERNAL_ID|Filter.QUANTITY"
+    ```
 
 > `(1 )` (**Statement** (**Item** [Louvre Museum](http://www.wikidata.org/entity/Q19675)) (**ValueSnak** (**Property** [official website](http://www.wikidata.org/entity/P856)) https://www.louvre.fr/))<br/>
 > `(2 )` (**Statement** (**Property** [part of the series](http://www.wikidata.org/entity/P179)) (**ValueSnak** (**Property** [subproperty of](http://www.wikidata.org/entity/P1647)) (**Property** [part of](http://www.wikidata.org/entity/P361))))<br/>
 > `(3a)` (**Statement** (**Item** [El Capitan](http://www.wikidata.org/entity/Q1124852)) (**ValueSnak** (**Property** [GeoNames ID](http://www.wikidata.org/entity/P1566)) "5334090"))<br/>
 > `(3b)` (**Statement** (**Item** [El Capitan](http://www.wikidata.org/entity/Q1124852)) (**ValueSnak** (**Property** [elevation above sea level](http://www.wikidata.org/entity/P2044)) 2307 [metre](http://www.wikidata.org/entity/Q11573)))<br/>
-> `(4 )` (**Statement** (**Item** [Mario](http://www.wikidata.org/entity/Q12379)) (**ValueSnak** (**Property** [catchphrase](http://www.wikidata.org/entity/P6251)) "Mamma mia!"@it))
 
 !!! note
 
     As illustrated in example (3) above, masks can be operated through the usual bitwise operations.  See [Filter][kif_lib.Filter] for the available mask values.
+
+Another mask parameter of [`kb.filter()`][kif_lib.Store.filter] is *snak_mask* which determines the kinds of snaks to be matched.  So far, we have dealt only with value snaks ([ValueSnak][kif_lib.ValueSnak]), which are essentially property-value pairs.  But KIF also supports, some-value snaks ([SomeValueSnak][kif_lib.SomeValueSnak]) and no-value snaks ([NoValueSnak][kif_lib.NoValueSnak]), which carry only the predicated property.
+
+**Some-value snaks** represent predications with an unknown value, while **no-value snaks** represent predications with an absent value.  For instance, the fact that the Greek poet Homer's place of birth is unknown is represented in Wikidata by the some-value statement:
+
+> (**Statement** (**Item** [Homer](http://www.wikidata.org/entity/Q6691)) (**SomeValueSnak** (**Property** [place of birth](http://www.wikidata.org/entity/P19))))
+
+Similarly, the fact that the natural number 1 has no prime factor is represented by the no-value statement:
+
+> (**Statement** (**Item** [1](http://www.wikidata.org/entity/Q199)) (**NoValueSnak** (**Property** [prime factor](http://www.wikidata.org/entity/P5236))))
+
+The kinds of snaks to be matched are determined by the filter parameter *snak_mask*:
+
+=== "Python"
+
+    ```py
+    # (1) Subject is "Homer" and snak is some-value:
+    it = kb.filter(subject=wd.Homer, snak_mask=Filter.SOME_VALUE_SNAK)
+    print(next(it))
+
+    # (2) Subject is "1" and snak is no-value:
+    it = kb.filter(subject=wd._1, snak_mask=Filter.NO_VALUE_SNAK)
+    print(next(it))
+
+    # (3) Subject is "Adam" and snak is some- or no-value:
+    it = kb.filter(subject=wd.Adam,
+        snak_mask=Filter.SOME_VALUE_SNAK|Filter.NO_VALUE_SNAK, limit=2)
+    for stmt in it:
+        print(stmt)
+    ```
+
+=== "CLI"
+
+    ```sh
+    # (1) Subject is "Homer" and snak is some-value:
+    $ kif filter --subject=wd.Homer --snak-mask=Filter.SOME_VALUE_SNAK
+
+    # (2) Subject is "1" and snak is no-value:
+    $ kif filter --subject=wd._1 --snak-mask=Filter.NO_VALUE_SNAK
+
+    # (3) Subject is "Adam" and snak is some- or no-value:
+    $ kif filter --subject=wd.Adam
+        --snak-mask="Filter.SOME_VALUE_SNAK|Filter.NO_VALUE_SNAK" --limit=2
+    ```
+
+> `(1 )` (**Statement** (**Item** [Homer](http://www.wikidata.org/entity/Q6691)) (**SomeValueSnak** (**Property** [place of birth](http://www.wikidata.org/entity/P19))))<br/>
+> `(2 )` (**Statement** (**Item** [1](http://www.wikidata.org/entity/Q199)) (**NoValueSnak** (**Property** [prime factor](http://www.wikidata.org/entity/P5236))))
+> `(3a)` (**Statement** (**Item** [Adam](http://www.wikidata.org/entity/Q70899)) (**SomeValueSnak** (**Property** [date of birth](http://www.wikidata.org/entity/P569))))<br/>
+> `(3b)` (**Statement** (**Item** [Adam](http://www.wikidata.org/entity/Q70899)) (**NoValueSnak** (**Property** [father](http://www.wikidata.org/entity/P22))))
+
+The last filter parameter we want to mention is *language*, which controls the language of the returned text values.  If *language* is not given, [`kb.filter()`][kif_lib.Store.filter] returns statements with text values in any language:
+
+=== "Python"
+
+    ```py
+    # Subject is "Mario" and property is "catchphrase":
+    it = kb.filter(subject=wd.Mario, property=wd.catchphrase)
+    for stmt in it:
+        print(next(it))
+    ```
+
+=== "CLI"
+
+    ```sh
+    $ kif filter --subject=wd.Mario --property=wd.catchphrase
+    ```
+
+> (**Statement** (**Item** [Mario](http://www.wikidata.org/entity/Q12379)) (**ValueSnak** (**Property** [catchphrase](http://www.wikidata.org/entity/P6251)) "It’s-a me, Mario!"@en))<br/>
+> (**Statement** (**Item** [Mario](http://www.wikidata.org/entity/Q12379)) (**ValueSnak** (**Property** [catchphrase](http://www.wikidata.org/entity/P6251)) "Let’s-a go!"@en-us))<br/>
+> (**Statement** (**Item** [Mario](http://www.wikidata.org/entity/Q12379)) (**ValueSnak** (**Property** [catchphrase](http://www.wikidata.org/entity/P6251)) "Mamma mia!"@it))
+
+However, we can set the *language* to a specific language tag ("en", "it", "fr", "pt", etc.) to filter-out statements with text values in languages other than the desired one:
+
+=== "Python"
+
+    ```py
+    # (1) Subject is "Mario", property is "catchphrase", value is in English:
+    it = kb.filter(subject=wd.Mario, property=wd.catchphrase, language='en')
+    print(next(it))
+
+    # (2) Subject is "Mario", property is "catchphrase", value is in Italian:
+    it = kb.filter(subject=wd.Mario, property=wd.catchphrase, language='it')
+    print(next(it))
+    ```
+
+=== "CLI"
+
+    ```sh
+    # (1) Subject is "Mario", property is "catchphrase", value is in English:
+    $ kif filter --subject=wd.Mario --property=wd.catchphrase  --language=en
+
+    # (2) Subject is "Mario", property is "catchphrase", value is in Italian:
+    $ kif filter --subject=wd.Mario --property=wd.catchphrase --language=it
+    ```
+
+> `(1)` (**Statement** (**Item** [Mario](http://www.wikidata.org/entity/Q12379)) (**ValueSnak** (**Property** [catchphrase](http://www.wikidata.org/entity/P6251)) "It’s-a me, Mario!"@en))
+> `(2)` (**Statement** (**Item** [Mario](http://www.wikidata.org/entity/Q12379)) (**ValueSnak** (**Property** [catchphrase](http://www.wikidata.org/entity/P6251)) "Mamma mia!"@it))
+
+### Pseudo-properties
+
+KIF extends the Wikidata data-model with the notion of **pseudo-properties**.  These are property-like entities which are not represented as properties in Wikidata.  For instance, entity labels, aliases, and descriptions, are not represented as properties in Wikidata, but are made available in KIF through the pseudo-properties [LabelProperty][kif_lib.LabelProperty], [AliasProperty][kif_lib.AliasProperty], [DescriptionProperty][kif_lib.DescriptionProperty].
+
+We can use pseudo-properties in filters as if they were ordinary properties:
+
+
+## Ask, count, mix
