@@ -40,6 +40,7 @@ from .model import (
     Property,
     Quantity,
     ShallowDataValue,
+    Snak,
     SnakSet,
     SomeValueSnak,
     String,
@@ -476,6 +477,19 @@ class FingerprintParamType(KIF_ObjectParamType):
     ) -> Fingerprint:
         return self._convert(Fingerprint, value, param, ctx)  # type: ignore
 
+class SnakParamType(KIF_ObjectParamType):
+
+    name: str = 'snak'
+
+    @override
+    def convert(
+            self,
+            value: Any,
+            param: click.Parameter | None,
+            ctx: click.Context | None
+    ) -> Fingerprint:
+        return self._convert(Snak, value, param, ctx)  # type: ignore
+
 
 class SnakMaskParamType(KIF_ObjectParamType):
 
@@ -698,6 +712,14 @@ class FilterParam:
         help='Projection specification.',
         envvar='SELECT')
 
+    snak = click.option(
+        '--snak',
+        'snak',
+        type=SnakParamType.get_instance(),
+        required=False,
+        help='Snak.',
+        envvar='SNAK')
+
     snak_is_no_value = click.option(
         '--snak-is-no-value',
         'snak_is_no_value',
@@ -916,6 +938,7 @@ class FilterParam:
             property_option: Fingerprint | None = None,
             value: Fingerprint | None = None,
             value_option: Fingerprint | None = None,
+            snak: Snak | None = None,
             snak_is_no_value: bool | None = None,
             snak_is_some_value: bool | None = None,
             snak_is_value: bool | None = None,
@@ -1027,7 +1050,12 @@ class FilterParam:
             best_ranked=best_ranked,
             language=language,
             annotated=annotated,
-        ).normalize()
+        )
+        if snak is not None:
+            fr = fr.combine(Filter.from_snak(None, snak).replace(
+                best_ranked=fr.best_ranked and best_ranked,
+                annotated=fr.annotated or annotated))
+        fr = fr.normalize()
         if dry_run:
             (console or Console()).print(Markdown(fr.to_markdown()))
             sys.exit(0)
@@ -1081,6 +1109,7 @@ class FilterParam:
 @FilterParam.property_option
 @FilterParam.rank_mask
 @FilterParam.resolve
+@FilterParam.snak
 @FilterParam.snak_is_no_value
 @FilterParam.snak_is_some_value
 @FilterParam.snak_is_value
@@ -1116,6 +1145,7 @@ def ask(
         property_option: Fingerprint | None = None,
         value: Fingerprint | None = None,
         value_option: Fingerprint | None = None,
+        snak: Snak | None = None,
         snak_is_no_value: bool | None = None,
         snak_is_some_value: bool | None = None,
         snak_is_value: bool | None = None,
@@ -1159,6 +1189,7 @@ def ask(
             property_option=property_option,
             value=value,
             value_option=value_option,
+            snak=snak,
             snak_is_no_value=snak_is_no_value,
             snak_is_some_value=snak_is_some_value,
             snak_is_value=snak_is_value,
@@ -1223,6 +1254,7 @@ def ask(
 @FilterParam.rank_mask
 @FilterParam.resolve
 @FilterParam.select
+@FilterParam.snak
 @FilterParam.snak_is_no_value
 @FilterParam.snak_is_some_value
 @FilterParam.snak_is_value
@@ -1258,6 +1290,7 @@ def count(
         property_option: Fingerprint | None = None,
         value: Fingerprint | None = None,
         value_option: Fingerprint | None = None,
+        snak: Snak | None = None,
         snak_is_no_value: bool | None = None,
         snak_is_some_value: bool | None = None,
         snak_is_value: bool | None = None,
@@ -1303,6 +1336,7 @@ def count(
             property_option=property_option,
             value=value,
             value_option=value_option,
+            snak=snak,
             snak_is_no_value=snak_is_no_value,
             snak_is_some_value=snak_is_some_value,
             snak_is_value=snak_is_value,
@@ -1392,6 +1426,7 @@ def count(
 @FilterParam.rank_mask
 @FilterParam.resolve
 @FilterParam.select
+@FilterParam.snak
 @FilterParam.snak_is_no_value
 @FilterParam.snak_is_some_value
 @FilterParam.snak_is_value
@@ -1428,6 +1463,7 @@ def filter(
         property_option: Fingerprint | None = None,
         value: Fingerprint | None = None,
         value_option: Fingerprint | None = None,
+        snak: Snak | None = None,
         snak_is_no_value: bool | None = None,
         snak_is_some_value: bool | None = None,
         snak_is_value: bool | None = None,
@@ -1485,6 +1521,7 @@ def filter(
             property_option=property_option,
             value=value,
             value_option=value_option,
+            snak=snak,
             snak_is_no_value=snak_is_no_value,
             snak_is_some_value=snak_is_some_value,
             snak_is_value=snak_is_value,
