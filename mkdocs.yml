@@ -6,6 +6,8 @@ theme:
     name: 'material'
     features:
       - content.code.annotate
+      - content.code.copy
+      - content.tabs.link
     font:
       text: IBM Plex
       code: IBM Plex Mono
@@ -29,9 +31,10 @@ repo_url: https://github.com/ibm/kif/
 
 nav:
   - Introduction: 'index.md'
-  - Quickstart: 'quickstart.md'
+  - Tutorial: 'tutorial.md'
   - Guides:
     - Data Model: 'guides/data_model.md'
+    - KIF CLI: 'guides/cli.md'
     - RDF: 'guides/rdf.md'
   - API Reference:
     - Context: 'api/context.md'
@@ -98,8 +101,12 @@ extra_css:
 
 markdown_extensions:
   - admonition
-  - pymdownx.details
   - pymdownx.superfences
+  - pymdownx.tabbed:
+      slugify: !!python/object/apply:pymdownx.slugs.slugify
+        kwds:
+          case: lower
+      alternate_style: true
 
 plugins:
   - mkdocstrings:

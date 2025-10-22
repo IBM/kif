@@ -1,39 +1,52 @@
-# Quickstart
+# Tutorial
 
 We start by importing the [Store][kif_lib.Store] constructor from the KIF library:
 
-```pycon
->>> from kif_lib import Store
+```py
+from kif_lib import Store
 ```
 
 We'll also need the [Wikidata](https://www.wikidata.org/) vocabulary module [wd][kif_lib.vocabulary.wd]:
 
-```pycon
->>> from kif_lib.vocabulary import wd
+```py
+from kif_lib.vocabulary import wd
 ```
 
 Now, let's create a KIF store pointing to the official [Wikidata query service](https://query.wikidata.org/):
 
-```pycon
->>> kb = Store('wikidata')
+```py
+kb = Store('wikidata')
 ```
 
 A KIF **store** is an interface to a knowledge source.  It allows us to query the source as if it were Wikidata and obtain Wikidata-like statements as a result.
 
 The store `kb` we just created is an interface to Wikidata itself.  We can use it, for example, to fetch from Wikidata three statements about [Brazil (Q155)](http://www.wikidata.org/entity/Q155):
 
-```pycon
->>> it = kb.filter(subject=wd.Brazil, limit=3)
->>> for stmt in it:
->>>    print(stmt)
-Statement(Item(IRI('http://www.wikidata.org/entity/Q155')), ValueSnak(Property(IRI('http://www.wikidata.org/entity/P47'), ItemDatatype()), Item(IRI('http://www.wikidata.org/entity/Q414'))))
-Statement(Item(IRI('http://www.wikidata.org/entity/Q155')), ValueSnak(Property(IRI('http://www.wikidata.org/entity/P571'), TimeDatatype()), Time(datetime.datetime(1822, 9, 7, 0, 0, tzinfo=datetime.timezone.utc), 11, 0, Item(IRI('http://www.wikidata.org/entity/Q1985727')))))
-Statement(Item(IRI('http://www.wikidata.org/entity/Q155')), ValueSnak(Property(IRI('http://www.wikidata.org/entity/P37'), ItemDatatype()), Item(IRI('http://www.wikidata.org/entity/Q5146'))))
-```
+=== "Python"
+
+    ```py
+    it = kb.filter(subject=wd.Brazil, limit=3)
+    for stmt in it:
+       print(stmt)
+    # -- output --
+    # Statement(Item(IRI('http://www.wikidata.org/entity/Q155')), ValueSnak(Property(IRI('http://www.wikidata.org/entity/P47'), ItemDatatype()), Item(IRI('http://www.wikidata.org/entity/Q414'))))
+    # Statement(Item(IRI('http://www.wikidata.org/entity/Q155')), ValueSnak(Property(IRI('http://www.wikidata.org/entity/P571'), TimeDatatype()), Time(datetime.datetime(1822, 9, 7, 0, 0, tzinfo=datetime.timezone.utc), 11, 0, Item(IRI('http://www.wikidata.org/entity/Q1985727')))))
+    # Statement(Item(IRI('http://www.wikidata.org/entity/Q155')), ValueSnak(Property(IRI('http://www.wikidata.org/entity/P37'), ItemDatatype()), Item(IRI('http://www.wikidata.org/entity/Q5146'))))
+    ```
+
+=== "CLI"
+
+    ```sh
+    $ kif filter --store=wikidata --subject=wd.Brazil --limit=3
+    ```
 
 !!! note
 
-    If you run the above code in Jupyter and use `display()` instead of `print()`, then the three statements will be pretty-printed as follows:
+    Most Python examples shown in this tutorial can be reproduced on the command-line using [KIF CLI](guides/cli.md).  Click on the "CLI" tab above to see the KIF CLI invocation corresponding to the Python code.
+
+!!! note
+
+    If you run the previous Python code in Jupyter and use `display()` instead of `print()`, then the three statements will be pretty-printed as follows:
 
     > (**Statement** (**Item** [Brazil](http://www.wikidata.org/entity/Q155)) (**ValueSnak** (**Property** [shares border with](http://www.wikidata.org/entity/P47)) (**Item** [Argentina](http://www.wikidata.org/entity/Q414))))<br/>
     > (**Statement** (**Item** [Brazil](http://www.wikidata.org/entity/Q155)) (**ValueSnak** (**Property** [inception](http://www.wikidata.org/entity/P571)) 7 September 1822))<br/>
