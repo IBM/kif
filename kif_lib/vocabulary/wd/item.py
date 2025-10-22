@@ -13,15 +13,12 @@ acetone = Q(49546, 'acetone')
 Adam = Q(70899, 'Adam')
 Adam_and_Eve = Q(58701, 'Adam and Eve')
 administrative_territorial_entity_of_Brazil = Q(10374536, 'administrative territorial entity of Brazil')
-Africa = Q(15, 'Africa')
 Alan_Turing = Q(7251, 'Alan Turing')
 algorithm = Q(8366, 'algorithm')
 Amazonas = Q(40040, 'Amazonas')
-Americas = Q(828, 'Americas')
 approximately = Q(60070514, 'approximately')
 aromatic_compound = Q(19834818, 'aromatic compound')
 aromatic_hydrocarbon = Q(230731, 'aromatic hydrocarbon')
-Asia = Q(48, 'Asia')
 Athens = Q(1524, 'Athens')
 Atlantic_Ocean = Q(97, 'Atlantic Ocean')
 autobahn_in_Germany = Q(313301, 'autobahn in Germany')
@@ -75,7 +72,6 @@ English_Wikipedia = Q(328, 'English Wikipedia')
 entity = Q(35120, 'entity')
 Environmental_Protection_Agency = Q(460173, 'Environmental Protection Agency')
 estimate = Q(37113960, 'estimate')
-Europe = Q(46, 'Europe')
 Eve = Q(830183, 'Eve')
 exact_match_ = Q(39893449, 'exact match')
 Fall_of_man = Q(1135949,  'Fall of man')
@@ -190,7 +186,6 @@ musician = Q(639669, 'musician')
 mythical_character = Q(4271324, 'mythical character')
 Nepal = Q(837, 'Nepal')
 New_York_City = Q(60, 'New York City')
-North_America = Q(49, 'North America')
 Oceania = Q(55643, 'Oceania')
 OECD_Functional_Use_Categories = Q(131929187, 'OECD Functional Use Categories')
 OECD_Product_Use_Categories = Q(134113538, 'OECD Product Use Categories')
@@ -239,7 +234,6 @@ Socrates = Q(913, 'Socrates')
 sodium_bicarbonate = Q(179731, 'sodium bicarbonate')
 software = Q(7397, 'software')
 sourcing_circumstance_ = Q(104637420, 'sourcing circumstance')
-South_America = Q(18, 'South America')
 sovereign_state = Q(3624078, 'sovereign state')
 Spanish = Q(1321, 'Spanish')
 species = Q(7432, 'species')
@@ -293,15 +287,12 @@ __all__ = (
     'Adam',
     'Adam_and_Eve',
     'administrative_territorial_entity_of_Brazil',
-    'Africa',
     'Alan_Turing',
     'algorithm',
     'Amazonas',
-    'Americas',
     'approximately',
     'aromatic_compound',
     'aromatic_hydrocarbon',
-    'Asia',
     'Athens',
     'Atlantic_Ocean',
     'autobahn_in_Germany',
@@ -357,7 +348,6 @@ __all__ = (
     'Environmental_Protection_Agency',
     'EPA',
     'estimate',
-    'Europe',
     'Eve',
     'exact_match_',
     'Fall_of_man',
@@ -473,7 +463,6 @@ __all__ = (
     'mythical_character',
     'Nepal',
     'New_York_City',
-    'North_America',
     'Oceania',
     'OECD_Functional_Use_Categories',
     'OECD_Product_Use_Categories',
@@ -522,7 +511,6 @@ __all__ = (
     'sodium_bicarbonate',
     'software',
     'sourcing_circumstance_',
-    'South_America',
     'sovereign_state',
     'Spanish',
     'species',

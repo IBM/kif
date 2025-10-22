@@ -8,6 +8,7 @@
 from __future__ import annotations
 
 from .item import *
+from .item_continent import *
 from .item_country import *
 from .prelude import *
 from .property import *
