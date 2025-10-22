@@ -477,6 +477,7 @@ class FingerprintParamType(KIF_ObjectParamType):
     ) -> Fingerprint:
         return self._convert(Fingerprint, value, param, ctx)  # type: ignore
 
+
 class SnakParamType(KIF_ObjectParamType):
 
     name: str = 'snak'
