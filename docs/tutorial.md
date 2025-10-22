@@ -289,7 +289,7 @@ Alternative subjects, properties, and values can be specified using bitwise "or"
     # (3) Match statements with subject "IBM" and
     #     value "16 June 1911" or "https://www.ibm.com/":
     $ kif filter --subject=wd.IBM\
-        --value="Time('1911-06-16')|IRI('https://www.ibm.com/')" --limit=1
+        --value="Time('1911-06-16')|IRI('https://www.ibm.com/')" --limit=2
     ```
 
 > `(1 )` (**Statement** (**Item** [Plato](http://www.wikidata.org/entity/Q859)) (**ValueSnak** (**Property** [notable work](http://www.wikidata.org/entity/P800)) (**Item** [The Republic](http://www.wikidata.org/entity/Q123397))))<br/>
@@ -370,8 +370,8 @@ it = kb.filter(subject=wd.shares_border_with(wd.Argentina))
         --property=wd.capital --limit=1
 
     # (2) Subject is "water" and property is a "property related to chemistry":
-    $ kif filter --subject=wd.water
-        --property="wd.instance_of(wd.Wikidata_property_related_to_chemistry)))"\
+    $ kif filter --subject=wd.water\
+        --property="wd.instance_of(wd.Wikidata_property_related_to_chemistry)"\
         --limit=1
 
     # (3) Property is "place of birth" and value is the "capital of Poland":
@@ -396,11 +396,20 @@ Constraints that require traversing paths of length greater than one can be spec
 
 - the property is "handedness".
 
-```pycon
->>> next(kb.filter(
-...     subject=(wd.notable_work/wd.collection/wd.part_of)(wd.Louvre_Museum),
-...     property=wd.handedness))
-```
+=== "Python"
+
+    ```py
+    next(kb.filter(
+        subject=(wd.notable_work/wd.collection/wd.part_of)(wd.Louvre_Museum),
+        property=wd.handedness))
+    ```
+
+=== "CLI"
+
+    ```sh
+    $ kif filter --subject="(wd.notable_work/wd.collection/wd.part_of)(wd.Louvre_Museum)"\
+        --property=wd.handedness
+    ```
 
 > (**Statement** (**Item** [Leonardo da Vinci](http://www.wikidata.org/entity/Q762)) (**ValueSnak** (**Property** [handedness](http://www.wikidata.org/entity/P552)) (**Item** [left-handedness](http://www.wikidata.org/entity/Q789447))))
 
