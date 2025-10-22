@@ -19,17 +19,13 @@ algorithm = Q(8366, 'algorithm')
 Amazonas = Q(40040, 'Amazonas')
 Americas = Q(828, 'Americas')
 approximately = Q(60070514, 'approximately')
-Argentina = Q(414, 'Argentina')
 aromatic_compound = Q(19834818, 'aromatic compound')
 aromatic_hydrocarbon = Q(230731, 'aromatic hydrocarbon')
 Asia = Q(48, 'Asia')
 Athens = Q(1524, 'Athens')
 Atlantic_Ocean = Q(97, 'Atlantic Ocean')
-Australia = Q(408, 'Australia')
 autobahn_in_Germany = Q(313301, 'autobahn in Germany')
 benzene = Q(2270, 'benzene')
-Bolivia = Q(750, 'Bolivia')
-Brazil = Q(155, 'Brazil')
 Brazilian_Portuguese = Q(750553, 'Brazilian Portuguese')
 Brazilian_Sign_Language = Q(3436689, 'Brazilian Sign Language')
 bridge = Q(12280, 'bridge')
@@ -49,10 +45,8 @@ chemistry = Q(2329, 'chemistry')
 ChemSpider = Q(2311683, 'ChemSpider')
 chicken = Q(780, 'chicken')
 child_ = Q(7569, 'child')
-Chile = Q(298, 'Chile')
 class__ = Q(37517, 'class')
 coffee = Q(8486, 'coffee')
-Colombia = Q(739, 'Colombia')
 comma_separated_values = Q(935809, 'comma-separated values')
 CompTox_Chemistry_Dashboard = Q(26998510, 'CompTox Chemistry Dashboard')
 continent_ = Q(5107, 'continent')
@@ -93,14 +87,11 @@ feminine = Q(1775415, 'feminine')
 flame_retardant = Q(902863, 'flame retardant')
 flying_saucer = Q(5401971, 'flying saucer')
 Food_and_Agriculture_Organization = Q(82151, 'Food and Agriculture Organization')
-France = Q(142, 'France')
-French_Guiana = Q(3769, 'French Guiana')
 frog = Q(3116510, 'frog')
 Garden_of_Eden = Q(19014, 'Garden of Eden')
 Garden_of_Eden = Q(19014, 'Garden of Eden')
 Geneva = Q(71, 'Geneva')
 genus = Q(34740, 'genus')
-Germany = Q(183, 'Germany')
 ginga = Q(1411420, 'ginga')
 Ginga = Q(5563000, 'Ginga')
 Global_Substance_Registration_System = Q(116031405, 'Global Substance Registration System')
@@ -205,14 +196,12 @@ OECD_Functional_Use_Categories = Q(131929187, 'OECD Functional Use Categories')
 OECD_Product_Use_Categories = Q(134113538, 'OECD Product Use Categories')
 oral_administration = Q(285166, 'oral administration')
 order = Q(36602, 'order')
-Paraguay = Q(733, 'Paraguay')
 Paris = Q(90, 'Paris')
 part = Q(15989253, 'part')
 parts_per_million = Q(21006887, 'parts per million')
 patent = Q(253623, 'patent')
 per_and_polyfluoroalkyl_substances = Q(648037, 'per- and polyfluoroalkyl substances')
 percent = Q(11229, 'percent')
-Peru =  Q(419, 'Peru')
 phylum = Q(38348, 'phylum')
 physics = Q(413, 'physics')
 Pico_31_de_Março = Q(1264913, 'Pico 31 de Março')
@@ -220,7 +209,6 @@ Pico_da_Neblina = Q(739484, 'Pico da Neblina')
 picomole = Q(56157048, 'picomole')
 pig = Q(787, 'pig')
 Plato = Q(859, 'Plato')
-Poland = Q(36, 'Poland')
 Portuguese = Q(5146, 'Portuguese')
 primate = Q(7380, 'primate')
 product = Q(2424752, 'product')
@@ -260,7 +248,6 @@ strain = Q(855769, 'strain')
 subcutaneous_injection = Q(2035485, 'subcutaneous injection')
 summit = Q(207326, 'summit')
 Supercalifragilisticexpialidocious = Q(103, 'Supercalifragilisticexpialidocious')
-Suriname = Q(730, 'Suriname')
 system_software = Q(676202, 'system software')
 taxon = Q(16521, 'taxon')
 taxonomic_rank = Q(427626, 'taxonomic rank')
@@ -269,12 +256,8 @@ type_of_chemical_entity = Q(113145171, 'type of a chemical entity')
 unit_of_mass = Q(3647172, 'unit of mass')
 unit_of_measurement = Q(47574, 'unit of measurement')
 unit_of_time = Q(1790144, 'unit of time')
-United_Kingdom = Q(145, 'United Kingdom')
 United_States_Geological_Survey = Q(193755, 'United States Geological Survey')
-United_States_of_America = Q(30, 'United States of America')
-Uruguay = Q(77, 'Uruguay')
 vendor = Q(1762621, 'vendor')
-Venezuela = Q(717, 'Venezuela')
 verb = Q(24905, 'verb')
 Warsaw = Q(270, 'Warsaw')
 water = Q(283, 'water')
@@ -316,17 +299,13 @@ __all__ = (
     'Amazonas',
     'Americas',
     'approximately',
-    'Argentina',
     'aromatic_compound',
     'aromatic_hydrocarbon',
     'Asia',
     'Athens',
     'Atlantic_Ocean',
-    'Australia',
     'autobahn_in_Germany',
     'benzene',
-    'Bolivia',
-    'Brazil',
     'Brazilian_Portuguese',
     'Brazilian_Sign_Language',
     'bridge',
@@ -346,10 +325,8 @@ __all__ = (
     'ChemSpider',
     'chicken',
     'child_',
-    'Chile',
     'class__',
     'coffee',
-    'Colombia',
     'comma_separated_values',
     'CompTox_Chemistry_Dashboard',
     'continent_',
@@ -393,14 +370,11 @@ __all__ = (
     'flame_retardant',
     'flying_saucer',
     'Food_and_Agriculture_Organization',
-    'France',
-    'French_Guiana',
     'frog',
     'Garden_of_Eden',
     'Garden_of_Eden',
     'Geneva',
     'genus',
-    'Germany',
     'ginga',
     'Ginga',
     'Global_Substance_Registration_System',
@@ -505,14 +479,12 @@ __all__ = (
     'OECD_Product_Use_Categories',
     'oral_administration',
     'order',
-    'Paraguay',
     'Paris',
     'part',
     'parts_per_million',
     'patent',
     'per_and_polyfluoroalkyl_substances',
     'percent',
-    'Peru',
     'phylum',
     'physics',
     'Pico_31_de_Março',
@@ -520,7 +492,6 @@ __all__ = (
     'picomole',
     'pig',
     'Plato',
-    'Poland',
     'Portuguese',
     'primate',
     'product',
@@ -560,7 +531,6 @@ __all__ = (
     'subcutaneous_injection',
     'summit',
     'Supercalifragilisticexpialidocious',
-    'Suriname',
     'system_software',
     'taxon',
     'taxonomic_rank',
@@ -570,13 +540,9 @@ __all__ = (
     'unit_of_mass',
     'unit_of_measurement',
     'unit_of_time',
-    'United_Kingdom',
     'United_States_Geological_Survey',
-    'United_States_of_America',
-    'Uruguay',
     'USGS',
     'vendor',
-    'Venezuela',
     'verb',
     'Warsaw',
     'water',
