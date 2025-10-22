@@ -433,7 +433,7 @@ Constraints that require traversing paths of length greater than one can be spec
 
 ### Masks and language
 
-The mask parameters *subject_mask*, *property_mask*, and *value_mask* of [`kb.filter()`][kif_lib.Store.filter] can be used to restrict the kinds of entities, properties, and values to be matched. For example:
+The parameters *subject_mask*, *property_mask*, and *value_mask* of [`kb.filter()`][kif_lib.Store.filter] can be used to restrict the kinds of entities, properties, and values to be matched. For example:
 
 === "Python"
 
@@ -522,7 +522,7 @@ The kinds of snaks to be matched are determined by the filter parameter *snak_ma
     ```
 
 > `(1 )` (**Statement** (**Item** [Homer](http://www.wikidata.org/entity/Q6691)) (**SomeValueSnak** (**Property** [place of birth](http://www.wikidata.org/entity/P19))))<br/>
-> `(2 )` (**Statement** (**Item** [1](http://www.wikidata.org/entity/Q199)) (**NoValueSnak** (**Property** [prime factor](http://www.wikidata.org/entity/P5236))))
+> `(2 )` (**Statement** (**Item** [1](http://www.wikidata.org/entity/Q199)) (**NoValueSnak** (**Property** [prime factor](http://www.wikidata.org/entity/P5236))))<br/>
 > `(3a)` (**Statement** (**Item** [Adam](http://www.wikidata.org/entity/Q70899)) (**SomeValueSnak** (**Property** [date of birth](http://www.wikidata.org/entity/P569))))<br/>
 > `(3b)` (**Statement** (**Item** [Adam](http://www.wikidata.org/entity/Q70899)) (**NoValueSnak** (**Property** [father](http://www.wikidata.org/entity/P22))))
 
@@ -576,9 +576,16 @@ However, we can set the *language* to a specific language tag ("en", "it", "fr",
 
 ### Pseudo-properties
 
-KIF extends the Wikidata data-model with the notion of **pseudo-properties**.  These are property-like entities which are not represented as properties in Wikidata.  For instance, entity labels, aliases, and descriptions, are not represented as properties in Wikidata, but are made available in KIF through the pseudo-properties [LabelProperty][kif_lib.LabelProperty], [AliasProperty][kif_lib.AliasProperty], [DescriptionProperty][kif_lib.DescriptionProperty].
+KIF extends the Wikidata data-model with the notion of **pseudo-properties**.  These are property-like entities which are not represented as properties in Wikidata.  For instance, entity labels, aliases, and descriptions, are not represented as Wikidata properties but are made available in KIF through the pseudo-properties [LabelProperty][kif_lib.LabelProperty], [AliasProperty][kif_lib.AliasProperty], [DescriptionProperty][kif_lib.DescriptionProperty].
 
 We can use pseudo-properties in filters as if they were ordinary properties:
+
+```py
+from kif_lib import DescriptionProperty
+it = kb.filter(subject=wd.IBM, property=DescriptionProperty())
+print(next(it))
+```
+
 
 
 ## Ask, count, mix
