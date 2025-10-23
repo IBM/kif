@@ -103,6 +103,26 @@ print(stmt_alt)
 
     KIF data-model objects are immutable: once constructed, they cannot be changed.  Also, data-model object identity is completely determined by the object contents.  This means that two data-model objects constructed from the same arguments will always test equal.  For example, `(stmt == stmt_alt) == True` above.
 
+To access the contents of statement objects, we can use the fields `subject` and `snak`:
+
+```py
+print(stmt.subject, stmt.snak)
+```
+
+> (**Item** [Brazil](http://www.wikidata.org/entity/Q155))<br/>
+> (**ValueSnak** (**Property** [shares border with](http://www.wikidata.org/entity/P47)) (**Item** [Argentina](http://www.wikidata.org/entity/Q414)))
+
+Other data-model objects, such as entities, data values, and snaks, have analogous content-accessing fields (see [Data Model](guides/data_model.md)):
+
+```
+print(stmt.subject.iri, stmt.snak.property, stmt.snak.value)
+```
+
+> http://www.wikidata.org/entity/Q155<br/>
+> (**Property** [shares border with](http://www.wikidata.org/entity/P47))<br/>
+> (**Item** [Argentina](http://www.wikidata.org/entity/Q414))
+
+
 ### Vocabulary
 
 KIF comes with built-in vocabulary modules that ease the construction of entities in certain namespaces.  For instance, instead of writing the full IRI of Wikidata entities, we can use the convenience functions [`wd.Q`][kif_lib.vocabulary.wd.Q] and [`wd.P`][kif_lib.vocabulary.wd] from the Wikidata vocabulary module [wd][kif_lib.vocabulary.wd] to construct the items [Brazil (Q155)](http://www.wikidata.org/entity/) and [Argentina (Q414)](http://www.wikidata.org/entity/Q414) and the property [shares border with (P47)](http://www.wikidata.org/entity/P47):
@@ -188,7 +208,7 @@ kb = Store('wikidata', 'https://query.wikidata.org/sparql')
     ...
     ```
 
-## Filters
+## Filter
 
 The basic store operation is the *filter*.
 
@@ -213,6 +233,8 @@ The call [`kb.filter(...)`][kif_lib.Store.filter] searches for statements in `kb
 > (**Statement** (**Item** [Alan Turing](http://www.wikidata.org/entity/Q7251)) (**ValueSnak** (**Property** [doctoral advisor](http://www.wikidata.org/entity/P184)) (**Item** [Alonzo Church](http://www.wikidata.org/entity/Q92741))))
 
 If no *limit* argument is given to [kb.filter()][kif_lib.Store.filter], the returned iterator will eventually produce all matching statements.  For instance, iterator `it` above will produce every statement about [Alan Turing (Q7251)](http://www.wikidata.org/entity/Q7251) in Wikidata before it is exhausted.
+
+### Basic filters
 
 We can filter statements by specifying any combination of *subject*, *property*, *value* (or *snak*) to match.  None of these are required though.  For example:
 
@@ -352,7 +374,7 @@ for stmt in it:
 > (**Statement** (**Item** [Brazil](http://www.wikidata.org/entity/Q155)) (**ValueSnak** (**Property** [capital](http://www.wikidata.org/entity/P36)) (**Item** [Brasília](http://www.wikidata.org/entity/Q2844))))<br/>
 > ⋮
 
-## More complex filters
+### More complex filters
 
 Suppose we want to match statements whose subjects are any items that "share border with Argentina".  If we know the subjects beforehand, we can specify them explicitly using the `|` operator:
 
@@ -476,7 +498,7 @@ Constraints that require traversing property paths of length greater than one ca
 
 > (**Statement** (**Item** [Leonardo da Vinci](http://www.wikidata.org/entity/Q762)) (**ValueSnak** (**Property** [handedness](http://www.wikidata.org/entity/P552)) (**Item** [left-handedness](http://www.wikidata.org/entity/Q789447))))
 
-## Masks and language
+### Masks and language
 
 The parameters *subject_mask*, *property_mask*, and *value_mask* of [`kb.filter()`][kif_lib.Store.filter] can be used to restrict the kinds of entities, properties, and values to be matched. For example:
 
@@ -767,39 +789,111 @@ The pseudo-property `wd.subtype`, which is the transitive counterpart of `wd.sub
 
 ## Statement annotations
 
-Up to now, we have dealt only with plain statements ([Statement][kif_lib.Statement]).  These are statements consisting of a subject plus a snak and nothing else.  In KIF, statements can also carry extra information collectively referred to as **annotations**.  Statements with annotations are called **annotated statements** ([AnnotatedStatement][kif_lib.AnnotatedStatement]).  These behave exactly as plain statements but besides a subject and a snak also carry a set of qualifiers, a set of reference records, and a rank.  The **qualifiers**, as the name implies, qualify the statement assertion; the **reference records** contain provenance information; and the **rank** indicates the quality of the statement.
+Up to now, we have dealt only with plain statements ([Statement][kif_lib.Statement]).  These are statements consisting of a subject plus a snak and nothing else.  In KIF, statements can also carry extra information referred collectively as **annotations**.  These annotated statements ([AnnotatedStatement][kif_lib.AnnotatedStatement]) behave exactly as plain statements but besides a subject and a snak also carry a set of qualifiers, a set of reference records, and a rank.  The **qualifiers**, as the name implies, qualify the statement assertion; the **reference records** contain provenance information; and the **rank** indicates the quality of the statement.
 
-The boolean parameter *annotated* can be used to instruct the [`kb.filter()`][kif_lib.Store.filter] method to obtain the annotations associated with each returned statement.  Alternatively, the variant [`kb.filter_annotated()`][kif_lib.Store.filter_annotated] can be used.  It behaves exactly as [`kb.filter()`][kif_lib.Store.filter] with *annotated* set to `True` but its return type is [AnnotatedStatement][kif_lib.AnnotatedStatement] instead of [Statement][kif_lib.Statement].
+The boolean parameter *annotated* can be used to instruct the [`kb.filter()`][kif_lib.Store.filter] method to obtain the annotations associated with each returned statement.  Alternatively, the variant [`kb.filter_annotated()`][kif_lib.Store.filter_annotated] can be used.  It behaves exactly as [`kb.filter()`][kif_lib.Store.filter] with the *annotated* flag set to `True` but its return type is [AnnotatedStatement][kif_lib.AnnotatedStatement] instead of [Statement][kif_lib.Statement].
 
-For example, contrast this:
+The difference between [`kb.filter()`][kif_lib.Store.filter] and [`kb.filter_annotated()`][kif_lib.Store.filter_annotated] is illustrated in examples (1) and (2) below:
 
-```py
-# Get the "density" of "benzene":
-it = kb.filter(subject=wd.benzene, property=wd.density)
-print(next(it))
-```
+=== "Python"
 
-> (**Statement** (**Item** [benzene](http://www.wikidata.org/entity/Q2270)) (**ValueSnak** (**Property** [density](http://www.wikidata.org/entity/P2054)) 0.88 ±0.01 [gram per cubic centimetre](http://www.wikidata.org/entity/Q13147228)))
+    ```py
+    # (1) Get the "density" of "benzene":
+    it = kb.filter(subject=wd.benzene, property=wd.density)
+    print(next(it))
 
-With this:
+    # (2) Get the "density" of "benzene" (with annotations):
+    it = kb.filter_annotated(subject=wd.benzene, property=wd.density)
+    print(next(it))
+    ```
 
-```py
-# Get the "density" of "benzene" (with annotations):
-it = kb.filter_annotated(subject=wd.benzene, property=wd.density)
-print(next(it))
-```
+=== "CLI"
 
-> (**AnnotatedStatement** (**Item** [benzene](http://www.wikidata.org/entity/Q2270)) (**ValueSnak** (**Property** [density](http://www.wikidata.org/entity/P2054)) 0.88 ±0.01 [gram per cubic centimetre](http://www.wikidata.org/entity/Q13147228))<br/>
+    ```sh
+    # (1) Get the "density" of "benzene":
+    $ kif filter --subject=wd.benzene --property=wd.density
+
+    # (2) Get the "density" of "benzene" (with annotations):
+    $ kif filter --subject=wd.benzene --property=wd.density --annotated
+
+    # Note: The --annotated flag instructs KIF CLI to fetch annotations.
+    ```
+
+> `(1)` (**Statement** (**Item** [benzene](http://www.wikidata.org/entity/Q2270)) (**ValueSnak** (**Property** [density](http://www.wikidata.org/entity/P2054)) 0.88 ±0.01 [gram per cubic centimetre](http://www.wikidata.org/entity/Q13147228)))<br/>
+> `(2)` (**AnnotatedStatement** (**Item** [benzene](http://www.wikidata.org/entity/Q2270)) (**ValueSnak** (**Property** [density](http://www.wikidata.org/entity/P2054)) 0.88 ±0.01 [gram per cubic centimetre](http://www.wikidata.org/entity/Q13147228))<br/>
 >  (**QualifierRecord**<br/>
 >   (**ValueSnak** (**Property** [temperature](http://www.wikidata.org/entity/P2076)) 20 ±1 [degree Celsius](http://www.wikidata.org/entity/Q25267))<br/>
 >   (**ValueSnak** (**Property** [phase of matter](http://www.wikidata.org/entity/P515)) (**Item** [liquid](http://www.wikidata.org/entity/Q11435))))<br/>
 >  (**ReferenceRecordSet**<br/>
 >    (**ReferenceRecord**<br/>
->    (**ValueSnak** (**Property** [HSDB ID](http://www.wikidata.org/entity/P2062)) "35#section=TSCA-Test-Submissions")<br/>
->    (**ValueSnak** (**Property** [stated in](http://www.wikidata.org/entity/P248)) (**Item** [Hazardous Substances Data Bank](http://www.wikidata.org/entity/Q5687720)))))<br/>
+>     (**ValueSnak** (**Property** [HSDB ID](http://www.wikidata.org/entity/P2062)) "35#section=TSCA-Test-Submissions")<br/>
+>     (**ValueSnak** (**Property** [stated in](http://www.wikidata.org/entity/P248)) (**Item** [Hazardous Substances Data Bank](http://www.wikidata.org/entity/Q5687720)))))<br/>
 >  **NormalRank**)<br/>
 
-Both statements above assert that benzene's density is 0.88±0.01 g/cm.  But the latter, which is annotated, also qualifies the assertion.  That is, it says in addition that this is the case when "the temperature is 20±1 ℃"
+Both statements, (1) and (2), assert that "benzene's density is 0.88±0.01 g/cm".  But statement (2), which is annotated, carries more information.  Its qualifier record qualifies the assertion, i.e., says in addition that this is the case when "the temperature is 20±1 ℃" and "the phase of matter is liquid".  Its reference record set contains a single reference record which indicates the provenance of the statement, namely, the entry with the given HSDB ID in the Hazardous Substances Data Bank.  Finally, its rank is "normal" which is the default one and means that its status is neutral (neither preferred nor deprecated).
+
+!!! note
+
+    The [QualifierRecord][kif_lib.QualifierRecord] is essentially a set of snaks, while the reference record set is a set of [ReferenceRecord][kif_lib.ReferenceRecord] objects, each of which is itself a snak set.  See [Data Model](guides/data_model.md) for details.
+
+As plain statements, annotated statements can be constructed directly using data-model object constructors.  For instance, `stmt1` and `stmt2` below correspond exactly to statement (2) above.
+
+```py
+from kif_lib import (AnnotatedStatement, NormalRank,
+                     QualifierRecord, Quantity,
+                     ReferenceRecord, ReferenceRecordSet, ValueSnak)
+
+stmt1 = AnnotatedStatement(
+    wd.benzene,
+    ValueSnak(
+        wd.density,
+        Quantity('.88', wd.gram_per_cubic_centimetre, '.87', '.89')),
+    QualifierRecord(
+        wd.temperature(Quantity(20, wd.degree_Celsius, 19, 21)),
+        wd.phase_of_matter(wd.liquid)),
+    ReferenceRecordSet(
+        ReferenceRecord(
+            wd.HSDB_ID('35#section=TSCA-Test-Submissions'),
+        wd.stated_in(wd.Hazardous_Substances_Data_Bank))),
+    NormalRank())
+
+stmt2 = wd.density(
+    wd.benzene, Quantity('.88', wd.gram_per_cubic_centimetre, '.87', '.89'),
+    qualifiers=[
+        wd.temperature(Quantity(20, wd.degree_Celsius, 19, 21)),
+        wd.phase_of_matter(wd.liquid)],
+    references=[[
+        wd.HSDB_ID('35#section=TSCA-Test-Submissions'),
+        wd.stated_in(wd.Hazardous_Substances_Data_Bank)]],
+    rank=NormalRank())
+
+print(stmt1 == stmt2)             # True
+```
+
+If you already have a statement, then you can use the method [`annotate()`][Statement.annotate] to create an annotated version of it.  For example:
+
+```py
+stmt3 = wd.density(
+    wd.benzene, Quantity('.88', wd.gram_per_cubic_centimetre, '.87', '.89'))
+
+stmt4 = stmt3.annotate(
+    qualifiers=[
+        wd.temperature(Quantity(20, wd.degree_Celsius, 19, 21)),
+        wd.phase_of_matter(wd.liquid)],
+    references=[[
+        wd.HSDB_ID('35#section=TSCA-Test-Submissions'),
+        wd.stated_in(wd.Hazardous_Substances_Data_Bank)]],
+    rank=NormalRank())
+
+print(stmt1 == stmt2 == stmt4)    # True
+print(stmt3 == stmt4)             # False
+```
+
+Conversely, if you have an annotated statement you can use the method [`unannotated`][AnnotatedStatement.unannotate] to obtain its plain version:
+
+```py
+print(stmt3 == stmt4.unannotate() # True
+```
 
 ## Ask, count, mix
 
