@@ -101,7 +101,7 @@ class TypeProperty(PseudoProperty):
 
 
 class SubtypeProperty(PseudoProperty):
-    """The "type" pseudo-property."""
+    """The "subtype" pseudo-property."""
 
     expected_iri = IRI(RDFS.subClassOf)
     expected_range = ItemDatatype()

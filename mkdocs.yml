@@ -61,6 +61,7 @@ nav:
           - Entity: 'api/model/value/entity/entity.md'
           - Item: 'api/model/value/entity/item.md'
           - Property: 'api/model/value/entity/property.md'
+          - Pseudo-Property: 'api/model/value/entity/pseudo_property.md'
           - Lexeme: 'api/model/value/entity/lexeme.md'
         - Data Value:
           - Data Value: 'api/model/value/data_value/data_value.md'

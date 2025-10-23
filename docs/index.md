@@ -7,11 +7,13 @@
 
 KIF is a Python framework for knowledge integration from [IBM Research](https://research.ibm.com/).
 
-It is based on [Wikidata](https://www.wikidata.org/) and licensed under the
+It is based on [Wikidata](https://www.wikidata.org/) and licensed under the open-source
 [Apache-2.0
 license](https://raw.githubusercontent.com/IBM/kif/refs/heads/main/LICENSE).
 
 First time here? Check out the [tutorial](tutorial.md).
+
+Looking for the sources? See the [GitHub repository](https://github.com/IBM/kif).
 
 [![Supported Python Versions](https://img.shields.io/pypi/pyversions/kif_lib)](https://pypi.org/project/kif_lib/) [![PyPI version](https://badge.fury.io/py/kif_lib.svg)](https://badge.fury.io/py/kif_lib) [![Downloads](https://pepy.tech/badge/kif_lib/month)](https://pepy.tech/project/kif_lib)
 
