@@ -476,7 +476,7 @@ Constraints that require traversing property paths of length greater than one ca
 
 > (**Statement** (**Item** [Leonardo da Vinci](http://www.wikidata.org/entity/Q762)) (**ValueSnak** (**Property** [handedness](http://www.wikidata.org/entity/P552)) (**Item** [left-handedness](http://www.wikidata.org/entity/Q789447))))
 
-## Masks, snak kinds, language
+## Masks and language
 
 The parameters *subject_mask*, *property_mask*, and *value_mask* of [`kb.filter()`][kif_lib.Store.filter] can be used to restrict the kinds of entities, properties, and values to be matched. For example:
 
@@ -621,7 +621,7 @@ We can set the *language* parameter to a language tag ("en", "it", "fr", "pt", e
 
 ## Pseudo-properties
 
-KIF extends the Wikidata data-model with the notion of **pseudo-properties**.  These are property-like entities which are not represented as properties in Wikidata.  For instance, labels, aliases, and descriptions, are not represented as Wikidata properties but are made available in KIF through the pseudo-properties [LabelProperty][kif_lib.LabelProperty], [AliasProperty][kif_lib.AliasProperty], [DescriptionProperty][kif_lib.DescriptionProperty].
+KIF extends the Wikidata data-model with the notion of **pseudo-properties**.  These are property-like entities which are not represented as properties in Wikidata.  For instance, labels, aliases, and descriptions are not represented as properties in Wikidata but are made available in KIF through the pseudo-properties [LabelProperty][kif_lib.LabelProperty], [AliasProperty][kif_lib.AliasProperty], [DescriptionProperty][kif_lib.DescriptionProperty].
 
 We can use pseudo-properties in filters as if they were ordinary properties:
 
@@ -660,7 +660,7 @@ We can use pseudo-properties in filters as if they were ordinary properties:
 > `(2)` (**Statement** (**Item** [Mars](http://www.wikidata.org/entity/Q111)) (**ValueSnak** **AliasProperty** "Planète rouge"@fr))<br/>
 > `(3)` (**Statement** (**Item** [Mars](http://www.wikidata.org/entity/Q111)) (**ValueSnak** **DescriptionProperty** "fourth planet in the Solar System from the Sun"@en))
 
-The Wikidata vocabulary module [wd][kif_lib.vocabulary.wd] defines the aliases `wd.label`, `wd.alias`, `wd.description` for the pseudo-properties [`LabelProperty()`][kif_lib.LabelProperty], [`AliasProperty()`][kif_lib.AliasProperty], [`DescriptionProperty()`][kif_lib.DescriptionProperty].  These can be used to write a little less verbose filter calls:
+The Wikidata vocabulary module [wd][kif_lib.vocabulary.wd] defines the aliases `wd.label`, `wd.alias`, `wd.description` for the pseudo-properties [`LabelProperty()`][kif_lib.LabelProperty], [`AliasProperty()`][kif_lib.AliasProperty], [`DescriptionProperty()`][kif_lib.DescriptionProperty].  These can be used to write less verbose filter calls:
 
 === "Python"
 
@@ -683,6 +683,87 @@ The Wikidata vocabulary module [wd][kif_lib.vocabulary.wd] defines the aliases `
 > (**Statement** (**Item** [Mars](http://www.wikidata.org/entity/Q111)) (**ValueSnak** **LabelProperty** "Marte"@pt))<br/>
 > (**Statement** (**Item** [Mars](http://www.wikidata.org/entity/Q111)) (**ValueSnak** **AliasProperty** "planeta Marte"@pt))<br/>
 > (**Statement** (**Item** [Mars](http://www.wikidata.org/entity/Q111)) (**ValueSnak** **DescriptionProperty** "quarto planeta a partir do Sol no Sistema Solar"@pt))
+
+Some KIF pseudo-properties have no direct counterpart in Wikidata.  This is the case of the pseudo-properties [TypeProperty][kif_lib.TypeProperty] and [SubtypeProperty][kif_lib.SubtypeProperty], whose [wd][kif_lib.vocabulary.wd] aliases are `wd.a` and `wd.subtype`.  These pseudo-properties stand for the ontological relations "is a" and "subclass of", respectively, and can be seen as more powerful (transitivity-enabled) versions of the Wikidata properties [instance of (P31)](http://www.wikidata.org/entity/P31) and [subclass of P(279)](http://www.wikidata.org/entity/P279).
+
+To see the difference, consider the following example:
+
+=== "Python"
+
+    ```py
+    # Get the classes such that "rabbit" in an instance:
+    it = kb.filter(subject=wd.rabbit, property=wd.instance_of)
+    for stmt in it:
+        print(stmt)
+    ```
+
+=== "CLI"
+
+    ```sh
+    # Get the classes such that "rabbit" in an instance:
+    $ kif filter --subject=wd.rabbit --property=wd.instance_of
+    ```
+
+> (**Statement** (**Item** [rabbit](http://www.wikidata.org/entity/Q9394)) (**ValueSnak** (**Property** [instance of](http://www.wikidata.org/entity/P31)) (**Item** [organisms known by a particular common name](http://www.wikidata.org/entity/Q55983715))))<br/>
+> (**Statement** (**Item** [rabbit](http://www.wikidata.org/entity/Q9394)) (**ValueSnak** (**Property** [instance of](http://www.wikidata.org/entity/P31)) (**Item** [taxon](http://www.wikidata.org/entity/Q16521))))
+
+This filter gets statements that assert the classes of which [rabbit (Q9394)](http://www.wikidata.org/entity/Q9394) is an instance.  Now, If replace `wd.instance_of` by `wd.a`, we get three times more results:
+
+=== "Python"
+
+    ```py
+    # Get the classes such that "rabbit" in an instance (with transitivity):
+    it = kb.filter(subject=wd.rabbit, property=wd.a)
+    for stmt in it:
+        print(stmt)
+    ```
+
+=== "CLI"
+
+    ```sh
+    # Get the classes such that "rabbit" in an instance (with transitivity):
+    $ kif filter --subject=wd.rabbit --property=wd.a
+    ```
+
+> (**Statement** (**Item** [rabbit](http://www.wikidata.org/entity/Q9394)) (**ValueSnak** **TypeProperty** (**Item** [group or class of living things](http://www.wikidata.org/entity/Q21871294))))<br/>
+> (**Statement** (**Item** [rabbit](http://www.wikidata.org/entity/Q9394)) (**ValueSnak** **TypeProperty** (**Item** [organisms known by a particular common name](http://www.wikidata.org/entity/Q55983715))))<br/>
+> (**Statement** (**Item** [rabbit](http://www.wikidata.org/entity/Q9394)) (**ValueSnak** **TypeProperty** (**Item** [group or class of physical objects](http://www.wikidata.org/entity/Q98119401))))<br/>
+> (**Statement** (**Item** [rabbit](http://www.wikidata.org/entity/Q9394)) (**ValueSnak** **TypeProperty** (**Item** [collective entity](http://www.wikidata.org/entity/Q99527517))))<br/>
+> (**Statement** (**Item** [rabbit](http://www.wikidata.org/entity/Q9394)) (**ValueSnak** **TypeProperty** (**Item** [taxon](http://www.wikidata.org/entity/Q16521))))<br/>
+> (**Statement** (**Item** [rabbit](http://www.wikidata.org/entity/Q9394)) (**ValueSnak** **TypeProperty** (**Item** [entity](http://www.wikidata.org/entity/Q35120))))
+
+What is happening is that the latter version will consider as classes such that rabbit is an instance not only [organisms known by a particular common name (Q55983715)](http://www.wikidata.org/entity/Q55983715) and [taxon (Q16521)](http://www.wikidata.org/entity/Q16521), but also any super-classes of these two.  In other words, while `wd.instance_of` looks only to the immediate class, `wd.a` traverses the whole class hierarchy.
+
+The pseudo-property `wd.subtype`, which is the transitive counterpart of `wd.subclass_of`, behaves similarly:
+
+=== "Python"
+
+    ```py
+    # (1) Get the subclasses of "mammal":
+    it = kif.filter(subject=wd.mammal, --property=wd.subclass_of)
+    for stmt in it:
+        print(stmt)
+
+    # (2) Get the subclasses of "mammal" (with transitivity):
+    for stmt in it:
+        print(stmt)
+    ```
+
+=== "CLI"
+
+    ```sh
+    # (1) Get the subclasses of "mammal":
+    $ kif filter --subject=wd.mammal --property=wd.subclass_of
+
+    # (2) Get the subclasses of "mammal" (with transitivity):
+    $ kif filter --subject=wd.mammal --property=wd.subtype  --markdown
+    ```
+
+> `(1 )` (**Statement** (**Item** [mammal](http://www.wikidata.org/entity/Q7377)) (**ValueSnak** (**Property** [subclass of](http://www.wikidata.org/entity/P279)) (**Item** [Vertebrata](http://www.wikidata.org/entity/Q25241))))<br/>
+> `(2a)` (**Statement** (**Item** [mammal](http://www.wikidata.org/entity/Q7377)) (**ValueSnak** **SubtypeProperty** (**Item** [animal](http://www.wikidata.org/entity/Q729))))<br/>
+> `(2b)` (**Statement** (**Item** [mammal](http://www.wikidata.org/entity/Q7377)) (**ValueSnak** **SubtypeProperty** (**Item** [Vertebrata](http://www.wikidata.org/entity/Q25241))))<br/>
+> `(2c)` (**Statement** (**Item** [mammal](http://www.wikidata.org/entity/Q7377)) (**ValueSnak** **SubtypeProperty** (**Item** [organism](http://www.wikidata.org/entity/Q7239))))<br/>
+> ⋮
 
 ## Statement annotations
 
