@@ -659,8 +659,8 @@ Arch_Linux_package = Property(IRI('http://www.wikidata.org/entity/P3454'), Exter
 Archaeological_Cadastre_Greece_ID = Property(IRI('http://www.wikidata.org/entity/P13741'), ExternalIdDatatype()).register(labels=[Text('Archaeological Cadastre (Greece) ID', 'en')], range=ExternalIdDatatype())
 Archaeological_investigations_in_Hungary_ID = Property(IRI('http://www.wikidata.org/entity/P12731'), ExternalIdDatatype()).register(labels=[Text('Archaeological investigations in Hungary ID', 'en')], range=ExternalIdDatatype())
 archaeological_site_of = Property(IRI('http://www.wikidata.org/entity/P9047'), ItemDatatype()).register(labels=[Text('archaeological site of', 'en')], range=ItemDatatype())
-Archaeology_Data_Service_ID = Property(IRI('http://www.wikidata.org/entity/P11365'), ExternalIdDatatype()).register(labels=[Text('Archaeology Data Service ID', 'en')], range=ExternalIdDatatype())
 Archaeology_Data_Service_person_ID = Property(IRI('http://www.wikidata.org/entity/P6734'), ExternalIdDatatype()).register(labels=[Text('Archaeology Data Service person ID', 'en')], range=ExternalIdDatatype())
+Archaeology_Data_Service_work_ID = Property(IRI('http://www.wikidata.org/entity/P11365'), ExternalIdDatatype()).register(labels=[Text('Archaeology Data Service work ID', 'en')], range=ExternalIdDatatype())
 Archaeology_in_Greece_Online_place_ID = Property(IRI('http://www.wikidata.org/entity/P8218'), ExternalIdDatatype()).register(labels=[Text('Archaeology in Greece Online place ID', 'en')], range=ExternalIdDatatype())
 ArchDaily_architecture_office_ID = Property(IRI('http://www.wikidata.org/entity/P12364'), ExternalIdDatatype()).register(labels=[Text('ArchDaily architecture office ID', 'en')], range=ExternalIdDatatype())
 Archdiocese_of_Liverpool_parish_ID = Property(IRI('http://www.wikidata.org/entity/P9489'), ExternalIdDatatype()).register(labels=[Text('Archdiocese of Liverpool parish ID', 'en')], range=ExternalIdDatatype())
@@ -3726,6 +3726,7 @@ end_grade = Property(IRI('http://www.wikidata.org/entity/P7095'), ItemDatatype()
 end_of_covered_period = Property(IRI('http://www.wikidata.org/entity/P7104'), TimeDatatype()).register(labels=[Text('end of covered period', 'en')], range=TimeDatatype())
 end_period = Property(IRI('http://www.wikidata.org/entity/P3416'), ItemDatatype()).register(labels=[Text('end period', 'en')], range=ItemDatatype())
 end_time = Property(IRI('http://www.wikidata.org/entity/P582'), TimeDatatype()).register(labels=[Text('end time', 'en')], range=TimeDatatype())
+end_work = Property(IRI('http://www.wikidata.org/entity/P13884'), ItemDatatype()).register(labels=[Text('end work', 'en')], range=ItemDatatype())
 endangeredlanguagescom_ID = Property(IRI('http://www.wikidata.org/entity/P2192'), ExternalIdDatatype()).register(labels=[Text('endangeredlanguages.com ID', 'en')], range=ExternalIdDatatype())
 Endemianc_animal_taxon_ID = Property(IRI('http://www.wikidata.org/entity/P9876'), ExternalIdDatatype()).register(labels=[Text('Endemia.nc animal taxon ID', 'en')], range=ExternalIdDatatype())
 endemic_to = Property(IRI('http://www.wikidata.org/entity/P183'), ItemDatatype()).register(labels=[Text('endemic to', 'en')], range=ItemDatatype())
@@ -7055,7 +7056,7 @@ Macdonald_Dictionary_ID = Property(IRI('http://www.wikidata.org/entity/P8067'), 
 Macedonian_cadastral_municipality_ID = Property(IRI('http://www.wikidata.org/entity/P8542'), ExternalIdDatatype()).register(labels=[Text('Macedonian cadastral municipality ID', 'en')], range=ExternalIdDatatype())
 Macintosh_Garden_game_ID = Property(IRI('http://www.wikidata.org/entity/P7811'), ExternalIdDatatype()).register(labels=[Text('Macintosh Garden game ID', 'en')], range=ExternalIdDatatype())
 Macintosh_Repository_ID = Property(IRI('http://www.wikidata.org/entity/P7812'), ExternalIdDatatype()).register(labels=[Text('Macintosh Repository ID', 'en')], range=ExternalIdDatatype())
-Mackolikcom_former_player_ID_numeric = Property(IRI('http://www.wikidata.org/entity/P2458'), ExternalIdDatatype()).register(labels=[Text('Mackolik.com former player ID (numeric)', 'en')], range=ExternalIdDatatype())
+Mackolikcom_player_ID_numeric = Property(IRI('http://www.wikidata.org/entity/P2458'), ExternalIdDatatype()).register(labels=[Text('Mackolik.com player ID (numeric)', 'en')], range=ExternalIdDatatype())
 MACM_artist_ID = Property(IRI('http://www.wikidata.org/entity/P13212'), ExternalIdDatatype()).register(labels=[Text('MACM artist ID', 'en')], range=ExternalIdDatatype())
 MACM_artwork_ID = Property(IRI('http://www.wikidata.org/entity/P13335'), ExternalIdDatatype()).register(labels=[Text('MACM artwork ID', 'en')], range=ExternalIdDatatype())
 MacPorts_port = Property(IRI('http://www.wikidata.org/entity/P13706'), ExternalIdDatatype()).register(labels=[Text('MacPorts port', 'en')], range=ExternalIdDatatype())
@@ -8858,7 +8859,7 @@ org_idguide_ID = Property(IRI('http://www.wikidata.org/entity/P4824'), ExternalI
 organisation_tax_status = Property(IRI('http://www.wikidata.org/entity/P13210'), ItemDatatype()).register(labels=[Text('organisation tax status', 'en')], range=ItemDatatype())
 organization_code_or_unit_code = Property(IRI('http://www.wikidata.org/entity/P13517'), StringDatatype()).register(labels=[Text('organization code or unit code', 'en')], range=StringDatatype())
 organization_directed_by_the_office_or_position = Property(IRI('http://www.wikidata.org/entity/P2389'), ItemDatatype()).register(labels=[Text('organization directed by the office or position', 'en')], range=ItemDatatype(), inverse=Property(IRI('http://www.wikidata.org/entity/P2388'), ItemDatatype()))
-organizational_chart = Property(IRI('http://www.wikidata.org/entity/P13847'), None).register(labels=[Text('organizational chart', 'en')], range=StringDatatype())
+organizational_chart = Property(IRI('http://www.wikidata.org/entity/P13847'), StringDatatype()).register(labels=[Text('organizational chart', 'en')], range=StringDatatype())
 organizational_divisions = Property(IRI('http://www.wikidata.org/entity/P199'), ItemDatatype()).register(labels=[Text('organizational divisions', 'en')], range=ItemDatatype())
 organized_response_related_to_outbreak = Property(IRI('http://www.wikidata.org/entity/P8045'), ItemDatatype()).register(labels=[Text('organized response related to outbreak', 'en')], range=ItemDatatype())
 organizer = Property(IRI('http://www.wikidata.org/entity/P664'), ItemDatatype()).register(labels=[Text('organizer', 'en')], range=ItemDatatype())
@@ -11071,6 +11072,7 @@ start_of_covered_period = Property(IRI('http://www.wikidata.org/entity/P7103'), 
 start_period = Property(IRI('http://www.wikidata.org/entity/P3415'), ItemDatatype()).register(labels=[Text('start period', 'en')], range=ItemDatatype())
 start_point = Property(IRI('http://www.wikidata.org/entity/P1427'), ItemDatatype()).register(labels=[Text('start point', 'en')], range=ItemDatatype())
 start_time = Property(IRI('http://www.wikidata.org/entity/P580'), TimeDatatype()).register(labels=[Text('start time', 'en')], range=TimeDatatype())
+start_work = Property(IRI('http://www.wikidata.org/entity/P13883'), ItemDatatype()).register(labels=[Text('start work', 'en')], range=ItemDatatype())
 startrekcom_Database_ID = Property(IRI('http://www.wikidata.org/entity/P7512'), ExternalIdDatatype()).register(labels=[Text('startrek.com Database ID', 'en')], range=ExternalIdDatatype())
 StarWarscom_ID = Property(IRI('http://www.wikidata.org/entity/P12875'), ExternalIdDatatype()).register(labels=[Text('StarWars.com ID', 'en')], range=ExternalIdDatatype())
 Statbunker_player_ID = Property(IRI('http://www.wikidata.org/entity/P12608'), ExternalIdDatatype()).register(labels=[Text('Statbunker player ID', 'en')], range=ExternalIdDatatype())
@@ -13645,8 +13647,8 @@ __all__ = (
 "Archaeological_Cadastre_Greece_ID",
 "Archaeological_investigations_in_Hungary_ID",
 "archaeological_site_of",
-"Archaeology_Data_Service_ID",
 "Archaeology_Data_Service_person_ID",
+"Archaeology_Data_Service_work_ID",
 "Archaeology_in_Greece_Online_place_ID",
 "ArchDaily_architecture_office_ID",
 "Archdiocese_of_Liverpool_parish_ID",
@@ -16712,6 +16714,7 @@ __all__ = (
 "end_of_covered_period",
 "end_period",
 "end_time",
+"end_work",
 "endangeredlanguagescom_ID",
 "Endemianc_animal_taxon_ID",
 "endemic_to",
@@ -20041,7 +20044,7 @@ __all__ = (
 "Macedonian_cadastral_municipality_ID",
 "Macintosh_Garden_game_ID",
 "Macintosh_Repository_ID",
-"Mackolikcom_former_player_ID_numeric",
+"Mackolikcom_player_ID_numeric",
 "MACM_artist_ID",
 "MACM_artwork_ID",
 "MacPorts_port",
@@ -24057,6 +24060,7 @@ __all__ = (
 "start_period",
 "start_point",
 "start_time",
+"start_work",
 "startrekcom_Database_ID",
 "StarWarscom_ID",
 "Statbunker_player_ID",

@@ -10,5 +10,6 @@ from __future__ import annotations
 from .item import *
 from .item_continent import *
 from .item_country import *
+from .item_solar_system import *
 from .prelude import *
 from .property import *

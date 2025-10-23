@@ -7,5 +7,6 @@ kif_lib/store/sparql/rdfox_pipe.py ident
 kif_lib/vocabulary/fg/property.py ident
 kif_lib/vocabulary/wd/item_continent.py ident
 kif_lib/vocabulary/wd/item_country.py ident
+kif_lib/vocabulary/wd/item_solar_system.py ident
 kif_lib/vocabulary/wd/property.py ident
 Makefile ident
