@@ -691,7 +691,7 @@ To see the difference, consider the following example:
 === "Python"
 
     ```py
-    # Get the classes such that "rabbit" in an instance:
+    # Get the classes such that "rabbit" is an instance of:
     it = kb.filter(subject=wd.rabbit, property=wd.instance_of)
     for stmt in it:
         print(stmt)
@@ -700,7 +700,7 @@ To see the difference, consider the following example:
 === "CLI"
 
     ```sh
-    # Get the classes such that "rabbit" in an instance:
+    # Get the classes such that "rabbit" is an instance of:
     $ kif filter --subject=wd.rabbit --property=wd.instance_of
     ```
 
@@ -712,7 +712,7 @@ This filter gets statements that assert the classes of which [rabbit (Q9394)](ht
 === "Python"
 
     ```py
-    # Get the classes such that "rabbit" in an instance (with transitivity):
+    # Get the classes such that "rabbit" is an instance of (with transitivity):
     it = kb.filter(subject=wd.rabbit, property=wd.a)
     for stmt in it:
         print(stmt)
@@ -721,7 +721,7 @@ This filter gets statements that assert the classes of which [rabbit (Q9394)](ht
 === "CLI"
 
     ```sh
-    # Get the classes such that "rabbit" in an instance (with transitivity):
+    # Get the classes such that "rabbit" is an instance of (with transitivity):
     $ kif filter --subject=wd.rabbit --property=wd.a
     ```
 
@@ -767,6 +767,40 @@ The pseudo-property `wd.subtype`, which is the transitive counterpart of `wd.sub
 
 ## Statement annotations
 
+Up to now, we have dealt only with plain statements ([Statement][kif_lib.Statement]).  These are statements consisting of a subject plus a snak and nothing else.  In KIF, statements can also carry extra information collectively referred to as **annotations**.  Statements with annotations are called **annotated statements** ([AnnotatedStatement][kif_lib.AnnotatedStatement]).  These behave exactly as plain statements but besides a subject and a snak also carry a set of qualifiers, a set of reference records, and a rank.  The **qualifiers**, as the name implies, qualify the statement assertion; the **reference records** contain provenance information; and the **rank** indicates the quality of the statement.
+
+The boolean parameter *annotated* can be used to instruct the [`kb.filter()`][kif_lib.Store.filter] method to obtain the annotations associated with each returned statement.  Alternatively, the variant [`kb.filter_annotated()`][kif_lib.Store.filter_annotated] can be used.  It behaves exactly as [`kb.filter()`][kif_lib.Store.filter] with *annotated* set to `True` but its return type is [AnnotatedStatement][kif_lib.AnnotatedStatement] instead of [Statement][kif_lib.Statement].
+
+For example, contrast this:
+
+```py
+# Get the "density" of "benzene":
+it = kb.filter(subject=wd.benzene, property=wd.density)
+print(next(it))
+```
+
+> (**Statement** (**Item** [benzene](http://www.wikidata.org/entity/Q2270)) (**ValueSnak** (**Property** [density](http://www.wikidata.org/entity/P2054)) 0.88 ±0.01 [gram per cubic centimetre](http://www.wikidata.org/entity/Q13147228)))
+
+With this:
+
+```py
+# Get the "density" of "benzene" (with annotations):
+it = kb.filter_annotated(subject=wd.benzene, property=wd.density)
+print(next(it))
+```
+
+> (**AnnotatedStatement** (**Item** [benzene](http://www.wikidata.org/entity/Q2270)) (**ValueSnak** (**Property** [density](http://www.wikidata.org/entity/P2054)) 0.88 ±0.01 [gram per cubic centimetre](http://www.wikidata.org/entity/Q13147228))<br/>
+>  (**QualifierRecord**<br/>
+>   (**ValueSnak** (**Property** [temperature](http://www.wikidata.org/entity/P2076)) 20 ±1 [degree Celsius](http://www.wikidata.org/entity/Q25267))<br/>
+>   (**ValueSnak** (**Property** [phase of matter](http://www.wikidata.org/entity/P515)) (**Item** [liquid](http://www.wikidata.org/entity/Q11435))))<br/>
+>  (**ReferenceRecordSet**<br/>
+>    (**ReferenceRecord**<br/>
+>    (**ValueSnak** (**Property** [HSDB ID](http://www.wikidata.org/entity/P2062)) "35#section=TSCA-Test-Submissions")<br/>
+>    (**ValueSnak** (**Property** [stated in](http://www.wikidata.org/entity/P248)) (**Item** [Hazardous Substances Data Bank](http://www.wikidata.org/entity/Q5687720)))))<br/>
+>  **NormalRank**)<br/>
+
+Both statements above assert that benzene's density is 0.88±0.01 g/cm.  But the latter, which is annotated, also qualifies the assertion.  That is, it says in addition that this is the case when "the temperature is 20±1 ℃"
+
 ## Ask, count, mix
 
 
@@ -774,4 +808,3 @@ The pseudo-property `wd.subtype`, which is the transitive counterpart of `wd.sub
 
 
 ## Final remarks
-
