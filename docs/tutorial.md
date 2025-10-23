@@ -631,18 +631,66 @@ We can use pseudo-properties in filters as if they were ordinary properties:
     from kif_lib import LabelProperty, AliasProperty, DescriptionProperty
 
     # (1) Get the Spanish label of Mars:
+    it = kb.filter(subject=wd.Mars, property=LabelProperty(), language='es')
+    print(next(it))
 
     # (2) Get a French alias of Mars:
+    it = kb.filter(subject=wd.Mars, property=AliasProperty(), language='fr')
+    print(next(it))
 
     # (3) Get the English description of Mars:
+    it = kb.filter(subject=wd.Mars, property=DescriptionProperty(), language='en')
+    print(next(it))
     ```
 
 === "CLI"
+
+    ```sh
+    # (1) Get the Spanish label of Mars:
+    $ kif filter --subject=wd.Mars --property="LabelProperty()" --language=es
+
+    # (2) Get a French alias of Mars:
+    $ kif filter --subject=wd.Mars --property="AliasProperty()" --language=fr
+
+    # (3) Get the English description of Mars:
+    $ kif filter --subject=wd.Mars --property="DescriptionProperty" --language=en
+    ```
+
+> `(1)` (**Statement** (**Item** [Mars](http://www.wikidata.org/entity/Q111)) (**ValueSnak** **LabelProperty** "Marte"@es))<br/>
+> `(2)` (**Statement** (**Item** [Mars](http://www.wikidata.org/entity/Q111)) (**ValueSnak** **AliasProperty** "Planète rouge"@fr))<br/>
+> `(3)` (**Statement** (**Item** [Mars](http://www.wikidata.org/entity/Q111)) (**ValueSnak** **DescriptionProperty** "fourth planet in the Solar System from the Sun"@en))
+
+The Wikidata vocabulary module [wd][kif_lib.vocabulary.wd] defines the aliases `wd.label`, `wd.alias`, `wd.description` for the pseudo-properties [`LabelProperty()`][kif_lib.LabelProperty], [`AliasProperty()`][kif_lib.AliasProperty], [`DescriptionProperty()`][kif_lib.DescriptionProperty].  These can be used to write a little less verbose filter calls:
+
+=== "Python"
+
+    ```py
+    # Get the label, aliases, and description of Mars in Portuguese:
+    it = kb.filter(
+        subject=wd.Mars, property=wd.label|wd.alias|wd.description, language='pt')
+    for stmt in it:
+        print(stmt)
+    ```
+
+=== "CLI"
+
+    ```sh
+    # Get the label, aliases, and description of Mars in Portuguese:
+    $ kif filter --subject=wd.Mars\
+        --property="wd.label|wd.alias|wd.description" --language='pt'
+    ```
+
+> (**Statement** (**Item** [Mars](http://www.wikidata.org/entity/Q111)) (**ValueSnak** **LabelProperty** "Marte"@pt))<br/>
+> (**Statement** (**Item** [Mars](http://www.wikidata.org/entity/Q111)) (**ValueSnak** **AliasProperty** "planeta Marte"@pt))<br/>
+> (**Statement** (**Item** [Mars](http://www.wikidata.org/entity/Q111)) (**ValueSnak** **DescriptionProperty** "quarto planeta a partir do Sol no Sistema Solar"@pt))
 
 ## Statement annotations
 
 ## Ask, count, mix
 
+
 ## Beyond Wikidata
 
+
 ## Final remarks
+
