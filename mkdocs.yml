@@ -84,8 +84,12 @@ nav:
         - Qualifier Record: 'api/model/statement_annotations/qualifier_record.md'
         - Reference Record: 'api/model/statement_annotations/reference_record.md'
         - Rank: 'api/model/statement_annotations/rank.md'
-      - Graph: 'api/model/graph.md'
-      - Filter: 'api/model/filter.md'
+      - Collection:
+        - Graph: 'api/model/collection/graph.md'
+        - Pair: 'api/model/collection/pair.md'
+        - Set: 'api/model/collection/set.md'
+      - Miscellanea:
+        - Filter: 'api/model/filter.md'
     - Vocabulary:
       - DBpedia: 'api/vocabulary/db.md'
       - European Data Portal: 'api/vocabulary/eu.md'
@@ -103,12 +107,14 @@ extra_css:
 
 markdown_extensions:
   - admonition
+  - md_in_html
   - pymdownx.superfences
   - pymdownx.tabbed:
       slugify: !!python/object/apply:pymdownx.slugs.slugify
         kwds:
           case: lower
       alternate_style: true
+  - tables
 
 plugins:
   - mkdocstrings:
@@ -126,6 +132,7 @@ plugins:
             show_symbol_type_heading: true
             show_symbol_type_toc: true
             signature_crossrefs: true
+  - search
 
 validation:
   omitted_files: warn

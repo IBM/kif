@@ -20,13 +20,13 @@ The rest of the tutorial will take place inside this interactive session.  From 
 
 ## 1 First steps
 
-We start by importing the [Store][kif_lib.Store] constructor from the KIF library:
+We start by importing the [`Store`][kif_lib.Store] constructor from the KIF library:
 
 ```py
 from kif_lib import Store
 ```
 
-We'll also need the [Wikidata](https://www.wikidata.org/) vocabulary module [wd][kif_lib.vocabulary.wd]:
+We'll also need the [Wikidata](https://www.wikidata.org/) vocabulary module [`wd`][kif_lib.vocabulary.wd]:
 
 ```py
 from kif_lib.vocabulary import wd
@@ -40,7 +40,7 @@ kb = Store('wikidata')
 
 A KIF **store** is an interface to a knowledge source.  It allows us to query the source as if it were Wikidata and obtain Wikidata-like statements as a result.
 
-The store `kb` we just created is an interface to Wikidata itself.  We can use it, for example, to fetch from Wikidata three statements about [Brazil (Q155)](http://www.wikidata.org/entity/Q155):
+The store `kb` (short for knowledge base) we just created is an interface to Wikidata itself.  We can use it, for example, to fetch from Wikidata three statements about [Brazil (Q155)](http://www.wikidata.org/entity/Q155):
 
 === "Python"
 
@@ -135,7 +135,7 @@ print(stmt.subject.iri, stmt.snak.property, stmt.snak.value)
 
 ### 2.1 Vocabulary
 
-KIF comes with built-in vocabulary modules that ease the construction of entities in certain namespaces.  For instance, instead of writing the full IRI of Wikidata entities, we can use the convenience functions [`wd.Q`][kif_lib.vocabulary.wd.Q] and [`wd.P`][kif_lib.vocabulary.wd] from the Wikidata vocabulary module [wd][kif_lib.vocabulary.wd] to construct the items [Brazil (Q155)](http://www.wikidata.org/entity/) and [Argentina (Q414)](http://www.wikidata.org/entity/Q414) and the property [shares border with (P47)](http://www.wikidata.org/entity/P47):
+KIF comes with built-in vocabulary modules that ease the construction of entities in certain namespaces.  For instance, instead of writing the full IRI of Wikidata entities, we can use the convenience functions [`wd.Q`][kif_lib.vocabulary.wd.Q] and [`wd.P`][kif_lib.vocabulary.wd] from the Wikidata vocabulary module [`wd`][kif_lib.vocabulary.wd] to construct the items [Brazil (Q155)](http://www.wikidata.org/entity/) and [Argentina (Q414)](http://www.wikidata.org/entity/Q414) and the property [shares border with (P47)](http://www.wikidata.org/entity/P47):
 
 ```py
 from kif_lib.vocabulary import wd
@@ -160,7 +160,7 @@ print(stmt)
 
 > (**Statement** (**Item** [Brazil](http://www.wikidata.org/entity/Q155)) (**ValueSnak** (**Property** [shares border with](http://www.wikidata.org/entity/P47)) (**Item** [Argentina](http://www.wikidata.org/entity/Q414))))
 
-The [wd][kif_lib.vocabulary.wd] vocabulary module defines symbolic aliases for popular entities.  So, instead of writing `wd.Q(155)` and `wd.Q(414)` for Brazil and Argentina, we can write `wd.Brazil` and `wd.Argentina`.  Similarly, instead of writing `wd.P(47)` for "shares border with", we can write `wd.shares_border_with`.  Most Wikidata properties have symbolic aliases defined in [wd][kif_lib.vocabulary.wd].
+The [`wd`][kif_lib.vocabulary.wd] vocabulary module defines symbolic aliases for popular entities.  So, instead of writing `wd.Q(155)` and `wd.Q(414)` for Brazil and Argentina, we can write `wd.Brazil` and `wd.Argentina`.  Similarly, instead of writing `wd.P(47)` for "shares border with", we can write `wd.shares_border_with`.  Most Wikidata properties have symbolic aliases defined in [`wd`][kif_lib.vocabulary.wd].
 
 ```py
 print(wd.Brazil, wd.Argentina, wd.shares_border_with, wd.capital)
@@ -173,13 +173,13 @@ print(wd.Brazil, wd.Argentina, wd.shares_border_with, wd.capital)
 
 !!! note
 
-    Besides [wd][kif_lib.vocabulary.wd], KIF comes with the vocabulary modules [db][kif_lib.vocabulary.db] for [DBpedia](https://www.dbpedia.org/), [fg][kif_lib.vocabulary.fg] for [FactGrid](https://database.factgrid.de/), [pc][kif_lib.vocabulary.pc] for [PubChem](https://pubchem.ncbi.nlm.nih.gov/), [up][kif_lib.vocabulary.up] for [UniProt](https://www.uniprot.org/), among others.
+    Besides [`wd`][kif_lib.vocabulary.wd], KIF comes with the vocabulary modules [`db`][kif_lib.vocabulary.db] for [DBpedia](https://www.dbpedia.org/), [`fg`][kif_lib.vocabulary.fg] for [FactGrid](https://database.factgrid.de/), [`pc`][kif_lib.vocabulary.pc] for [PubChem](https://pubchem.ncbi.nlm.nih.gov/), [`up`][kif_lib.vocabulary.up] for [UniProt](https://www.uniprot.org/), among others.
 
 ## 3 Store
 
-Let's now turn to the [Store][kif_lib.Store] API.
+Let's now turn to the [`Store`][kif_lib.Store] API.
 
-As we said earlier, a KIF store is an interface to a knowledge source, typically but not necessarily a knowledge graph.  A store is created using the [Store][kif_lib.Store] constructor which takes as arguments the name of the store plugin to instantiate followed by zero or more arguments to be passed to the plugin.  For instance:
+As we said earlier, a KIF store is an interface to a knowledge source, typically but not necessarily a knowledge graph.  A store is created using the [`Store`][kif_lib.Store] constructor which takes as arguments the name of the store plugin to instantiate followed by zero or more arguments to be passed to the plugin.  For instance:
 
 ```py
 kb = Store('wikidata')
@@ -233,7 +233,7 @@ The call [`kb.filter(...)`][kif_lib.Store.filter] searches for statements in `kb
 
 > (**Statement** (**Item** [Alan Turing](http://www.wikidata.org/entity/Q7251)) (**ValueSnak** (**Property** [doctoral advisor](http://www.wikidata.org/entity/P184)) (**Item** [Alonzo Church](http://www.wikidata.org/entity/Q92741))))
 
-If no *limit* argument is given to [kb.filter()][kif_lib.Store.filter], the returned iterator will eventually produce all matching statements.  For instance, iterator `it` above will produce every statement with subject [Alan Turing (Q7251)](http://www.wikidata.org/entity/Q7251) in Wikidata before it is exhausted.
+If no *limit* argument is given to [`filter()`][kif_lib.Store.filter], the returned iterator will eventually produce all matching statements.  For instance, iterator `it` above will produce every statement with subject [Alan Turing (Q7251)](http://www.wikidata.org/entity/Q7251) in Wikidata before it is exhausted.
 
 ### 4.1 Basic filters
 
@@ -361,7 +361,7 @@ Alternative subjects, properties, and values can be specified using Python's bit
 > `(3a)` (**Statement** (**Item** [IBM](http://www.wikidata.org/entity/Q37156)) (**ValueSnak** (**Property** [official website](http://www.wikidata.org/entity/P856)) https://www.ibm.com/))<br/>
 > `(3b)` (**Statement** (**Item** [IBM](http://www.wikidata.org/entity/Q37156)) (**ValueSnak** (**Property** [inception](http://www.wikidata.org/entity/P571)) 16 June 1911))
 
-The [Or][kif_lib.Or] constructor can be used to construct alternatives more conveniently from collection of values.  For example:
+The [`Or`][kif_lib.Or] constructor can be used to construct alternatives more conveniently from collection of values.  For example:
 
 ```py
 from kif_lib import Or
@@ -420,7 +420,7 @@ The filter below matches statements such that the subject is any item that "shar
 
 These statements may seem random at first but they all have subjects matching the constraint "shares border with Argentina".
 
-**Snak constraints** such as `wd.shares_border_with(wd.Argentina)` can be given as subject, property, or value arguments to [`kb.filter()`][kif_lib.Store.filter].  Moreover, they can be combined with other constraints using the bitwise "and" (`&`) and "or" (`|`) infix operators (or their prefixed versions [And][kif_lib.And] and [Or][kif_lib.Or]).  For example:
+**Snak constraints** such as `wd.shares_border_with(wd.Argentina)` can be given as subject, property, or value arguments to [`filter()`][kif_lib.Store.filter].  Moreover, they can be combined with other constraints using the bitwise "and" (`&`) and "or" (`|`) infix operators (or their prefixed versions [`And`][kif_lib.And] and [`Or`][kif_lib.Or]).  For example:
 
 === "Python"
 
@@ -503,7 +503,7 @@ Constraints that require traversing property paths of length greater than one ca
 
 ### 4.3 Masks and language
 
-The parameters *subject_mask*, *property_mask*, and *value_mask* of [`kb.filter()`][kif_lib.Store.filter] can be used to restrict the kinds of entities, properties, and values to be matched. For example:
+The parameters *subject_mask*, *property_mask*, and *value_mask* of [`filter()`][kif_lib.Store.filter] can be used to restrict the kinds of entities, properties, and values to be matched. For example:
 
 === "Python"
 
@@ -545,9 +545,9 @@ The parameters *subject_mask*, *property_mask*, and *value_mask* of [`kb.filter(
 
 !!! note
 
-    As illustrated in example (3) above, masks can be operated through the usual bitwise operations.  See [Filter][kif_lib.Filter] for the available mask types and values.
+    As illustrated in example (3) above, masks can be operated through the usual bitwise operations.  See [`Filter`][kif_lib.Filter] for the available mask types and values.
 
-Another mask parameter of [`kb.filter()`][kif_lib.Store.filter] is *snak_mask* which determines the kinds of snaks to be matched.  So far, we have dealt only with value snaks ([ValueSnak][kif_lib.ValueSnak]), which are essentially property-value pairs.  But KIF also supports, some-value snaks ([SomeValueSnak][kif_lib.SomeValueSnak]) and no-value snaks ([NoValueSnak][kif_lib.NoValueSnak]), which carry only the predicated property.
+Another mask parameter of [`filter()`][kif_lib.Store.filter] is *snak_mask* which determines the kinds of snaks to be matched.  So far, we have dealt only with value snaks ([`ValueSnak`][kif_lib.ValueSnak]), which are essentially property-value pairs.  But KIF also supports, some-value snaks ([`SomeValueSnak`][kif_lib.SomeValueSnak]) and no-value snaks ([`NoValueSnak`][kif_lib.NoValueSnak]), which carry only the predicated property.
 
 **Some-value snaks** represent predications with an unknown value, while **no-value snaks** represent predications with an absent value.  For instance, the fact that the Greek poet Homer's place of birth is unknown is represented in Wikidata by the some-value statement:
 
@@ -596,7 +596,7 @@ The kinds of snaks to be matched in filters are determined by the parameter *sna
 > `(3a)` (**Statement** (**Item** [Adam](http://www.wikidata.org/entity/Q70899)) (**SomeValueSnak** (**Property** [date of birth](http://www.wikidata.org/entity/P569))))<br/>
 > `(3b)` (**Statement** (**Item** [Adam](http://www.wikidata.org/entity/Q70899)) (**NoValueSnak** (**Property** [father](http://www.wikidata.org/entity/P22))))
 
-The last filter parameter we want to mention is *language*, which controls the language of the returned text values.  If *language* is not given, [`kb.filter()`][kif_lib.Store.filter] returns statements with text values in any language:
+The last filter parameter we want to mention is *language*, which controls the language of the returned text values.  If *language* is not given, [`filter()`][kif_lib.Store.filter] returns statements with text values in any language:
 
 === "Python"
 
@@ -644,11 +644,78 @@ However, we can set the *language* parameter to a language tag ("en", "it", "fr"
 > `(1)` (**Statement** (**Item** [Mario](http://www.wikidata.org/entity/Q12379)) (**ValueSnak** (**Property** [catchphrase](http://www.wikidata.org/entity/P6251)) "It’s-a me, Mario!"@en))
 > `(2)` (**Statement** (**Item** [Mario](http://www.wikidata.org/entity/Q12379)) (**ValueSnak** (**Property** [catchphrase](http://www.wikidata.org/entity/P6251)) "Mamma mia!"@it))
 
+### 4.4 Projection
+
+Sometimes we are interested not in the full statements themselves but in their components.  For instance, suppose we want to list "the **capital cities** of all US states".  We can do that by first obtaining all has-capital statements whose subjects are US states and then printing only their value component:
+
+```py
+it = kb.filter(subject=wd.instance_of(wd.US_state), property=wd.capital)
+for (subj, (prop, value)) in it:
+    print(value)
+```
+
+> (**Item** [Indianapolis](http://www.wikidata.org/entity/Q6346))<br/>
+> (**Item** [Phoenix](http://www.wikidata.org/entity/Q16556))<br/>
+> (**Item** [Columbus](http://www.wikidata.org/entity/Q16567))<br/>
+> (**Item** [Honolulu](http://www.wikidata.org/entity/Q18094))<br/>
+> ⋮
+
+!!! note
+
+    Every KIF data-model object can be decomposed into a sequence of arguments. The `(subj, (prop, value))` pattern above decomposes the statement into a subject part `subj` and a value-snak part, which itself is decomposed into a property part `prop` and a value part `value`.  We could also have written:
+
+    ```py
+    for stmt in it:
+        print(stmt[1][0])
+    ```
+
+    Or, using the [`Statement`][kif_lib.Statement] access fields:
+
+    ```py
+    for stmt in it:
+        print(stmt.snak.value)
+    ```
+
+    See [Data Model](guides/data_model.md) for details.
+
+A more convenient and often more efficient way of achieving the same thing is by using one of the projected variants of [`filter()`][kif_lib.Store.filter].  In this case, we can use the variant [`filter_v()`][kif_lib.Store.filter_v], which selects the value of the matched statements:
+
+=== "Python"
+
+    ```py
+    it = kb.filter_v(subject=wd.instance_of(wd.US_state), property=wd.capital)
+    for v in it:
+        print(v)
+    ```
+
+=== "CLI"
+
+    ```sh
+    $ kif filter --subject="wd.instance_of(wd.US_state)"
+        --property=wd.capital --select=v
+
+    # Note: The --select=v option instructs KIF CLI to use the filter_v()
+    #       variant, that is, select the value of the returned statments.
+    ```
+
+The full list of projected variants of [`filter()`][kif_lib.Store.filter] is shown in the table below.  All of these variants accept exactly the same arguments as [`filter()`][kif_lib.Store.filter].  The only difference is in their return type.
+
+<div class="center-table" markdown>
+| filter variant | selects | returns |
+| - | - | - |
+| [`filter_s()`][kif_lib.Store.filter_s] | subject | [`Entity`][kif_lib.Entity] |
+| [`filter_p()`][kif_lib.Store.filter_p] | property | [`Property`][kif_lib.Property] |
+| [`filter_v()`][kif_lib.Store.filter_v] | value | [`Value`][kif_lib.Value] |
+| [`filter_sp()`][kif_lib.Store.filter_sp] | subject, property | [`ValuePair`][kif_lib.ValuePair] |
+| [`filter_sv()`][kif_lib.Store.filter_sv] | subject, value | [`ValuePair`][kif_lib.ValuePair] |
+| [`filter_pv()`][kif_lib.Store.filter_pv] | property, value | [`ValueSnak`][kif_lib.ValueSnak] |
+</div>
+
 ## 5 Pseudo-properties
 
-KIF extends the Wikidata data-model with the notion of **pseudo-properties**.  These are property-like entities which are not represented as properties in Wikidata.  For instance, labels, aliases, and descriptions are not represented as properties in Wikidata but are made available in KIF through the pseudo-properties [LabelProperty][kif_lib.LabelProperty], [AliasProperty][kif_lib.AliasProperty], [DescriptionProperty][kif_lib.DescriptionProperty].
+KIF extends the Wikidata data-model with the notion of **pseudo-properties**.  These are property-like entities which are not represented as properties in Wikidata.  For instance, labels, aliases, and descriptions are not represented as properties in Wikidata but are made available in KIF through the pseudo-properties [`LabelProperty`][kif_lib.LabelProperty], [`AliasProperty`][kif_lib.AliasProperty], [`DescriptionProperty`][kif_lib.DescriptionProperty].
 
-We can use pseudo-properties in filters as if they were ordinary properties:
+We can use pseudo-properties in filters as if they were regular properties:
 
 === "Python"
 
@@ -685,7 +752,7 @@ We can use pseudo-properties in filters as if they were ordinary properties:
 > `(2)` (**Statement** (**Item** [Mars](http://www.wikidata.org/entity/Q111)) (**ValueSnak** **AliasProperty** "Planète rouge"@fr))<br/>
 > `(3)` (**Statement** (**Item** [Mars](http://www.wikidata.org/entity/Q111)) (**ValueSnak** **DescriptionProperty** "fourth planet in the Solar System from the Sun"@en))
 
-The Wikidata vocabulary module [wd][kif_lib.vocabulary.wd] defines the aliases `wd.label`, `wd.alias`, `wd.description` for the pseudo-properties [`LabelProperty()`][kif_lib.LabelProperty], [`AliasProperty()`][kif_lib.AliasProperty], [`DescriptionProperty()`][kif_lib.DescriptionProperty].  These can be used to write less verbose filter calls:
+The Wikidata vocabulary module [`wd`][kif_lib.vocabulary.wd] defines the aliases `wd.label`, `wd.alias`, `wd.description` for the pseudo-properties [`LabelProperty()`][kif_lib.LabelProperty], [`AliasProperty()`][kif_lib.AliasProperty], [`DescriptionProperty()`][kif_lib.DescriptionProperty].  These can be used to write less verbose filter calls:
 
 === "Python"
 
@@ -748,9 +815,9 @@ The Wikidata vocabulary module [wd][kif_lib.vocabulary.wd] defines the aliases `
 
     Automatic entity descriptor resolution can also be enabled by setting the value of the environment variable `KIF_RESOLVE_ENTITIES` to 1 (or any other literal that evaluates to `True` in Python).  See [Context](guides/context.md) for details.
 
-Some KIF pseudo-properties have no direct counterpart in Wikidata.  This is the case of the pseudo-properties [TypeProperty][kif_lib.TypeProperty] and [SubtypeProperty][kif_lib.SubtypeProperty], whose [wd][kif_lib.vocabulary.wd] aliases are `wd.a` and `wd.subtype`.  These pseudo-properties stand for the ontological relations "is a" and "subclass of", respectively, and can be seen as more powerful (transitivity-enabled) versions of the Wikidata properties [instance of (P31)](http://www.wikidata.org/entity/P31) and [subclass of P(279)](http://www.wikidata.org/entity/P279).
+Some KIF pseudo-properties have no direct counterpart in Wikidata.  This is the case of the pseudo-properties [`TypeProperty`][kif_lib.TypeProperty] and [`SubtypeProperty`][kif_lib.SubtypeProperty], whose [`wd`][kif_lib.vocabulary.wd] aliases are `wd.a` and `wd.subtype`.  These pseudo-properties stand for the ontological relations "is a" and "subclass of", respectively, and can be seen as more powerful (transitivity-enabled) versions of the Wikidata properties [instance of (P31)](http://www.wikidata.org/entity/P31) and [subclass of (P279)](http://www.wikidata.org/entity/P279).
 
-To see the difference, consider the filter below, which gets statements that assert the classes of which [rabbit (Q9394)](http://www.wikidata.org/entity/Q9394) is an instance:
+To see the difference between `wd.a` and `wd.instance_of` consider the filter below. This filter gets statements that assert the classes of which [rabbit (Q9394)](http://www.wikidata.org/entity/Q9394) is an instance.
 
 === "Python"
 
@@ -829,13 +896,56 @@ The pseudo-property `wd.subtype`, which is the transitive counterpart of `wd.sub
 > `(2c)` (**Statement** (**Item** [mammal](http://www.wikidata.org/entity/Q7377)) (**ValueSnak** **SubtypeProperty** (**Item** [organism](http://www.wikidata.org/entity/Q7239))))<br/>
 > ⋮
 
+We conclude this section on pseud-properties by emphasizing the fact that
+they can occur in any place where a property is expected.  That is, they can
+be used to construct snak constraints, paths, etc.  For example:
+
+=== "Python"
+
+    ```py
+    # (1) Get the breeds of all fictional dogs:
+    it = kb.filter_v(subject=(wd.a/wd.fictional_or_mythical_analog_of)(wd.dog),
+        property=wd.animal_breed)
+    for value in it:
+        print(value)
+
+    # (2) Get the subject and value of instance-of statements such that
+    #     the subject has the Portuguese label "laranja":
+    it = kb.filter_sv(subject=wd.label(Text("laranja", "pt")),
+        property=wd.instance_of)
+    for pair in it:
+        print(pair)
+    ```
+
+=== "CLI"
+
+    ```sh
+    # (1) Get the breeds of all fictional dogs:
+    $ kif filter --subject="(wd.a/wd.fictional_or_mythical_analog_of)(wd.dog)"\
+        --property=wd.animal_breed --select=v
+
+    # (2) Get the subject and value of instance-of statements such that
+    #     the subject has label "laranja"@pt:
+    $ kif filter --subject="wd.label(Text('laranja', 'pt'))"\
+        --property=wd.instance_of  --select=sv
+    ```
+
+> `(1a)` (**Item** [Welsh Corgi](http://www.wikidata.org/entity/Q858459))<br/>
+> `(1b)` (**Item** [pit bull](http://www.wikidata.org/entity/Q1144318))<br/>
+> `(1c)` (**Item** [collie](http://www.wikidata.org/entity/Q1196071))<br/>
+> ⋮<br/>
+> `(2a)` (**ValuePair** (**Item** [orange](http://www.wikidata.org/entity/Q39338)) (**Item** [secondary color](http://www.wikidata.org/entity/Q373934)))<br/>
+> `(2b)` (**ValuePair** (**Item** [orange](http://www.wikidata.org/entity/Q39338)) (**Item** [web color](http://www.wikidata.org/entity/Q376346)))<br/>
+> `(2c)` (**ValuePair** (**Item** [orange](http://www.wikidata.org/entity/Q39338)) (**Item** [spectral color](http://www.wikidata.org/entity/Q910300)))<br/>
+> ⋮
+
 ## 6 Statement annotations
 
-Up to now, we have dealt only with plain statements ([Statement][kif_lib.Statement]).  These are statements consisting of a subject, a snak, and nothing else.  In KIF, statements can also carry extra information referred to collectively as **annotations**.  These statements with annotations ([AnnotatedStatement][kif_lib.AnnotatedStatement]) behave exactly as plain statements but besides a subject and a snak also carry a set of qualifiers, a set of reference records, and a rank.  The **qualifiers** qualify the statement assertion, the **reference records** contain provenance information, and the **rank** indicates the quality of the statement.
+Up to now, we have dealt only with plain statements ([`Statement`][kif_lib.Statement]).  These are statements consisting of a subject, a snak, and nothing else.  In KIF, statements can also carry extra information referred to collectively as **annotations**.  These statements with annotations ([`AnnotatedStatement`][kif_lib.AnnotatedStatement]) behave exactly as plain statements but besides a subject and a snak also carry a set of qualifiers, a set of reference records, and a rank.  The **qualifiers** qualify the statement assertion, the **reference records** contain provenance information, and the **rank** indicates the quality of the statement.
 
-The boolean parameter *annotated* instructs the [`kb.filter()`][kif_lib.Store.filter] method to obtain the annotations associated with each returned statement.  The variant [`kb.filter_annotated()`][kif_lib.Store.filter_annotated] can also be used to filter annotated statements.  (It behaves exactly as [`kb.filter()`][kif_lib.Store.filter] with the *annotated* flag set to `True` but its return type is [AnnotatedStatement][kif_lib.AnnotatedStatement] instead of [Statement][kif_lib.Statement].)
+The boolean parameter *annotated* instructs the [`filter()`][kif_lib.Store.filter] method to obtain the annotations associated with each returned statement.  The variant [`filter_annotated()`][kif_lib.Store.filter_annotated] can also be used to filter annotated statements.  (It behaves exactly as [`filter()`][kif_lib.Store.filter] with the *annotated* flag set to `True` but its return type is [`AnnotatedStatement`][kif_lib.AnnotatedStatement] instead of [`Statement`][kif_lib.Statement].)
 
-The difference between [`kb.filter()`][kif_lib.Store.filter] and [`kb.filter_annotated()`][kif_lib.Store.filter_annotated] is illustrated in examples (1) and (2) below:
+The difference between [`filter()`][kif_lib.Store.filter] and [`filter_annotated()`][kif_lib.Store.filter_annotated] is illustrated in examples (1) and (2) below:
 
 === "Python"
 
@@ -876,16 +986,16 @@ Both statements, (1) and (2), assert that "benzene's density is 0.88±0.01 g/cm"
 
 !!! note
 
-    The [QualifierRecord][kif_lib.QualifierRecord] is essentially a set of snaks, while the reference record set is a set of [ReferenceRecord][kif_lib.ReferenceRecord] objects, each of which is itself a snak set.  See [Data Model](guides/data_model.md) for details.
+    The [`QualifierRecord`][kif_lib.QualifierRecord] is essentially a set of snaks, while the reference record set is a set of [`ReferenceRecord`][kif_lib.ReferenceRecord] objects, each of which is itself a snak set.  Element repetition and ordering within these set objects are immaterial.  See [Data Model](guides/data_model.md) for details.
 
-As plain statements, annotated statements can be constructed directly using data-model object constructors.  For instance, `stmt1` and `stmt2` below correspond exactly to statement (2) above.
+As plain statements, annotated statements can be constructed directly using data-model object constructors.  For instance, `stmt2a` and `stmt2b` below correspond exactly to statement (2) above.
 
 ```py
 from kif_lib import (AnnotatedStatement, NormalRank,
                      QualifierRecord, Quantity,
                      ReferenceRecord, ReferenceRecordSet, ValueSnak)
 
-stmt1 = AnnotatedStatement(
+stmt2a = AnnotatedStatement(
     wd.benzene,
     ValueSnak(
         wd.density,
@@ -899,7 +1009,7 @@ stmt1 = AnnotatedStatement(
         wd.stated_in(wd.Hazardous_Substances_Data_Bank))),
     NormalRank())
 
-stmt2 = wd.density(
+stmt2b = wd.density(
     wd.benzene, Quantity('.88', wd.gram_per_cubic_centimetre, '.87', '.89'),
     qualifiers=[
         wd.temperature(Quantity(20, wd.degree_Celsius, 19, 21)),
@@ -909,10 +1019,10 @@ stmt2 = wd.density(
         wd.stated_in(wd.Hazardous_Substances_Data_Bank)]],
     rank=NormalRank())
 
-print(stmt1 == stmt2)             # True
+print(stmt2a == stmt2b)           # True
 ```
 
-If you already have a statement, then you can use the method [`annotate()`][kif_lib.Statement.annotate] to create an annotated version of it.  For example:
+If we already have a statement, then we can use the method [`annotate()`][kif_lib.Statement.annotate] to create an annotated version of it.  For example:
 
 ```py
 stmt3 = wd.density(
@@ -927,19 +1037,114 @@ stmt4 = stmt3.annotate(
         wd.stated_in(wd.Hazardous_Substances_Data_Bank)]],
     rank=NormalRank())
 
-print(stmt1 == stmt2 == stmt4)    # True
+print(stmt2a == stmt2b == stmt4)  # True
 print(stmt3 == stmt4)             # False
 ```
 
-Conversely, if you have an annotated statement you can use the method [`unannotated`][kif_lib.AnnotatedStatement.unannotate] to obtain its plain version:
+Conversely, if we have an annotated statement we can use the method [`unannotated()`][kif_lib.AnnotatedStatement.unannotate] to obtain its plain version:
 
 ```py
-print(stmt3 == stmt4.unannotate() # True
+print(stmt3 == stmt4.unannotate()  # True
 ```
 
 ## 7 Ask, count, mix
 
+We now turn other query methods available in the [`Store`][kif_lib.Store] API.
+
+Two further variants of the filter call are [`kb.ask(...)`][kif_lib.Store.ask] and [`kb.count(...)`][kif_lib.Store.count].  The former tests whether some (at least one) statement in `kb` matches the constraints `...`, while the latter counts the number of statements in `kb` matching `...`.  Both variants accept exactly the same constraints as [`filter()`][kif_lib.Store.filter].  This means that any [`filter()`][kif_lib.Store.filter] call can be easily be changed into an equivalent [`ask()`][kif_lib.Store.ask] or [`count()`][kif_lib.Store.count] call by simply changing the name of the method.
+
+Here are some examples of [`ask()`][kif_lib.Store.ask] and [`count()`][kif_lib.Store.count]:
+
+=== "Python"
+
+    ```py
+    # Ask whether there are statements with subject "caffeine":
+    b = kb.ask(subject=wd.caffeine)
+    print(b)  # True
+
+    # Count statements with snak "place of death is New York City":
+    n = kb.count(snak=wd.place_of_death(wd.New_York_City))
+    print(n)  # 13491
+
+    # Ask whether there are some- or no-value statements whose
+    # subject is "a singer buried in Paris":
+    b = kb.ask(subject=wd.occupation(wd.singer)&wd.place_of_burial(wd.Paris),
+            snak_mask=Filter.SOME_VALUE_SNAK|Filter.NO_VALUE_SNAK)
+    print(b)  # False
+
+    # Count statements whose subject is "a dish originating in Italy",
+    # property is "has part(s)", and value is "tomato":
+    n = kb.count(subject=wd.subtype(wd.dish)&wd.country_of_origin(wd.Italy),
+            property=wd.has_parts, value=wd.tomato)
+    print(n)  # 17
+
+    # [Ask whether there are / count] statements "Brazil shares border with Chile":
+    b = kb.ask(subject=wd.Brazil, property=wd.shares_border_with, value=wd.Chile)
+    n = kb.count(subject=wd.Brazil, property=wd.shares_border_with, value=wd.Chile)
+    print(b, n)  # False, 0
+    ```
+
+=== "CLI"
+
+    ```sh
+    # Ask whether there are statements with subject "caffeine":
+    $ kif ask --subject=wd.caffeine; echo $?
+    0
+
+    # Count statements with snak "place of death is New York City":
+    $ kif count --snak="wd.place_of_death(wd.New_York_City)"
+    13491
+
+    # Ask whether there are some- or no-value statements whose
+    # subject is "a singer buried in Paris":
+    $ kif ask --subject="wd.occupation(wd.singer)&wd.place_of_burial(wd.Paris)"\
+        --snak-mask="Filter.SOME_VALUE_SNAK|Filter.NO_VALUE_SNAK"; echo $?
+    1
+
+    # Count statements whose subject is "a dish originating in Italy",
+    # property is "has part(s)", and value is "tomato":
+    $ kif count --subject="wd.subtype(wd.dish)&wd.country_of_origin(wd.Italy)"\
+        --property=wd.has_parts --value=wd.tomato
+    17
+
+    # [Ask whether there are / count] statements "Brazil shares border with Chile":
+    $kif ask --subject=wd.Brazil\
+        --property=wd.shares_border_with --value=wd.Chile; echo $?
+    1
+
+    $ kif count --subject=wd.Brazil\
+        --property=wd.shares_border_with --value=wd.Chile
+    0
+
+    # Note: The ask command exits with status 0 if any matching statements
+    # where found; otherwise it exits with status 1.  We use "echo $?" above
+    # to display its exit status.
+    ```
+
+!!! note
+
+    One important difference between [`filter()`][kif_lib.Store.filter] and [`ask()`][kif_lib.Store.ask] and [`count()`][kif_lib.Store.count] is that, while [`filter()`][kif_lib.Store.filter] returns a lazy iterator (meaning that the underlying filter operation is only performed when the iterator is advanced), the operations underlying [`ask()`][kif_lib.Store.ask] and [`count()`][kif_lib.Store.count] are executed immediately.
+
+As [filter()][kif_lib.Store.filter], the method [count()][kif_lib.Store.count] comes with projected variants (`s`, `p`, `v`, `sp`, `sv`, `pv`) which can be used to count the number of distinct statement components with the desired constraints.  For example:
+
+=== "Python"
+
+    ```py
+    # Counts the number of distinct "dog" properties:
+    n kb.count_p(subject=wd.dog)
+    print(n)  # 148
+    ```
+
+=== "CLI"
+
+    ```sh
+    $ kif count --subject=wd.dog --select=p
+    148
+    ```
+
 ## 8 Beyond Wikidata
+
+To query a graph other than Wikidata, all we need to do is change the underlying store plugin:
 
 ## 9 Entity search
 
