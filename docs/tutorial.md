@@ -1163,11 +1163,11 @@ for stmt in it:
 > (**Statement** (**Item** [France](http://www.wikidata.org/entity/Q142)) (**ValueSnak** (**Property** [diplomatic relation](http://www.wikidata.org/entity/P530)) (**Item** [United Kingdom](http://www.wikidata.org/entity/Q145))))
 > (**Statement** (**Item** [Brazil](http://www.wikidata.org/entity/Q155)) (**ValueSnak** (**Property** [diplomatic relation](http://www.wikidata.org/entity/P530)) (**Item** [Argentina](http://www.wikidata.org/entity/Q414))))
 
-(The [`Filter`][kif_lib.Filter] constructor used above constructs a data-model representation of a filter pattern.)
+(The [`Filter`][kif_lib.Filter] constructor builds a data-model representation of a filter pattern.)
 
 !!! note
 
-    The [`mix()`][kif_lib.Store.mix] call used above evaluates the given filters and interleaves their results.  There is no parallelism though, as each filter evaluation causes the calling thread to block.  One way to avoid blocking the calling thread during filter evaluations is to use Python's async mechanism.  The [`Store`][kif_lib.Store] API provides the async versions [`afilter`][kif_lib.Store.afilter], [`aask`][kif_lib.Store.acount], [`acount`][kif_lib.Store.acount], and [`amix`][kif_lib.Store.acount].  These behave exaclty like their sync counterparts but can be awaited within an asyncio event-loop.  See [Async](guides/async.md) for details.
+    The [`mix()`][kif_lib.Store.mix] call used above evaluates the given filters and interleaves their results.  There is no parallelism though, as each filter evaluation causes the calling thread to block.  One way to avoid blocking the calling thread during filter evaluations is to use Python's async mechanism.  The [`Store`][kif_lib.Store] API provides the async versions [`afilter`][kif_lib.Store.afilter], [`aask`][kif_lib.Store.acount], [`acount`][kif_lib.Store.acount], and [`amix`][kif_lib.Store.amix].  These behave exaclty like their sync counterparts but can be awaited within an asyncio event-loop.  See [Async](guides/async.md) for details.
 
 ## 8 Beyond Wikidata
 
