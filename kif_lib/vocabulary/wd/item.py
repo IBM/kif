@@ -56,6 +56,7 @@ database = Q(8513, 'database')
 day = Q(573, 'day')
 degree_Celsius = Q(25267, 'degree Celsius')
 degree_Fahrenheit = Q(42289, 'degree Fahrenheit')
+dish = Q(746549, 'dish')
 document = Q(49848, 'document')
 dog = Q(144, 'dog')
 domain = Q(146481, 'domain')
@@ -247,6 +248,7 @@ system_software = Q(676202, 'system software')
 taxon = Q(16521, 'taxon')
 taxonomic_rank = Q(427626, 'taxonomic rank')
 theme = Q(1053916, 'theme')
+tomato = Q(20638126, 'tomato')
 type_of_chemical_entity = Q(113145171, 'type of a chemical entity')
 unit_of_mass = Q(3647172, 'unit of mass')
 unit_of_measurement = Q(47574, 'unit of measurement')
@@ -333,6 +335,7 @@ __all__ = (
     'day',
     'degree_Celsius',
     'degree_Fahrenheit',
+    'dish',
     'document',
     'dog',
     'domain',
@@ -526,6 +529,7 @@ __all__ = (
     'taxon',
     'taxonomic_rank',
     'theme',
+    'tomato',
     'type_of_a_chemical_entity',
     'type_of_chemical_entity',
     'unit_of_mass',
