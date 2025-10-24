@@ -34,6 +34,7 @@ nav:
   - Tutorial: 'tutorial.md'
   - Guides:
     - Data Model: 'guides/data_model.md'
+    - Context: 'guides/context.md'
     - KIF CLI: 'guides/cli.md'
     - RDF: 'guides/rdf.md'
   - API Reference:
