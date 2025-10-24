@@ -31,6 +31,7 @@ caffeine = Q(60235, 'caffeine')
 carbon = Q(623, 'carbon')
 carbonic_acid = Q(104334, 'carbonic acid')
 CAS_Common_Chemistry = Q(18907859, 'CAS Common Chemistry')
+cat = Q(146, 'cat')
 cattle = Q(830, 'cattle')
 centipoise = Q(26162557, 'centipoise')
 characterization = Q(2165586, 'characterization')
@@ -309,6 +310,7 @@ __all__ = (
     'carbon',
     'carbonic_acid',
     'CAS_Common_Chemistry',
+    'cat',
     'cattle',
     'centipoise',
     'characterization',
