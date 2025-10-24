@@ -33,8 +33,9 @@ nav:
   - Introduction: 'index.md'
   - Tutorial: 'tutorial.md'
   - Guides:
-    - Data Model: 'guides/data_model.md'
+    - Async: 'guides/async.md'
     - Context: 'guides/context.md'
+    - Data Model: 'guides/data_model.md'
     - KIF CLI: 'guides/cli.md'
     - RDF: 'guides/rdf.md'
   - API Reference:

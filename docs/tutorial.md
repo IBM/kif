@@ -596,7 +596,7 @@ The kinds of snaks to be matched in filters are determined by the parameter *sna
 > `(3a)` (**Statement** (**Item** [Adam](http://www.wikidata.org/entity/Q70899)) (**SomeValueSnak** (**Property** [date of birth](http://www.wikidata.org/entity/P569))))<br/>
 > `(3b)` (**Statement** (**Item** [Adam](http://www.wikidata.org/entity/Q70899)) (**NoValueSnak** (**Property** [father](http://www.wikidata.org/entity/P22))))
 
-The last filter parameter we want to mention is *language*, which controls the language of the returned text values.  If *language* is not given, [`filter()`][kif_lib.Store.filter] returns statements with text values in any language:
+The last filter parameter we want to mention in this section is *language*, which controls the language of the returned text values.  If *language* is not given, [`filter()`][kif_lib.Store.filter] returns statements with text values in any language:
 
 === "Python"
 
@@ -1051,7 +1051,7 @@ print(stmt3 == stmt4.unannotate()  # True
 
 We now turn other query methods available in the [`Store`][kif_lib.Store] API.
 
-Two further variants of the filter call are [`kb.ask(...)`][kif_lib.Store.ask] and [`kb.count(...)`][kif_lib.Store.count].  The former tests whether some (at least one) statement in `kb` matches the constraints `...`, while the latter counts the number of statements in `kb` matching `...`.  Both variants accept exactly the same constraints as [`filter()`][kif_lib.Store.filter].  This means that any [`filter()`][kif_lib.Store.filter] call can be easily be changed into an equivalent [`ask()`][kif_lib.Store.ask] or [`count()`][kif_lib.Store.count] call by simply changing the name of the method.
+Two variants of the filter call are [`kb.ask(...)`][kif_lib.Store.ask] and [`kb.count(...)`][kif_lib.Store.count].  The former tests whether some (at least one) statement in `kb` matches the constraints `...`, while the latter counts the number of statements in `kb` matching `...`.  Both variants accept exactly the same constraints as [`filter()`][kif_lib.Store.filter].  This means that any [`filter()`][kif_lib.Store.filter] call can be easily be changed into an equivalent [`ask()`][kif_lib.Store.ask] or [`count()`][kif_lib.Store.count] call by simply changing the name of the method.
 
 Here are some examples of [`ask()`][kif_lib.Store.ask] and [`count()`][kif_lib.Store.count]:
 
@@ -1125,26 +1125,53 @@ Here are some examples of [`ask()`][kif_lib.Store.ask] and [`count()`][kif_lib.S
 
     One important difference between [`filter()`][kif_lib.Store.filter] and [`ask()`][kif_lib.Store.ask] and [`count()`][kif_lib.Store.count] is that, while [`filter()`][kif_lib.Store.filter] returns a lazy iterator (meaning that the underlying filter operation is only performed when the iterator is advanced), the operations underlying [`ask()`][kif_lib.Store.ask] and [`count()`][kif_lib.Store.count] are executed immediately.
 
-As [filter()][kif_lib.Store.filter], the method [count()][kif_lib.Store.count] comes with projected variants (`s`, `p`, `v`, `sp`, `sv`, `pv`) which can be used to count the number of distinct statement components with the desired constraints.  For example:
+The method [count()][kif_lib.Store.count] also comes with projected variants (`s`, `p`, `v`, `sp`, `sv`, `pv`) which can be used to count the number of distinct statement components matching the given constraints.  For example:
 
 === "Python"
 
     ```py
-    # Counts the number of distinct "dog" properties:
-    n kb.count_p(subject=wd.dog)
-    print(n)  # 148
+    # Counts the number of distinct "cat" properties:
+    n = kb.count_p(subject=wd.cat)
+    print(n)  # 123
     ```
 
 === "CLI"
 
     ```sh
-    $ kif count --subject=wd.dog --select=p
-    148
+    $ kif count --subject=wd.cat --select=p
+    123
     ```
+
+Besides [`ask()`][kif_lib.Store.ask] and [`count()`][kif_lib.Store.count], another method of the [`Store`][kif_lib.Store] API that deserves mention is [`mix()`][kif_lib.Store.mix].  It is used to run multiple filters at once, combining their results into a single stream.  For example, suppose we want to match statements such that either:
+
+* the subject is "Brazil" and the value is "Argentina"; or
+* the subject is "France" and the value is "United Kingdom".
+
+Note that we want to match alternative subject-value pairs, which is not possible with a single filter.  Using [`mix()`][kif_lib.Store.mix] we can write this as two separate filters and interleave their results:
+
+```py
+from kif_lib import Filter
+
+it = kb.mix(
+    Filter(subject=wd.Brazil, value=wd.Argentina),
+    Filter(subject=wd.France, value=wd.United_Kingdom))
+for stmt in it:
+    print(stmt)
+```
+
+> (**Statement** (**Item** [Brazil](http://www.wikidata.org/entity/Q155)) (**ValueSnak** (**Property** [shares border with](http://www.wikidata.org/entity/P47)) (**Item** [Argentina](http://www.wikidata.org/entity/Q414))))
+> (**Statement** (**Item** [France](http://www.wikidata.org/entity/Q142)) (**ValueSnak** (**Property** [diplomatic relation](http://www.wikidata.org/entity/P530)) (**Item** [United Kingdom](http://www.wikidata.org/entity/Q145))))
+> (**Statement** (**Item** [Brazil](http://www.wikidata.org/entity/Q155)) (**ValueSnak** (**Property** [diplomatic relation](http://www.wikidata.org/entity/P530)) (**Item** [Argentina](http://www.wikidata.org/entity/Q414))))
+
+(The [`Filter`][kif_lib.Filter] constructor used above constructs a data-model representation of a filter pattern.)
+
+!!! note
+
+    The [`mix()`][kif_lib.Store.mix] call used above evaluates the given filters and interleaves their results.  There is no parallelism though, as each filter evaluation causes the calling thread to block.  One way to avoid blocking the calling thread during filter evaluations is to use Python's async mechanism.  The [`Store`][kif_lib.Store] API provides the async versions [`afilter`][kif_lib.Store.afilter], [`aask`][kif_lib.Store.acount], [`acount`][kif_lib.Store.acount], and [`amix`][kif_lib.Store.acount].  These behave exaclty like their sync counterparts but can be awaited within an asyncio event-loop.  See [Async](guides/async.md) for details.
 
 ## 8 Beyond Wikidata
 
-To query a graph other than Wikidata, all we need to do is change the underlying store plugin:
+To query a source other than Wikidata, all we need to do change the plugin that is used to instantiate the target store.
 
 ## 9 Entity search
 
