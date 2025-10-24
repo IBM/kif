@@ -20,12 +20,7 @@ TR = TypeVar('TR', bound=ClosedTerm)
 
 
 class ClosedTermPair(ClosedTerm[TL, TR]):
-    """Pair of closed terms.
-
-    Parameters:
-       left: Closed term.
-       right: Closed term.
-    """
+    """Pair of closed terms."""
 
     left_class: ClassVar[type[ClosedTerm]]
     right_class: ClassVar[type[ClosedTerm]]

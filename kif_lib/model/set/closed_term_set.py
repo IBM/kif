@@ -22,11 +22,7 @@ Ts = TypeVarTuple('Ts')
 
 
 class ClosedTermSet(ClosedTerm, Sequence[T]):
-    """Set of closed terms.
-
-    Parameters:
-       children: Closed term.
-    """
+    """Set of closed terms."""
 
     children_class: ClassVar[type[ClosedTerm]]
 
