@@ -1184,15 +1184,13 @@ for stmt in it:
 
 ## 8 Beyond Wikidata
 
-To query a knowledge source other than Wikidata, all we need to do change the plugin used to instantiate the store.  For example, here is how we create a store targeting [DBpedia](https://www.dbpedia.org/):
+To query a knowledge source other than Wikidata, all we need to do is create a new store using a different plugin.  For example, here is how we create a store targeting [DBpedia](https://www.dbpedia.org/):
 
 ```py
 kb_dbp = Store('dbpedia')
 ```
 
-As the "wikidata" plugin we've been using so far, the "dbpedia" plugin creates a [SPARQL store][kif_lib.store.SPARQL_Store].  But it loads it with the [DBpedia SPARQL mappings][kif_lib.compiler.sparql.mapping.dbpedia.DBpediaMapping] and points it at the official [DBpedia SPARQL endpoint](https://dbpedia.org/sparql).
-
-The store `kb_dbp` behaves exactly as any other store.  For instance, we can apply filters to it to obtain statements from DBpedia:
+The "dbpedia" plugin creates a [SPARQL store][kif_lib.store.SPARQL_Store], loads it with the [DBpedia SPARQL mappings][kif_lib.compiler.sparql.mapping.dbpedia.DBpediaMapping], and points it at the official [DBpedia SPARQL endpoint](https://dbpedia.org/sparql).  The resulting store `kb_dbp` behaves exactly as any other store.  We can apply filters to it to obtain statements from DBpedia:
 
 === "Python"
 
@@ -1214,23 +1212,88 @@ The store `kb_dbp` behaves exactly as any other store.  For instance, we can app
     #       default one (--store=wikidata).
     ```
 
-> (**Statement** (**Item** [OpenLink Software](http://dbpedia.org/resource/OpenLink_Software)) (**ValueSnak** (**Property** [instance of](http://www.wikidata.org/entity/P31)) (**Item** [owl:Thing](http://www.w3.org/2002/07/owl#Thing))))<br/>
-> (**Statement** (**Item** [C type Adelaide tram](http://dbpedia.org/resource/C_type_Adelaide_tram)) (**ValueSnak** (**Property** [instance of](http://www.wikidata.org/entity/P31)) (**Item** [owl:Thing](http://www.w3.org/2002/07/owl#Thing))))<br/>
-> (**Statement** (**Item** [Ca'Purange](http://dbpedia.org/resource/Ca'Purange)) (**ValueSnak** (**Property** [instance of](http://www.wikidata.org/entity/P31)) (**Item** [owl:Thing](http://www.w3.org/2002/07/owl#Thing))))
+> (**Statement** (**Item** [Mark Twain](http://dbpedia.org/resource/Mark_Twain)) (**ValueSnak** (**Property** [birth name](http://dbpedia.org/ontology/birthName)) "Samuel Langhorne Clemens"@en))<br/>
+> (**Statement** (**Item** [Garfield](http://dbpedia.org/resource/Garfield)) (**ValueSnak** (**Property** [author](http://dbpedia.org/property/author)) (**Item** [Jim Davis (cartoonist)](http://dbpedia.org/resource/Jim_Davis_(cartoonist)))))
+> (**Statement** (**Item** [Camelot](http://dbpedia.org/resource/Camelot)) (**ValueSnak** (**Property** [ruler](http://dbpedia.org/property/ruler)) (**Item** [King Arthur](http://dbpedia.org/resource/King_Arthur))))
 
 !!! note
 
-    Expect some delay when running queries over DBpedia, as its official SPARQL endpoint is significantly slower than Wikidata's.
+    Expect some delay when running queries over DBpedia, as its official SPARQL endpoint is slower than Wikidata's.
 
-Observe that despite querying DBpedia, we get as a result Wikidata-like statements (that is, statements following the Wikidata syntax) whose entities are in the DBpedia namespace.  This happens because KIF's DBpedia SPARQL mappings do not attempt to convert entities in the DBpedia namespace into that of Wikidata.
+The result of the previous filter is a stream of statements following the Wikidata syntax but with entities in the DBpedia namespace.  This is so because KIF's DBpedia SPARQL mappings usually do not attempt to convert entities in the DBpedia namespace into that of Wikidata.  (The exception are Wikidata properties—the DBpedia SPARQL mappings support the automatic conversion of DBpedia properties into Wikidata properties, as we will see in a movement.)
 
 We can use the DBpedia vocabulary module [`db`][kif_lib.vocabulary.db] to write filters referring to DBpedia entities.  For example:
 
-```py
-from kif_lib.vocabulary import db
+=== "Python"
 
-# (1) Get the "doctoral advisor" of "Alan Turing":
-```
+    ```py
+    from kif_lib.vocabulary import db
+
+    # (1) Match statements with subject "Banana":
+    it = kb_dbp.filter(subject=db.r('Banana'))
+    print(next(it))
+
+    # (2) Match statements with snak "place of birth is Sicily":
+    it = kb_dbp.filter(snak=db.op('birthPlace')(db.r('Sicily')))
+    print(next(it))
+
+    # (3) Match statements with property "official language":
+    it = kb_dbp.filter(property=db.op('officialLanguage'))
+    print(next(it))
+
+    # (4) Match statements with value 733:
+    it = kb_dbp.filter(value=733)
+    print(next(it))
+
+    # (5) Match statements with subject "Brazil" and
+    #     snak "capital is Brasília":
+    it = kb_dbp.filter(subject=db.r('Brazil'),
+        snak=db.op('capital')(db.r('Brasília')))
+    print(next(it))
+
+    # (6) Match statements with subject "Brazil" and
+    #     snak "capital is São Paulo":
+    it = kb_dbp.filter(subject=db.r('Brazil'),
+        snak=db.op('capital')(db.r('São_Paulo')))
+    print(next(it)) # *** ERROR: iterator is empty (no such statement) ***
+    ```
+
+=== "CLI"
+
+    ```sh
+    # (1) Match statements with subject "Banana":
+    $ kif filter -s dbpedia --subject="db.r('Banana')" --limit=1
+
+    # (2) Match statements with snak "birth place is Sicily":
+    $ kif filter -s dbpedia --snak="db.op('birthPlace')(db.r('Sicily'))" --limit=1
+
+    # (3) Match statements with property "official language":
+    $ kif filter -s dbpedia --property=db.op('officialLanguage') --limit=1
+
+    # (4) Match statements with value 733:
+    $ kif filter -s dbpedia --value=733 --limit=1
+
+    # (5) Match statements with subject "Brazil" and
+    #     snak "capital is Brasília":
+    $ kif filter -s dbpedia --subject="db.r('Brazil')"\
+        --snak="db.op('capital')(db.r('Brasília'))"
+
+    # (6) Match statements with subject "Brazil" and
+    #     snak "capital is São Paulo":
+    $ kif filter -s dbpedia --subject="db.r('Brazil')"\
+        --snak="db.op('capital')(db.r('São_Paulo'))"
+    # *** no output ***
+
+    # Note: "-s dbpedia" is an alias for "--store=dbpedia".
+    ```
+
+> `(1)` (**Statement** (**Item** [Banana](http://dbpedia.org/resource/Banana)) (**ValueSnak** (**Property** [genus](http://dbpedia.org/ontology/genus)) (**Item** [Musa (genus)](http://dbpedia.org/resource/Musa_(genus)))))<br/>
+> `(2)` (**Statement** (**Item** [Archimedes](http://dbpedia.org/resource/Archimedes)) (**ValueSnak** (**Property** [birth place](http://dbpedia.org/ontology/birthPlace)) (**Item** [Sicily](http://dbpedia.org/resource/Sicily))))<br/>
+> `(3)` (**Statement** (**Item** [Cameroon](http://dbpedia.org/resource/Cameroon)) (**ValueSnak** (**Property** [official language](http://dbpedia.org/ontology/officialLanguage)) (**Item** [French language](http://dbpedia.org/resource/French_language))))<br/>
+> `(4)` (**Statement** (**Item** [Mosquito County, Florida](http://dbpedia.org/resource/Mosquito_County,_Florida)) (**ValueSnak** (**Property** [population total](http://dbpedia.org/ontology/populationTotal)) 733))<br/>
+> `(5)` (**Statement** (**Item** [Brazil](http://dbpedia.org/resource/Brazil)) (**ValueSnak** (**Property** [capital](http://dbpedia.org/ontology/capital)) (**Item** [Brasília](http://dbpedia.org/resource/Brasília))))
+
+DBpedia uses symbolic names for identifying entities in its namespace.  Also, it distinguishes between resources ([`db.r`][kif_lib.vocabulary.db.r]), ontology concepts ([`db.oc`][kif_lib.vocabulary.db.oc]), ontology properties ([`db.op`][kif_lib.vocabulary.db.op]), and properties ([`db.p`][kif_lib.vocabulary.db.p]).  The first two, resources and ontology concepts, are interpreted by the DBpedia SPARQL mappings as KIF items ([Item][kif_lib.Item]), while the last two, ontology properties and properties, are interpreted as KIF properties ([Property][kif_lib.Property]).
 
 ### 8.1 Mixer store
 
