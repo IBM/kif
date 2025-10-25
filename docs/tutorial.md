@@ -185,7 +185,7 @@ As we said earlier, a KIF store is an interface to a knowledge source, typically
 kb = Store('wikidata')
 ```
 
-This instantiates and assigns to `kb` a new store using the "wikidata" plugin.  This plugin creates a [SPARQL store][kif_lib.store.SPARQL_Store], loads it with the Wikidata SPARQL mappings, and points it at the official Wikidata SPARQL endpoint.  ([SPARQL](https://en.wikipedia.org/wiki/SPARQL) is the query language of [RDF](https://en.wikipedia.org/wiki/Resource_Description_Framework), a standard format for knowledge graphs; see [RDF](guides/rdf.md).)
+This instantiates and assigns to `kb` a new store using the "wikidata" plugin.  This plugin creates a [SPARQL store][kif_lib.store.SPARQL_Store], loads it with the [Wikidata SPARQL mappings][kif_lib.compiler.sparql.mapping.wikidata.WikidataMapping], and points it at the official [Wikidata SPARQL endpoint](https://query.wikidata.org/).  (SPARQL is the query language of RDF, a standard format for knowledge graphs; see [RDF](guides/rdf.md).)
 
 Alternatively, we could have specified the target SPARQL endpoint explicitly, as the second argument to the [`Store()`][kif_lib.Store] call:
 
@@ -1184,7 +1184,13 @@ for stmt in it:
 
 ## 8 Beyond Wikidata
 
-To query a source other than Wikidata, all we need to do change the plugin that is used to instantiate the target store.
+To query a knowledge source other than Wikidata, all we need to do change the plugin used to instantiate the store.  For example, here is how we create a store targeting [DBpedia](https://www.dbpedia.org/):
+
+```py
+kb_dbp = Store('dbpedia')
+```
+
+As the "wikidata" plugin we used before, the "dbpedia" plugin creates a [SPARQL store][kif_lib.store.SPARQL_Store].  But it loads it with the [DBpedia SPARQL mappings][kif_lib.compiler.sparql.mapping.dbpedia.DBpediaMapping] and points it at the official [DBpedia SPARQL endpoint](https://dbpedia.org/sparql).
 
 ## 9 Entity search
 

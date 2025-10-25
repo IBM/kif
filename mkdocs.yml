@@ -45,6 +45,17 @@ nav:
     - KIF CLI: 'guides/cli.md'
     - RDF: 'guides/rdf.md'
   - API Reference:
+    - Compiler:
+      - SPARQL:
+        - Compiler: 'api/compiler/sparql/compiler.md'
+        - Mapping:
+          - Mapping: 'api/compiler/sparql/mapping/mapping.md'
+          - DBpedia: 'api/compiler/sparql/mapping/dbpedia.md'
+          - Europa: 'api/compiler/sparql/mapping/europa.md'
+          - FactGrid: 'api/compiler/sparql/mapping/factgrid.md'
+          - PubChem: 'api/compiler/sparql/mapping/pubchem.md'
+          - UniProt: 'api/compiler/sparql/mapping/uniprot.md'
+          - Wikidata: 'api/compiler/sparql/mapping/wikidata.md'
     - Context: 'api/context.md'
     - Engine:
       - Engine: 'api/engine.md'
