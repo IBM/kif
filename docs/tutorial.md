@@ -1190,7 +1190,49 @@ To query a knowledge source other than Wikidata, all we need to do change the pl
 kb_dbp = Store('dbpedia')
 ```
 
-As the "wikidata" plugin we used before, the "dbpedia" plugin creates a [SPARQL store][kif_lib.store.SPARQL_Store].  But it loads it with the [DBpedia SPARQL mappings][kif_lib.compiler.sparql.mapping.dbpedia.DBpediaMapping] and points it at the official [DBpedia SPARQL endpoint](https://dbpedia.org/sparql).
+As the "wikidata" plugin we've been using so far, the "dbpedia" plugin creates a [SPARQL store][kif_lib.store.SPARQL_Store].  But it loads it with the [DBpedia SPARQL mappings][kif_lib.compiler.sparql.mapping.dbpedia.DBpediaMapping] and points it at the official [DBpedia SPARQL endpoint](https://dbpedia.org/sparql).
+
+The store `kb_dbp` behaves exactly as any other store.  For instance, we can apply filters to it to obtain statements from DBpedia:
+
+=== "Python"
+
+    ```py
+    # Match any statement whatsoever:
+    it = kb_dbp.filter(limit=3)
+    for stmt in it:
+        print(stmt)
+    ```
+
+=== "CLI"
+
+    ```sh
+    # Match any statement whatsoever:
+    $ kif filter --store=dbpedia --limit=3
+
+    # Note: The --store=dbpedia option instructs KIF CLI to use as target
+    #       a store instantiated with the "dbpedia" plugin, instead of the
+    #       default one (--store=wikidata).
+    ```
+
+> (**Statement** (**Item** [OpenLink Software](http://dbpedia.org/resource/OpenLink_Software)) (**ValueSnak** (**Property** [instance of](http://www.wikidata.org/entity/P31)) (**Item** [owl:Thing](http://www.w3.org/2002/07/owl#Thing))))<br/>
+> (**Statement** (**Item** [C type Adelaide tram](http://dbpedia.org/resource/C_type_Adelaide_tram)) (**ValueSnak** (**Property** [instance of](http://www.wikidata.org/entity/P31)) (**Item** [owl:Thing](http://www.w3.org/2002/07/owl#Thing))))<br/>
+> (**Statement** (**Item** [Ca'Purange](http://dbpedia.org/resource/Ca'Purange)) (**ValueSnak** (**Property** [instance of](http://www.wikidata.org/entity/P31)) (**Item** [owl:Thing](http://www.w3.org/2002/07/owl#Thing))))
+
+!!! note
+
+    Expect some delay when running queries over DBpedia, as its official SPARQL endpoint is significantly slower than Wikidata's.
+
+Observe that despite querying DBpedia, we get as a result Wikidata-like statements (that is, statements following the Wikidata syntax) whose entities are in the DBpedia namespace.  This happens because KIF's DBpedia SPARQL mappings do not attempt to convert entities in the DBpedia namespace into that of Wikidata.
+
+We can use the DBpedia vocabulary module [`db`][kif_lib.vocabulary.db] to write filters referring to DBpedia entities.  For example:
+
+```py
+from kif_lib.vocabulary import db
+
+# (1) Get the "doctoral advisor" of "Alan Turing":
+```
+
+### 8.1 Mixer store
 
 ## 9 Entity search
 
