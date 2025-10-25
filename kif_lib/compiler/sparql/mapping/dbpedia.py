@@ -41,7 +41,8 @@ class DBpediaMapping(M):
         f'^{re.escape(DBpedia.ONTOLOGY)}[A-Z].*$')
 
     _re_property_uri: Final[re.Pattern] = re.compile(
-        f'^{re.escape(DBpedia.ONTOLOGY)}[a-z].*$')
+        f'^({re.escape(DBpedia.ONTOLOGY)}|'
+        f'{re.escape(DBpedia.PROPERTY)})[a-z].*$')
 
     _re_resource_uri: Final[re.Pattern] = re.compile(
         f'^{re.escape(DBpedia.RESOURCE)}.*$')
@@ -269,11 +270,7 @@ class DBpediaMapping(M):
     def op_r_r(self, c: C, p: V_URI, s: V_URI, v: V_URI) -> None:
         self._start_r(c, s, v)
         self._start_op(c, p)
-        b = c.bnode()
-        c.q.triples()(
-            (s, p, v),
-            (p, RDFS.range, b),
-            (b, RDF.type, OWL.Class))
+        c.q.triples()((s, p, v))
 
     @M.register(
         [Property(p)(Item(s), Quantity(v))],

@@ -10,6 +10,7 @@ from ...namespace.dbpedia import DBpedia
 __all__ = (
     'oc',
     'op',
+    'p',
     'r',
     'reload',
 )
@@ -64,6 +65,35 @@ def op(
     """
     return Context.top(context).entities.register(
         Property(DBpedia.ONTOLOGY[name]),
+        label=label, aliases=aliases, description=description,
+        range=range, inverse=inverse)
+
+
+def p(
+        name: str,
+        label: TText | None = None,
+        aliases: TTextSet | None = None,
+        description: TText | None = None,
+        range: TDatatype | None = None,
+        inverse: TProperty | None = None,
+        context: Context | None = None
+) -> Property:
+    """Creates a DBpedia property with the given descriptors.
+
+    Parameters:
+       name: Name.
+       label: Label.
+       aliases: Aliases.
+       description: Description.
+       range: Datatype.
+       inverse: Inverse property.
+       context: KIF context.
+
+    Returns:
+       Property.
+    """
+    return Context.top(context).entities.register(
+        Property(DBpedia.PROPERTY[name]),
         label=label, aliases=aliases, description=description,
         range=range, inverse=inverse)
 
