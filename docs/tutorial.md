@@ -698,7 +698,7 @@ A more convenient and often more efficient way of achieving the same thing is by
     #       variant, that is, select the value of the returned statments.
     ```
 
-The full list of projected variants of [`filter()`][kif_lib.Store.filter] is shown in the table below.  All of these variants accept exactly the same arguments as [`filter()`][kif_lib.Store.filter].  The only difference is in their return type.
+The full list of projected variants of [`filter()`][kif_lib.Store.filter] is shown in the table below.  All of these variants accept exactly the same arguments as [`filter()`][kif_lib.Store.filter].  The only difference is their return type.
 
 <div class="center-table" markdown>
 | filter variant | selects | returns |
@@ -778,7 +778,7 @@ The Wikidata vocabulary module [`wd`][kif_lib.vocabulary.wd] defines the aliases
 
 !!! note
 
-    In KIF, information such as labels, aliases, and descriptions are referred to collectively as **descriptors**.  Descriptor values can be registered (saved) in the current KIF context so that, for example, they don't need to be retrieved every time an entity is pretty-printed (see [Context](guides/context.md)).  Most vocabulary modules register in the context the English label of the entities they predefine.  This cached label can be conveniently accessed through the `label` field of item and property objects:
+    In KIF, entity information such as labels, aliases, and descriptions are referred to collectively as **descriptors**.  Descriptor values can be registered (saved) in the current KIF context so that, for example, they don't need to be retrieved every time an entity is pretty-printed (see [Context](guides/context.md)).  Most vocabulary modules register in the context the English label of the entities they predefine.  This cached label can be conveniently accessed through the `label` field of item and property objects:
 
     ```py
     print(wd.Q(111).label, wd.P(2583).label)
@@ -787,14 +787,14 @@ The Wikidata vocabulary module [`wd`][kif_lib.vocabulary.wd] defines the aliases
     > "Mars"@en<br/>
     > "distance from Earth"@en
 
-    The aliases and description can be accessed through the fields `aliases` and `descriptions`.  These are usually left undefined by the vocabulary modules:
+    The aliases and description can be accessed through the fields `aliases` and `description`.  These are usually left undefined by the vocabulary modules:
 
     ```py
     print(wd.Q(111).aliases, wd.P(2583).aliases)          # None None
     print(wd.Q(111).description, wd.P(2583).description)  # None None
     ```
 
-    However, KIF can be instructed to resolve them automatically using the vocabulary module's resolver.  This is done by setting option "entities.resolve" to `True` in the context:
+    However, KIF can be instructed to retrieve them automatically using the vocabulary module's resolver.  This is done by setting option "entities.resolve" to `True` in the context:
 
     ```py
     # Enable automatic entity descriptor resolution:
@@ -838,7 +838,7 @@ To see the difference between `wd.a` and `wd.instance_of` consider the filter be
 > (**Statement** (**Item** [rabbit](http://www.wikidata.org/entity/Q9394)) (**ValueSnak** (**Property** [instance of](http://www.wikidata.org/entity/P31)) (**Item** [organisms known by a particular common name](http://www.wikidata.org/entity/Q55983715))))<br/>
 > (**Statement** (**Item** [rabbit](http://www.wikidata.org/entity/Q9394)) (**ValueSnak** (**Property** [instance of](http://www.wikidata.org/entity/P31)) (**Item** [taxon](http://www.wikidata.org/entity/Q16521))))
 
-If replace `wd.instance_of` by `wd.a`, we get three times more results:
+If we now replace `wd.instance_of` by `wd.a`, we get three times more results:
 
 === "Python"
 
@@ -896,9 +896,7 @@ The pseudo-property `wd.subtype`, which is the transitive counterpart of `wd.sub
 > `(2c)` (**Statement** (**Item** [mammal](http://www.wikidata.org/entity/Q7377)) (**ValueSnak** **SubtypeProperty** (**Item** [organism](http://www.wikidata.org/entity/Q7239))))<br/>
 > ⋮
 
-We conclude this section on pseud-properties by emphasizing the fact that
-they can occur in any place where a property is expected.  That is, they can
-be used to construct snak constraints, paths, etc.  For example:
+We emphasize that pseudo-properties can occur in any place where a regular property is expected.  That is, they can be used to construct snak constraints, paths, etc.  For example:
 
 === "Python"
 
@@ -1051,7 +1049,7 @@ print(stmt3 == stmt4.unannotate()  # True
 
 We now turn other query methods available in the [`Store`][kif_lib.Store] API.
 
-Two variants of the filter call are [`kb.ask(...)`][kif_lib.Store.ask] and [`kb.count(...)`][kif_lib.Store.count].  The former tests whether some (at least one) statement in `kb` matches the constraints `...`, while the latter counts the number of statements in `kb` matching `...`.  Both variants accept exactly the same constraints as [`filter()`][kif_lib.Store.filter].  This means that any [`filter()`][kif_lib.Store.filter] call can be easily be changed into an equivalent [`ask()`][kif_lib.Store.ask] or [`count()`][kif_lib.Store.count] call by simply changing the name of the method.
+Two variants of the filter call are [`kb.ask(...)`][kif_lib.Store.ask] and [`kb.count(...)`][kif_lib.Store.count].  The former tests whether some (at least one) statement in `kb` matches the constraints `...`, while the latter counts the number of statements in `kb` matching `...`.  Both variants accept exactly the same constraints as [`filter()`][kif_lib.Store.filter].
 
 Here are some examples of [`ask()`][kif_lib.Store.ask] and [`count()`][kif_lib.Store.count]:
 
@@ -1142,12 +1140,12 @@ The method [count()][kif_lib.Store.count] also comes with projected variants (`s
     123
     ```
 
-Besides [`ask()`][kif_lib.Store.ask] and [`count()`][kif_lib.Store.count], another method of the [`Store`][kif_lib.Store] API that deserves mention is [`mix()`][kif_lib.Store.mix].  It is used to run multiple filters at once, combining their results into a single stream.  For example, suppose we want to match statements such that either:
+Another method of the [`Store`][kif_lib.Store] API that deserves mention is [`mix()`][kif_lib.Store.mix].  It is used to run multiple filters at once, combining the resulting statements into a single output stream.  For example, suppose we want to match statements such that either:
 
 * the subject is "Brazil" and the value is "Argentina"; or
 * the subject is "France" and the value is "United Kingdom".
 
-Note that we want to match alternative subject-value pairs, which is not possible with a single filter.  Using [`mix()`][kif_lib.Store.mix] we can write this as two separate filters and interleave their results:
+Note that we want to match alternative subject-value pairs, which is not possible with a single filter.  Using [`mix()`][kif_lib.Store.mix] we can write this as two separate filters whose results are combined:
 
 ```py
 from kif_lib import Filter
@@ -1159,15 +1157,15 @@ for stmt in it:
     print(stmt)
 ```
 
-> (**Statement** (**Item** [Brazil](http://www.wikidata.org/entity/Q155)) (**ValueSnak** (**Property** [shares border with](http://www.wikidata.org/entity/P47)) (**Item** [Argentina](http://www.wikidata.org/entity/Q414))))
-> (**Statement** (**Item** [France](http://www.wikidata.org/entity/Q142)) (**ValueSnak** (**Property** [diplomatic relation](http://www.wikidata.org/entity/P530)) (**Item** [United Kingdom](http://www.wikidata.org/entity/Q145))))
+> (**Statement** (**Item** [Brazil](http://www.wikidata.org/entity/Q155)) (**ValueSnak** (**Property** [shares border with](http://www.wikidata.org/entity/P47)) (**Item** [Argentina](http://www.wikidata.org/entity/Q414))))<br/>
+> (**Statement** (**Item** [France](http://www.wikidata.org/entity/Q142)) (**ValueSnak** (**Property** [diplomatic relation](http://www.wikidata.org/entity/P530)) (**Item** [United Kingdom](http://www.wikidata.org/entity/Q145))))<br/>
 > (**Statement** (**Item** [Brazil](http://www.wikidata.org/entity/Q155)) (**ValueSnak** (**Property** [diplomatic relation](http://www.wikidata.org/entity/P530)) (**Item** [Argentina](http://www.wikidata.org/entity/Q414))))
 
-(The [`Filter`][kif_lib.Filter] constructor builds a data-model representation of a filter pattern.)
+The [`Filter`][kif_lib.Filter] constructor used above builds a data-model representation of a filter pattern.  It takes as arguments exactly the same constraints as [`filter()`][kif_lib.Store.filter].
 
 !!! note
 
-    The [`mix()`][kif_lib.Store.mix] call used above evaluates the given filters and interleaves their results.  There is no parallelism though, as each filter evaluation causes the calling thread to block.  One way to avoid blocking the calling thread during filter evaluations is to use Python's async mechanism.  The [`Store`][kif_lib.Store] API provides the async versions [`afilter`][kif_lib.Store.afilter], [`aask`][kif_lib.Store.acount], [`acount`][kif_lib.Store.acount], and [`amix`][kif_lib.Store.amix].  These behave exaclty like their sync counterparts but can be awaited within an asyncio event-loop.  See [Async](guides/async.md) for details.
+    The [`mix()`][kif_lib.Store.mix] call evaluates the filters in the order they are given and interleaves their results.  There is no parallelism: each filter evaluation causes the calling thread to block.  One way to avoid blocking the calling thread during each filter evaluation is to use Python's async mechanism.  To this end, the [`Store`][kif_lib.Store] API provides the async versions [`afilter`][kif_lib.Store.afilter], [`aask`][kif_lib.Store.acount], [`acount`][kif_lib.Store.acount], and [`amix`][kif_lib.Store.amix].  These behave exaclty like their sync counterparts but can be awaited within an asyncio event-loop.  See [Async](guides/async.md) for details.
 
 ## 8 Beyond Wikidata
 
