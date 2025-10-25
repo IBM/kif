@@ -1029,7 +1029,7 @@ class SPARQL_Mapping(Sequence[_Entry]):
 
         Parameters:
            compiler: SPARQL compiler.
-           pattern: Source patterns.
+           sources: Source patterns.
 
         Returns:
            Source patterns.

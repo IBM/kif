@@ -280,7 +280,7 @@ class SPARQL_FilterCompiler(SPARQL_Compiler):
     def get_phase(self) -> SPARQL_FilterCompiler.Phase:
         """Gets the compilation phase associated with the current frame.
 
-        Return:
+        Returns:
            Compilation phase.
         """
         return self.frame['phase']

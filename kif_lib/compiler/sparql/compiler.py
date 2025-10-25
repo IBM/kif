@@ -203,7 +203,7 @@ class SPARQL_Compiler(Compiler):
     def as_qvar(cls, var: Variable) -> Query.Variable:
         """Constructs query variable from variable.
 
-        Parameter:
+        Parameters:
            var: Variable.
 
         Returns:

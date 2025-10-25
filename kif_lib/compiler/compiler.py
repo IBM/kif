@@ -45,7 +45,7 @@ class Compiler(abc.ABC):
 
     @abc.abstractmethod
     def compile(self) -> Self:
-        """Run compiler.
+        """Runs the compiler.
 
         Returns:
            Compiler.
