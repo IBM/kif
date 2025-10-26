@@ -426,17 +426,17 @@ These statements may seem random at first but they all have subjects matching th
 
     ```py
     # (1) Subject's "anthem is La Marseillaise" and property is "capital":
-    print(next(kb.filter(
-        subject=wd.anthem(wd.La_Marseillaise), property=wd.capital)))
+    it = kb.filter(subject=wd.anthem(wd.La_Marseillaise), property=wd.capital)
+    print(next(it))
 
     # (2) Subject is "water" and property is any "property related to chemistry":
-    print(next(kb.filter(
-        subject=wd.water,
-        property=wd.instance_of(wd.Wikidata_property_related_to_chemistry))))
+    it = kb.filter(subject=wd.water,
+        property=wd.instance_of(wd.Wikidata_property_related_to_chemistry))
+    print(next(it))
 
     # (3) Property is "place of birth" and value is the "capital of Poland":
-    print(next(kb.filter(
-        property=wd.place_of_birth, value=wd.capital_of(wd.Poland))))
+    it = kb.filter(property=wd.place_of_birth, value=wd.capital_of(wd.Poland))
+    print(next(it))
 
     # (4) Subject's "language is Portuguese" & "shares border with Argentina";
     #     Property is "highest point" | "driving side":
@@ -863,7 +863,7 @@ If we now replace `wd.instance_of` by `wd.a`, we get three times more results:
 > (**Statement** (**Item** [rabbit](http://www.wikidata.org/entity/Q9394)) (**ValueSnak** **TypeProperty** (**Item** [taxon](http://www.wikidata.org/entity/Q16521))))<br/>
 > (**Statement** (**Item** [rabbit](http://www.wikidata.org/entity/Q9394)) (**ValueSnak** **TypeProperty** (**Item** [entity](http://www.wikidata.org/entity/Q35120))))
 
-What is happening here is that the latter version will consider as classes such that rabbit is an instance not only [organisms known by a particular common name (Q55983715)](http://www.wikidata.org/entity/Q55983715) and [taxon (Q16521)](http://www.wikidata.org/entity/Q16521) but also any super-classes of these two.  In other words, while `wd.instance_of` looks only to the immediate class, `wd.a` traverses the whole class hierarchy.
+What is happening here is that the latter version considers as classes such that rabbit is an instance not only [organisms known by a particular common name (Q55983715)](http://www.wikidata.org/entity/Q55983715) and [taxon (Q16521)](http://www.wikidata.org/entity/Q16521) but also any super-classes of these two.  In other words, while `wd.instance_of` looks only to the immediate class, `wd.a` traverses the whole class hierarchy.
 
 The pseudo-property `wd.subtype`, which is the transitive counterpart of `wd.subclass_of`, behaves similarly:
 
@@ -1184,13 +1184,17 @@ for stmt in it:
 
 ## 8 Beyond Wikidata
 
-To query a knowledge source other than Wikidata, all we need to do is create a new store using a different plugin.  For example, here is how we create a store targeting [DBpedia](https://www.dbpedia.org/):
+In this section, we use [DBpedia](https://www.dbpedia.org/) to demonstrate KIF's ability to query knowledge sources other than Wikidata.  The choice of [DBpedia](https://www.dbpedia.org/) is mainly because, besides being supported by KIF out-of-the-box, like Wikidata, it allows us to write mundane examples, which can be understood by everybody.  Besides Wikidata and DBpedia, KIF comes with builtin support for other knowledge sources, including [FactGrid](https://database.factgrid.de/), [PubChem](https://pubchem.ncbi.nlm.nih.gov/), and [UniProt](https://www.uniprot.org/).  Most of what is illustrated in this section using DBpedia can be easily adapted to these other sources.
+
+To query a knowledge source other than Wikidata, all we need to do is create a new store using a different plugin.  Here is how we create a store targeting [DBpedia](https://www.dbpedia.org/):
 
 ```py
 kb_dbp = Store('dbpedia')
 ```
 
-The "dbpedia" plugin creates a [SPARQL store][kif_lib.store.SPARQL_Store], loads it with the [DBpedia SPARQL mappings][kif_lib.compiler.sparql.mapping.dbpedia.DBpediaMapping], and points it at the official [DBpedia SPARQL endpoint](https://dbpedia.org/sparql).  The resulting store `kb_dbp` behaves exactly as any other store.  We can apply filters to it to obtain statements from DBpedia:
+The "dbpedia" plugin creates a [SPARQL store][kif_lib.store.SPARQL_Store], loads it with the [DBpedia SPARQL mappings][kif_lib.compiler.sparql.mapping.dbpedia.DBpediaMapping], and points it at the official [DBpedia SPARQL endpoint](https://dbpedia.org/sparql).  The result is a new store `kb_dbp` which behaves exactly as any other store.
+
+We can apply filters to store `kb_dbp` to obtain statements from DBpedia:
 
 === "Python"
 
@@ -1220,7 +1224,7 @@ The "dbpedia" plugin creates a [SPARQL store][kif_lib.store.SPARQL_Store], loads
 
     Expect some delay when running queries over DBpedia, as its official SPARQL endpoint is slower than Wikidata's.
 
-The result of the previous filter is a stream of statements following the Wikidata syntax but with entities in the DBpedia namespace.  This is so because KIF's DBpedia SPARQL mappings usually do not attempt to convert entities in the DBpedia namespace into that of Wikidata.  (The exception are Wikidata properties—the DBpedia SPARQL mappings support the automatic conversion of DBpedia properties into Wikidata properties, as we will see in a movement.)
+The result of the previous filter is a stream of statements following the Wikidata syntax but with entities in the DBpedia namespace.  This is so because KIF's DBpedia SPARQL mappings do not attempt to convert entities in the DBpedia namespace into that of Wikidata.  (The exception are Wikidata properties: the DBpedia SPARQL mappings support the automatic conversion of DBpedia properties into Wikidata properties, as we'll see in a moment.)
 
 We can use the DBpedia vocabulary module [`db`][kif_lib.vocabulary.db] to write filters referring to DBpedia entities.  For example:
 
@@ -1276,12 +1280,12 @@ We can use the DBpedia vocabulary module [`db`][kif_lib.vocabulary.db] to write 
     # (5) Match statements with subject "Brazil" and
     #     snak "capital is Brasília":
     $ kif filter -s dbpedia --subject="db.r('Brazil')"\
-        --snak="db.op('capital')(db.r('Brasília'))"
+        --snak="db.op('capital')(db.r('Brasília'))" --limit=1
 
     # (6) Match statements with subject "Brazil" and
     #     snak "capital is São Paulo":
     $ kif filter -s dbpedia --subject="db.r('Brazil')"\
-        --snak="db.op('capital')(db.r('São_Paulo'))"
+        --snak="db.op('capital')(db.r('São_Paulo'))" --limit=1
     # *** no output ***
 
     # Note: "-s dbpedia" is an alias for "--store=dbpedia".
@@ -1293,9 +1297,128 @@ We can use the DBpedia vocabulary module [`db`][kif_lib.vocabulary.db] to write 
 > `(4)` (**Statement** (**Item** [Mosquito County, Florida](http://dbpedia.org/resource/Mosquito_County,_Florida)) (**ValueSnak** (**Property** [population total](http://dbpedia.org/ontology/populationTotal)) 733))<br/>
 > `(5)` (**Statement** (**Item** [Brazil](http://dbpedia.org/resource/Brazil)) (**ValueSnak** (**Property** [capital](http://dbpedia.org/ontology/capital)) (**Item** [Brasília](http://dbpedia.org/resource/Brasília))))
 
-DBpedia uses symbolic names for identifying entities in its namespace.  Also, it distinguishes between resources ([`db.r`][kif_lib.vocabulary.db.r]), ontology concepts ([`db.oc`][kif_lib.vocabulary.db.oc]), ontology properties ([`db.op`][kif_lib.vocabulary.db.op]), and properties ([`db.p`][kif_lib.vocabulary.db.p]).  The first two, resources and ontology concepts, are interpreted by the DBpedia SPARQL mappings as KIF items ([Item][kif_lib.Item]), while the last two, ontology properties and properties, are interpreted as KIF properties ([Property][kif_lib.Property]).
+Different from Wikidata, DBpedia uses symbolic names for identifying entities in its namespace.  Also, it distinguishes between resources ([`db.r`][kif_lib.vocabulary.db.r]), ontology concepts ([`db.oc`][kif_lib.vocabulary.db.oc]), ontology properties ([`db.op`][kif_lib.vocabulary.db.op]), and properties ([`db.p`][kif_lib.vocabulary.db.p]).  The first two, resources and ontology concepts, are interpreted by the DBpedia SPARQL mappings as KIF items ([Item][kif_lib.Item]), while the last two, ontology properties and properties, are interpreted as KIF properties ([Property][kif_lib.Property]).  The DBpedia vocabulary module [db][kif_lib.vocabulary.db] defines aliases for some of the ontology properties.  So, for example, we can write `db.birthPlace` for `db.op('birthPlace')`, `db.capital` for `db.op('capital')`, and so on.
+
+By default, the DBpedia SPARQL mappings attempt to convert Wikidata properties into DBpedia properties whenever such mapping information is available in the DBpedia knowledge graph.  This means that it supports the use of Wikidata properties directly in filters.  For example:
+
+=== "Python"
+
+    ```py
+    from kif_lib.vocabulary import wd
+
+    # Get the "place of birth" of "Jim Morrison":
+    it = kb_dbp(subject=db.r('Jim_Morrison'), property=wd.place_of_birth)
+    print(next(it))
+    ```
+
+=== "CLI"
+
+    ```sh
+    # Get the "place of birth" of "Jim Morrison":
+    $ kif filter -s dbpedia "db.r('Jim_Morrison')" wd.place_of_birth --limit=1
+    ```
+
+> (**Statement** (**Item** [Jim Morrison](http://dbpedia.org/resource/Jim_Morrison)) (**ValueSnak** (**Property** [place of birth](http://www.wikidata.org/entity/P19)) (**Item** [Melbourne, Florida](http://dbpedia.org/resource/Melbourne,_Florida))))
+
+Notice that we used the Wikidata property [place of birth (P19)](http://www.wikidata.org/entity/P19) instead of [dbo:birthPlace](http://dbpedia.org/resource/birthPlace) above.  This works because these two properties are declared "equivalent" in DBpedia.  Similarly, if we ask for all properties leaving the node [dbr:Jim_Morrison](http://dbpedia.org/resource/Jim_Morrison), we get as results not only DBpedia properties but also Wikidata properties, including [place of birth (P19)](http://www.wikidata.org/entity/P19):
+
+=== "Python"
+
+    ```py
+    it = kb_dbp.filter_p(subject=db.r('Jim_Morrison'))
+    for prop in it:
+        print(prop)
+    ```
+
+=== "CLI"
+
+    ```sh
+    $ kif filter -s dbpedia --subject="db.r('Jim_Morrison')" --select p
+    ```
+
+*DBpedia properties:*
+> (**Property** [burial place](http://dbpedia.org/property/burialPlace))<br/>
+> (**Property** [birth place](http://dbpedia.org/ontology/birthPlace))<br/>
+> (**Property** [parents](http://dbpedia.org/property/parents))<br/>
+> (**Property** [occupation](http://dbpedia.org/ontology/occupation))<br/>
+> ⋮
+
+*Wikidata properties:*
+> (**Property** [educated at](http://www.wikidata.org/entity/P69))<br/>
+> (**Property** [place of birth](http://www.wikidata.org/entity/P19))<br/>
+> (**Property** [occupation](http://www.wikidata.org/entity/P106))<br/>
+> (**Property** [place of death](http://www.wikidata.org/entity/P20))<br/>
+> ⋮
+
+The DBpedia store `kb_dbp` supports all features discussed in the previous sections, including complex filter constraints, masks, projections, pseudo-properties, and the [ask()][kif_lib.Store.ask], [count()][kif_lib.Store.count], and [mix()][kif_lib.Store.mix] operations.  Here are some examples:
+
+=== "Python"
+
+    ```py
+    # (1) Subject's "capital is Paris" and property is "anthem":
+    it = kb_dbp.filter(subject=wd.capital(db.r('Paris')), property=wd.anthem)
+    print(next(it))
+
+    # (2) Subject was "influenced by Bertrand Russell" &
+    #     "educated at University of Viena"; property is "description"; and
+    #     value is in English:
+    it = kb_dbp.filter(
+        subject=(-db.p('influenced')(db.r('Bertrand_Russell'))&
+                 wd.educated_at(db.r('University_of_Vienna'))),
+        property=wd.description, language='en')
+    print(next(it))
+    ```
+
+=== "CLI"
+
+    ```sh
+    # (1) Subject's "capital is Paris" and property is "anthem":
+    $ kif filter -s dbpedia --subject="wd.capital(db.r('Paris'))"\
+        --property=wd.anthem
+
+    # (2) Subject was "influenced by Bertrand Russell" &
+    #     "educated at University of Viena"; property is "description"; and
+    #     value is in English:
+    $ kif filter -s dbpedia\
+        --subject="-db.p('influenced')(db.r('Bertrand_Russell'))&\
+                   wd.educated_at(db.r('University_of_Vienna'))"\
+        --property=wd.description --language=en --limit=1
+
+    # (3) Get the subject and value of statements with property "doctoral student"
+    #     and value which "died of a condition caused by Cyanide":
+    $ kif filter -s dbpedia --property=db.doctoralStudent\
+        --value="(wd.cause_of_death/db.op('medicalCause'))(db.r('Cyanide'))"\
+        --select=sv --limit=1
+
+    # (4) Same as (3) but count the number of matches:
+    $ kif count -s dbpedia --property=db.doctoralStudent\
+        --value="(wd.cause_of_death/db.op('medicalCause'))(db.r('Cyanide'))"\
+        --select=sv
+    1
+    ```
+
+> (**Statement** (**Item** [France](http://dbpedia.org/resource/France)) (**ValueSnak** (**Property** [anthem](http://www.wikidata.org/entity/P85)) (**Item** [La Marseillaise](http://dbpedia.org/resource/La_Marseillaise))))<br/>
+> (**Statement** (**Item** [Kurt Gödel](http://dbpedia.org/resource/Kurt_Gödel)) (**ValueSnak** **DescriptionProperty** "Kurt Friedrich Gödel (/ˈɡɜːrdəl/ GUR-dəl, German: \[kʊʁt ˈɡøːdl̩]; April 28, 1906 – January 14, 1978) was a logician, mathematician, and philosopher. Considered along with Aristotle and Gottlob Frege to be one of the most significant logicians in history, Gödel had an immense effect upon scientific and philosophical thinking in the 20th century, a time when others such as Bertrand Russell, Alfred North Whitehead, and David Hilbert were using logic and set theory to investigate the foundations of mathematics, building on earlier work by the likes of Richard Dedekind, Georg Cantor and Frege."@en))<br/>
+> (**ValuePair** (**Item** [Alonzo Church](http://dbpedia.org/resource/Alonzo_Church)) (**Item** [Alan Turing](http://dbpedia.org/resource/Alan_Turing)))
+
+!!! note
+
+    In example (2) above, the unary minus operator `-` is used in the subject constraint to invert the direction of the relation [dbp:influenced](http://dbpedia.org/property/influenced).  That is, by writing `-db.p('influenced')(db.r('Bertrand_Russell'))` we match the `x` such that there is a [dbp:influenced](http://dbpedia.org/property/influenced) edge in the graph with source [dbo:Bertrand_Russell](http://dbpedia.org/ontology/Bertrand_Russell) and target `x`.  Still in example (2), notice that we use in the same filter the DBpedia property [dbp:influenced](http://dbpedia.org/property/influenced), the Wikidata property [educated at (P69)](http://www.wikidata.org/entity/P69), and the pseudo property `wd.description`.
 
 ### 8.1 Mixer store
+
+We've seen how to construct stores targeting individual knowledge sources.  KIF also comes with a **mixer store** plugin which allows combining multiple stores to into a new store.  The mixer store uses the child stores to evaluate queries and create the illusion that it targets a single, loosely integrated knowledge source.
+
+We use the "mixer" store plugin to instantiate a new [mixer store][kif_lib.store.MixerStore]:
+
+```py
+mx = Store('mixer', [Store('wikidata'), Store('dbpedia')])
+```
+
+The "mixer" plugin takes a collection of child stores, in this case, the SPARQL stores pointing to Wikidata and DBpedia.  From the user point of view, store `mx` behaves exactly like any other store.
+
+
+### 8.2 Readers
 
 ## 9 Entity search
 
