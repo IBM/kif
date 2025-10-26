@@ -1415,7 +1415,7 @@ We use the "mixer" store plugin to instantiate a new [mixer store][kif_lib.store
 mx = Store('mixer', [Store('wikidata'), Store('dbpedia')])
 ```
 
-The "mixer" plugin takes a collection of child stores, in this case, the SPARQL stores pointing to Wikidata and DBpedia.  From the user point of view, store `mx` behaves exactly like any other store.
+The "mixer" plugin takes as argument a collection of child stores, in this case, a list with SPARQL stores targeting Wikidata and DBpedia.  From the user point of view, store `mx` behaves exactly like any other store.
 
 
 ### 8.2 Readers
