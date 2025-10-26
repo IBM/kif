@@ -3,23 +3,36 @@
 
 from __future__ import annotations
 
+import dataclasses
 import re
 
 from ....model import Lexeme, LexemeTemplate, LexemeVariable
 from ....namespace.factgrid import FactGrid
-from ....typing import override
+from ....typing import Any, Iterator, override
 from .factgrid_options import FactGridMappingOptions
 from .wikidata import Wikidata, WikidataMapping
+
+
+def _mk_entries() -> Iterator[WikidataMapping.Entry]:
+    for entry in WikidataMapping._entries:
+        if any(map(lambda pat: next(pat.traverse(
+                lambda x: isinstance(
+                    x, (Lexeme, LexemeTemplate, LexemeVariable))), None),
+                   entry.patterns)):  # exclude lexeme-related stuff
+            yield dataclasses.replace(
+                entry, callback=_mk_entries_skip_callback)
+        else:
+            yield entry
+
+
+def _mk_entries_skip_callback(*args: Any, **kwargs: Any) -> None:
+    raise WikidataMapping.Skip
 
 
 class FactGridMapping(WikidataMapping):
     """FactGrid SPARQL mapping."""
 
-    _entries = [                # exclude lexeme related stuff
-        entry for entry in WikidataMapping._entries if not any(map(
-            lambda pat: next(pat.traverse(lambda x: isinstance(
-                x, (Lexeme, LexemeTemplate, LexemeVariable))), None),
-            entry.patterns))]
+    _entries = list(_mk_entries())
 
     _default_type = FactGrid.WDT.P2 / (FactGrid.WDT.P420 * '*')  # type: ignore
 
