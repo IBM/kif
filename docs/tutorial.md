@@ -1204,9 +1204,7 @@ To query a knowledge source other than Wikidata, all we need to do is create a n
 kb_dbp = Store('dbpedia')
 ```
 
-The "dbpedia" plugin creates a [SPARQL store][kif_lib.store.SPARQL_Store], loads it with the [DBpedia SPARQL mappings][kif_lib.compiler.sparql.mapping.dbpedia.DBpediaMapping], and points it at the official [DBpedia SPARQL endpoint](https://dbpedia.org/sparql).  The result is a new store `kb_dbp` which behaves exactly as any other store.
-
-We can apply filters to store `kb_dbp` to obtain statements from DBpedia:
+The "dbpedia" plugin creates a [SPARQL store][kif_lib.store.SPARQL_Store], loads it with the [DBpedia SPARQL mappings][kif_lib.compiler.sparql.mapping.dbpedia.DBpediaMapping], and points it at the official [DBpedia SPARQL endpoint](https://dbpedia.org/sparql).  The result is a new store `kb_dbp` to which we can apply filters to obtain DBpedia statements:
 
 === "Python"
 
