@@ -38,6 +38,10 @@ Now, let's create a KIF store pointing to the official [Wikidata query service](
 kb = Store('wikidata')
 ```
 
+!!! note
+
+    [Wikidata](https://www.wikidata.org/) is a general-purpose collaboratively edited knowledge graph mantained by the Wikimedia Foundation.  It can be thought of as a structured version of [Wikipedia](https://www.wikipedia.org/)
+
 A KIF **store** is an interface to a knowledge source.  It allows us to query the source as if it were Wikidata and obtain Wikidata-like statements as a result.
 
 The store `kb` (short for knowledge base) we just created is an interface to Wikidata itself.  We can use it, for example, to fetch from Wikidata three statements about [Brazil (Q155)](http://www.wikidata.org/entity/Q155):
@@ -1184,7 +1188,13 @@ for stmt in it:
 
 ## 8 Beyond Wikidata
 
-In this section, we use [DBpedia](https://www.dbpedia.org/) to demonstrate KIF's ability to query knowledge sources other than Wikidata.  The choice of [DBpedia](https://www.dbpedia.org/) is mainly because, besides being supported by KIF out-of-the-box, like Wikidata, it allows us to write mundane examples, which can be understood by everybody.  Besides Wikidata and DBpedia, KIF comes with builtin support for other knowledge sources, including [FactGrid](https://database.factgrid.de/), [PubChem](https://pubchem.ncbi.nlm.nih.gov/), and [UniProt](https://www.uniprot.org/).  Most of what is illustrated in this section using DBpedia can be easily adapted to these other sources.
+We begin this section using [DBpedia](https://www.dbpedia.org/) to demonstrate KIF's ability to query knowledge sources other than Wikidata.  We chose DBpedia mainly because, besides being supported by KIF out-of-the-box, like Wikidata, it allows us to write mundane examples, which can be understood by everybody.  Besides Wikidata and DBpedia, KIF comes with builtin support for [FactGrid](https://database.factgrid.de/), [PubChem](https://pubchem.ncbi.nlm.nih.gov/), [UniProt](https://www.uniprot.org/), among other sources.  Most of what is illustrated below using DBpedia can be easily adapted to work with these other sources.
+
+!!! note
+
+    [DBpedia](https://www.dbpedia.org/) is a popular knowledge graph of general-purpose information extracted from Wikipedia.  [FactGrid](https://database.factgrid.de/) is a knowledge graph of historical data maintained by Gotha Research Centre (Germany).  [PubChem](https://pubchem.ncbi.nlm.nih.gov/) is a database of chemical data maintained the US National Institutes of Health (NIH).  [UniProt](https://www.uniprot.org/) is a database of protein data maintained by the UniProt consortium.
+
+### 8.1 DBpedia
 
 To query a knowledge source other than Wikidata, all we need to do is create a new store using a different plugin.  Here is how we create a store targeting [DBpedia](https://www.dbpedia.org/):
 
@@ -1220,11 +1230,11 @@ We can apply filters to store `kb_dbp` to obtain statements from DBpedia:
 > (**Statement** (**Item** [Garfield](http://dbpedia.org/resource/Garfield)) (**ValueSnak** (**Property** [author](http://dbpedia.org/property/author)) (**Item** [Jim Davis (cartoonist)](http://dbpedia.org/resource/Jim_Davis_(cartoonist)))))
 > (**Statement** (**Item** [Camelot](http://dbpedia.org/resource/Camelot)) (**ValueSnak** (**Property** [ruler](http://dbpedia.org/property/ruler)) (**Item** [King Arthur](http://dbpedia.org/resource/King_Arthur))))
 
+The result of the previous filter is a stream of statements following the Wikidata syntax but with entities in the DBpedia namespace.
+
 !!! note
 
-    Expect some delay when running queries over DBpedia, as its official SPARQL endpoint is slower than Wikidata's.
-
-The result of the previous filter is a stream of statements following the Wikidata syntax but with entities in the DBpedia namespace.  This is so because KIF's DBpedia SPARQL mappings do not attempt to convert entities in the DBpedia namespace into that of Wikidata.  (The exception are Wikidata properties: the DBpedia SPARQL mappings support the automatic conversion of DBpedia properties into Wikidata properties, as we'll see in a moment.)
+    KIF's DBpedia SPARQL mappings do not attempt to convert entities in the DBpedia namespace into that of Wikidata.  The exception are Wikidata properties which, as we'll see in a moment, are converted by the DBpedia SPARQL mappings into equivalent DBpedia properties whenever possible.
 
 We can use the DBpedia vocabulary module [`db`][kif_lib.vocabulary.db] to write filters referring to DBpedia entities.  For example:
 
@@ -1299,7 +1309,7 @@ We can use the DBpedia vocabulary module [`db`][kif_lib.vocabulary.db] to write 
 
 Different from Wikidata, DBpedia uses symbolic names for identifying entities in its namespace.  Also, it distinguishes between resources ([`db.r`][kif_lib.vocabulary.db.r]), ontology concepts ([`db.oc`][kif_lib.vocabulary.db.oc]), ontology properties ([`db.op`][kif_lib.vocabulary.db.op]), and properties ([`db.p`][kif_lib.vocabulary.db.p]).  The first two, resources and ontology concepts, are interpreted by the DBpedia SPARQL mappings as KIF items ([Item][kif_lib.Item]), while the last two, ontology properties and properties, are interpreted as KIF properties ([Property][kif_lib.Property]).  The DBpedia vocabulary module [db][kif_lib.vocabulary.db] defines aliases for some of the ontology properties.  So, for example, we can write `db.birthPlace` for `db.op('birthPlace')`, `db.capital` for `db.op('capital')`, and so on.
 
-By default, the DBpedia SPARQL mappings attempt to convert Wikidata properties into DBpedia properties whenever such mapping information is available in the DBpedia knowledge graph.  This means that it supports the use of Wikidata properties directly in filters.  For example:
+By default, the DBpedia SPARQL mappings attempt to convert Wikidata properties into DBpedia properties whenever such mapping information is available in DBpedia.  This means that it supports the use of Wikidata properties directly in filters.  For example:
 
 === "Python"
 
@@ -1333,17 +1343,16 @@ Notice that we used the Wikidata property [place of birth (P19)](http://www.wiki
 === "CLI"
 
     ```sh
-    $ kif filter -s dbpedia --subject="db.r('Jim_Morrison')" --select p
+    $ kif filter -s dbpedia --subject="db.r('Jim_Morrison')" --select=p
     ```
 
-*DBpedia properties:*
+> *DBpedia properties:*<br/>
 > (**Property** [burial place](http://dbpedia.org/property/burialPlace))<br/>
 > (**Property** [birth place](http://dbpedia.org/ontology/birthPlace))<br/>
 > (**Property** [parents](http://dbpedia.org/property/parents))<br/>
 > (**Property** [occupation](http://dbpedia.org/ontology/occupation))<br/>
-> ⋮
-
-*Wikidata properties:*
+> ⋮<br/>
+> *Wikidata properties:*<br/>
 > (**Property** [educated at](http://www.wikidata.org/entity/P69))<br/>
 > (**Property** [place of birth](http://www.wikidata.org/entity/P19))<br/>
 > (**Property** [occupation](http://www.wikidata.org/entity/P106))<br/>
@@ -1367,6 +1376,17 @@ The DBpedia store `kb_dbp` supports all features discussed in the previous secti
                  wd.educated_at(db.r('University_of_Vienna'))),
         property=wd.description, language='en')
     print(next(it))
+
+    # (3) Get the subject and value of statements with property "doctoral student"
+    #     and value which "died of a condition caused by Cyanide":
+    it = kb_dbp.filter_sv(property=db.doctoralStudent,
+        value=(wd.cause_of_death/db.op('medicalCause'))(db.r('Cyanide')))
+    print(next(it))
+
+    # (4) Same as (3) but count the number of matches:
+    n = kb_dbp.count_sv(property=db.doctoralStudent,
+        value=(wd.cause_of_death/db.op('medicalCause'))(db.r('Cyanide')))
+    print(n)  # 1
     ```
 
 === "CLI"
@@ -1397,29 +1417,186 @@ The DBpedia store `kb_dbp` supports all features discussed in the previous secti
     1
     ```
 
-> (**Statement** (**Item** [France](http://dbpedia.org/resource/France)) (**ValueSnak** (**Property** [anthem](http://www.wikidata.org/entity/P85)) (**Item** [La Marseillaise](http://dbpedia.org/resource/La_Marseillaise))))<br/>
-> (**Statement** (**Item** [Kurt Gödel](http://dbpedia.org/resource/Kurt_Gödel)) (**ValueSnak** **DescriptionProperty** "Kurt Friedrich Gödel (/ˈɡɜːrdəl/ GUR-dəl, German: \[kʊʁt ˈɡøːdl̩]; April 28, 1906 – January 14, 1978) was a logician, mathematician, and philosopher. Considered along with Aristotle and Gottlob Frege to be one of the most significant logicians in history, Gödel had an immense effect upon scientific and philosophical thinking in the 20th century, a time when others such as Bertrand Russell, Alfred North Whitehead, and David Hilbert were using logic and set theory to investigate the foundations of mathematics, building on earlier work by the likes of Richard Dedekind, Georg Cantor and Frege."@en))<br/>
-> (**ValuePair** (**Item** [Alonzo Church](http://dbpedia.org/resource/Alonzo_Church)) (**Item** [Alan Turing](http://dbpedia.org/resource/Alan_Turing)))
+> `(1)` (**Statement** (**Item** [France](http://dbpedia.org/resource/France)) (**ValueSnak** (**Property** [anthem](http://www.wikidata.org/entity/P85)) (**Item** [La Marseillaise](http://dbpedia.org/resource/La_Marseillaise))))<br/>
+> `(2)` (**Statement** (**Item** [Kurt Gödel](http://dbpedia.org/resource/Kurt_Gödel)) (**ValueSnak** **DescriptionProperty** "Kurt Friedrich Gödel (/ˈɡɜːrdəl/ GUR-dəl, German: \[kʊʁt ˈɡøːdl̩]; April 28, 1906 – January 14, 1978) was a logician, mathematician, and philosopher. Considered along with Aristotle and Gottlob Frege to be one of the most significant logicians in history, Gödel had an immense effect upon scientific and philosophical thinking in the 20th century, a time when others such as Bertrand Russell, Alfred North Whitehead, and David Hilbert were using logic and set theory to investigate the foundations of mathematics, building on earlier work by the likes of Richard Dedekind, Georg Cantor and Frege."@en))<br/>
+> `(3)` (**ValuePair** (**Item** [Alonzo Church](http://dbpedia.org/resource/Alonzo_Church)) (**Item** [Alan Turing](http://dbpedia.org/resource/Alan_Turing)))
 
 !!! note
 
     In example (2) above, the unary minus operator `-` is used in the subject constraint to invert the direction of the relation [dbp:influenced](http://dbpedia.org/property/influenced).  That is, by writing `-db.p('influenced')(db.r('Bertrand_Russell'))` we match the `x` such that there is a [dbp:influenced](http://dbpedia.org/property/influenced) edge in the graph with source [dbo:Bertrand_Russell](http://dbpedia.org/ontology/Bertrand_Russell) and target `x`.  Still in example (2), notice that we use in the same filter the DBpedia property [dbp:influenced](http://dbpedia.org/property/influenced), the Wikidata property [educated at (P69)](http://www.wikidata.org/entity/P69), and the pseudo property `wd.description`.
 
-### 8.1 Mixer store
+### 8.2 Mixer store
 
-We've seen how to construct stores targeting individual knowledge sources.  KIF also comes with a **mixer store** plugin which allows combining multiple stores to into a new store.  The mixer store uses the child stores to evaluate queries and create the illusion that it targets a single, loosely integrated knowledge source.
-
-We use the "mixer" store plugin to instantiate a new [mixer store][kif_lib.store.MixerStore]:
+We've seen how to construct stores targeting individual knowledge sources.  KIF also comes with the "mixer" store plugin which allows us to combine multiple stores to into a new store.  For example:
 
 ```py
-mx = Store('mixer', [Store('wikidata'), Store('dbpedia')])
+mx = Store('mixer', [Store('wikidata'), Store('dbpedia'), Store('factgrid')])
 ```
 
-The "mixer" plugin takes as argument a collection of child stores, in this case, a list with SPARQL stores targeting Wikidata and DBpedia.  From the user point of view, store `mx` behaves exactly like any other store.
+This instantiates and assigns to `mx` a new [mixer store][kif_lib.store.MixerStore] with three child stores, namely, the three SPARQL stores targeting [Wikidata](https://www.wikidata.org/), [DBpedia](https://www.dbpedia.org/), and [FactGrid](https://database.factgrid.de/).  The mixer store acts as a proxy to the child stores.  It provides a unified interface for querying them as if they were single knowledge source.
 
+When we evaluate a filter over `mx`, we get all statements from the child stores that match the filter.  For example:
 
-### 8.2 Readers
+=== "Python"
+
+    ```py
+    it = mx.filter(subject=wd.label('Joan of Arc'), value_snak=Filter.TIME))
+    for stmt in it:
+        print(stmt)
+    ```
+
+=== "CLI"
+
+    ```sh
+    $ kif filter -s wikidata -s dbpedia -s factgrid\
+        --subject="wd.label('Joan of Arc')" --value-mask=Filter.TIME
+
+    Note: When multiple stores are given using option "-s", KIF CLI adds
+          all of them to a new mixer store, which becomes the target store.
+    ```
+
+> *Wikidata:*<br/>
+> (**Statement** (**Item** [Joan of Arc](http://www.wikidata.org/entity/Q7226)) (**ValueSnak** (**Property** [date of death](http://www.wikidata.org/entity/P570)) 8 June 1431))<br/>
+> *DBpedia*:<br/>
+> (**Statement** (**Item** [Joan of Arc](http://dbpedia.org/resource/Joan_of_Arc)) (**ValueSnak** (**Property** [death date](http://dbpedia.org/ontology/deathDate)) 30 May 1431))<br/>
+> *FactGrid*:<br/>
+> (**Statement** (**Item** [Joan of Arc](https://database.factgrid.de/entity/Q1089710)) (**ValueSnak** (**Property** [Date of death](https://database.factgrid.de/entity/P38)) 8 June 1431))<br/>
+> ⋮
+
+The filter above matches statements whose subject has label "Joan of Arc" and value is a time value.  The result is a stream of statements obtained by combining (by default, interleaving) the streams produced by `mx`'s children.  The first statement shown above comes from Wikidata, the second from DBpedia, and the third from FactGrid.  The three concern the date of death of Joan of Arc but, because they come from distinct sources, they use different IRIs for the item "Joan of Arc" and the property "date of death".  Also, while Wikidata and FactGrid agree on the date, 8th June 1431, the DBpedia asserts that the event took place on 30th May 1431.
+
+The mixer store tends to be more useful when the child stores adopt the same namespace, or at least can handle entities in the namespaces of the other children.  This is the case, for example, of the [DBpedia SPARQL mappings][kif_lib.compiler.sparql.mapping.dbpedia.DBpediaMapping], which can handle Wikidata properties.  In contrast, the [FactGrid SPARQL mappings][kif_lib.compiler.sparql.mapping.factgrid.FactGrid] use a namespace that is completely separate from Wikidata's and cannot handle Wikidata entities (at least for now).
+
+KIF also comes with SPARQL mappings for PubChem, which is one of the largest open databases of chemical data.  KIF's [PubChem SPARQL mappings][kif_lib.compiler.sparql.mapping.pubchem.PubChem] support Wikidata properties natively.  This includes properties for universal chemical identifiers which can be used for matching compounds across knowledge sources.  In the example below, we create a mixer store `mx_wd_pc` combining both, Wikidata and PubChem SPARQL stores, and then use it to obtain annotated statements about the molecular mass of a given chemical (namely, benzene) from these sources:
+
+```py linenums="1"
+kb_wd = Store('wikidata', extra_references=[[wd.stated_in(wd.Wikidata)]])
+kb_pc = Store('pubchem', 'https://localhost:1234/sparql',
+    extra_references=[[wd.stated_in(wd.PubChem)]])
+kb_wd_pc = Store('mixer', [kb_wd, kb_pc])
+
+it = kb_wd_pc.filter(subject=wd.InChIKey('UHOVQNZJYSORNB-UHFFFAOYSA-N'),
+    property=wd.mass, annotated=True)
+for stmt in it:
+    print(stmt)
+```
+
+> (**AnnotatedStatement** (**Item** [benzene](http://www.wikidata.org/entity/Q2270)) (**ValueSnak** (**Property** [mass](http://www.wikidata.org/entity/P2067)) 78.046950192 [dalton](http://www.wikidata.org/entity/Q483261))<br/>
+>  (**QualifierRecord**)<br/>
+>  (**ReferenceRecordSet**<br/>
+>   (**ReferenceRecord**<br/>
+>    (**ValueSnak** (**Property** [stated in](http://www.wikidata.org/entity/P248)) (**Item** [Wikidata](http://www.wikidata.org/entity/Q2013))))<br/>
+>   (**ReferenceRecord**<br/>
+>    (**ValueSnak** (**Property** [based on heuristic](http://www.wikidata.org/entity/P887)) (**Item** [inferred from InChI](http://www.wikidata.org/entity/Q123137214)))))<br/>
+>  **NormalRank**)
+>
+> (**AnnotatedStatement** (**Item** [[6]annulene](http://rdf.ncbi.nlm.nih.gov/pubchem/compound/CID241)) (**ValueSnak** (**Property** [mass](http://www.wikidata.org/entity/P2067)) 78.0469970703125<br/> [dalton](http://www.wikidata.org/entity/Q483261))<br/>
+>  (**QualifierRecord**)<br/>
+>  (**ReferenceRecordSet**<br/>
+>   (**ReferenceRecord**<br/>
+>    (**ValueSnak** (**Property** [stated in](http://www.wikidata.org/entity/P248)) (**Item** [PubChem](http://www.wikidata.org/entity/Q278487)))))<br/>
+>  **NormalRank**)
+
+There are a couple of things to notice here.
+
+1. PubChem does not provide a public SPARQL endpoint, only RDF dumps.  The code above (line 2) assumes that a SPARQL endpoint with PubChem data is available at the address [http://localhost:1234/sparql](http://localhost:1234/sparql).
+
+2. We use the *extra_references* parameter of the [Store()][kif_lib.Store] constructor (lines 1–2) to associate to the Wikidata and PubChem stores extra reference records.  These extra records will be attached by the stores to every annotated statement they produce, allowing us to tell which store generated each statement.
+
+3. To avoid using a source-dependent identifier for the benzene, we use its InChIKey string "UHOVQNZJYSORNB-UHFFFAOYSA-N" (line 6), which is a universal identifier.  This works because property `wd.InChIKey` is recognized by both SPARQL mappings Wikidata's and PubChem's.  Similarly, `wd.mass` (line 7) is also recognized by both.
+
+### 8.3 Readers and RDF
+
+[🚧 This section is under construction. 🚧]
 
 ## 9 Entity search
 
+Besides stores, the other kind of data-model object producing engine in KIF are the searchers.  A KIF **searcher** is an interface to a similarity search method within a namespace.  KIF searchers also follow a plugin architecture.  For example, given a search string, the "wikidata" search plugin uses the [Wikidata's MediaWiki REST API](https://www.wikidata.org/w/api.php) to look in the Wikidata namespace for entities with a similar label, alias, or description:
+
+=== "Python"
+
+    ```py
+    from kif_lib import Search
+
+    sr = Search('wikidata')
+    it = sr.item('pizza', limit=3)
+    for item in it:
+        print(item)
+    ```
+
+=== "CLI"
+
+    ```sh
+    $ kif search --search=wikidata 'pizza' --item --limit=3
+
+    # Note: We can omit --search=wikidata, as it is the default
+    ```
+
+> (**Item** [pizza](http://www.wikidata.org/entity/Q177))<br/>
+> (**Item** [Mariagrazia Pizza](http://www.wikidata.org/entity/Q100420770))<br/>
+> (**Item** [Pizza Hut](http://www.wikidata.org/entity/Q191615))
+
+The [Search()][kif_lib.Search] constructor creates a new searcher using the given plugin.  In the example above, we used plugin "wikidata" to look for at most three items with descriptors matching the search string "pizza".  The items found are returned in order of relevance, from most relevant to least relevant.  Here the top three items found refer to the food item, to a person (a pharmaceutical chemist), and to the American restaurant chain.
+
+The [`sr.item()`][kif_lib.Search.item] call we used above searches for and returns items.  A related call in the [`Search`][kif_lib.Search] API is [`sr.item_descriptor()`][kif_lib.Search.item_descriptor] which in addition to the items returns any available descriptors.  For example:
+
+=== "Python"
+
+    ```py
+    it = sr.item_descriptor('pizza', limit=3)
+    for item, desc in it:
+        print(item, desc)
+    ```
+
+=== "CLI"
+
+    ```sh
+    $ kif search --search=wikidata 'pizza' --item-descriptor --limit=3
+
+    # Note: The "--item-descriptor" option instructs the searcher to obtain
+    #       any available descriptors.
+    ```
+
+> (**Item** [pizza](http://www.wikidata.org/entity/Q177))<br/>
+> {'labels': {'en': "pizza"@en}, 'descriptions': {'en': "Italian universal popular dish with a flat dough-based base and toppings"@en}}<br/>
+> (**Item** [Mariagrazia Pizza](http://www.wikidata.org/entity/Q100420770))<br/>
+> {'labels': {'en': "Mariagrazia Pizza"@en}, 'descriptions': {'en': "pharmaceutical chemist"@en}, 'aliases': {'en': {"Pizza"@en}}}<br/>
+> (**Item** [Pizza Hut](http://www.wikidata.org/entity/Q191615))<br/>
+> {'labels': {'en': "Pizza Hut"en}, 'descriptions': {'en': "American restaurant chain and international franchise"@en}}
+
+The [Search][kif_lib.Search] also provides the methods
+[`property()`][kif_lib.Search.property] and
+[`property_descriptor`][kif_lib.Search.property_descriptor] for searching for properties.
+
+!!! note
+
+    The [`Search`][kif_lib.Search] API provides the async versions [`aitem`][kif_lib.Search.aitem], [`aitem_descriptor`][kif_lib.Search.aitem_descriptor], [`aproperty`][kif_lib.Search.aproperty], and [`aproperty_descriptor`][kif_lib.Search.aproperty_descriptor].  As in the case of stores, the async versions behave exaclty like their sync counterparts but can be awaited within an asyncio event-loop.  See [Async](guides/async.md) for details.
+
+KIF comes with built-in plugins to search for entities in the namespaces of Wikidata, DBpedia, and PubChem.  There is also the general "ddgs" plugin, based on the [DDGS](https://github.com/deedy5/ddgs) library, which can used search in any namespace reachable through the public Internet.
+
+!!! note
+
+    The available search plugins can be shown using KIF CLI:
+
+    ```console
+    $ kif show-plugins --search
+    ...
+    dbpedia             : DBpedia Lookup API search
+    dbpedia-ddgs        : DBpedia DDGS search
+    ddgs                : DDGS search
+    pubchem             : PubChem PUG search
+    pubchem-ddgs        : PubChem DDGS search
+    wikidata            : Wikidata Wikibase API search
+    wikidata-ddgs       : Wikidata DDGS search
+    wikidata-rest       : Wikidata REST search
+    wikidata-wapi-query : Wikidata Wikibase API search ("query" action)
+    ...
+    ```
+
 ## 10 Final remarks
+
+This concludes the KIF tutorial.
+
+Check out the [guides](guides/overview.md) and the [API reference](api/overview.md) for a detailed description of KIF features, including those which were left out of the tutorial.
+
+Have fun!

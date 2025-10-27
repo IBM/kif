@@ -39,12 +39,14 @@ nav:
   - Introduction: 'index.md'
   - Tutorial: 'tutorial.md'
   - Guides:
+    - Overview: 'guides/overview.md'
     - Async: 'guides/async.md'
     - Context: 'guides/context.md'
     - Data Model: 'guides/data_model.md'
     - KIF CLI: 'guides/cli.md'
     - RDF: 'guides/rdf.md'
   - API Reference:
+    - Overview: 'api/overview.md'
     - Compiler:
       - SPARQL:
         - Compiler: 'api/compiler/sparql/compiler.md'
@@ -125,7 +127,13 @@ extra_css:
 
 markdown_extensions:
   - admonition
+  - footnotes
   - md_in_html
+  - pymdownx.highlight:
+      anchor_linenums: true
+      line_spans: __span
+      pygments_lang_class: true
+  - pymdownx.inlinehilite
   - pymdownx.superfences
   - pymdownx.tabbed:
       slugify: !!python/object/apply:pymdownx.slugs.slugify
