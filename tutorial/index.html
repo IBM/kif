@@ -481,15 +481,6 @@
   
 </li>
         
-          <li class="md-nav__item">
-  <a href="#83-readers-and-rdf" class="md-nav__link">
-    <span class="md-ellipsis">
-      8.3 Readers and RDF
-    </span>
-  </a>
-  
-</li>
-        
       </ul>
     </nav>
   
@@ -848,6 +839,29 @@
   
   
     <li class="md-nav__item">
+      <a href="../api/compiler/sparql/builder/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    Builder
+    
+  </span>
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
       <a href="../api/compiler/sparql/compiler/" class="md-nav__link">
         
   
@@ -879,10 +893,10 @@
       
         
         
-        <input class="md-nav__toggle md-toggle " type="checkbox" id="__nav_4_2_1_2" >
+        <input class="md-nav__toggle md-toggle " type="checkbox" id="__nav_4_2_1_3" >
         
           
-          <label class="md-nav__link" for="__nav_4_2_1_2" id="__nav_4_2_1_2_label" tabindex="0">
+          <label class="md-nav__link" for="__nav_4_2_1_3" id="__nav_4_2_1_3_label" tabindex="0">
             
   
   
@@ -895,8 +909,8 @@
             <span class="md-nav__icon md-icon"></span>
           </label>
         
-        <nav class="md-nav" data-md-level="4" aria-labelledby="__nav_4_2_1_2_label" aria-expanded="false">
-          <label class="md-nav__title" for="__nav_4_2_1_2">
+        <nav class="md-nav" data-md-level="4" aria-labelledby="__nav_4_2_1_3_label" aria-expanded="false">
+          <label class="md-nav__title" for="__nav_4_2_1_3">
             <span class="md-nav__icon md-icon"></span>
             Mapping
           </label>
@@ -2970,15 +2984,6 @@
   
 </li>
         
-          <li class="md-nav__item">
-  <a href="#83-readers-and-rdf" class="md-nav__link">
-    <span class="md-ellipsis">
-      8.3 Readers and RDF
-    </span>
-  </a>
-  
-</li>
-        
       </ul>
     </nav>
   
@@ -4391,8 +4396,8 @@
 <p>We've seen how to construct stores targeting individual knowledge sources.  KIF also comes with the "mixer" store plugin which allows us to combine multiple stores to into a new store.  For example:</p>
 <div class="language-py highlight"><pre><span></span><code><span id="__span-82-1"><a id="__codelineno-82-1" name="__codelineno-82-1" href="#__codelineno-82-1"></a><span class="n">mx</span> <span class="o">=</span> <span class="n">Store</span><span class="p">(</span><span class="s1">&#39;mixer&#39;</span><span class="p">,</span> <span class="p">[</span><span class="n">Store</span><span class="p">(</span><span class="s1">&#39;wikidata&#39;</span><span class="p">),</span> <span class="n">Store</span><span class="p">(</span><span class="s1">&#39;dbpedia&#39;</span><span class="p">),</span> <span class="n">Store</span><span class="p">(</span><span class="s1">&#39;factgrid&#39;</span><span class="p">)])</span>
 </span></code></pre></div>
-<p>This instantiates and assigns to <code>mx</code> a new <a class="autorefs autorefs-internal" title="            MixerStore" href="../api/store/mixer/#kif_lib.store.MixerStore">mixer store</a> with three child stores, namely, the three SPARQL stores targeting <a href="https://www.wikidata.org/">Wikidata</a>, <a href="https://www.dbpedia.org/">DBpedia</a>, and <a href="https://database.factgrid.de/">FactGrid</a>.  The mixer store acts as a proxy to the child stores.  It provides a unified interface for querying them as if they were single knowledge source.</p>
-<p>When we evaluate a filter over <code>mx</code>, we get all statements from the child stores that match the filter.  For example:</p>
+<p>This instantiates and assigns to <code>mx</code> a new <a class="autorefs autorefs-internal" title="            MixerStore" href="../api/store/mixer/#kif_lib.store.MixerStore">mixer store</a> with three child stores, namely, SPARQL stores targeting <a href="https://www.wikidata.org/">Wikidata</a>, <a href="https://www.dbpedia.org/">DBpedia</a>, and <a href="https://database.factgrid.de/">FactGrid</a>.  The mixer store acts as a proxy to the child stores.  It provides a unified interface for querying them as if they were single knowledge source.</p>
+<p>When we evaluate a <a class="autorefs autorefs-internal" title="            filter(subject=None, property=None, value=None, snak_mask=None, subject_mask=None, property_mask=None, value_mask=None, rank_mask=None, best_ranked=None, language=None, annotated=None, snak=None, filter=None, base_filter=None, debug=None, distinct=None, distinct_window_size=None, extra_references=None, limit=None, lookahead=None, omega=None, page_size=None, timeout=None, **kwargs)" href="../api/store/abc/#kif_lib.Store.filter"><code>filter()</code></a> over <code>mx</code>, we get all statements from the child stores that match the filter.  For example:</p>
 <div class="tabbed-set tabbed-alternate" data-tabs="27:2"><input checked="checked" id="python_26" name="__tabbed_27" type="radio" /><input id="cli_26" name="__tabbed_27" type="radio" /><div class="tabbed-labels"><label for="python_26">Python</label><label for="cli_26">CLI</label></div>
 <div class="tabbed-content">
 <div class="tabbed-block">
@@ -4422,7 +4427,7 @@
 </blockquote>
 <p>The filter above matches statements whose subject has label "Joan of Arc" and value is a time value.  The result is a stream of statements obtained by combining (by default, interleaving) the streams produced by <code>mx</code>'s children.  The first statement shown above comes from Wikidata, the second from DBpedia, and the third from FactGrid.  The three concern the date of death of Joan of Arc but, because they come from distinct sources, they use different IRIs for the item "Joan of Arc" and the property "date of death".  Also, while Wikidata and FactGrid agree on the date, 8th June 1431, the DBpedia asserts that the event took place on 30th May 1431.</p>
 <p>The mixer store tends to be more useful when the child stores adopt the same namespace, or at least can handle entities in the namespaces of the other children.  This is the case, for example, of the <a class="autorefs autorefs-internal" title="            DBpediaMapping" href="../api/compiler/sparql/mapping/dbpedia/#kif_lib.compiler.sparql.mapping.dbpedia.DBpediaMapping">DBpedia SPARQL mappings</a>, which can handle Wikidata properties.  In contrast, the <a class="autorefs autorefs-internal" title="            FactGridMapping" href="../api/compiler/sparql/mapping/factgrid/#kif_lib.compiler.sparql.mapping.factgrid.FactGridMapping">FactGrid SPARQL mappings</a> use a namespace that is completely separate from Wikidata's and cannot handle Wikidata entities (at least for now).</p>
-<p>KIF also comes with SPARQL mappings for PubChem, which is one of the largest open databases of chemical data.  KIF's <a class="autorefs autorefs-internal" title="            PubChemMapping" href="../api/compiler/sparql/mapping/pubchem/#kif_lib.compiler.sparql.mapping.pubchem.PubChemMapping">PubChem SPARQL mappings</a> support Wikidata properties natively.  This includes properties for universal chemical identifiers which can be used for matching compounds across knowledge sources.  In the example below, we create a mixer store <code>mx_wd_pc</code> combining both, Wikidata and PubChem SPARQL stores, and then use it to obtain annotated statements about the molecular mass of a given chemical (namely, benzene) from these sources:</p>
+<p>KIF also comes with SPARQL mappings for PubChem, which is one of the largest open databases of chemical data.  KIF's <a class="autorefs autorefs-internal" title="            PubChemMapping" href="../api/compiler/sparql/mapping/pubchem/#kif_lib.compiler.sparql.mapping.pubchem.PubChemMapping">PubChem SPARQL mappings</a> support Wikidata properties natively.  This includes properties for universal chemical identifiers which can be used for matching compounds across knowledge sources.  In the example below, we create a mixer store <code>mx_wd_pc</code> combining both, Wikidata and PubChem SPARQL stores, and then use it to obtain annotated statements about the molecular mass of a given chemical (benzene) from these sources:</p>
 <div class="language-py highlight"><table class="highlighttable"><tr><td class="linenos"><div class="linenodiv"><pre><span></span><span class="normal"><a href="#__codelineno-85-1">1</a></span>
 <span class="normal"><a href="#__codelineno-85-2">2</a></span>
 <span class="normal"><a href="#__codelineno-85-3">3</a></span>
@@ -4460,7 +4465,7 @@
 <p>There are a couple of things to notice here.</p>
 <ol>
 <li>
-<p>PubChem does not provide a public SPARQL endpoint, only RDF dumps.  The code above (line 2) assumes that a SPARQL endpoint with PubChem data is available at the address <a href="http://localhost:1234/sparql">http://localhost:1234/sparql</a>.</p>
+<p>PubChem does not provide a public SPARQL endpoint, only RDF dumps.  The code above (line 2) assumes that a SPARQL endpoint loaded with PubChem data is available at the address <a href="http://localhost:1234/sparql">http://localhost:1234/sparql</a>.</p>
 </li>
 <li>
 <p>We use the <em>extra_references</em> parameter of the <a class="autorefs autorefs-internal" title="            Store" href="../api/store/abc/#kif_lib.Store">Store()</a> constructor (lines 1–2) to associate to the Wikidata and PubChem stores extra reference records.  These extra records will be attached by the stores to every annotated statement they produce, allowing us to tell which store generated each statement.</p>
@@ -4469,10 +4474,11 @@
 <p>To avoid using a source-dependent identifier for the benzene, we use its InChIKey string "UHOVQNZJYSORNB-UHFFFAOYSA-N" (line 6), which is a universal identifier.  This works because property <code>wd.InChIKey</code> is recognized by both SPARQL mappings Wikidata's and PubChem's.  Similarly, <code>wd.mass</code> (line 7) is also recognized by both.</p>
 </li>
 </ol>
-<h3 id="83-readers-and-rdf">8.3 Readers and RDF</h3>
-<p>[🚧 This section is under construction 🚧]</p>
+<!-- TODO: ### 8.3 RDF -->
+<!-- TODO: ### 8.4 Readers -->
+
 <h2 id="9-entity-search">9 Entity search</h2>
-<p>Besides stores, the other kind of data-model object producing engine in KIF are the searchers.  A KIF <strong>searcher</strong> is an interface to a similarity search method within a namespace.  KIF searchers also follow a plugin architecture.  For example, given a search string, the "wikidata" search plugin uses the <a href="https://www.wikidata.org/w/api.php">Wikidata's MediaWiki REST API</a> to look in the Wikidata namespace for entities with a similar label, alias, or description:</p>
+<p>Besides stores, the other kind of data-model object producing engine in KIF are the searchers.  A KIF <strong>searcher</strong> is an interface to a similarity search method within a namespace.  KIF searchers follow the <a class="autorefs autorefs-internal" title="            Search" href="../api/search/abc/#kif_lib.Search"><code>Search</code></a> API which is implemented using a plugin architecture.  For example, given a search string, the "wikidata" search plugin uses the <a href="https://www.wikidata.org/w/api.php">Wikidata's MediaWiki REST API</a> to look in the Wikidata namespace for entities with a similar label, alias, or description:</p>
 <div class="tabbed-set tabbed-alternate" data-tabs="28:2"><input checked="checked" id="python_27" name="__tabbed_28" type="radio" /><input id="cli_27" name="__tabbed_28" type="radio" /><div class="tabbed-labels"><label for="python_27">Python</label><label for="cli_27">CLI</label></div>
 <div class="tabbed-content">
 <div class="tabbed-block">
@@ -4497,7 +4503,7 @@
 (<strong>Item</strong> <a href="http://www.wikidata.org/entity/Q100420770">Mariagrazia Pizza</a>)<br/>
 (<strong>Item</strong> <a href="http://www.wikidata.org/entity/Q191615">Pizza Hut</a>)</p>
 </blockquote>
-<p>The <a class="autorefs autorefs-internal" title="            Search" href="../api/search/abc/#kif_lib.Search">Search()</a> constructor creates a new searcher using the given plugin.  In the example above, we used plugin "wikidata" to look for at most three items with descriptors matching the search string "pizza".  The items found are returned in order of relevance, from most relevant to least relevant.  Here the top three items found refer to the food item, to a person (a pharmaceutical chemist), and to the American restaurant chain.</p>
+<p>The <a class="autorefs autorefs-internal" title="            Search" href="../api/search/abc/#kif_lib.Search">Search()</a> constructor creates a new searcher using the given plugin.  In the example above, we used plugin "wikidata" to look for at most three items with descriptors matching the search string "pizza".  The items found are returned in order of relevance, from most relevant to least relevant.  The top three items found above refer to the food item, to a person (a pharmaceutical chemist), and to the American restaurant chain.</p>
 <p>The <a class="autorefs autorefs-internal" title="            item(search, debug=None, language=None, limit=None, lookahead=None, page_size=None, timeout=None, context=None, **kwargs)" href="../api/search/abc/#kif_lib.Search.item"><code>sr.item()</code></a> call we used above searches for and returns items.  A related call in the <a class="autorefs autorefs-internal" title="            Search" href="../api/search/abc/#kif_lib.Search"><code>Search</code></a> API is <a class="autorefs autorefs-internal" title="            item_descriptor(search, debug=None, language=None, limit=None, lookahead=None, page_size=None, timeout=None, context=None, **kwargs)" href="../api/search/abc/#kif_lib.Search.item_descriptor"><code>item_descriptor()</code></a> which in addition to the items returns any available descriptors.  For example:</p>
 <div class="tabbed-set tabbed-alternate" data-tabs="29:2"><input checked="checked" id="python_28" name="__tabbed_29" type="radio" /><input id="cli_28" name="__tabbed_29" type="radio" /><div class="tabbed-labels"><label for="python_28">Python</label><label for="cli_28">CLI</label></div>
 <div class="tabbed-content">
@@ -4524,14 +4530,14 @@
 (<strong>Item</strong> <a href="http://www.wikidata.org/entity/Q191615">Pizza Hut</a>)<br/>
 {'labels': {'en': "Pizza Hut"en}, 'descriptions': {'en': "American restaurant chain and international franchise"@en}}</p>
 </blockquote>
-<p>The <a class="autorefs autorefs-internal" title="            Search" href="../api/search/abc/#kif_lib.Search">Search</a> also provides the methods
+<p>The <a class="autorefs autorefs-internal" title="            Search" href="../api/search/abc/#kif_lib.Search">Search</a> API also provides the methods
 <a class="autorefs autorefs-internal" title="            property(search, debug=None, language=None, limit=None, lookahead=None, page_size=None, timeout=None, context=None, **kwargs)" href="../api/search/abc/#kif_lib.Search.property"><code>property()</code></a> and
-<a class="autorefs autorefs-internal" title="            property_descriptor(search, debug=None, language=None, limit=None, lookahead=None, page_size=None, timeout=None, context=None, **kwargs)" href="../api/search/abc/#kif_lib.Search.property_descriptor"><code>property_descriptor</code></a> for searching for properties.</p>
+<a class="autorefs autorefs-internal" title="            property_descriptor(search, debug=None, language=None, limit=None, lookahead=None, page_size=None, timeout=None, context=None, **kwargs)" href="../api/search/abc/#kif_lib.Search.property_descriptor"><code>property_descriptor()</code></a> for searching for properties.</p>
 <div class="admonition note">
 <p class="admonition-title">Note</p>
 <p>The <a class="autorefs autorefs-internal" title="            Search" href="../api/search/abc/#kif_lib.Search"><code>Search</code></a> API provides the async versions <a class="autorefs autorefs-internal" title="            aitem(search, debug=None, language=None, limit=None, lookahead=None, page_size=None, timeout=None, context=None, **kwargs)" href="../api/search/abc/#kif_lib.Search.aitem"><code>aitem</code></a>, <a class="autorefs autorefs-internal" title="            aitem_descriptor(search, debug=None, language=None, limit=None, lookahead=None, page_size=None, timeout=None, context=None, **kwargs)" href="../api/search/abc/#kif_lib.Search.aitem_descriptor"><code>aitem_descriptor</code></a>, <a class="autorefs autorefs-internal" title="            aproperty(search, debug=None, language=None, limit=None, lookahead=None, page_size=None, timeout=None, context=None, **kwargs)" href="../api/search/abc/#kif_lib.Search.aproperty"><code>aproperty</code></a>, and <a class="autorefs autorefs-internal" title="            aproperty_descriptor(search, debug=None, language=None, limit=None, lookahead=None, page_size=None, timeout=None, context=None, **kwargs)" href="../api/search/abc/#kif_lib.Search.aproperty_descriptor"><code>aproperty_descriptor</code></a>.  As in the case of stores, the async versions behave exactly like their sync counterparts but can be awaited within an asyncio event-loop.  See <a href="../guides/async/">Async</a> for details.</p>
 </div>
-<p>KIF comes with built-in plugins to search for entities in the namespaces of Wikidata, DBpedia, and PubChem.  There is also the general "ddgs" plugin, based on the <a href="https://github.com/deedy5/ddgs">DDGS</a> library, which can used search in any namespace reachable through the public Internet.</p>
+<p>KIF comes with built-in plugins to search for entities in the namespaces of Wikidata, DBpedia, and PubChem.  There is also the general "ddgs" plugin, based on the <a href="https://github.com/deedy5/ddgs">DDGS</a> library, which can used to search for entities in any namespace reachable through the public Internet.</p>
 <div class="admonition note">
 <p class="admonition-title">Note</p>
 <p>The available search plugins can be shown using KIF CLI:</p>
