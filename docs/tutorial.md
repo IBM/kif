@@ -1505,13 +1505,12 @@ There are a couple of things to notice here.
 
 3. To avoid using a source-dependent identifier for the benzene, we use its InChIKey string "UHOVQNZJYSORNB-UHFFFAOYSA-N" (line 6), which is a universal identifier.  This works because property `wd.InChIKey` is recognized by both SPARQL mappings Wikidata's and PubChem's.  Similarly, `wd.mass` (line 7) is also recognized by both.
 
-### 8.3 Readers and RDF
-
-[🚧 This section is under construction 🚧]
+<!-- TODO: ### 8.3 RDF -->
+<!-- TODO: ### 8.4 Readers -->
 
 ## 9 Entity search
 
-Besides stores, the other kind of data-model object producing engine in KIF are the searchers.  A KIF **searcher** is an interface to a similarity search method within a namespace.  KIF searchers also follow a plugin architecture.  For example, given a search string, the "wikidata" search plugin uses the [Wikidata's MediaWiki REST API](https://www.wikidata.org/w/api.php) to look in the Wikidata namespace for entities with a similar label, alias, or description:
+Besides stores, the other kind of data-model object producing engine in KIF are the searchers.  A KIF **searcher** is an interface to a similarity search method within a namespace.  KIF searchers follow the [`Search`][kif_lib.Search] API which is implemented using a plugin architecture.  For example, given a search string, the "wikidata" search plugin uses the [Wikidata's MediaWiki REST API](https://www.wikidata.org/w/api.php) to look in the Wikidata namespace for entities with a similar label, alias, or description:
 
 === "Python"
 
@@ -1536,7 +1535,7 @@ Besides stores, the other kind of data-model object producing engine in KIF are 
 > (**Item** [Mariagrazia Pizza](http://www.wikidata.org/entity/Q100420770))<br/>
 > (**Item** [Pizza Hut](http://www.wikidata.org/entity/Q191615))
 
-The [Search()][kif_lib.Search] constructor creates a new searcher using the given plugin.  In the example above, we used plugin "wikidata" to look for at most three items with descriptors matching the search string "pizza".  The items found are returned in order of relevance, from most relevant to least relevant.  Here the top three items found refer to the food item, to a person (a pharmaceutical chemist), and to the American restaurant chain.
+The [Search()][kif_lib.Search] constructor creates a new searcher using the given plugin.  In the example above, we used plugin "wikidata" to look for at most three items with descriptors matching the search string "pizza".  The items found are returned in order of relevance, from most relevant to least relevant.  The top three items found above refer to the food item, to a person (a pharmaceutical chemist), and to the American restaurant chain.
 
 The [`sr.item()`][kif_lib.Search.item] call we used above searches for and returns items.  A related call in the [`Search`][kif_lib.Search] API is [`item_descriptor()`][kif_lib.Search.item_descriptor] which in addition to the items returns any available descriptors.  For example:
 
@@ -1564,15 +1563,15 @@ The [`sr.item()`][kif_lib.Search.item] call we used above searches for and retur
 > (**Item** [Pizza Hut](http://www.wikidata.org/entity/Q191615))<br/>
 > {'labels': {'en': "Pizza Hut"en}, 'descriptions': {'en': "American restaurant chain and international franchise"@en}}
 
-The [Search][kif_lib.Search] also provides the methods
+The [Search][kif_lib.Search] API also provides the methods
 [`property()`][kif_lib.Search.property] and
-[`property_descriptor`][kif_lib.Search.property_descriptor] for searching for properties.
+[`property_descriptor()`][kif_lib.Search.property_descriptor] for searching for properties.
 
 !!! note
 
     The [`Search`][kif_lib.Search] API provides the async versions [`aitem`][kif_lib.Search.aitem], [`aitem_descriptor`][kif_lib.Search.aitem_descriptor], [`aproperty`][kif_lib.Search.aproperty], and [`aproperty_descriptor`][kif_lib.Search.aproperty_descriptor].  As in the case of stores, the async versions behave exactly like their sync counterparts but can be awaited within an asyncio event-loop.  See [Async](guides/async.md) for details.
 
-KIF comes with built-in plugins to search for entities in the namespaces of Wikidata, DBpedia, and PubChem.  There is also the general "ddgs" plugin, based on the [DDGS](https://github.com/deedy5/ddgs) library, which can used search in any namespace reachable through the public Internet.
+KIF comes with built-in plugins to search for entities in the namespaces of Wikidata, DBpedia, and PubChem.  There is also the general "ddgs" plugin, based on the [DDGS](https://github.com/deedy5/ddgs) library, which can used to search for entities in any namespace reachable through the public Internet.
 
 !!! note
 

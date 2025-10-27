@@ -49,6 +49,7 @@ nav:
     - Overview: 'api/overview.md'
     - Compiler:
       - SPARQL:
+        - Builder: 'api/compiler/sparql/builder.md'
         - Compiler: 'api/compiler/sparql/compiler.md'
         - Mapping:
           - Mapping: 'api/compiler/sparql/mapping/mapping.md'
