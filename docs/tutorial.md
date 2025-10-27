@@ -1,5 +1,7 @@
 # Tutorial
 
+Welcome to the KIF tutorial!
+
 Before we start, let's use the command-line to create and activate a fresh Python virtual environment:
 
 ```console
@@ -8,7 +10,7 @@ $ source tutorial/bin/activate
 (tutorial) $
 ```
 
-Next, we use [pip](https://pypi.org/project/pip/) to install the latest release of [kif-lib](https://pypi.org/project/kif-lib/) (with [KIF CLI](guides/cli.md) support) and then start an interactive Python session:
+Let's us now use [pip](https://pypi.org/project/pip/) to install the latest release of [kif-lib](https://pypi.org/project/kif-lib/) (with [KIF CLI](guides/cli.md) support) and then start an interactive Python session:
 
 ```console
 (tutorial) $ pip install kif-lib[cli]
@@ -40,7 +42,7 @@ kb = Store('wikidata')
 
 !!! note
 
-    [Wikidata](https://www.wikidata.org/) is a general-purpose collaboratively edited knowledge graph maintained by the Wikimedia Foundation.  It can be thought of as a structured version of [Wikipedia](https://www.wikipedia.org/)
+    [Wikidata](https://www.wikidata.org/) is a general-purpose collaboratively edited knowledge graph maintained by the Wikimedia Foundation.  It can be thought of as a structured version of [Wikipedia](https://www.wikipedia.org/).
 
 A KIF **store** is an interface to a knowledge source.  It allows us to query the source as if it were Wikidata and obtain Wikidata-like statements as a result.
 
@@ -992,7 +994,7 @@ Both statements, (1) and (2), assert that "benzene's density is 0.88±0.01 g/cm"
 
 !!! note
 
-    The [`filter`][kif_lib.Store.filter] parameter *rank_mask* can be used to match statements with a given rank ([`NormalRank`][kif_lib.NormalRank], [`PreferredRank`][kif_lib.PreferredRank], [`DeprecatedRank`][kif_lib.DeprecatedRank]; see [Data Model][guides/data_model.md)).
+    The [`filter`][kif_lib.Store.filter] parameter *rank_mask* can be used to match statements with a given rank ([`NormalRank`][kif_lib.NormalRank], [`PreferredRank`][kif_lib.PreferredRank], [`DeprecatedRank`][kif_lib.DeprecatedRank]; see [Data Model](guides/data_model.md)).
 
 As plain statements, annotated statements can be constructed directly using data-model object constructors.  For instance, `stmt2a` and `stmt2b` below correspond exactly to statement (2) above.
 
@@ -1465,9 +1467,9 @@ When we evaluate a filter over `mx`, we get all statements from the child stores
 
 The filter above matches statements whose subject has label "Joan of Arc" and value is a time value.  The result is a stream of statements obtained by combining (by default, interleaving) the streams produced by `mx`'s children.  The first statement shown above comes from Wikidata, the second from DBpedia, and the third from FactGrid.  The three concern the date of death of Joan of Arc but, because they come from distinct sources, they use different IRIs for the item "Joan of Arc" and the property "date of death".  Also, while Wikidata and FactGrid agree on the date, 8th June 1431, the DBpedia asserts that the event took place on 30th May 1431.
 
-The mixer store tends to be more useful when the child stores adopt the same namespace, or at least can handle entities in the namespaces of the other children.  This is the case, for example, of the [DBpedia SPARQL mappings][kif_lib.compiler.sparql.mapping.dbpedia.DBpediaMapping], which can handle Wikidata properties.  In contrast, the [FactGrid SPARQL mappings][kif_lib.compiler.sparql.mapping.factgrid.FactGrid] use a namespace that is completely separate from Wikidata's and cannot handle Wikidata entities (at least for now).
+The mixer store tends to be more useful when the child stores adopt the same namespace, or at least can handle entities in the namespaces of the other children.  This is the case, for example, of the [DBpedia SPARQL mappings][kif_lib.compiler.sparql.mapping.dbpedia.DBpediaMapping], which can handle Wikidata properties.  In contrast, the [FactGrid SPARQL mappings][kif_lib.compiler.sparql.mapping.factgrid.FactGridMapping] use a namespace that is completely separate from Wikidata's and cannot handle Wikidata entities (at least for now).
 
-KIF also comes with SPARQL mappings for PubChem, which is one of the largest open databases of chemical data.  KIF's [PubChem SPARQL mappings][kif_lib.compiler.sparql.mapping.pubchem.PubChem] support Wikidata properties natively.  This includes properties for universal chemical identifiers which can be used for matching compounds across knowledge sources.  In the example below, we create a mixer store `mx_wd_pc` combining both, Wikidata and PubChem SPARQL stores, and then use it to obtain annotated statements about the molecular mass of a given chemical (namely, benzene) from these sources:
+KIF also comes with SPARQL mappings for PubChem, which is one of the largest open databases of chemical data.  KIF's [PubChem SPARQL mappings][kif_lib.compiler.sparql.mapping.pubchem.PubChemMapping] support Wikidata properties natively.  This includes properties for universal chemical identifiers which can be used for matching compounds across knowledge sources.  In the example below, we create a mixer store `mx_wd_pc` combining both, Wikidata and PubChem SPARQL stores, and then use it to obtain annotated statements about the molecular mass of a given chemical (namely, benzene) from these sources:
 
 ```py linenums="1"
 kb_wd = Store('wikidata', extra_references=[[wd.stated_in(wd.Wikidata)]])
@@ -1507,7 +1509,7 @@ There are a couple of things to notice here.
 
 ### 8.3 Readers and RDF
 
-[🚧 This section is under construction. 🚧]
+[🚧 This section is under construction 🚧]
 
 ## 9 Entity search
 
@@ -1538,7 +1540,7 @@ Besides stores, the other kind of data-model object producing engine in KIF are 
 
 The [Search()][kif_lib.Search] constructor creates a new searcher using the given plugin.  In the example above, we used plugin "wikidata" to look for at most three items with descriptors matching the search string "pizza".  The items found are returned in order of relevance, from most relevant to least relevant.  Here the top three items found refer to the food item, to a person (a pharmaceutical chemist), and to the American restaurant chain.
 
-The [`sr.item()`][kif_lib.Search.item] call we used above searches for and returns items.  A related call in the [`Search`][kif_lib.Search] API is [`sr.item_descriptor()`][kif_lib.Search.item_descriptor] which in addition to the items returns any available descriptors.  For example:
+The [`sr.item()`][kif_lib.Search.item] call we used above searches for and returns items.  A related call in the [`Search`][kif_lib.Search] API is [`item_descriptor()`][kif_lib.Search.item_descriptor] which in addition to the items returns any available descriptors.  For example:
 
 === "Python"
 
