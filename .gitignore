@@ -4,11 +4,9 @@
 .idea
 .tox
 /.cache
-/.docs
 /.mypy_cache
 /build
 /dist
-/kif_lib/vocabulary/wd/wikidata_items.tsv
 /Makefile_local.conf
 /site
 /venv*

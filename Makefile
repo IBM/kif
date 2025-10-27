@@ -47,10 +47,6 @@ CHECK_SYNTAX_IGNORE?=
 COVERAGERC?= .coveragerc
 COVERAGERC_EXCLUDE_LINES?=
 COVERAGERC_OMIT?=
-DOCS_SETENV?=
-DOCS_SRC?= docs
-DOCS_TGT?= .docs
-DOCS_TGT_BRANCH?= gh-pages
 FLAKE8?= ${PYTHON} -m flake8
 FLAKE8_OPERANDS?= ${PACKAGE} ${TESTS}
 FLAKE8_OPTIONS?= --config .flake8rc
@@ -96,10 +92,9 @@ SED?= sed
 SETUP_PY?= setup.py
 SETUP_PY_CLASSIFIERS?= []
 SETUP_PY_ENTRY_POINTS?= {}
-SETUP_PY_EXTRAS_REQUIRE_?= {'all': ${SETUP_PY_EXTRAS_REQUIRE_ALL}, 'dev': ${SETUP_PY_EXTRAS_REQUIRE_DEV}, 'docs': ${SETUP_PY_EXTRAS_REQUIRE_DOCS}, 'tests': ${SETUP_PY_EXTRAS_REQUIRE_TESTS}, **${SETUP_PY_EXTRAS_REQUIRE}}
-SETUP_PY_EXTRAS_REQUIRE_ALL= [*${SETUP_PY_EXTRAS_REQUIRE_DOCS}, *${SETUP_PY_EXTRAS_REQUIRE_TESTS}, *itertools.chain(*${SETUP_PY_EXTRAS_REQUIRE}.values())]
+SETUP_PY_EXTRAS_REQUIRE_?= {'all': ${SETUP_PY_EXTRAS_REQUIRE_ALL}, 'dev': ${SETUP_PY_EXTRAS_REQUIRE_DEV}, 'tests': ${SETUP_PY_EXTRAS_REQUIRE_TESTS}, **${SETUP_PY_EXTRAS_REQUIRE}}
+SETUP_PY_EXTRAS_REQUIRE_ALL= [*${SETUP_PY_EXTRAS_REQUIRE_TESTS}, *itertools.chain(*${SETUP_PY_EXTRAS_REQUIRE}.values())]
 SETUP_PY_EXTRAS_REQUIRE_DEV?= ['build', 'twine', *${SETUP_PY_EXTRAS_REQUIRE_ALL}]
-SETUP_PY_EXTRAS_REQUIRE_DOCS?= ['mkdocs']
 SETUP_PY_EXTRAS_REQUIRE_TESTS?= ['flake8', 'isort', 'mypy', 'pylint', 'pyright', 'pytest', 'pytest-asyncio', 'pytest-cov', 'pytest-mypy', 'pyupgrade', 'setuptools', 'tox']
 SETUP_PY_FIND_PACKAGES_EXCLUDE?= ['tests', 'tests.*']
 SETUP_PY_INCLUDE_PACKAGE_DATA?= True
@@ -296,7 +291,7 @@ pyupgrade:
 
 # remove generated files
 .PHONY: clean
-clean: dist-clean docs-clean htmlcov-clean
+clean: dist-clean htmlcov-clean
 	-${PYTHON} setup.py clean --all
 
 .PHONY: dist-clean
@@ -306,47 +301,6 @@ dist-clean:
 .PHONY: htmlcov-clean
 htmlcov-clean:
 	-rm -rf ./htmlcov
-
-# build docs
-.PHONY: docs
-docs:
-	${DOCS_SETENV} ${MAKE} -C ./${DOCS_SRC} html\
-	 NAME='${NAME}'\
-	 PACKAGE='${PACKAGE}'\
-	 VERSION='${VERSION}'\
-	 COPYRIGHT='${COPYRIGHT}'\
-	 COPYRIGHT_START_YEAR='${COPYRIGHT_START_YEAR}'
-	$P 'Index: file://${PWD}/${DOCS_SRC}/_build/html/index.html'
-
-.PHONY: docs-clean
-docs-clean:
-	${MAKE} -C ./${DOCS_SRC} clean
-	-rm -rf ./${DOCS_SRC}/generated
-
-# initialize docs branch
-.PHONY: docs-init
-docs-init:
-	if ! test -d ${DOCS_TGT}; then\
-	 mkdir -p ${DOCS_TGT};\
-	 cd ${DOCS_TGT};\
-	 git init;\
-	 git checkout --orphan ${DOCS_TGT_BRANCH};\
-	 git remote add origin ${URL_SSH};\
-	fi
-	-cd ${DOCS_TGT} && git pull origin ${DOCS_TGT_BRANCH}
-
-# publish docs
-.PHONY: docs-publish
-docs-publish: docs-clean docs
-	@if ! test -d ./${DOCS_TGT}; then\
-	  ${ECHO} 1>&2 "*** ERROR: ${DOCS_TGT} does not exist";\
-	  exit 1;\
-	fi
-	touch ./${DOCS_TGT}/.nojekyll
-	cp -a ./${DOCS_SRC}/_build/html/* ./${DOCS_TGT}
-	cd ${DOCS_TGT} && git add .
-	cd ${DOCS_TGT} && git commit -m 'Update docs'
-	cd ${DOCS_TGT} && git push origin ${DOCS_TGT_BRANCH}
 
 GEN_ALL_TARGETS+= gen-coveragerc
 

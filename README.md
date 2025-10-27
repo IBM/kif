@@ -11,7 +11,7 @@ It is based on [Wikidata](https://www.wikidata.org/) and licensed under the open
 [Apache-2.0
 license](https://raw.githubusercontent.com/IBM/kif/refs/heads/main/LICENSE).
 
-First time here? Check out the [tutorial](tutorial.md).
+First time here? Check out the [tutorial](https://ibm.github.io/kif/tutorial/).
 
 Looking for the sources? See the [GitHub repository](https://github.com/IBM/kif).
 
@@ -36,6 +36,8 @@ Use KIF to query [Wikidata](https://www.wikidata.org/):
 >>> next(kb.filter(subject=wd.Alan_Turing, property=wd.doctoral_advisor))
 Statement(Item(IRI('http://www.wikidata.org/entity/Q7251')), ValueSnak(...))
 ```
+
+> (**Statement** (**Item** [Alan Turing](http://www.wikidata.org/entity/Q7251)) (**ValueSnak** (**Property** [doctoral advisor](http://www.wikidata.org/entity/P184)) (**Item** [Alonzo Church](http://www.wikidata.org/entity/Q92741))))
 
 Or, via KIF CLI (the command-line interface):
 
@@ -99,7 +101,7 @@ $ pip install kif-lib[extra]
 
 KIF documentation is available at [https://ibm.github.io/kif/](https://ibm.github.io/kif/).
 
-For a primer on KIF, see the [tutorial](tutorial.md).
+For a primer on KIF, see the [tutorial](https://ibm.github.io/kif/tutorial/).
 
 ## Dependencies
 
