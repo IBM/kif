@@ -10,7 +10,7 @@ $ source tutorial/bin/activate
 (tutorial) $
 ```
 
-Let's us now use [pip](https://pypi.org/project/pip/) to install the latest release of [kif-lib](https://pypi.org/project/kif-lib/) (with [KIF CLI](guides/cli.md) support) and then start an interactive Python session:
+Let's now use [pip](https://pypi.org/project/pip/) to install the latest release of [kif-lib](https://pypi.org/project/kif-lib/) (with [KIF CLI](guides/cli.md) support) and then start an interactive Python session:
 
 ```console
 (tutorial) $ pip install kif-lib[cli]
