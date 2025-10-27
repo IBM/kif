@@ -40,7 +40,7 @@ kb = Store('wikidata')
 
 !!! note
 
-    [Wikidata](https://www.wikidata.org/) is a general-purpose collaboratively edited knowledge graph mantained by the Wikimedia Foundation.  It can be thought of as a structured version of [Wikipedia](https://www.wikipedia.org/)
+    [Wikidata](https://www.wikidata.org/) is a general-purpose collaboratively edited knowledge graph maintained by the Wikimedia Foundation.  It can be thought of as a structured version of [Wikipedia](https://www.wikipedia.org/)
 
 A KIF **store** is an interface to a knowledge source.  It allows us to query the source as if it were Wikidata and obtain Wikidata-like statements as a result.
 
@@ -316,7 +316,7 @@ We can filter statements by specifying any combination of *subject*, *property*,
 
 !!! note
 
-    In example (3) above, `wd.place_of_birth(wd.Athens)` is another way of construcing the snak `ValueSnak(wd.place_of_birth, wd.Athens)`, while in example (5), `733@wd.kilogram` is another way of constructing the quantity value `Quantity(733, wd.kilogram)` (see [Data Model](guides/data_model.md)).
+    In example (3) above, `wd.place_of_birth(wd.Athens)` is another way of constructing the snak `ValueSnak(wd.place_of_birth, wd.Athens)`, while in example (5), `733@wd.kilogram` is another way of constructing the quantity value `Quantity(733, wd.kilogram)` (see [Data Model](guides/data_model.md)).
 
     In example (7), the filter failed to match any statement in Wikidata, as Brazil does not share a border with Chile.  So, the returned iterator is empty and we get a `StopIteration` exception when we try to advance it.
 
@@ -699,7 +699,7 @@ A more convenient (and often more efficient) way of achieving the same thing is 
         --property=wd.capital --select=v
 
     # Note: The --select=v option instructs KIF CLI to use the filter_v()
-    #       variant, that is, select the value of the returned statments.
+    #       variant, that is, select the value of the returned statements.
     ```
 
 The full list of projected variants of [`filter()`][kif_lib.Store.filter] is shown in the table below.  All of these variants accept exactly the same arguments as [`filter()`][kif_lib.Store.filter].  The only difference is their return type.
@@ -782,7 +782,7 @@ The Wikidata vocabulary module [`wd`][kif_lib.vocabulary.wd] defines the aliases
 
 !!! note
 
-    In KIF, the entity information comprising labels, aliases, and descriptions are referred to collectively as **descriptors**.  Descriptor values can be registered (saved) in the current KIF context so that, for example, they don't need to be retrieved every time an entity is pretty-printed (see [Context](guides/context.md)).  Most vocabulary modules register in the KIF context the English label of the entities they predefine.  This cached label can be conveniently accessed through the `label` field of item and property objects:
+    In KIF, the entity information comprising labels, aliases, and descriptions are referred to collectively as **descriptors**.  Descriptor values can be registered (saved) in the current KIF context so that, for example, they don't need to be retrieved every time an entity is pretty-printed (see [Context](guides/context.md)).  Most vocabulary modules register in the KIF context the English label of the entities they define.  This cached label can be conveniently accessed through the `label` field of item and property objects:
 
     ```py
     print(wd.Q(111).label, wd.P(2583).label)
@@ -1184,7 +1184,7 @@ for stmt in it:
 
 !!! note
 
-    The [`mix()`][kif_lib.Store.mix] call evaluates its filter arguments in the order they are given and interleaves their results.  There is no parallelism though, as each filter evaluation causes the calling thread to block.  One way to avoid blocking the calling thread during each filter evaluation is to use Python's async mechanism.  To this end, the [`Store`][kif_lib.Store] API provides the async versions [`afilter`][kif_lib.Store.afilter], [`aask`][kif_lib.Store.acount], [`acount`][kif_lib.Store.acount], and [`amix`][kif_lib.Store.amix].  These behave exaclty like their sync counterparts but can be awaited within an asyncio event-loop.  See [Async](guides/async.md) for details.
+    The [`mix()`][kif_lib.Store.mix] call evaluates its filter arguments in the order they are given and interleaves their results.  There is no parallelism though, as each filter evaluation causes the calling thread to block.  One way to avoid blocking the calling thread during each filter evaluation is to use Python's async mechanism.  To this end, the [`Store`][kif_lib.Store] API provides the async versions [`afilter`][kif_lib.Store.afilter], [`aask`][kif_lib.Store.aask], [`acount`][kif_lib.Store.acount], and [`amix`][kif_lib.Store.amix].  These behave exactly like their sync counterparts but can be awaited within an asyncio event-loop.  See [Async](guides/async.md) for details.
 
 ## 8 Beyond Wikidata
 
@@ -1369,7 +1369,7 @@ The DBpedia store `kb_dbp` supports all features discussed in the previous secti
     print(next(it))
 
     # (2) Subject was "influenced by Bertrand Russell" &
-    #     "educated at University of Viena"; property is "description"; and
+    #     "educated at University of Vienna"; property is "description"; and
     #     value is in English:
     it = kb_dbp.filter(
         subject=(-db.p('influenced')(db.r('Bertrand_Russell'))&
@@ -1397,7 +1397,7 @@ The DBpedia store `kb_dbp` supports all features discussed in the previous secti
         --property=wd.anthem
 
     # (2) Subject was "influenced by Bertrand Russell" &
-    #     "educated at University of Viena"; property is "description"; and
+    #     "educated at University of Vienna"; property is "description"; and
     #     value is in English:
     $ kif filter -s dbpedia\
         --subject="-db.p('influenced')(db.r('Bertrand_Russell'))&\
@@ -1570,7 +1570,7 @@ The [Search][kif_lib.Search] also provides the methods
 
 !!! note
 
-    The [`Search`][kif_lib.Search] API provides the async versions [`aitem`][kif_lib.Search.aitem], [`aitem_descriptor`][kif_lib.Search.aitem_descriptor], [`aproperty`][kif_lib.Search.aproperty], and [`aproperty_descriptor`][kif_lib.Search.aproperty_descriptor].  As in the case of stores, the async versions behave exaclty like their sync counterparts but can be awaited within an asyncio event-loop.  See [Async](guides/async.md) for details.
+    The [`Search`][kif_lib.Search] API provides the async versions [`aitem`][kif_lib.Search.aitem], [`aitem_descriptor`][kif_lib.Search.aitem_descriptor], [`aproperty`][kif_lib.Search.aproperty], and [`aproperty_descriptor`][kif_lib.Search.aproperty_descriptor].  As in the case of stores, the async versions behave exactly like their sync counterparts but can be awaited within an asyncio event-loop.  See [Async](guides/async.md) for details.
 
 KIF comes with built-in plugins to search for entities in the namespaces of Wikidata, DBpedia, and PubChem.  There is also the general "ddgs" plugin, based on the [DDGS](https://github.com/deedy5/ddgs) library, which can used search in any namespace reachable through the public Internet.
 
@@ -1600,3 +1600,22 @@ This concludes the KIF tutorial.
 Check out the [guides](guides/overview.md) and the [API reference](api/overview.md) for a detailed description of KIF features, including those which were left out of the tutorial.
 
 Have fun!
+
+<!--  LocalWords:  env kif CLI cli py wd kb wikidata Wikimedia stmt IRI br -->
+<!--  LocalWords:  ValueSnak ItemDatatype TimeDatatype datetime tzinfo snak -->
+<!--  LocalWords:  Jupyter snaks DBpedia fg FactGrid pc PubChem UniProt pKa -->
+<!--  LocalWords:  dbpedia europa factgrid pubchem uniprot Panthera bitwise -->
+<!--  LocalWords:  StopIteration dalton america Buenos Brasília subshell da -->
+<!--  LocalWords:  Nevado Sajama Europlug Pico Neblina Vinci El Capitan mia -->
+<!--  LocalWords:  subproperty GeoNames metre SomeValueSnak NoValueSnak sp -->
+<!--  LocalWords:  ValuePair sv pv LabelProperty AliasProperty Marte partir -->
+<!--  LocalWords:  DescriptionProperty Planète planeta TypeProperty laranja -->
+<!--  LocalWords:  SubtypeProperty Vertebrata AnnotatedStatement centimetre -->
+<!--  LocalWords:  QualifierRecord ReferenceRecordSet ReferenceRecord HSDB -->
+<!--  LocalWords:  TSCA NormalRank PreferredRank DeprecatedRank async aask -->
+<!--  LocalWords:  afilter acount amix asyncio KIF's Gotha Centre dbp São -->
+<!--  LocalWords:  Langhorne Paulo officialLanguage Musa oc birthPlace dbo -->
+<!--  LocalWords:  dbr medicalCause doctoralStudent Friedrich GUR dl mx th -->
+<!--  LocalWords:  linenums InChI annulene InChIKey UHOVQNZJYSORNB sr desc -->
+<!--  LocalWords:  UHFFFAOYSA PubChem's MediaWiki Mariagrazia aitem ddgs -->
+<!--  LocalWords:  aproperty DDGS Wikibase wapi api -->
