@@ -1433,9 +1433,9 @@ We've seen how to construct stores targeting individual knowledge sources.  KIF 
 mx = Store('mixer', [Store('wikidata'), Store('dbpedia'), Store('factgrid')])
 ```
 
-This instantiates and assigns to `mx` a new [mixer store][kif_lib.store.MixerStore] with three child stores, namely, the three SPARQL stores targeting [Wikidata](https://www.wikidata.org/), [DBpedia](https://www.dbpedia.org/), and [FactGrid](https://database.factgrid.de/).  The mixer store acts as a proxy to the child stores.  It provides a unified interface for querying them as if they were single knowledge source.
+This instantiates and assigns to `mx` a new [mixer store][kif_lib.store.MixerStore] with three child stores, namely, SPARQL stores targeting [Wikidata](https://www.wikidata.org/), [DBpedia](https://www.dbpedia.org/), and [FactGrid](https://database.factgrid.de/).  The mixer store acts as a proxy to the child stores.  It provides a unified interface for querying them as if they were single knowledge source.
 
-When we evaluate a filter over `mx`, we get all statements from the child stores that match the filter.  For example:
+When we evaluate a [`filter()`][kif_lib.Store.filter] over `mx`, we get all statements from the child stores that match the filter.  For example:
 
 === "Python"
 
@@ -1467,7 +1467,7 @@ The filter above matches statements whose subject has label "Joan of Arc" and va
 
 The mixer store tends to be more useful when the child stores adopt the same namespace, or at least can handle entities in the namespaces of the other children.  This is the case, for example, of the [DBpedia SPARQL mappings][kif_lib.compiler.sparql.mapping.dbpedia.DBpediaMapping], which can handle Wikidata properties.  In contrast, the [FactGrid SPARQL mappings][kif_lib.compiler.sparql.mapping.factgrid.FactGridMapping] use a namespace that is completely separate from Wikidata's and cannot handle Wikidata entities (at least for now).
 
-KIF also comes with SPARQL mappings for PubChem, which is one of the largest open databases of chemical data.  KIF's [PubChem SPARQL mappings][kif_lib.compiler.sparql.mapping.pubchem.PubChemMapping] support Wikidata properties natively.  This includes properties for universal chemical identifiers which can be used for matching compounds across knowledge sources.  In the example below, we create a mixer store `mx_wd_pc` combining both, Wikidata and PubChem SPARQL stores, and then use it to obtain annotated statements about the molecular mass of a given chemical (namely, benzene) from these sources:
+KIF also comes with SPARQL mappings for PubChem, which is one of the largest open databases of chemical data.  KIF's [PubChem SPARQL mappings][kif_lib.compiler.sparql.mapping.pubchem.PubChemMapping] support Wikidata properties natively.  This includes properties for universal chemical identifiers which can be used for matching compounds across knowledge sources.  In the example below, we create a mixer store `mx_wd_pc` combining both, Wikidata and PubChem SPARQL stores, and then use it to obtain annotated statements about the molecular mass of a given chemical (benzene) from these sources:
 
 ```py linenums="1"
 kb_wd = Store('wikidata', extra_references=[[wd.stated_in(wd.Wikidata)]])
@@ -1499,7 +1499,7 @@ for stmt in it:
 
 There are a couple of things to notice here.
 
-1. PubChem does not provide a public SPARQL endpoint, only RDF dumps.  The code above (line 2) assumes that a SPARQL endpoint with PubChem data is available at the address [http://localhost:1234/sparql](http://localhost:1234/sparql).
+1. PubChem does not provide a public SPARQL endpoint, only RDF dumps.  The code above (line 2) assumes that a SPARQL endpoint loaded with PubChem data is available at the address [http://localhost:1234/sparql](http://localhost:1234/sparql).
 
 2. We use the *extra_references* parameter of the [Store()][kif_lib.Store] constructor (lines 1–2) to associate to the Wikidata and PubChem stores extra reference records.  These extra records will be attached by the stores to every annotated statement they produce, allowing us to tell which store generated each statement.
 
