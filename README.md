@@ -7,19 +7,17 @@
 
 KIF is a Python framework for knowledge integration from [IBM Research](https://research.ibm.com/).
 
-It is based on [Wikidata](https://www.wikidata.org/) and licensed under the
+It is based on [Wikidata](https://www.wikidata.org/) and licensed under the open-source
 [Apache-2.0
 license](https://raw.githubusercontent.com/IBM/kif/refs/heads/main/LICENSE).
 
-First time here? Check out the [quickstart guide](quickstart.md).
+First time here? Check out the [tutorial](tutorial.md).
+
+Looking for the sources? See the [GitHub repository](https://github.com/IBM/kif).
 
 [![Supported Python Versions](https://img.shields.io/pypi/pyversions/kif_lib)](https://pypi.org/project/kif_lib/) [![PyPI version](https://badge.fury.io/py/kif_lib.svg)](https://badge.fury.io/py/kif_lib) [![Downloads](https://pepy.tech/badge/kif_lib/month)](https://pepy.tech/project/kif_lib)
 
 ---
-
-KIF is a knowledge integration framework based on [Wikidata](https://www.wikidata.org/).  The idea behind it is to use Wikidata to standardize the syntax and (whenever possible) the vocabulary of the integrated knowledge sources.  Users can then query the sources through filter patterns described in terms of the [Wikidata data model](https://www.wikidata.org/wiki/Wikidata:Data_model).
-
-The integration done by KIF is *virtual* in the sense that syntax and vocabulary translations happen at query time, guided by user-provided mappings.
 
 ## Hello world!
 
@@ -58,7 +56,13 @@ $ kif filter -s dbpedia --subject=db.Alan_Turing --property=wd.doctoral_advisor
 
 The result is a stream of Wikidata-like statements containing DBpedia entities.
 
-## Highlights
+## KIF in a nutshell
+
+KIF is a knowledge integration framework based on [Wikidata](https://www.wikidata.org/).  The idea behind it is to use Wikidata to standardize the syntax and (whenever possible) the vocabulary of the integrated knowledge sources.  Users can then query the sources through filter patterns described in terms of the [Wikidata data model](https://www.wikidata.org/wiki/Wikidata:Data_model).
+
+The integration done by KIF is *virtual* in the sense that syntax and vocabulary translations happen dynamically (at query time) and are guided by user-provided mappings.  KIF comes with built-in mappings for [Wikidata](https://www.wikidata.org/), [DBpedia](https://www.dbpedia.org/), [FactGrid](https://database.factgrid.de/), [PubChem](https://pubchem.ncbi.nlm.nih.gov/), and [UniProt](https://www.uniprot.org/), among others.  New mappings can be added programmatically.
+
+### Highlights
 
 * KIF allows one to query knowledge sources as if they were Wikidata.
 
@@ -66,9 +70,10 @@ The result is a stream of Wikidata-like statements containing DBpedia entities.
 
 * KIF can be used to query Wikidata itself or other knowledge sources, provided proper mappings are given.
 
-* KIF comes with built-in mappings for [Wikidata](https://www.wikidata.org/), [DBpedia](https://www.dbpedia.org/), [FactGrid](https://database.factgrid.de/), [PubChem](https://pubchem.ncbi.nlm.nih.gov/), and [UniProt](https://www.uniprot.org/), among others; new mappings can be added programmatically.
+* KIF can run queries over local RDF data using [RDFLib](https://rdflib.readthedocs.io/en/stable/), [Apache Jena](https://jena.apache.org/), [QLever](https://qlever.dev/), or [RDFox](https://www.oxfordsemantic.tech/rdfox).
 
 * KIF has full support for Python's [asyncio](https://docs.python.org/3/library/asyncio.html).  KIF async API can be used run queries asynchronously, without blocking waiting on their results.
+
 
 ## Installation
 
@@ -94,30 +99,30 @@ $ pip install kif-lib[extra]
 
 KIF documentation is available at [https://ibm.github.io/kif/](https://ibm.github.io/kif/).
 
-For a primer on KIF, see the [quickstart guide](quickstart.md).
+For a primer on KIF, see the [tutorial](tutorial.md).
 
 ## Dependencies
 
 Required:
 
-* `httpx` - HTTP support.
-* `lark` - Parsing.
-* `more_itertools` - Extra itertools.
-* `networkx` - Graph algorithms.
-* `rdflib` - RDF support.
-* `typing-extensions` - Typing backports.
+* [httpx](https://www.python-httpx.org/) - HTTP support.
+* [lark](https://lark-parser.readthedocs.io/en/stable/) - Parsing.
+* [more_itertools](https://more-itertools.readthedocs.io/en/stable/index.html) - Extra itertools.
+* [networkx](https://networkx.org/) - Graph algorithms.
+* [rdflib](https://rdflib.readthedocs.io/en/stable/) - RDF support.
+* [typing-extensions](https://typing-extensions.readthedocs.io/en/latest/) - Typing backports.
 
 KIF CLI (optional):
 
-* `click` - Option parsing. *(Optional, with `kif-lib[cli]`)*
-* `rich` - Rich terminal support.  *(Optional, with `kif-lib[cli]`)*
+* [click](https://click.palletsprojects.com/en/stable/) - Option parsing. *(Optional, with `kif-lib[cli]`)*
+* [rich](https://rich.readthedocs.io/en/latest/introduction.html) - Rich terminal support.  *(Optional, with `kif-lib[cli]`)*
 
 Extra (optional):
 
-* `graphviz` - Graph drawing. *(Optional, with `kif-lib[extra]`)*
-* `jpype1` - Java support. *(Optional, with `kif-lib[extra]`)*
-* `pandas` - CSV/DataFrame support. *(Optional, with `kif-lib[extra]`)*
-* `psutil` - Process information. *(Optional, with `kif-lib[extra]`)*
+* [graphviz](https://graphviz.readthedocs.io/en/stable/manual.html) - Graph drawing. *(Optional, with `kif-lib[extra]`)*
+* [jpype1](https://jpype.readthedocs.io/en/latest/) - Java support. *(Optional, with `kif-lib[extra]`)*
+* [pandas](https://pandas.pydata.org/) - CSV/DataFrame support. *(Optional, with `kif-lib[extra]`)*
+* [psutil](https://psutil.readthedocs.io/en/latest/) - Process information. *(Optional, with `kif-lib[extra]`)*
 
 ## Citation
 
