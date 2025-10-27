@@ -1,6 +1,0 @@
-﻿kif\_lib.Quantity.get\_upper\_bound
-===================================
-
-.. currentmodule:: kif_lib
-
-.. automethod:: Quantity.get_upper_bound

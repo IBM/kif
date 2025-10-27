@@ -1,6 +1,0 @@
-﻿kif\_lib.Snak.snak\_mask
-========================
-
-.. currentmodule:: kif_lib
-
-.. autoproperty:: Snak.snak_mask

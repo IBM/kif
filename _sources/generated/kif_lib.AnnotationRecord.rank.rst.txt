@@ -1,6 +1,0 @@
-﻿kif\_lib.AnnotationRecord.rank
-==============================
-
-.. currentmodule:: kif_lib
-
-.. autoproperty:: AnnotationRecord.rank

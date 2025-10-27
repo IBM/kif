@@ -1,6 +1,0 @@
-﻿kif\_lib.Descriptor.get\_label
-==============================
-
-.. currentmodule:: kif_lib
-
-.. automethod:: Descriptor.get_label

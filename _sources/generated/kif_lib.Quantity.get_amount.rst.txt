@@ -1,6 +1,0 @@
-﻿kif\_lib.Quantity.get\_amount
-=============================
-
-.. currentmodule:: kif_lib
-
-.. automethod:: Quantity.get_amount

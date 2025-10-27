@@ -1,6 +1,0 @@
-﻿kif\_lib.Time.precision
-=======================
-
-.. currentmodule:: kif_lib
-
-.. autoproperty:: Time.precision

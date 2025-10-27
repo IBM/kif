@@ -1,6 +1,0 @@
-﻿kif\_lib.cache.Cache.clear
-==========================
-
-.. currentmodule:: kif_lib.cache
-
-.. automethod:: Cache.clear

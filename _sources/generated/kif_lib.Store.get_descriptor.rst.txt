@@ -1,6 +1,0 @@
-﻿kif\_lib.Store.get\_descriptor
-==============================
-
-.. currentmodule:: kif_lib
-
-.. automethod:: Store.get_descriptor

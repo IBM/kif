@@ -1,6 +1,0 @@
-﻿kif\_lib.cache.Cache.set
-========================
-
-.. currentmodule:: kif_lib.cache
-
-.. automethod:: Cache.set

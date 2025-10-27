@@ -1,6 +1,0 @@
-﻿kif\_lib.FilterPattern.is\_empty
-================================
-
-.. currentmodule:: kif_lib
-
-.. automethod:: FilterPattern.is_empty

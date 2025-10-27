@@ -1,6 +1,0 @@
-﻿kif\_lib.Items
-==============
-
-.. currentmodule:: kif_lib
-
-.. autofunction:: Items

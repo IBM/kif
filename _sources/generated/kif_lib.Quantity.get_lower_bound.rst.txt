@@ -1,6 +1,0 @@
-﻿kif\_lib.Quantity.get\_lower\_bound
-===================================
-
-.. currentmodule:: kif_lib
-
-.. automethod:: Quantity.get_lower_bound

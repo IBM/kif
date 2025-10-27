@@ -1,6 +1,0 @@
-﻿kif\_lib.Descriptor.description
-===============================
-
-.. currentmodule:: kif_lib
-
-.. autoproperty:: Descriptor.description

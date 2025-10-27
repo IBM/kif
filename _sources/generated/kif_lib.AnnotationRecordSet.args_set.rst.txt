@@ -1,6 +1,0 @@
-﻿kif\_lib.AnnotationRecordSet.args\_set
-======================================
-
-.. currentmodule:: kif_lib
-
-.. autoproperty:: AnnotationRecordSet.args_set

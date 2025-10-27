@@ -1,6 +1,0 @@
-﻿kif\_lib.SnakSet.args\_set
-==========================
-
-.. currentmodule:: kif_lib
-
-.. autoproperty:: SnakSet.args_set

@@ -1,6 +1,0 @@
-﻿kif\_lib.Store.get\_extra\_references
-=====================================
-
-.. currentmodule:: kif_lib
-
-.. automethod:: Store.get_extra_references

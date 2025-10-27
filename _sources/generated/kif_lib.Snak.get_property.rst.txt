@@ -1,6 +1,0 @@
-﻿kif\_lib.Snak.get\_property
-===========================
-
-.. currentmodule:: kif_lib
-
-.. automethod:: Snak.get_property

@@ -1,6 +1,0 @@
-﻿kif\_lib.cache.Cache.enabled
-============================
-
-.. currentmodule:: kif_lib.cache
-
-.. autoproperty:: Cache.enabled

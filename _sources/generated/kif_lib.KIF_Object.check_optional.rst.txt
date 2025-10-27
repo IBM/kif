@@ -1,6 +1,0 @@
-﻿kif\_lib.KIF\_Object.check\_optional
-====================================
-
-.. currentmodule:: kif_lib
-
-.. automethod:: KIF_Object.check_optional

@@ -1,6 +1,0 @@
-﻿kif\_lib.cache.Cache.disable
-============================
-
-.. currentmodule:: kif_lib.cache
-
-.. automethod:: Cache.disable

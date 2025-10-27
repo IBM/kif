@@ -1,6 +1,0 @@
-﻿kif\_lib.Fingerprint.value
-==========================
-
-.. currentmodule:: kif_lib
-
-.. autoproperty:: Fingerprint.value

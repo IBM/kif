@@ -1,6 +1,0 @@
-﻿kif\_lib.KIF\_Object.Nil
-========================
-
-.. currentmodule:: kif_lib
-
-.. autoattribute:: KIF_Object.Nil

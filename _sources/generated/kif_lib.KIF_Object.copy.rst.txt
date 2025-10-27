@@ -1,6 +1,0 @@
-﻿kif\_lib.KIF\_Object.copy
-=========================
-
-.. currentmodule:: kif_lib
-
-.. automethod:: KIF_Object.copy

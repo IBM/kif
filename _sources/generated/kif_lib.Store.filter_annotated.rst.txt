@@ -1,6 +1,0 @@
-﻿kif\_lib.Store.filter\_annotated
-================================
-
-.. currentmodule:: kif_lib
-
-.. automethod:: Store.filter_annotated

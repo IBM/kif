@@ -1,6 +1,0 @@
-﻿kif\_lib.Store.set\_page\_size
-==============================
-
-.. currentmodule:: kif_lib
-
-.. automethod:: Store.set_page_size

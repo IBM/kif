@@ -1,6 +1,0 @@
-﻿kif\_lib.SnakMask.ALL
-=====================
-
-.. currentmodule:: kif_lib
-
-.. autoattribute:: SnakMask.ALL

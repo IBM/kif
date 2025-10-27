@@ -1,6 +1,0 @@
-﻿kif\_lib.KIF\_Object.get\_digest
-================================
-
-.. currentmodule:: kif_lib
-
-.. automethod:: KIF_Object.get_digest

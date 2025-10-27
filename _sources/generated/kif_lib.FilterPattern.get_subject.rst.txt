@@ -1,6 +1,0 @@
-﻿kif\_lib.FilterPattern.get\_subject
-===================================
-
-.. currentmodule:: kif_lib
-
-.. automethod:: FilterPattern.get_subject

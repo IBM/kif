@@ -1,6 +1,0 @@
-﻿kif\_lib.FilterPattern.get\_property
-====================================
-
-.. currentmodule:: kif_lib
-
-.. automethod:: FilterPattern.get_property

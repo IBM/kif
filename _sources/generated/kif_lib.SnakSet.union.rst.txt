@@ -1,6 +1,0 @@
-﻿kif\_lib.SnakSet.union
-======================
-
-.. currentmodule:: kif_lib
-
-.. automethod:: SnakSet.union

@@ -1,6 +1,0 @@
-﻿kif\_lib.Time.get\_timezone
-===========================
-
-.. currentmodule:: kif_lib
-
-.. automethod:: Time.get_timezone

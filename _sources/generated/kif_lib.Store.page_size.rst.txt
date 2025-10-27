@@ -1,6 +1,0 @@
-﻿kif\_lib.Store.page\_size
-=========================
-
-.. currentmodule:: kif_lib
-
-.. autoproperty:: Store.page_size

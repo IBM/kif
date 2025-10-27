@@ -1,6 +1,0 @@
-﻿kif\_lib.AnnotationRecord.get\_rank
-===================================
-
-.. currentmodule:: kif_lib
-
-.. automethod:: AnnotationRecord.get_rank

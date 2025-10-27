@@ -1,6 +1,0 @@
-﻿kif\_lib.ReferenceRecordSet.args\_set
-=====================================
-
-.. currentmodule:: kif_lib
-
-.. autoproperty:: ReferenceRecordSet.args_set

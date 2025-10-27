@@ -1,6 +1,0 @@
-﻿kif\_lib.Store.filter
-=====================
-
-.. currentmodule:: kif_lib
-
-.. automethod:: Store.filter

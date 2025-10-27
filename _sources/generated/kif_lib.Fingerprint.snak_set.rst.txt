@@ -1,6 +1,0 @@
-﻿kif\_lib.Fingerprint.snak\_set
-==============================
-
-.. currentmodule:: kif_lib
-
-.. autoproperty:: Fingerprint.snak_set

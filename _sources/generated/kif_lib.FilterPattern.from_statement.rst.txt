@@ -1,6 +1,0 @@
-﻿kif\_lib.FilterPattern.from\_statement
-======================================
-
-.. currentmodule:: kif_lib
-
-.. automethod:: FilterPattern.from_statement

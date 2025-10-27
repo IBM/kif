@@ -1,6 +1,0 @@
-﻿kif\_lib.FilterPattern.value
-============================
-
-.. currentmodule:: kif_lib
-
-.. autoproperty:: FilterPattern.value

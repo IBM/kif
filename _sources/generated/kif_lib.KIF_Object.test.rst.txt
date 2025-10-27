@@ -1,6 +1,0 @@
-﻿kif\_lib.KIF\_Object.test
-=========================
-
-.. currentmodule:: kif_lib
-
-.. automethod:: KIF_Object.test

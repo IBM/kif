@@ -1,6 +1,0 @@
-﻿kif\_lib.Time.calendar\_model
-=============================
-
-.. currentmodule:: kif_lib
-
-.. autoproperty:: Time.calendar_model

@@ -1,6 +1,0 @@
-﻿kif\_lib.Snak.SOME\_VALUE\_SNAK
-===============================
-
-.. currentmodule:: kif_lib
-
-.. autoattribute:: Snak.SOME_VALUE_SNAK

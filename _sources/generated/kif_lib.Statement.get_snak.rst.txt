@@ -1,6 +1,0 @@
-﻿kif\_lib.Statement.get\_snak
-============================
-
-.. currentmodule:: kif_lib
-
-.. automethod:: Statement.get_snak

@@ -1,6 +1,0 @@
-﻿kif\_lib.Statement.snak
-=======================
-
-.. currentmodule:: kif_lib
-
-.. autoproperty:: Statement.snak

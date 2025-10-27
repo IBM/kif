@@ -1,0 +1,13 @@
+:root > * {
+  --md-primary-fg-color:        #009d9a;
+  --md-primary-fg-color--light: #009d9a;
+  --md-primary-fg-color--dark:  #009d9a;
+}
+
+.center-table {
+  text-align: center;
+}
+
+.md-typeset .center-table :is(td,th):not([align]) {
+  text-align: initial;
+}

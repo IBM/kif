@@ -1,6 +1,0 @@
-﻿kif\_lib.KIF\_Object.digest
-===========================
-
-.. currentmodule:: kif_lib
-
-.. autoproperty:: KIF_Object.digest

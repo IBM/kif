@@ -1,6 +1,0 @@
-﻿kif\_lib.FilterPattern.snak\_mask
-=================================
-
-.. currentmodule:: kif_lib
-
-.. autoproperty:: FilterPattern.snak_mask

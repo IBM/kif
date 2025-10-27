@@ -1,6 +1,0 @@
-﻿kif\_lib.Quantity.amount
-========================
-
-.. currentmodule:: kif_lib
-
-.. autoproperty:: Quantity.amount

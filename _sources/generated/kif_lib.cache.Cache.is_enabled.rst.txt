@@ -1,6 +1,0 @@
-﻿kif\_lib.cache.Cache.is\_enabled
-================================
-
-.. currentmodule:: kif_lib.cache
-
-.. automethod:: Cache.is_enabled

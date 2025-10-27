@@ -1,6 +1,0 @@
-﻿kif\_lib.Store.count
-====================
-
-.. currentmodule:: kif_lib
-
-.. automethod:: Store.count

@@ -1,6 +1,0 @@
-﻿kif\_lib.AnnotationRecordSet.union
-==================================
-
-.. currentmodule:: kif_lib
-
-.. automethod:: AnnotationRecordSet.union
