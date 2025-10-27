@@ -37,8 +37,6 @@ Use KIF to query [Wikidata](https://www.wikidata.org/):
 Statement(Item(IRI('http://www.wikidata.org/entity/Q7251')), ValueSnak(...))
 ```
 
-> (**Statement** (**Item** [Alan Turing](http://www.wikidata.org/entity/Q7251)) (**ValueSnak** (**Property** [doctoral advisor](http://www.wikidata.org/entity/P184)) (**Item** [Alonzo Church](http://www.wikidata.org/entity/Q92741))))
-
 Or, via KIF CLI (the command-line interface):
 
 ```shell
