@@ -13010,6 +13010,8 @@ Zürich_Herbaria_collector_ID = Property(IRI('http://www.wikidata.org/entity/P10
 ČSFD_person_ID = Property(IRI('http://www.wikidata.org/entity/P2605'), ExternalIdDatatype()).register(labels=[Text('ČSFD person ID', 'en')], range=ExternalIdDatatype())
 Ġabra_lexeme_ID = Property(IRI('http://www.wikidata.org/entity/P5928'), ExternalIdDatatype()).register(labels=[Text('Ġabra lexeme ID', 'en')], range=ExternalIdDatatype())
 Židovski_biografski_leksikon_ID = Property(IRI('http://www.wikidata.org/entity/P13592'), ExternalIdDatatype()).register(labels=[Text('Židovski biografski leksikon ID', 'en')], range=ExternalIdDatatype())
+DTXCID = DSSTOX_compound_identifier
+DTXSID = DSSTox_substance_ID
 has_part = has_parts
 material_produced = product_or_material_produced
 median_lethal_dose = median_lethal_dose_LD50
@@ -25998,6 +26000,8 @@ __all__ = (
 "ČSFD_person_ID",
 "Ġabra_lexeme_ID",
 "Židovski_biografski_leksikon_ID",
+"DTXCID",
+"DTXSID",
 "has_part",
 "material_produced",
 "median_lethal_dose"
