@@ -42,7 +42,7 @@ kb = Store('wikidata')
 
 !!! note
 
-    [Wikidata](https://www.wikidata.org/) is a general-purpose collaboratively edited knowledge graph maintained by the Wikimedia Foundation.  It can be thought of as a structured version of [Wikipedia](https://www.wikipedia.org/).
+    [Wikidata](https://www.wikidata.org/) is a general-purpose open knowledge graph maintained by the Wikimedia Foundation.  It can be thought of as a structured version of [Wikipedia](https://www.wikipedia.org/).
 
 A KIF **store** is an interface to a knowledge source.  It allows us to query the source as if it were Wikidata and obtain Wikidata-like statements as a result.
 
@@ -128,7 +128,7 @@ print(stmt.subject, stmt.snak)
 > (**Item** [Brazil](http://www.wikidata.org/entity/Q155))<br/>
 > (**ValueSnak** (**Property** [shares border with](http://www.wikidata.org/entity/P47)) (**Item** [Argentina](http://www.wikidata.org/entity/Q414)))
 
-Other data-model objects, such as entities, data values, and snaks, have analogous content-accessing fields (see [Data Model](guides/data_model.md)):
+Other data-model objects, such as entities, data values, and snaks, have analogous fields (see [Data Model](guides/data_model.md)):
 
 ```py
 print(stmt.subject.iri, stmt.snak.property, stmt.snak.value)
@@ -602,7 +602,7 @@ The kinds of snaks to be matched in filters are determined by the parameter *sna
 > `(3a)` (**Statement** (**Item** [Adam](http://www.wikidata.org/entity/Q70899)) (**SomeValueSnak** (**Property** [date of birth](http://www.wikidata.org/entity/P569))))<br/>
 > `(3b)` (**Statement** (**Item** [Adam](http://www.wikidata.org/entity/Q70899)) (**NoValueSnak** (**Property** [father](http://www.wikidata.org/entity/P22))))
 
-The last filter parameter we want to mention in this section is *language*, which controls the language of the returned text values.  If *language* is not given, [`filter()`][kif_lib.Store.filter] returns statements with text values in any language:
+The last filter parameter we want to mention is *language*, which controls the language of the returned text values.  If *language* is not given, [`filter()`][kif_lib.Store.filter] returns statements with text values in any language:
 
 === "Python"
 
@@ -793,17 +793,17 @@ The Wikidata vocabulary module [`wd`][kif_lib.vocabulary.wd] defines the aliases
     > "Mars"@en<br/>
     > "distance from Earth"@en
 
-    The aliases and description can be accessed through the fields `aliases` and `description`.  These are usually left undefined by the vocabulary modules:
+    The aliases and description can be accessed through the fields `aliases` and `description`, which are usually left undefined by the vocabulary modules:
 
     ```py
     print(wd.Q(111).aliases, wd.P(2583).aliases)          # None None
     print(wd.Q(111).description, wd.P(2583).description)  # None None
     ```
 
-    However, KIF can be instructed to retrieve them automatically using the vocabulary module's resolver.  This is done by setting option "entities.resolve" to `True` in the KIF context:
+    KIF can be instructed to retrieve aliases and descriptions automatically using the vocabulary module's resolver.  This is done by setting option "entities.resolve" to `True` in the KIF context:
 
     ```py
-    # Enable automatic entity descriptor resolution:
+    # Enable automatic descriptor resolution:
     from kif_lib import Context
     Context.top().options.entities.resolve = True
 
@@ -819,11 +819,11 @@ The Wikidata vocabulary module [`wd`][kif_lib.vocabulary.wd] defines the aliases
     > `(2a)` "fourth planet in the Solar System from the Sun"@en<br/>
     > `(2b)` "estimated distance to astronomical objects"@en
 
-    Automatic entity descriptor resolution can also be enabled by setting the value of the environment variable `KIF_RESOLVE_ENTITIES` to 1 (or any other literal that evaluates to `True` in Python).  See [Context](guides/context.md) for details.
+    Automatic descriptor resolution can also be enabled by setting the value of the environment variable `KIF_RESOLVE_ENTITIES` to 1 (or any other literal that evaluates to `True` in Python).  See [Context](guides/context.md) for details.
 
 Some KIF pseudo-properties have no direct counterpart in Wikidata.  This is the case of the pseudo-properties [`TypeProperty`][kif_lib.TypeProperty] and [`SubtypeProperty`][kif_lib.SubtypeProperty], whose [`wd`][kif_lib.vocabulary.wd] aliases are `wd.a` and `wd.subtype`.  These pseudo-properties stand for the ontological relations "is a" and "subclass of", respectively, and can be seen as more powerful (transitivity-enabled) versions of the Wikidata properties [instance of (P31)](http://www.wikidata.org/entity/P31) and [subclass of (P279)](http://www.wikidata.org/entity/P279).
 
-To see the difference between `wd.a` and `wd.instance_of` consider the filter below. This filter gets statements that assert the classes of which [rabbit (Q9394)](http://www.wikidata.org/entity/Q9394) is an instance:
+To see the difference between `wd.a` and `wd.instance_of` consider the filter below.  This filter gets statements that assert the classes of which [rabbit (Q9394)](http://www.wikidata.org/entity/Q9394) is an instance:
 
 === "Python"
 
@@ -902,7 +902,7 @@ The pseudo-property `wd.subtype`, which is the transitive counterpart of `wd.sub
 > `(2c)` (**Statement** (**Item** [mammal](http://www.wikidata.org/entity/Q7377)) (**ValueSnak** **SubtypeProperty** (**Item** [organism](http://www.wikidata.org/entity/Q7239))))<br/>
 > ⋮
 
-We emphasize that pseudo-properties can occur in any place where a regular property is expected.  That is, they can be used to construct snak constraints, paths, etc.  For example:
+We remark that pseudo-properties can occur in any place where a regular property is expected.  That is, they can be used to construct snak constraints, paths, etc.  For example:
 
 === "Python"
 
@@ -947,7 +947,7 @@ We emphasize that pseudo-properties can occur in any place where a regular prope
 
 Up to now, we have dealt only with plain statements ([`Statement`][kif_lib.Statement]).  These are statements consisting of a subject, a snak, and nothing else.  In KIF, statements can also carry extra information referred to collectively as **annotations**.  These statements with annotations (or annotated statements, see [`AnnotatedStatement`][kif_lib.AnnotatedStatement]) behave exactly as plain statements but besides a subject and a snak also carry a set of qualifiers, a set of reference records, and a rank.  The **qualifiers** qualify the statement assertion, the **reference records** contain provenance information, and the **rank** indicates the quality of the statement.
 
-The boolean parameter *annotated* instructs the [`filter()`][kif_lib.Store.filter] method to obtain the annotations associated with each returned statement.  The variant [`filter_annotated()`][kif_lib.Store.filter_annotated] can also be used to filter annotated statements.  (It behaves exactly as [`filter()`][kif_lib.Store.filter] with the *annotated* flag set to `True` but its return type is [`AnnotatedStatement`][kif_lib.AnnotatedStatement] instead of [`Statement`][kif_lib.Statement].)
+The boolean parameter *annotated* instructs the [`filter()`][kif_lib.Store.filter] method to obtain the annotations associated with each returned statement.  The variant [`filter_annotated()`][kif_lib.Store.filter_annotated] can also be used to filter annotated statements.  It behaves exactly as [`filter()`][kif_lib.Store.filter] with the *annotated* flag set to `True` but its return type is [`AnnotatedStatement`][kif_lib.AnnotatedStatement] instead of [`Statement`][kif_lib.Statement].
 
 The difference between [`filter()`][kif_lib.Store.filter] and [`filter_annotated()`][kif_lib.Store.filter_annotated] is illustrated in examples (1) and (2) below:
 
@@ -1153,12 +1153,12 @@ The method [count()][kif_lib.Store.count] also comes with projected variants (`s
     123
     ```
 
-Another method of the [`Store`][kif_lib.Store] API that deserves mention is [`mix()`][kif_lib.Store.mix].  It is used to run multiple filters at once, combining the resulting statements into a single output stream.  For example, suppose we want to match statements such that either:
+Another method of the [`Store`][kif_lib.Store] API is [`mix()`][kif_lib.Store.mix].  It is used to run multiple filters at once, combining the resulting statements into a single output stream.  For example, suppose we want to match statements such that either:
 
 * the subject is "Brazil" and the value is "Argentina"; or
 * the subject is "France" and the value is "United Kingdom".
 
-Note that in this case we want to match alternative subject-value pairs, which cannot be written as a single filter.  Using [`mix()`][kif_lib.Store.mix] we can write this as two separate filters and get their results combined:
+Note that in this case we want to match alternative subject-value pairs.  This cannot be written as a single filter, but using [`mix()`][kif_lib.Store.mix], we can write two separate filters and whose results are combined into a single output stream:
 
 ```py
 from kif_lib import Filter
@@ -1190,7 +1190,7 @@ for stmt in it:
 
 ## 8 Beyond Wikidata
 
-We begin this section using [DBpedia](https://www.dbpedia.org/) to demonstrate KIF's ability to query knowledge sources other than Wikidata.  We chose DBpedia mainly because, besides being supported by KIF out-of-the-box, like Wikidata, it allows us to write mundane examples, which can be understood by everybody.  Besides Wikidata and DBpedia, KIF comes with builtin support for [FactGrid](https://database.factgrid.de/), [PubChem](https://pubchem.ncbi.nlm.nih.gov/), [UniProt](https://www.uniprot.org/), among other sources.  Most of what is illustrated below using DBpedia can be easily adapted to work with these other sources.
+We begin this section using [DBpedia](https://www.dbpedia.org/) to demonstrate KIF's ability to query knowledge sources other than Wikidata.  We chose DBpedia mainly because, besides being supported by KIF out-of-the-box, like Wikidata, it allows us to write mundane examples which can be understood by everybody.  Besides Wikidata and DBpedia, KIF comes with builtin support for [FactGrid](https://database.factgrid.de/), [PubChem](https://pubchem.ncbi.nlm.nih.gov/), [UniProt](https://www.uniprot.org/), among other sources.  Most of what is illustrated below using DBpedia can be easily adapted to work with these other sources.
 
 !!! note
 
