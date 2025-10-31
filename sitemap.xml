@@ -2,250 +2,250 @@
 <urlset xmlns="http://www.sitemaps.org/schemas/sitemap/0.9">
     <url>
          <loc>https://ibm.github.io/kif/</loc>
-         <lastmod>2025-10-28</lastmod>
+         <lastmod>2025-10-31</lastmod>
     </url>
     <url>
          <loc>https://ibm.github.io/kif/tutorial/</loc>
-         <lastmod>2025-10-28</lastmod>
+         <lastmod>2025-10-31</lastmod>
     </url>
     <url>
          <loc>https://ibm.github.io/kif/api/context/</loc>
-         <lastmod>2025-10-28</lastmod>
+         <lastmod>2025-10-31</lastmod>
     </url>
     <url>
          <loc>https://ibm.github.io/kif/api/engine/</loc>
-         <lastmod>2025-10-28</lastmod>
+         <lastmod>2025-10-31</lastmod>
     </url>
     <url>
          <loc>https://ibm.github.io/kif/api/overview/</loc>
-         <lastmod>2025-10-28</lastmod>
+         <lastmod>2025-10-31</lastmod>
     </url>
     <url>
          <loc>https://ibm.github.io/kif/api/compiler/sparql/builder/</loc>
-         <lastmod>2025-10-28</lastmod>
+         <lastmod>2025-10-31</lastmod>
     </url>
     <url>
          <loc>https://ibm.github.io/kif/api/compiler/sparql/compiler/</loc>
-         <lastmod>2025-10-28</lastmod>
+         <lastmod>2025-10-31</lastmod>
     </url>
     <url>
          <loc>https://ibm.github.io/kif/api/compiler/sparql/mapping/dbpedia/</loc>
-         <lastmod>2025-10-28</lastmod>
+         <lastmod>2025-10-31</lastmod>
     </url>
     <url>
          <loc>https://ibm.github.io/kif/api/compiler/sparql/mapping/europa/</loc>
-         <lastmod>2025-10-28</lastmod>
+         <lastmod>2025-10-31</lastmod>
     </url>
     <url>
          <loc>https://ibm.github.io/kif/api/compiler/sparql/mapping/factgrid/</loc>
-         <lastmod>2025-10-28</lastmod>
+         <lastmod>2025-10-31</lastmod>
     </url>
     <url>
          <loc>https://ibm.github.io/kif/api/compiler/sparql/mapping/mapping/</loc>
-         <lastmod>2025-10-28</lastmod>
+         <lastmod>2025-10-31</lastmod>
     </url>
     <url>
          <loc>https://ibm.github.io/kif/api/compiler/sparql/mapping/pubchem/</loc>
-         <lastmod>2025-10-28</lastmod>
+         <lastmod>2025-10-31</lastmod>
     </url>
     <url>
          <loc>https://ibm.github.io/kif/api/compiler/sparql/mapping/uniprot/</loc>
-         <lastmod>2025-10-28</lastmod>
+         <lastmod>2025-10-31</lastmod>
     </url>
     <url>
          <loc>https://ibm.github.io/kif/api/compiler/sparql/mapping/wikidata/</loc>
-         <lastmod>2025-10-28</lastmod>
+         <lastmod>2025-10-31</lastmod>
     </url>
     <url>
          <loc>https://ibm.github.io/kif/api/model/filter/</loc>
-         <lastmod>2025-10-28</lastmod>
+         <lastmod>2025-10-31</lastmod>
     </url>
     <url>
          <loc>https://ibm.github.io/kif/api/model/kif_object/</loc>
-         <lastmod>2025-10-28</lastmod>
+         <lastmod>2025-10-31</lastmod>
     </url>
     <url>
          <loc>https://ibm.github.io/kif/api/model/collection/graph/</loc>
-         <lastmod>2025-10-28</lastmod>
+         <lastmod>2025-10-31</lastmod>
     </url>
     <url>
          <loc>https://ibm.github.io/kif/api/model/collection/pair/</loc>
-         <lastmod>2025-10-28</lastmod>
+         <lastmod>2025-10-31</lastmod>
     </url>
     <url>
          <loc>https://ibm.github.io/kif/api/model/collection/set/</loc>
-         <lastmod>2025-10-28</lastmod>
+         <lastmod>2025-10-31</lastmod>
     </url>
     <url>
          <loc>https://ibm.github.io/kif/api/model/snak/no_value_snak/</loc>
-         <lastmod>2025-10-28</lastmod>
+         <lastmod>2025-10-31</lastmod>
     </url>
     <url>
          <loc>https://ibm.github.io/kif/api/model/snak/snak/</loc>
-         <lastmod>2025-10-28</lastmod>
+         <lastmod>2025-10-31</lastmod>
     </url>
     <url>
          <loc>https://ibm.github.io/kif/api/model/snak/some_value_snak/</loc>
-         <lastmod>2025-10-28</lastmod>
+         <lastmod>2025-10-31</lastmod>
     </url>
     <url>
          <loc>https://ibm.github.io/kif/api/model/snak/value_snak/</loc>
-         <lastmod>2025-10-28</lastmod>
+         <lastmod>2025-10-31</lastmod>
     </url>
     <url>
          <loc>https://ibm.github.io/kif/api/model/statement/annotated_statement/</loc>
-         <lastmod>2025-10-28</lastmod>
+         <lastmod>2025-10-31</lastmod>
     </url>
     <url>
          <loc>https://ibm.github.io/kif/api/model/statement/statement/</loc>
-         <lastmod>2025-10-28</lastmod>
+         <lastmod>2025-10-31</lastmod>
     </url>
     <url>
          <loc>https://ibm.github.io/kif/api/model/statement_annotations/qualifier_record/</loc>
-         <lastmod>2025-10-28</lastmod>
+         <lastmod>2025-10-31</lastmod>
     </url>
     <url>
          <loc>https://ibm.github.io/kif/api/model/statement_annotations/rank/</loc>
-         <lastmod>2025-10-28</lastmod>
+         <lastmod>2025-10-31</lastmod>
     </url>
     <url>
          <loc>https://ibm.github.io/kif/api/model/statement_annotations/reference_record/</loc>
-         <lastmod>2025-10-28</lastmod>
+         <lastmod>2025-10-31</lastmod>
     </url>
     <url>
          <loc>https://ibm.github.io/kif/api/model/term/closed_term/</loc>
-         <lastmod>2025-10-28</lastmod>
+         <lastmod>2025-10-31</lastmod>
     </url>
     <url>
          <loc>https://ibm.github.io/kif/api/model/term/term/</loc>
-         <lastmod>2025-10-28</lastmod>
+         <lastmod>2025-10-31</lastmod>
     </url>
     <url>
          <loc>https://ibm.github.io/kif/api/model/term/open_term/open_term/</loc>
-         <lastmod>2025-10-28</lastmod>
+         <lastmod>2025-10-31</lastmod>
     </url>
     <url>
          <loc>https://ibm.github.io/kif/api/model/term/open_term/template/</loc>
-         <lastmod>2025-10-28</lastmod>
+         <lastmod>2025-10-31</lastmod>
     </url>
     <url>
          <loc>https://ibm.github.io/kif/api/model/term/open_term/variable/</loc>
-         <lastmod>2025-10-28</lastmod>
+         <lastmod>2025-10-31</lastmod>
     </url>
     <url>
          <loc>https://ibm.github.io/kif/api/model/value/value/</loc>
-         <lastmod>2025-10-28</lastmod>
+         <lastmod>2025-10-31</lastmod>
     </url>
     <url>
          <loc>https://ibm.github.io/kif/api/model/value/data_value/data_value/</loc>
-         <lastmod>2025-10-28</lastmod>
+         <lastmod>2025-10-31</lastmod>
     </url>
     <url>
          <loc>https://ibm.github.io/kif/api/model/value/data_value/external_id/</loc>
-         <lastmod>2025-10-28</lastmod>
+         <lastmod>2025-10-31</lastmod>
     </url>
     <url>
          <loc>https://ibm.github.io/kif/api/model/value/data_value/iri/</loc>
-         <lastmod>2025-10-28</lastmod>
+         <lastmod>2025-10-31</lastmod>
     </url>
     <url>
          <loc>https://ibm.github.io/kif/api/model/value/data_value/quantity/</loc>
-         <lastmod>2025-10-28</lastmod>
+         <lastmod>2025-10-31</lastmod>
     </url>
     <url>
          <loc>https://ibm.github.io/kif/api/model/value/data_value/string/</loc>
-         <lastmod>2025-10-28</lastmod>
+         <lastmod>2025-10-31</lastmod>
     </url>
     <url>
          <loc>https://ibm.github.io/kif/api/model/value/data_value/text/</loc>
-         <lastmod>2025-10-28</lastmod>
+         <lastmod>2025-10-31</lastmod>
     </url>
     <url>
          <loc>https://ibm.github.io/kif/api/model/value/data_value/time/</loc>
-         <lastmod>2025-10-28</lastmod>
+         <lastmod>2025-10-31</lastmod>
     </url>
     <url>
          <loc>https://ibm.github.io/kif/api/model/value/entity/entity/</loc>
-         <lastmod>2025-10-28</lastmod>
+         <lastmod>2025-10-31</lastmod>
     </url>
     <url>
          <loc>https://ibm.github.io/kif/api/model/value/entity/item/</loc>
-         <lastmod>2025-10-28</lastmod>
+         <lastmod>2025-10-31</lastmod>
     </url>
     <url>
          <loc>https://ibm.github.io/kif/api/model/value/entity/lexeme/</loc>
-         <lastmod>2025-10-28</lastmod>
+         <lastmod>2025-10-31</lastmod>
     </url>
     <url>
          <loc>https://ibm.github.io/kif/api/model/value/entity/property/</loc>
-         <lastmod>2025-10-28</lastmod>
+         <lastmod>2025-10-31</lastmod>
     </url>
     <url>
          <loc>https://ibm.github.io/kif/api/model/value/entity/pseudo_property/</loc>
-         <lastmod>2025-10-28</lastmod>
+         <lastmod>2025-10-31</lastmod>
     </url>
     <url>
          <loc>https://ibm.github.io/kif/api/search/abc/</loc>
-         <lastmod>2025-10-28</lastmod>
+         <lastmod>2025-10-31</lastmod>
     </url>
     <url>
          <loc>https://ibm.github.io/kif/api/store/abc/</loc>
-         <lastmod>2025-10-28</lastmod>
+         <lastmod>2025-10-31</lastmod>
     </url>
     <url>
          <loc>https://ibm.github.io/kif/api/store/mixer/</loc>
-         <lastmod>2025-10-28</lastmod>
+         <lastmod>2025-10-31</lastmod>
     </url>
     <url>
          <loc>https://ibm.github.io/kif/api/store/sparql/</loc>
-         <lastmod>2025-10-28</lastmod>
+         <lastmod>2025-10-31</lastmod>
     </url>
     <url>
          <loc>https://ibm.github.io/kif/api/vocabulary/db/</loc>
-         <lastmod>2025-10-28</lastmod>
+         <lastmod>2025-10-31</lastmod>
     </url>
     <url>
          <loc>https://ibm.github.io/kif/api/vocabulary/eu/</loc>
-         <lastmod>2025-10-28</lastmod>
+         <lastmod>2025-10-31</lastmod>
     </url>
     <url>
          <loc>https://ibm.github.io/kif/api/vocabulary/fg/</loc>
-         <lastmod>2025-10-28</lastmod>
+         <lastmod>2025-10-31</lastmod>
     </url>
     <url>
          <loc>https://ibm.github.io/kif/api/vocabulary/pc/</loc>
-         <lastmod>2025-10-28</lastmod>
+         <lastmod>2025-10-31</lastmod>
     </url>
     <url>
          <loc>https://ibm.github.io/kif/api/vocabulary/up/</loc>
-         <lastmod>2025-10-28</lastmod>
+         <lastmod>2025-10-31</lastmod>
     </url>
     <url>
          <loc>https://ibm.github.io/kif/api/vocabulary/wd/</loc>
-         <lastmod>2025-10-28</lastmod>
+         <lastmod>2025-10-31</lastmod>
     </url>
     <url>
          <loc>https://ibm.github.io/kif/guides/async/</loc>
-         <lastmod>2025-10-28</lastmod>
+         <lastmod>2025-10-31</lastmod>
     </url>
     <url>
          <loc>https://ibm.github.io/kif/guides/cli/</loc>
-         <lastmod>2025-10-28</lastmod>
+         <lastmod>2025-10-31</lastmod>
     </url>
     <url>
          <loc>https://ibm.github.io/kif/guides/context/</loc>
-         <lastmod>2025-10-28</lastmod>
+         <lastmod>2025-10-31</lastmod>
     </url>
     <url>
          <loc>https://ibm.github.io/kif/guides/data_model/</loc>
-         <lastmod>2025-10-28</lastmod>
+         <lastmod>2025-10-31</lastmod>
     </url>
     <url>
          <loc>https://ibm.github.io/kif/guides/overview/</loc>
-         <lastmod>2025-10-28</lastmod>
+         <lastmod>2025-10-31</lastmod>
     </url>
     <url>
          <loc>https://ibm.github.io/kif/guides/rdf/</loc>
-         <lastmod>2025-10-28</lastmod>
+         <lastmod>2025-10-31</lastmod>
     </url>
 </urlset>
