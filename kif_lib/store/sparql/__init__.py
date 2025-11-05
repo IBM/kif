@@ -24,6 +24,7 @@ from .sparql import (
     UniProtSPARQL_Store,
     WDQS_Store,
     WikidataSPARQL_Store,
+    YagoSPARQL_Store,
 )
 
 __all__ = (
@@ -45,4 +46,5 @@ __all__ = (
     'WDQS_Store',
     'WikidataRDF_Store',
     'WikidataSPARQL_Store',
+    'YagoSPARQL_Store',
 )

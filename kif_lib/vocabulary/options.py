@@ -252,6 +252,19 @@ class WikidataOptions(_VocabularyOptions, name='wd'):
 
 
 @dataclasses.dataclass
+class YagoOptions(_VocabularyOptions, name='yago'):
+    """Yago vocabulary options."""
+
+    DEFAULT_RESOLVER = 'https://yago-knowledge.org/sparql/query'
+
+    _v_resolver =\
+        (('KIF_VOCABULARY_YAGO_RESOLVER', 'YAGO'), DEFAULT_RESOLVER)
+
+    def __init__(self, **kwargs: Any) -> None:
+        super().__init__(**kwargs)
+
+
+@dataclasses.dataclass
 class VocabularyOptions(Section, name='vocabulary'):
     """Vocabulary options."""
 
@@ -261,3 +274,4 @@ class VocabularyOptions(Section, name='vocabulary'):
     pc: PubChemOptions = dataclasses.field(default_factory=PubChemOptions)
     up: UniProtOptions = dataclasses.field(default_factory=UniProtOptions)
     wd: WikidataOptions = dataclasses.field(default_factory=WikidataOptions)
+    yago: YagoOptions = dataclasses.field(default_factory=YagoOptions)

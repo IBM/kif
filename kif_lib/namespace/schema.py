@@ -12,3 +12,4 @@ class SCHEMA(DefinedNamespace):
     _NS = Namespace('http://schema.org/')
 
     description: URIRef
+    memberOf: URIRef

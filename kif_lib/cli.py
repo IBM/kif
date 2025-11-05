@@ -77,7 +77,7 @@ from .typing import (
     TypeVar,
     Union,
 )
-from .vocabulary import db, eu, fg, pc, up, wd
+from .vocabulary import db, eu, fg, pc, up, wd, yago
 
 try:
     import click
@@ -348,6 +348,7 @@ class KIF_ParamType(click.ParamType):
             'VALUE_SNAK': Filter.VALUE_SNAK,
             'ValueSnak': ValueSnak,
             'wd': wd,
+            'yago': yago,
             **_G
         }
 

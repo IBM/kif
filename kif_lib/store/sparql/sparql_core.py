@@ -492,6 +492,15 @@ class _CoreSPARQL_Store(
         from ...compiler.sparql.mapping.wikidata import WikidataMapping
         return WikidataMapping(*args, **kwargs)
 
+    @classmethod
+    def _yago_mapping_constructor(
+            cls,
+            *args: Any,
+            **kwargs: Any
+    ) -> SPARQL_Mapping:
+        from ...compiler.sparql.mapping.yago import YagoMapping
+        return YagoMapping(*args, **kwargs)
+
     #: SPARQL mapping.
     _mapping: SPARQL_Mapping | None
 

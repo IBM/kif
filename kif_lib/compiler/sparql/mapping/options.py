@@ -12,6 +12,7 @@ from .factgrid_options import FactGridMappingOptions
 from .pubchem_options import PubChemMappingOptions
 from .uniprot_options import UniProtMappingOptions
 from .wikidata_options import WikidataMappingOptions
+from .yago_options import YagoMappingOptions
 
 
 @dataclasses.dataclass
@@ -35,3 +36,6 @@ class MappingOptions(Section, name='mapping'):
 
     wikidata: WikidataMappingOptions = dataclasses.field(
         default_factory=WikidataMappingOptions)
+
+    yago: YagoMappingOptions = dataclasses.field(
+        default_factory=YagoMappingOptions)
