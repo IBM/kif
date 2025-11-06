@@ -114,7 +114,7 @@ class FactGridOptions(_VocabularyOptions, name='fg'):
 class PubChemOptions(_VocabularyOptions, name='pc'):
     """PubChem vocabulary options."""
 
-    DEFAULT_RESOLVER = 'https://qlever.cs.uni-freiburg.de/api/pubchem'
+    DEFAULT_RESOLVER = 'https://qlever.dev/api/pubchem'
 
     _v_resolver =\
         (('KIF_VOCABULARY_PC_RESOLVER', 'PUBCHEM'), DEFAULT_RESOLVER)
