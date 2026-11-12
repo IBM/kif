@@ -427,6 +427,25 @@ B(
         self.assertEqual(A(), A.from_repr('  A()  #'))
         self.assertEqual(A(B()), A.from_repr('A(\n  B(\n)\n)'))
         self.assertEqual(A(B(), C(1, A(2))), A.from_repr('A(B(),C(1,A(2)))'))
+        self.assertEqual(
+            A(-1, [2.0], (B(),)), A.from_repr('A(-1,[2.0],(B(),))'))
+
+    def test_from_repr_rejects_non_literals(self) -> None:
+        for bad in [
+                "().__class__.__base__.__subclasses__()",
+                "A().__class__",
+                "A.__init__.__globals__",
+                "__import__('os').system('true')",
+                "A(*[1])",
+                "A(**{})",
+                "A(1 + 1)",
+                "A(lambda: 0)",
+                "A([x for x in [1]])",
+                "Unknown()",
+                "A()()",
+        ]:
+            with self.subTest(input=bad):
+                self.assertRaises(Decoder.Error, A.from_repr, bad)
 
     def test_from_sexp(self) -> None:
         self.assertRaisesRegex(

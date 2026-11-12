@@ -228,7 +228,11 @@ class KIF_ReprDecoder(
     @classmethod
     @functools.cache
     def _globals(cls) -> dict[str, Any]:
-        return {'Decimal': decimal.Decimal, 'datetime': datetime,
+        return {'Decimal': decimal.Decimal,
+                'datetime.datetime': datetime.datetime,
+                'datetime.timedelta': datetime.timedelta,
+                'datetime.timezone': datetime.timezone,
+                'datetime.timezone.utc': datetime.timezone.utc,
                 **super()._globals()}
 
 

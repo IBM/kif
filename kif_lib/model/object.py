@@ -10,6 +10,7 @@
 from __future__ import annotations
 
 import abc
+import ast
 import copy
 import functools
 import itertools
@@ -1243,17 +1244,79 @@ class Decoder(Codec):
 
 
 class ReprDecoder(Decoder, format='repr', description='Repr. decoder'):
-    """Repr. decoder."""
+    """Repr. decoder.
+
+    Input is never passed to :func:`eval`.  It is parsed into a Python AST
+    and only literals, containers, unary sign operators, and calls to (or
+    references of) the names in :meth:`_globals` are evaluated.  Any other
+    construct, in particular attribute access outside the dotted names in
+    :meth:`_globals`, is rejected with :class:`Decoder.Error`.
+    """
 
     @classmethod
     @functools.cache
     def _globals(cls) -> dict[str, Any]:
-        return {**ObjectMeta._object_subclasses, '__builtins__': {
-            'set': set}}
+        """Returns the names (possibly dotted) visible to the decoder."""
+        return {**ObjectMeta._object_subclasses, 'set': set}
 
     @override
     def decode(self, input: str) -> Any:
-        return eval(input, self._globals(), {})
+        return self._eval(ast.parse(input.strip(), mode='eval').body)
+
+    def _eval(self, node: ast.AST) -> Any:
+        if isinstance(node, ast.Constant):
+            return node.value
+        elif isinstance(node, ast.UnaryOp) and isinstance(
+                node.op, (ast.UAdd, ast.USub)):
+            v = self._eval(node.operand)
+            if not isinstance(v, (int, float, complex)) or isinstance(
+                    v, bool):
+                raise self._error('bad operand to unary operator')
+            return +v if isinstance(node.op, ast.UAdd) else -v
+        elif isinstance(node, ast.List):
+            return [self._eval(x) for x in self._check_elts(node.elts)]
+        elif isinstance(node, ast.Tuple):
+            return tuple(self._eval(x) for x in self._check_elts(node.elts))
+        elif isinstance(node, ast.Set):
+            return {self._eval(x) for x in self._check_elts(node.elts)}
+        elif isinstance(node, ast.Dict):
+            if any(k is None for k in node.keys):
+                raise self._error('dict unpacking is not allowed')
+            return {self._eval(cast(ast.AST, k)): self._eval(v)
+                    for k, v in zip(node.keys, node.values)}
+        elif isinstance(node, (ast.Name, ast.Attribute)):
+            return self._lookup(node)
+        elif isinstance(node, ast.Call):
+            if not isinstance(node.func, (ast.Name, ast.Attribute)):
+                raise self._error('bad function in call')
+            if any(kw.arg is None for kw in node.keywords):
+                raise self._error('keyword unpacking is not allowed')
+            return self._lookup(node.func)(
+                *(self._eval(x) for x in self._check_elts(node.args)),
+                **{cast(str, kw.arg): self._eval(kw.value)
+                   for kw in node.keywords})
+        else:
+            raise self._error(
+                f"unsupported expression '{type(node).__name__}'")
+
+    def _check_elts(self, elts: list[ast.expr]) -> list[ast.expr]:
+        if any(isinstance(x, ast.Starred) for x in elts):
+            raise self._error('starred expressions are not allowed')
+        return elts
+
+    def _lookup(self, node: ast.AST) -> Any:
+        parts: list[str] = []
+        while isinstance(node, ast.Attribute):
+            parts.append(node.attr)
+            node = node.value
+        if not isinstance(node, ast.Name):
+            raise self._error('bad name')
+        parts.append(node.id)
+        name = '.'.join(reversed(parts))
+        globals = self._globals()
+        if name not in globals:
+            raise self._error(f"unknown name '{name}'")
+        return globals[name]
 
 
 class SExpDecoder(
